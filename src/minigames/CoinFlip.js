@@ -21,8 +21,7 @@ class CoinFlip {
     this.cpuScore = 0;
     this.flipping = false;
     this.difficulty = difficulty || 1;
-    this.maxRounds = isDuel ? 5 : 3;
-    this.multiplier = this.difficulty;
+    this.maxRounds = (isDuel ? 5 : 3) + Math.floor(this.difficulty / 2);
   }
 
   update(dt) {}
@@ -59,7 +58,7 @@ class CoinFlip {
       this.round++;
 
       if (this.playerChoice === this.flipResult) {
-        this.playerScore += this.multiplier;
+        this.playerScore++;
         audioManager.playTone(600, 0.1, 'square', 0.08);
       } else {
         this.cpuScore++;

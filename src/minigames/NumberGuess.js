@@ -13,8 +13,8 @@ class NumberGuess {
     this.done = false;
     this.winner = null;
     this.difficulty = difficulty || 1;
-    // Higher difficulty = larger range
-    this.maxNum = 10 + this.difficulty * 15;
+    // Higher difficulty = larger range, but keep it solvable with perfect play
+    this.maxNum = 10 + this.difficulty * 10;
     this.target = Math.floor(Math.random() * this.maxNum) + 1;
     this.guesses = [];
     this.maxGuesses = isDuel ? 7 : 5;
