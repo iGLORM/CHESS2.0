@@ -59,10 +59,9 @@ class BoardRenderer {
     ctx.save();
     ctx.translate(this.shakeOffset.x, this.shakeOffset.y);
 
-    // Background
-    const bgTex = TextureManager.getBackgroundTexture(theme.id);
-    if (bgTex) {
-      ctx.drawImage(bgTex, 0, 0, 1280, 800);
+    // Background - animated theme background
+    if (typeof backgroundRenderer !== 'undefined') {
+      backgroundRenderer.render(ctx, dt);
     } else {
       ctx.fillStyle = cols.background;
       ctx.fillRect(0, 0, 1280, 800);

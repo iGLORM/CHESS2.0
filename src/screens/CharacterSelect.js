@@ -19,8 +19,14 @@ const CharacterSelect = {
     const theme = ThemeManager.getTheme(store.get('theme'));
     const cols = theme.colors;
 
-    ctx.fillStyle = cols.background;
-    ctx.fillRect(0, 0, 1280, 800);
+    // Background - animated theme
+    if (typeof backgroundRenderer !== 'undefined') {
+      backgroundRenderer.render(ctx, dt);
+    } else {
+      ctx.fillStyle = cols.background;
+      
+    }
+    
 
     // Title
     ctx.fillStyle = cols.text;

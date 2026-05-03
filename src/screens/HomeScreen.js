@@ -38,8 +38,14 @@ const HomeScreen = {
     this.titlePulse += dt * 2;
 
     // Background
-    ctx.fillStyle = cols.background;
-    ctx.fillRect(0, 0, 1280, 800);
+    // Background - animated theme
+    if (typeof backgroundRenderer !== 'undefined') {
+      backgroundRenderer.render(ctx, dt);
+    } else {
+      ctx.fillStyle = cols.background;
+      
+    }
+    
 
     // Animated stars/particles
     for (const star of this.stars) {
