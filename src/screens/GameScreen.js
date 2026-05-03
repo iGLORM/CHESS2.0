@@ -191,10 +191,10 @@ const GameScreen = {
     if (this.mode === 'story' && color === 'black' && this.currentCharacter) {
       ctx.fillStyle = cols.text + '88';
       ctx.font = '10px monospace';
-      ctx.fillText('Level ' + this.currentCharacter.level, x + 10, y + 550);
+      ctx.fillText('Level ' + this.currentCharacter.level, x + 10, y + 520);
       ctx.fillStyle = this.currentCharacter.colors.primary;
       ctx.font = 'bold 11px monospace';
-      ctx.fillText(this.currentCharacter.name, x + 10, y + 570);
+      ctx.fillText(this.currentCharacter.name, x + 10, y + 540);
     }
   },
 

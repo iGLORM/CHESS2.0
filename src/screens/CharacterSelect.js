@@ -173,11 +173,11 @@ const CharacterSelect = {
     // Dialogue popup
     if (this.showDialogue && this.selectedChar) {
       ctx.fillStyle = 'rgba(0,0,0,0.7)';
-      ctx.fillRect(200, 250, 880, 300);
+      ctx.fillRect(200, 250, 880, 340);
 
       ctx.strokeStyle = this.selectedChar.colors.primary;
       ctx.lineWidth = 3;
-      ctx.strokeRect(200, 250, 880, 300);
+      ctx.strokeRect(200, 250, 880, 340);
 
       const sprite = CharacterManager.getCharacterSprite(this.selectedChar, 64);
       ctx.drawImage(sprite, 260, 290, 64, 64);
@@ -192,24 +192,24 @@ const CharacterSelect = {
 
       ctx.fillStyle = cols.text;
       ctx.font = '14px monospace';
-      this.wrapText(ctx, this.selectedChar.dialogue.before, 260, 380, 780, 22);
+      this.wrapText(ctx, this.selectedChar.dialogue.before, 260, 370, 780, 22);
 
       // Fight button
       ctx.fillStyle = this.selectedChar.colors.primary;
-      ctx.fillRect(540, 470, 200, 50);
+      ctx.fillRect(540, 490, 200, 50);
       ctx.fillStyle = '#fff';
       ctx.font = 'bold 18px monospace';
       ctx.textAlign = 'center';
-      ctx.fillText('FIGHT!', 640, 502);
+      ctx.fillText('FIGHT!', 640, 522);
 
       // Cancel button
       ctx.fillStyle = cols.buttonBg;
       ctx.strokeStyle = cols.text + '66';
       ctx.lineWidth = 1;
-      ctx.strokeRect(540, 530, 200, 40);
+      ctx.strokeRect(540, 550, 200, 40);
       ctx.fillStyle = cols.text;
       ctx.font = '14px monospace';
-      ctx.fillText('Cancel', 640, 556);
+      ctx.fillText('Cancel', 640, 576);
     }
   },
 
@@ -220,7 +220,7 @@ const CharacterSelect = {
     for (const word of words) {
       const test = line + word + ' ';
       const m = ctx.measureText(test);
-      if (m.width > maxWidth) {
+      if (m.width > maxWidth && line !== '') {
         ctx.fillText(line, x, ly);
         line = word + ' ';
         ly += lineHeight;
@@ -246,7 +246,7 @@ const CharacterSelect = {
     // Dialogue buttons
     if (this.showDialogue && this.selectedChar) {
       // Fight button
-      if (x >= 540 && x <= 740 && y >= 470 && y <= 520) {
+      if (x >= 540 && x <= 740 && y >= 490 && y <= 540) {
         store.set('selectedCharacter', this.selectedChar);
         store.set('storyLevel', this.selectedChar.level);
         store.set('mode', 'story');
@@ -254,7 +254,7 @@ const CharacterSelect = {
         return;
       }
       // Cancel
-      if (x >= 540 && x <= 740 && y >= 530 && y <= 570) {
+      if (x >= 540 && x <= 740 && y >= 550 && y <= 590) {
         this.showDialogue = false;
         this.selectedChar = null;
         return;
