@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chess 2.0</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #0a0a1a;
+      font-family: monospace;
+      cursor: default;
+      image-rendering: pixelated;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    #gameCanvas {
+      display: block;
+      width: 1280px;
+      height: 800px;
+      image-rendering: pixelated;
+    }
+    #miniGameOverlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 1280px;
+      height: 800px;
+      z-index: 100;
+      image-rendering: pixelated;
+    }
+    #miniGameOverlay.active {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="gameCanvas" width="1280" height="800"></canvas>
+  <canvas id="miniGameOverlay" width="1280" height="800"></canvas>
+
+  <script src="state/Store.js"></script>
+  <script src="engine/Board.js"></script>
+  <script src="engine/MoveGen.js"></script>
+  <script src="engine/LegalFilter.js"></script>
+  <script src="engine/MoveExecutor.js"></script>
+  <script src="engine/GameRules.js"></script>
+  <script src="engine/ai/Evaluate.js"></script>
+  <script src="engine/ai/Search.js"></script>
+  <script src="engine/ai/AIController.js"></script>
+  <script src="rendering/SpriteGen.js"></script>
+  <script src="rendering/PieceRenderer.js"></script>
+  <script src="rendering/BoardRenderer.js"></script>
+  <script src="rendering/Animator.js"></script>
+  <script src="rendering/ParticleFX.js"></script>
+  <script src="themes/themes.js"></script>
+  <script src="themes/ThemeManager.js"></script>
+  <script src="characters/characters.js"></script>
+  <script src="characters/CharacterManager.js"></script>
+  <script src="input/Keybindings.js"></script>
+  <script src="input/InputManager.js"></script>
+  <script src="audio/AudioManager.js"></script>
+  <script src="minigames/QuickClick.js"></script>
+  <script src="minigames/MemoryMatch.js"></script>
+  <script src="minigames/TimingStrike.js"></script>
+  <script src="minigames/PatternPress.js"></script>
+  <script src="minigames/ReactionTest.js"></script>
+  <script src="minigames/UndertaleDodge.js"></script>
+  <script src="minigames/PowerMeter.js"></script>
+  <script src="minigames/BarBalance.js"></script>
+  <script src="minigames/TargetPractice.js"></script>
+  <script src="minigames/DodgeFalling.js"></script>
+  <script src="minigames/RhythmTap.js"></script>
+  <script src="minigames/NumberGuess.js"></script>
+  <script src="minigames/CoinFlip.js"></script>
+  <script src="minigames/MiniGameManager.js"></script>
+  <script src="screens/HomeScreen.js"></script>
+  <script src="screens/ModeSelect.js"></script>
+  <script src="screens/ThemeSelect.js"></script>
+  <script src="screens/CharacterSelect.js"></script>
+  <script src="screens/GameScreen.js"></script>
+  <script src="screens/SettingsScreen.js"></script>
+  <script src="screens/PauseMenu.js"></script>
+  <script src="main.js"></script>
+</body>
+</html>
