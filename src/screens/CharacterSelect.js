@@ -115,6 +115,7 @@ const CharacterSelect = {
         const words = ch.dialogue.before;
         ctx.fillText('"', x + cardW / 2, y + 185);
         // Word wrap dialogue
+        ctx.textAlign = 'left';
         this.wrapText(ctx, words, x + 10, y + 200, cardW - 20, 14);
       }
 

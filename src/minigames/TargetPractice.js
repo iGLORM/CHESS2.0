@@ -67,8 +67,9 @@ class TargetPractice {
     const h = 460;
     const gx = (1280 - w) / 2;
     const gy = (800 - h) / 2;
-    const lx = x - (gx + 20);
-    const ly = y - (gy + 95);
+    // Adjust for render offset: targets drawn at x + 20 + t.x, y + 75 + t.y
+    const lx = x - (gx + 20) - 20;
+    const ly = y - (gy + 95) - 75;
 
     for (let i = this.targets.length - 1; i >= 0; i--) {
       const t = this.targets[i];

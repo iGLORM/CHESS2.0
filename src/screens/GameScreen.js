@@ -110,6 +110,7 @@ const GameScreen = {
       if (this.gameResult && this.currentCharacter) {
         ctx.fillStyle = cols.text + 'aa';
         ctx.font = '16px monospace';
+        ctx.textAlign = 'left';
         const dlg = this.gameResult === 'white'
           ? this.currentCharacter.dialogue.after
           : this.currentCharacter.dialogue.win;
