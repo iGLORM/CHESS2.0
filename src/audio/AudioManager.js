@@ -18,9 +18,7 @@ class AudioManager {
       this.masterGain.gain.value = 0.4;
       this.masterGain.connect(this.ctx.destination);
 
-      this.musicGain = this.ctx.createGain();
-      this.musicGain.gain.value = 0.12;
-      this.musicGain.connect(this.masterGain);
+      this._createMusicGain();
 
       this.initialized = true;
     } catch (e) {}
@@ -30,7 +28,16 @@ class AudioManager {
     this.setMasterVolume(settings.sfxVolume || 0.5);
   }
 
-  _playNote(freq, duration, type, volume, when) {
+  _createMusicGain() {
+    if (this.musicGain) {
+      try { this.musicGain.disconnect(); } catch (e) {}
+    }
+    this.musicGain = this.ctx.createGain();
+    this.musicGain.gain.value = 0.12;
+    this.musicGain.connect(this.masterGain);
+  }
+
+  _playNote(freq, duration, type, volume, when, isMusic) {
     if (!this.enabled || !this.ctx) return;
     const t = when || this.ctx.currentTime;
     const osc = this.ctx.createOscillator();
@@ -40,7 +47,7 @@ class AudioManager {
     gain.gain.setValueAtTime(volume || 0.08, t);
     gain.gain.exponentialRampToValueAtTime(0.0001, t + duration);
     osc.connect(gain);
-    gain.connect(this.masterGain);
+    gain.connect(isMusic ? this.musicGain : this.masterGain);
     osc.start(t);
     osc.stop(t + duration);
   }
@@ -51,7 +58,7 @@ class AudioManager {
 
   _playChord(freqs, duration, volume, when) {
     if (!this.enabled || !this.ctx) return;
-    freqs.forEach(f => this._playNote(f, duration, 'triangle', volume, when));
+    freqs.forEach(f => this._playNote(f, duration, 'triangle', volume, when, true));
   }
 
   // --- Pentatonic melody composition ---
@@ -61,6 +68,7 @@ class AudioManager {
 
   startMusic() {
     if (!this.enabled || !this.ctx || this.musicPlaying) return;
+    this._createMusicGain();
     this.musicPlaying = true;
     this.nextLoopTime = this.ctx.currentTime + 0.1;
     this._scheduleLoop();
@@ -72,11 +80,24 @@ class AudioManager {
       clearTimeout(this.currentLoop);
       this.currentLoop = null;
     }
+    // Disconnect old music gain to silence all scheduled music notes
+    if (this.musicGain) {
+      this.musicGain.gain.setValueAtTime(0, this.ctx.currentTime);
+      try { this.musicGain.disconnect(); } catch (e) {}
+    }
+  }
+
+  _getMusicThemeId() {
+    const themeId = store.get('theme');
+    if (themeId === 'custom') {
+      return store.get('customMusicTheme') || 'space';
+    }
+    return themeId;
   }
 
   _scheduleLoop() {
     if (!this.musicPlaying) return;
-    const themeId = store.get('theme');
+    const themeId = this._getMusicThemeId();
     const bpm = this._getThemeBPM(themeId);
     const beat = 60 / bpm;
     const now = this.ctx.currentTime;
@@ -108,7 +129,7 @@ class AudioManager {
 
   _playBar(startTime, beat) {
     if (!this.musicPlaying) return;
-    const themeId = store.get('theme');
+    const themeId = this._getMusicThemeId();
     switch (themeId) {
       case 'space': this._playSpaceBar(startTime, beat); break;
       case 'medieval': this._playMedievalBar(startTime, beat); break;
@@ -141,14 +162,14 @@ class AudioManager {
     for (let i = 0; i < 6; i++) {
       const f = twinkle[Math.floor(Math.random() * twinkle.length)];
       const t = startTime + i * b * 0.6 + Math.random() * 0.2;
-      this._playNote(f, b * 0.8, 'sine', 0.03, t);
+      this._playNote(f, b * 0.8, 'sine', 0.03, t, true);
     }
   }
 
   _playMedievalBar(startTime, beat) {
     // Dorian mode (minor with raised 6th) - medieval feel
     const bass = [146.83, 164.81, 174.61, 196.00, 220.00, 196.00, 174.61, 164.81];
-    bass.forEach((f, i) => this._playNote(f, beat * 0.7, 'square', 0.035, startTime + i * beat * 0.5));
+    bass.forEach((f, i) => this._playNote(f, beat * 0.7, 'square', 0.035, startTime + i * beat * 0.5, true));
     // Lute-like melody
     const melody = [
       { f: 587.33, d: 0.5 }, { f: 523.25, d: 0.5 }, { f: 587.33, d: 1.0 },
@@ -157,46 +178,46 @@ class AudioManager {
     ];
     let t = startTime;
     melody.forEach(({ f, d }) => {
-      this._playNote(f, d * beat * 0.9, 'triangle', 0.05, t);
+      this._playNote(f, d * beat * 0.9, 'triangle', 0.05, t, true);
       t += d * beat;
     });
     // Drone
-    this._playNote(146.83, beat * 4, 'sine', 0.03, startTime);
+    this._playNote(146.83, beat * 4, 'sine', 0.03, startTime, true);
   }
 
   _playOceanBar(startTime, beat) {
     // Flowing 6/8 feel, wave-like arpeggios
     const arp = [261.63, 329.63, 392.00, 523.25, 392.00, 329.63];
-    arp.forEach((f, i) => this._playNote(f, beat * 0.6, 'sine', 0.04, startTime + i * beat * 0.66));
+    arp.forEach((f, i) => this._playNote(f, beat * 0.6, 'sine', 0.04, startTime + i * beat * 0.66, true));
     // Deep swell
-    this._playNote(130.81, beat * 3, 'sine', 0.04, startTime);
-    this._playNote(164.81, beat * 3, 'sine', 0.03, startTime + beat);
+    this._playNote(130.81, beat * 3, 'sine', 0.04, startTime, true);
+    this._playNote(164.81, beat * 3, 'sine', 0.03, startTime + beat, true);
     // Sparkle
     const sparkle = [523.25, 587.33, 659.25, 783.99];
-    sparkle.forEach((f, i) => this._playNote(f, beat * 0.4, 'triangle', 0.025, startTime + i * beat * 0.5 + beat * 2));
+    sparkle.forEach((f, i) => this._playNote(f, beat * 0.4, 'triangle', 0.025, startTime + i * beat * 0.5 + beat * 2, true));
   }
 
   _playEgyptBar(startTime, beat) {
     // Phrygian dominant - mysterious desert scale
     const scale = [261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 493.88, 523.25];
     // Bass drone on root
-    this._playNote(130.81, beat * 4, 'sine', 0.04, startTime);
+    this._playNote(130.81, beat * 4, 'sine', 0.04, startTime, true);
     // Plucked melody
     const melody = [329.63, 392.00, 440.00, 523.25, 440.00, 392.00, 349.23, 329.63];
-    melody.forEach((f, i) => this._playNote(f, beat * 0.5, 'triangle', 0.04, startTime + i * beat * 0.5));
+    melody.forEach((f, i) => this._playNote(f, beat * 0.5, 'triangle', 0.04, startTime + i * beat * 0.5, true));
     // Percussive clicks
     for (let i = 0; i < 8; i++) {
-      if (i % 2 === 0) this._playNote(800, 0.03, 'square', 0.02, startTime + i * beat * 0.5);
+      if (i % 2 === 0) this._playNote(800, 0.03, 'square', 0.02, startTime + i * beat * 0.5, true);
     }
   }
 
   _playCyberpunkBar(startTime, beat) {
     // Driving bass + synthwave arpeggios
     const bass = [65.41, 65.41, 73.42, 65.41, 87.31, 65.41, 73.42, 65.41];
-    bass.forEach((f, i) => this._playNote(f, beat * 0.45, 'sawtooth', 0.05, startTime + i * beat * 0.5));
+    bass.forEach((f, i) => this._playNote(f, beat * 0.45, 'sawtooth', 0.05, startTime + i * beat * 0.5, true));
     // Arp
     const arp = [523.25, 587.33, 659.25, 783.99, 659.25, 587.33, 523.25, 493.88];
-    arp.forEach((f, i) => this._playNote(f, beat * 0.35, 'square', 0.035, startTime + i * beat * 0.5 + beat * 0.25));
+    arp.forEach((f, i) => this._playNote(f, beat * 0.35, 'square', 0.035, startTime + i * beat * 0.5 + beat * 0.25, true));
     // Pad chord
     const chord = [261.63, 329.63, 392.00];
     this._playChord(chord, beat * 2, 0.025, startTime);
@@ -212,20 +233,20 @@ class AudioManager {
     ];
     let t = startTime;
     melody.forEach(({ f, d }) => {
-      this._playNote(f, d * beat * 0.85, 'triangle', 0.05, t);
+      this._playNote(f, d * beat * 0.85, 'triangle', 0.05, t, true);
       t += d * beat;
     });
     // Low drone
-    this._playNote(110.00, beat * 4, 'sine', 0.03, startTime);
+    this._playNote(110.00, beat * 4, 'sine', 0.03, startTime, true);
     // Bell-like accents
     const bells = [880.00, 1046.50, 783.99];
-    bells.forEach((f, i) => this._playNote(f, beat * 0.6, 'sine', 0.025, startTime + i * beat * 1.5 + beat));
+    bells.forEach((f, i) => this._playNote(f, beat * 0.6, 'sine', 0.025, startTime + i * beat * 1.5 + beat, true));
   }
 
   _playArtDecoBar(startTime, beat) {
     // Jazz / swing feel - brassy chords + walking bass
     const bass = [130.81, 146.83, 164.81, 174.61, 196.00, 174.61, 164.81, 146.83];
-    bass.forEach((f, i) => this._playNote(f, beat * 0.55, 'square', 0.03, startTime + i * beat * 0.5));
+    bass.forEach((f, i) => this._playNote(f, beat * 0.55, 'square', 0.03, startTime + i * beat * 0.5, true));
     // Brass stabs
     const chords = [
       [261.63, 329.63, 392.00], [293.66, 349.23, 440.00],
@@ -234,13 +255,13 @@ class AudioManager {
     chords.forEach((c, i) => this._playChord(c, beat, 0.025, startTime + i * beat));
     // High trumpet accents
     const accents = [659.25, 783.99, 880.00, 1046.50];
-    accents.forEach((f, i) => this._playNote(f, beat * 0.4, 'triangle', 0.035, startTime + i * beat + beat * 0.5));
+    accents.forEach((f, i) => this._playNote(f, beat * 0.4, 'triangle', 0.035, startTime + i * beat + beat * 0.5, true));
   }
 
   _playWildWestBar(startTime, beat) {
     // Slow, lonely harmonica + acoustic bass
     const bass = [82.41, 82.41, 98.00, 82.41, 110.00, 82.41, 98.00, 82.41];
-    bass.forEach((f, i) => this._playNote(f, beat * 0.7, 'triangle', 0.035, startTime + i * beat * 0.5));
+    bass.forEach((f, i) => this._playNote(f, beat * 0.7, 'triangle', 0.035, startTime + i * beat * 0.5, true));
     // Harmonica melody
     const melody = [
       { f: 493.88, d: 1.0 }, { f: 440.00, d: 0.5 }, { f: 392.00, d: 1.0 },
@@ -248,12 +269,12 @@ class AudioManager {
     ];
     let t = startTime;
     melody.forEach(({ f, d }) => {
-      this._playNote(f, d * beat * 0.9, 'sine', 0.04, t);
+      this._playNote(f, d * beat * 0.9, 'sine', 0.04, t, true);
       t += d * beat;
     });
     // Sparse high notes
-    this._playNote(587.33, beat * 0.5, 'triangle', 0.025, startTime + beat * 2);
-    this._playNote(659.25, beat * 0.5, 'triangle', 0.025, startTime + beat * 3);
+    this._playNote(587.33, beat * 0.5, 'triangle', 0.025, startTime + beat * 2, true);
+    this._playNote(659.25, beat * 0.5, 'triangle', 0.025, startTime + beat * 3, true);
   }
 
   _playPrehistoricBar(startTime, beat) {
@@ -261,7 +282,7 @@ class AudioManager {
     // Drum pattern
     const drumPattern = [1, 0, 1, 1, 0, 1, 0, 1];
     drumPattern.forEach((hit, i) => {
-      if (hit) this._playNote(60, 0.08, 'square', 0.06, startTime + i * beat * 0.5);
+      if (hit) this._playNote(60, 0.08, 'square', 0.06, startTime + i * beat * 0.5, true);
     });
     // Flute melody (pentatonic)
     const flute = [
@@ -270,18 +291,18 @@ class AudioManager {
     ];
     let t = startTime;
     flute.forEach(({ f, d }) => {
-      this._playNote(f, d * beat * 0.8, 'triangle', 0.035, t);
+      this._playNote(f, d * beat * 0.8, 'triangle', 0.035, t, true);
       t += d * beat;
     });
     // Low drone
-    this._playNote(130.81, beat * 4, 'sine', 0.025, startTime);
+    this._playNote(130.81, beat * 4, 'sine', 0.025, startTime, true);
   }
 
   _playSteampunkBar(startTime, beat) {
     // Mechanical, brass-band feel - oom-pah + melody
     // Bass oom-pah
     const oompah = [130.81, 164.81, 130.81, 164.81, 146.83, 174.61, 146.83, 174.61];
-    oompah.forEach((f, i) => this._playNote(f, beat * 0.45, 'square', 0.04, startTime + i * beat * 0.5));
+    oompah.forEach((f, i) => this._playNote(f, beat * 0.45, 'square', 0.04, startTime + i * beat * 0.5, true));
     // Brass melody
     const melody = [
       { f: 392.00, d: 0.5 }, { f: 440.00, d: 0.5 }, { f: 523.25, d: 0.5 }, { f: 440.00, d: 0.5 },
@@ -289,12 +310,12 @@ class AudioManager {
     ];
     let t = startTime;
     melody.forEach(({ f, d }) => {
-      this._playNote(f, d * beat * 0.85, 'sawtooth', 0.035, t);
+      this._playNote(f, d * beat * 0.85, 'sawtooth', 0.035, t, true);
       t += d * beat;
     });
     // High whistle
-    this._playNote(783.99, beat * 0.3, 'triangle', 0.025, startTime + beat * 2.5);
-    this._playNote(880.00, beat * 0.3, 'triangle', 0.025, startTime + beat * 3);
+    this._playNote(783.99, beat * 0.3, 'triangle', 0.025, startTime + beat * 2.5, true);
+    this._playNote(880.00, beat * 0.3, 'triangle', 0.025, startTime + beat * 3, true);
   }
 
   // --- Sound Effects ---

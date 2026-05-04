@@ -118,12 +118,12 @@ const ThemeSelect = {
       }
     }
 
-    // Custom color editor
+    // Custom theme editor
     const customIdx = this.themes.findIndex(t => t.id === 'custom');
     const isCustomActive = customIdx !== -1 && (this.hoveredIndex === customIdx || store.get('theme') === 'custom');
     if (isCustomActive) {
       const editorY = 520;
-      const editorH = 180;
+      const editorH = 220;
       ctx.fillStyle = cols.panel + 'dd';
       ctx.fillRect(startX, editorY, totalGridW, editorH);
       ctx.strokeStyle = cols.accent;
@@ -136,18 +136,18 @@ const ThemeSelect = {
       ctx.fillText('CLICK A SWATCH TO CYCLE COLOR', startX + totalGridW / 2, editorY + 22);
 
       const colorKeys = ['lightSquare', 'darkSquare', 'lightPiece', 'darkPiece', 'highlight', 'background', 'panel', 'text', 'accent', 'buttonBg'];
-      const swatchSize = 24;
+      const swatchSize = 22;
       const swatchGap = 8;
       const colsPerRow = 5;
       const swatchTotalW = colsPerRow * (swatchSize + swatchGap) - swatchGap;
       const swatchStartX = startX + (totalGridW - swatchTotalW) / 2;
-      const swatchStartY = editorY + 40;
+      const swatchStartY = editorY + 38;
 
       for (let i = 0; i < colorKeys.length; i++) {
         const row = Math.floor(i / colsPerRow);
         const col = i % colsPerRow;
         const sx = swatchStartX + col * (swatchSize + swatchGap);
-        const sy = swatchStartY + row * (swatchSize + swatchGap + 14);
+        const sy = swatchStartY + row * (swatchSize + swatchGap + 12);
         const key = colorKeys[i];
         const color = ThemeManager.getTheme('custom').colors[key];
 
@@ -160,7 +160,68 @@ const ThemeSelect = {
         ctx.fillStyle = cols.text + 'aa';
         ctx.font = '9px monospace';
         ctx.textAlign = 'center';
-        ctx.fillText(key, sx + swatchSize / 2, sy + swatchSize + 10);
+        ctx.fillText(key, sx + swatchSize / 2, sy + swatchSize + 9);
+      }
+
+      // Music & Background theme pickers
+      const baseThemes = this.themes.filter(t => t.id !== 'custom');
+      const chipW = 68;
+      const chipH = 18;
+      const chipGap = 6;
+      const chipsPerRow = 5;
+      const chipsTotalW = chipsPerRow * (chipW + chipGap) - chipGap;
+      const chipsStartX = startX + (totalGridW - chipsTotalW) / 2;
+
+      // Music theme row
+      ctx.fillStyle = cols.text + 'aa';
+      ctx.font = '10px monospace';
+      ctx.textAlign = 'left';
+      ctx.fillText('Music:', startX + 10, editorY + 138);
+      const musicY = editorY + 144;
+      const currentMusic = store.get('customMusicTheme') || 'space';
+      for (let i = 0; i < baseThemes.length; i++) {
+        const t = baseThemes[i];
+        const row = Math.floor(i / chipsPerRow);
+        const col = i % chipsPerRow;
+        const cx = chipsStartX + col * (chipW + chipGap);
+        const cy = musicY + row * (chipH + 4);
+        const active = t.id === currentMusic;
+        ctx.fillStyle = active ? t.colors.accent : t.colors.panel;
+        ctx.fillRect(cx, cy, chipW, chipH);
+        ctx.strokeStyle = active ? t.colors.text : t.colors.text + '44';
+        ctx.lineWidth = active ? 2 : 1;
+        ctx.strokeRect(cx, cy, chipW, chipH);
+        ctx.fillStyle = active ? '#fff' : t.colors.text;
+        ctx.font = active ? 'bold 9px monospace' : '9px monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText(t.name.split(' ')[0], cx + chipW / 2, cy + chipH - 5);
+        t._musicBounds = { x: cx, y: cy, w: chipW, h: chipH };
+      }
+
+      // Background theme row
+      ctx.fillStyle = cols.text + 'aa';
+      ctx.font = '10px monospace';
+      ctx.textAlign = 'left';
+      ctx.fillText('Background:', startX + 10, editorY + 184);
+      const bgY = editorY + 190;
+      const currentBg = store.get('customBgTheme') || 'space';
+      for (let i = 0; i < baseThemes.length; i++) {
+        const t = baseThemes[i];
+        const row = Math.floor(i / chipsPerRow);
+        const col = i % chipsPerRow;
+        const cx = chipsStartX + col * (chipW + chipGap);
+        const cy = bgY + row * (chipH + 4);
+        const active = t.id === currentBg;
+        ctx.fillStyle = active ? t.colors.accent : t.colors.panel;
+        ctx.fillRect(cx, cy, chipW, chipH);
+        ctx.strokeStyle = active ? t.colors.text : t.colors.text + '44';
+        ctx.lineWidth = active ? 2 : 1;
+        ctx.strokeRect(cx, cy, chipW, chipH);
+        ctx.fillStyle = active ? '#fff' : t.colors.text;
+        ctx.font = active ? 'bold 9px monospace' : '9px monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText(t.name.split(' ')[0], cx + chipW / 2, cy + chipH - 5);
+        t._bgBounds = { x: cx, y: cy, w: chipW, h: chipH };
       }
     }
 
@@ -211,19 +272,19 @@ const ThemeSelect = {
     if (isCustomActive) {
       const editorY = 520;
       const colorKeys = ['lightSquare', 'darkSquare', 'lightPiece', 'darkPiece', 'highlight', 'background', 'panel', 'text', 'accent', 'buttonBg'];
-      const swatchSize = 24;
+      const swatchSize = 22;
       const swatchGap = 8;
       const colsPerRow = 5;
       const swatchTotalW = colsPerRow * (swatchSize + swatchGap) - swatchGap;
       const swatchStartX = startX + (totalGridW - swatchTotalW) / 2;
-      const swatchStartY = editorY + 40;
+      const swatchStartY = editorY + 38;
       const presets = ['#ff4444', '#44ff44', '#4444ff', '#ffff44', '#ff44ff', '#44ffff', '#ffffff', '#000000', '#888888', '#ff8800', '#8800ff', '#0088ff', '#8b4513', '#2e8b57', '#800000'];
 
       for (let i = 0; i < colorKeys.length; i++) {
         const row = Math.floor(i / colsPerRow);
         const col = i % colsPerRow;
         const sx = swatchStartX + col * (swatchSize + swatchGap);
-        const sy = swatchStartY + row * (swatchSize + swatchGap + 14);
+        const sy = swatchStartY + row * (swatchSize + swatchGap + 12);
         if (x >= sx && x <= sx + swatchSize && y >= sy && y <= sy + swatchSize) {
           const key = colorKeys[i];
           const current = ThemeManager.getTheme('custom').colors[key];
@@ -231,6 +292,30 @@ const ThemeSelect = {
           if (idx === -1) idx = 0;
           const nextColor = presets[(idx + 1) % presets.length];
           ThemeManager.setCustomColor(key, nextColor);
+          return;
+        }
+      }
+
+      // Music theme chip clicks
+      for (const t of this.themes.filter(t => t.id !== 'custom')) {
+        if (t._musicBounds && x >= t._musicBounds.x && x <= t._musicBounds.x + t._musicBounds.w &&
+            y >= t._musicBounds.y && y <= t._musicBounds.y + t._musicBounds.h) {
+          store.set('customMusicTheme', t.id);
+          store.saveProgress();
+          if (typeof audioManager !== 'undefined') {
+            audioManager.stopMusic();
+            audioManager.startMusic();
+          }
+          return;
+        }
+      }
+
+      // Background theme chip clicks
+      for (const t of this.themes.filter(t => t.id !== 'custom')) {
+        if (t._bgBounds && x >= t._bgBounds.x && x <= t._bgBounds.x + t._bgBounds.w &&
+            y >= t._bgBounds.y && y <= t._bgBounds.y + t._bgBounds.h) {
+          store.set('customBgTheme', t.id);
+          store.saveProgress();
           return;
         }
       }

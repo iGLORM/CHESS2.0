@@ -201,9 +201,17 @@ class BackgroundRenderer {
     return s;
   }
 
+  _getBgThemeId() {
+    const themeId = store.get('theme');
+    if (themeId === 'custom') {
+      return store.get('customBgTheme') || 'space';
+    }
+    return themeId;
+  }
+
   update(dt) {
     this.time += dt;
-    const themeId = store.get('theme');
+    const themeId = this._getBgThemeId();
     this.initTheme(themeId);
     const s = this.state;
 
@@ -324,8 +332,8 @@ class BackgroundRenderer {
 
   render(ctx, dt) {
     this.update(dt);
-    const themeId = store.get('theme');
-    const theme = ThemeManager.getTheme(themeId);
+    const themeId = this._getBgThemeId();
+    const theme = ThemeManager.getTheme(store.get('theme'));
     const s = this.state;
 
     // Draw base background color

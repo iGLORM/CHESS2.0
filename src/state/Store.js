@@ -27,6 +27,9 @@ class Store {
         animationSpeed: 1,
       },
       selectedCharacter: null,
+      customThemeColors: {},
+      customMusicTheme: 'space',
+      customBgTheme: 'space',
       whitePlayer: 'Player 1',
       blackPlayer: 'Player 2',
       p1IsWhite: true,
@@ -90,6 +93,9 @@ class Store {
         settings: this.state.settings,
         controls: this.state.controls,
         theme: this.state.theme,
+        customThemeColors: this.state.customThemeColors,
+        customMusicTheme: this.state.customMusicTheme,
+        customBgTheme: this.state.customBgTheme,
         stats: this.state.stats,
       }));
     } catch (e) {}
@@ -105,6 +111,9 @@ class Store {
         this.state.settings = { ...this.state.settings, ...data.settings };
         this.state.controls = data.controls || this.state.controls;
         this.state.theme = data.theme || 'space';
+        this.state.customThemeColors = data.customThemeColors || {};
+        this.state.customMusicTheme = data.customMusicTheme || 'space';
+        this.state.customBgTheme = data.customBgTheme || 'space';
         this.state.stats = { ...this.state.stats, ...data.stats };
       }
     } catch (e) {}
