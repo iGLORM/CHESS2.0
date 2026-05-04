@@ -114,25 +114,52 @@ class TimingStrike {
     const barW = w - 160;
     const barH = 40;
 
-    // Sweet spot (green zone)
+    // Bar track with subtle gradient
+    const grad = ctx.createLinearGradient(barX, barY, barX, barY + barH);
+    grad.addColorStop(0, cols.text + '15');
+    grad.addColorStop(0.5, cols.text + '22');
+    grad.addColorStop(1, cols.text + '15');
+    ctx.fillStyle = grad;
+    ctx.fillRect(barX, barY, barW, barH);
+    ctx.strokeStyle = cols.text + '44';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(barX, barY, barW, barH);
+
+    // Sweet spot (green zone) with glow
     const center = barX + barW * 0.4;
     const zoneW = barW * 0.2;
-    ctx.fillStyle = '#44aa44';
+    const greenGrad = ctx.createLinearGradient(center, barY, center, barY + barH);
+    greenGrad.addColorStop(0, '#66cc66');
+    greenGrad.addColorStop(0.5, '#44aa44');
+    greenGrad.addColorStop(1, '#338833');
+    ctx.fillStyle = greenGrad;
     ctx.fillRect(center, barY, zoneW, barH);
+    ctx.shadowColor = '#44ff44';
+    ctx.shadowBlur = 12;
+    ctx.strokeStyle = '#66ff66';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(center, barY, zoneW, barH);
+    ctx.shadowBlur = 0;
 
-    // Good zone
+    // Good zones
     ctx.fillStyle = '#888800';
     ctx.fillRect(center - barW * 0.1, barY, barW * 0.1, barH);
     ctx.fillRect(center + zoneW, barY, barW * 0.1, barH);
 
-    // Bar track
-    ctx.fillStyle = cols.text + '22';
-    ctx.fillRect(barX, barY, barW, barH);
-
-    // The moving marker
+    // The moving marker with glow
     const markerX = barX + (this.pos / 100) * barW;
-    ctx.fillStyle = '#ff4444';
-    ctx.fillRect(markerX - 3, barY - 5, 6, barH + 10);
+    ctx.shadowColor = '#ff4444';
+    ctx.shadowBlur = 10;
+    ctx.fillStyle = '#ff6666';
+    ctx.beginPath();
+    ctx.moveTo(markerX, barY - 8);
+    ctx.lineTo(markerX - 6, barY - 2);
+    ctx.lineTo(markerX - 4, barY + barH + 2);
+    ctx.lineTo(markerX + 4, barY + barH + 2);
+    ctx.lineTo(markerX + 6, barY - 2);
+    ctx.closePath();
+    ctx.fill();
+    ctx.shadowBlur = 0;
 
     // Labels
     ctx.fillStyle = cols.text + '66';

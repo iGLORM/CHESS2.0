@@ -131,16 +131,31 @@ class TargetPractice {
     ctx.font = '13px monospace';
     ctx.fillText('Hits: ' + this.hits + ' | Time: ' + Math.ceil(this.timeLeft) + 's', x + w / 2, y + 55);
 
-    // Targets
+    // Targets with rings and glow
     for (const t of this.targets) {
       const alpha = t.life / t.maxLife;
-      ctx.fillStyle = `rgba(68, 170, 68, ${alpha})`;
-      ctx.beginPath();
-      ctx.arc(x + 20 + t.x, y + 75 + t.y, t.size * alpha, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.strokeStyle = `rgba(255, 255, 255, ${alpha})`;
+      const tx = x + 20 + t.x;
+      const ty = y + 75 + t.y;
+      const ts = t.size * alpha;
+      ctx.shadowColor = `rgba(68, 255, 68, ${alpha * 0.8})`;
+      ctx.shadowBlur = 10 * alpha;
+      // Outer ring
+      ctx.strokeStyle = `rgba(68, 255, 68, ${alpha})`;
       ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(tx, ty, ts, 0, Math.PI * 2);
       ctx.stroke();
+      // Inner fill
+      ctx.fillStyle = `rgba(68, 170, 68, ${alpha * 0.6})`;
+      ctx.beginPath();
+      ctx.arc(tx, ty, ts * 0.7, 0, Math.PI * 2);
+      ctx.fill();
+      // Bullseye
+      ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+      ctx.beginPath();
+      ctx.arc(tx, ty, ts * 0.25, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.shadowBlur = 0;
     }
 
     if (this.done) {

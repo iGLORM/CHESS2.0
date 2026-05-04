@@ -88,19 +88,43 @@ class PowerMeter {
     const bw = w - 100;
     const bh = 30;
 
-    // Zones
+    // Zones with glow
     const minTarget = 30 + this.difficulty * 10;
     const maxTarget = 90 - (5 - this.difficulty) * 5;
-    ctx.fillStyle = '#225522';
+    const zoneGrad = ctx.createLinearGradient(bx + bw * (minTarget / 100), by, bx + bw * (minTarget / 100), by + bh);
+    zoneGrad.addColorStop(0, '#448844');
+    zoneGrad.addColorStop(0.5, '#225522');
+    zoneGrad.addColorStop(1, '#448844');
+    ctx.fillStyle = zoneGrad;
     ctx.fillRect(bx + bw * (minTarget / 100), by, bw * ((maxTarget - minTarget) / 100), bh);
+    ctx.shadowColor = '#44ff44';
+    ctx.shadowBlur = 8;
+    ctx.strokeStyle = '#44aa44';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(bx + bw * (minTarget / 100), by, bw * ((maxTarget - minTarget) / 100), bh);
+    ctx.shadowBlur = 0;
 
-    ctx.fillStyle = cols.text + '22';
+    // Bar track
+    const trackGrad = ctx.createLinearGradient(bx, by, bx, by + bh);
+    trackGrad.addColorStop(0, cols.text + '15');
+    trackGrad.addColorStop(0.5, cols.text + '28');
+    trackGrad.addColorStop(1, cols.text + '15');
+    ctx.fillStyle = trackGrad;
     ctx.fillRect(bx, by, bw, bh);
+    ctx.strokeStyle = cols.text + '44';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(bx, by, bw, bh);
 
-    // Marker
+    // Marker with glow
     const mx = bx + (this.power / 100) * bw;
-    ctx.fillStyle = this.power >= minTarget && this.power <= maxTarget ? '#44ff44' : '#ff4444';
-    ctx.fillRect(mx - 3, by - 4, 6, bh + 8);
+    const inZone = this.power >= minTarget && this.power <= maxTarget;
+    ctx.shadowColor = inZone ? '#44ff44' : '#ff4444';
+    ctx.shadowBlur = 12;
+    ctx.fillStyle = inZone ? '#66ff66' : '#ff6666';
+    ctx.beginPath();
+    ctx.arc(mx, by + bh / 2, 7, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.shadowBlur = 0;
 
     // Score
     ctx.fillStyle = cols.accent;

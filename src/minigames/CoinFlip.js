@@ -113,23 +113,50 @@ class CoinFlip {
     const coinSize = 60;
 
     if (this.flipping) {
-      // Animate coin
-      const frame = Math.floor(Date.now() / 50) % 4;
-      ctx.fillStyle = frame % 2 === 0 ? '#ffcc00' : '#cc9900';
+      // Animate coin with 3D flip effect
+      const t = Date.now() / 50;
+      const scaleX = Math.abs(Math.cos(t));
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.scale(scaleX, 1);
+      // Coin body with gradient
+      const coinGrad = ctx.createLinearGradient(-coinSize, -coinSize, coinSize, coinSize);
+      coinGrad.addColorStop(0, '#ffee66');
+      coinGrad.addColorStop(0.5, '#ffcc00');
+      coinGrad.addColorStop(1, '#cc9900');
+      ctx.fillStyle = coinGrad;
       ctx.beginPath();
-      ctx.ellipse(cx, cy, coinSize * (0.5 + (frame % 2) * 0.5), coinSize, 0, 0, Math.PI * 2);
+      ctx.arc(0, 0, coinSize, 0, Math.PI * 2);
       ctx.fill();
-      ctx.fillStyle = '#fff';
-      ctx.font = '20px monospace';
-      ctx.fillText('?', cx, cy + 6);
+      // Inner ring
+      ctx.strokeStyle = '#cc9900';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(0, 0, coinSize * 0.75, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.fillStyle = '#664400';
+      ctx.font = 'bold 20px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText('?', 0, 7);
+      ctx.restore();
     } else {
       // Show result
-      ctx.fillStyle = '#ffcc00';
+      const coinGrad = ctx.createRadialGradient(cx - coinSize * 0.3, cy - coinSize * 0.3, coinSize * 0.1, cx, cy, coinSize);
+      coinGrad.addColorStop(0, '#ffee66');
+      coinGrad.addColorStop(0.5, '#ffcc00');
+      coinGrad.addColorStop(1, '#cc9900');
+      ctx.fillStyle = coinGrad;
       ctx.beginPath();
       ctx.arc(cx, cy, coinSize, 0, Math.PI * 2);
       ctx.fill();
       ctx.strokeStyle = '#cc9900';
       ctx.lineWidth = 3;
+      ctx.stroke();
+      // Inner ring
+      ctx.strokeStyle = '#aa8800';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.arc(cx, cy, coinSize * 0.7, 0, Math.PI * 2);
       ctx.stroke();
 
       if (this.flipResult) {

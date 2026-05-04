@@ -134,17 +134,34 @@ class NumberGuess {
 
       const guess = this.guesses.find(g => g.num === num);
       if (guess) {
-        ctx.fillStyle = guess.result === 'correct' ? '#44aa44' : '#aa2222';
+        ctx.fillStyle = guess.result === 'correct' ? '#338833' : '#881111';
+        ctx.shadowColor = guess.result === 'correct' ? '#44ff44' : '#ff4444';
+        ctx.shadowBlur = 8;
       } else {
         ctx.fillStyle = cols.buttonBg;
+        ctx.shadowBlur = 0;
       }
-      ctx.fillRect(bx, by, btnSize, btnSize);
-      ctx.strokeStyle = cols.text + '33';
+      // Rounded rect
+      const r = 5;
+      ctx.beginPath();
+      ctx.moveTo(bx + r, by);
+      ctx.lineTo(bx + btnSize - r, by);
+      ctx.arcTo(bx + btnSize, by, bx + btnSize, by + r, r);
+      ctx.lineTo(bx + btnSize, by + btnSize - r);
+      ctx.arcTo(bx + btnSize, by + btnSize, bx + btnSize - r, by + btnSize, r);
+      ctx.lineTo(bx + r, by + btnSize);
+      ctx.arcTo(bx, by + btnSize, bx, by + btnSize - r, r);
+      ctx.lineTo(bx, by + r);
+      ctx.arcTo(bx, by, bx + r, by, r);
+      ctx.closePath();
+      ctx.fill();
+      ctx.shadowBlur = 0;
+      ctx.strokeStyle = guess ? 'rgba(255,255,255,0.3)' : cols.text + '33';
       ctx.lineWidth = 1;
-      ctx.strokeRect(bx, by, btnSize, btnSize);
+      ctx.stroke();
 
       ctx.fillStyle = guess ? '#fff' : cols.text;
-      ctx.font = '12px monospace';
+      ctx.font = 'bold 12px monospace';
       ctx.textAlign = 'center';
       ctx.fillText('' + num, bx + btnSize / 2, by + btnSize / 2 + 4);
     }

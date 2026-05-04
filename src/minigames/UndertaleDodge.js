@@ -211,25 +211,41 @@ class UndertaleDodge {
     const arenaW = 240;
     const arenaH = 200;
 
-    ctx.strokeStyle = cols.text + '66';
+    // Arena background
+    ctx.fillStyle = 'rgba(20, 0, 40, 0.4)';
+    ctx.fillRect(arenaX, arenaY, arenaW, arenaH);
+    ctx.shadowColor = cols.accent;
+    ctx.shadowBlur = 8;
+    ctx.strokeStyle = cols.text + '88';
     ctx.lineWidth = 2;
     ctx.strokeRect(arenaX, arenaY, arenaW, arenaH);
+    ctx.shadowBlur = 0;
 
-    // Bullets
+    // Bullets with glow
     for (const b of this.bullets) {
-      ctx.fillStyle = b.color;
       const bx = arenaX + (b.x - 200);
       const by = arenaY + (b.y - 140);
+      ctx.shadowColor = b.color;
+      ctx.shadowBlur = 8;
+      ctx.fillStyle = b.color;
       ctx.beginPath();
       ctx.arc(bx, by, b.size, 0, Math.PI * 2);
       ctx.fill();
+      ctx.shadowBlur = 0;
+      // Inner highlight
+      ctx.fillStyle = 'rgba(255,255,255,0.4)';
+      ctx.beginPath();
+      ctx.arc(bx - b.size * 0.2, by - b.size * 0.2, b.size * 0.3, 0, Math.PI * 2);
+      ctx.fill();
     }
 
-    // Player (soul/heart)
+    // Player (soul/heart) with glow
     const px = arenaX + (this.playerX - 200);
     const py = arenaY + (this.playerY - 140);
     const ps = this.playerSize;
 
+    ctx.shadowColor = '#ff4444';
+    ctx.shadowBlur = 12;
     ctx.fillStyle = '#ff4444';
     // Heart shape
     ctx.beginPath();
@@ -238,6 +254,12 @@ class UndertaleDodge {
     ctx.bezierCurveTo(px - ps, py + ps * 0.6, px, py + ps, px, py + ps * 1.2);
     ctx.bezierCurveTo(px, py + ps, px + ps, py + ps * 0.6, px + ps, py + ps * 0.1);
     ctx.bezierCurveTo(px + ps, py - ps * 0.3, px, py - ps * 0.3, px, py + ps * 0.3);
+    ctx.fill();
+    ctx.shadowBlur = 0;
+    // Inner highlight
+    ctx.fillStyle = 'rgba(255, 120, 120, 0.5)';
+    ctx.beginPath();
+    ctx.ellipse(px - ps * 0.2, py, ps * 0.3, ps * 0.4, 0, 0, Math.PI * 2);
     ctx.fill();
 
     // Controls hint

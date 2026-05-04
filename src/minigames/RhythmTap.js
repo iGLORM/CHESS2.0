@@ -106,18 +106,42 @@ class RhythmTap {
     ctx.fillStyle = cols.text + '11';
     ctx.fillRect(x + 20, trackY, w - 40, 30);
 
-    // Target zone
+    // Target zone with glow
     const targetX = x + 20 + 300;
+    ctx.shadowColor = '#44aa44';
+    ctx.shadowBlur = 10;
     ctx.fillStyle = '#225522';
     ctx.fillRect(targetX - 25, trackY, 50, 30);
-    ctx.strokeStyle = '#44aa44';
+    ctx.strokeStyle = '#66ff66';
     ctx.lineWidth = 2;
     ctx.strokeRect(targetX - 25, trackY, 50, 30);
+    ctx.shadowBlur = 0;
 
-    // Beats
+    // Beats with rounded rects and glow
     for (const b of this.beats) {
+      const bx = x + 20 + b.x - 8;
+      const by = trackY + 5;
+      ctx.shadowColor = b.hit ? '#44ff44' : '#ffaa00';
+      ctx.shadowBlur = b.hit ? 12 : 6;
       ctx.fillStyle = b.hit ? '#44ff44' : '#ffaa00';
-      ctx.fillRect(x + 20 + b.x - 8, trackY + 5, 16, 20);
+      // Rounded rect
+      const r = 4;
+      ctx.beginPath();
+      ctx.moveTo(bx + r, by);
+      ctx.lineTo(bx + 16 - r, by);
+      ctx.arcTo(bx + 16, by, bx + 16, by + r, r);
+      ctx.lineTo(bx + 16, by + 20 - r);
+      ctx.arcTo(bx + 16, by + 20, bx + 16 - r, by + 20, r);
+      ctx.lineTo(bx + r, by + 20);
+      ctx.arcTo(bx, by + 20, bx, by + 20 - r, r);
+      ctx.lineTo(bx, by + r);
+      ctx.arcTo(bx, by, bx + r, by, r);
+      ctx.closePath();
+      ctx.fill();
+      ctx.shadowBlur = 0;
+      // Inner highlight
+      ctx.fillStyle = 'rgba(255,255,255,0.3)';
+      ctx.fillRect(bx + 3, by + 2, 10, 6);
     }
 
     // Score

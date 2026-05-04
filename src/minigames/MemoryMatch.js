@@ -191,24 +191,57 @@ class MemoryMatch {
       const cx = startX + (i % 4) * (cardW + gap);
       const cy = startY + Math.floor(i / 4) * (cardH + gap);
       const isFlipped = this.flipped.includes(i) || this.matched.includes(i);
+      const r = 6;
 
       if (isFlipped) {
-        ctx.fillStyle = this.matched.includes(i) ? '#44aa44' : cols.buttonHover;
-        ctx.fillRect(cx, cy, cardW, cardH);
+        const isMatched = this.matched.includes(i);
+        ctx.fillStyle = isMatched ? '#338833' : cols.buttonHover;
+        if (isMatched) {
+          ctx.shadowColor = '#44ff44';
+          ctx.shadowBlur = 10;
+        }
+        ctx.beginPath();
+        ctx.moveTo(cx + r, cy);
+        ctx.lineTo(cx + cardW - r, cy);
+        ctx.arcTo(cx + cardW, cy, cx + cardW, cy + r, r);
+        ctx.lineTo(cx + cardW, cy + cardH - r);
+        ctx.arcTo(cx + cardW, cy + cardH, cx + cardW - r, cy + cardH, r);
+        ctx.lineTo(cx + r, cy + cardH);
+        ctx.arcTo(cx, cy + cardH, cx, cy + cardH - r, r);
+        ctx.lineTo(cx, cy + r);
+        ctx.arcTo(cx, cy, cx + r, cy, r);
+        ctx.closePath();
+        ctx.fill();
+        ctx.shadowBlur = 0;
+        ctx.strokeStyle = isMatched ? '#66ff66' : cols.text + '44';
+        ctx.lineWidth = 2;
+        ctx.stroke();
         ctx.fillStyle = cols.text;
         ctx.font = '28px monospace';
         ctx.textAlign = 'center';
         ctx.fillText(this.cards[i], cx + cardW / 2, cy + cardH / 2 + 8);
       } else {
         ctx.fillStyle = cols.buttonBg;
-        ctx.fillRect(cx, cy, cardW, cardH);
+        ctx.beginPath();
+        ctx.moveTo(cx + r, cy);
+        ctx.lineTo(cx + cardW - r, cy);
+        ctx.arcTo(cx + cardW, cy, cx + cardW, cy + r, r);
+        ctx.lineTo(cx + cardW, cy + cardH - r);
+        ctx.arcTo(cx + cardW, cy + cardH, cx + cardW - r, cy + cardH, r);
+        ctx.lineTo(cx + r, cy + cardH);
+        ctx.arcTo(cx, cy + cardH, cx, cy + cardH - r, r);
+        ctx.lineTo(cx, cy + r);
+        ctx.arcTo(cx, cy, cx + r, cy, r);
+        ctx.closePath();
+        ctx.fill();
         ctx.strokeStyle = cols.text + '44';
         ctx.lineWidth = 1;
-        ctx.strokeRect(cx, cy, cardW, cardH);
-        ctx.fillStyle = cols.text + '66';
-        ctx.font = '20px monospace';
+        ctx.stroke();
+        // Decorative pattern on back
+        ctx.fillStyle = cols.text + '22';
+        ctx.font = 'bold 18px monospace';
         ctx.textAlign = 'center';
-        ctx.fillText('?', cx + cardW / 2, cy + cardH / 2 + 7);
+        ctx.fillText('?', cx + cardW / 2, cy + cardH / 2 + 6);
       }
     }
 
