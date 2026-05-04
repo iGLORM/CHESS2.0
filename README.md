@@ -13,6 +13,10 @@
   <img src="https://img.shields.io/badge/Canvas-2D-E34F26?logo=html5&logoColor=white" alt="HTML5 Canvas" />
   <img src="https://img.shields.io/badge/License-Open%20Source-88d8b0" alt="License" />
   <img src="https://img.shields.io/badge/AI%20Engine-Alpha--Beta%20Pruning-fff5a0?logoColor=black" alt="AI Engine" />
+  <br/>
+  <img src="https://img.shields.io/badge/Windows-0078D6?logo=windows&logoColor=white" alt="Windows" />
+  <img src="https://img.shields.io/badge/macOS-000000?logo=apple&logoColor=white" alt="macOS" />
+  <img src="https://img.shields.io/badge/Linux-FCC624?logo=linux&logoColor=black" alt="Linux" />
 </p>
 
 <p align="center">
@@ -135,12 +139,24 @@ Difficulty scales based on the value of the captured piece.
 
 ## Getting Started
 
-### Prerequisites
+### Download & Play (No Setup Required)
+
+Pre-built binaries are available on the [Releases](https://github.com/iGLORM/chess/releases) page:
+
+| Platform | Download | Notes |
+|:---------|:---------|:------|
+| **Windows** | `Chess-2.0-win-portable.zip` | Extract and run `Chess 2.0.exe` |
+| **macOS** | `Chess-2.0.dmg` | Open the DMG and drag to Applications |
+| **Linux** | `Chess-2.0.AppImage` | `chmod +x` and run |
+
+### Build from Source
+
+#### Prerequisites
 
 - [Node.js](https://nodejs.org/) v20+
 - npm (comes with Node.js)
 
-### Clone & Run
+#### Run in Development
 
 ```bash
 git clone https://github.com/iGLORM/chess.git
@@ -149,12 +165,27 @@ npm install
 npm start
 ```
 
-### Linux Desktop Entry (Optional)
+#### Build Distributable
 
 ```bash
-chmod +x launch.sh
-./launch.sh
+# Windows (creates NSIS installer + portable exe)
+npm run build:win
+
+# macOS (creates DMG)
+npm run build:mac
+
+# Linux (creates AppImage + deb)
+npm run build:linux
 ```
+
+Built files are output to the `dist/` directory.
+
+### Platform Launchers
+
+| Platform | Launcher | Usage |
+|:---------|:---------|:------|
+| **Windows** | `launch.bat` | Double-click or run from cmd |
+| **Linux / macOS** | `launch.sh` | `chmod +x launch.sh && ./launch.sh` |
 
 ---
 

@@ -14,7 +14,7 @@ function createWindow() {
       contextIsolation: true,
       nodeIntegration: false,
     },
-    icon: path.join(__dirname, 'icon.png'),
+    icon: path.join(__dirname, process.platform === 'win32' ? 'icon.ico' : 'icon.png'),
   });
 
   win.setMenu(null);
@@ -32,4 +32,11 @@ ipcMain.on('toggle-fullscreen', (event) => {
 });
 
 app.whenReady().then(createWindow);
-app.on('window-all-closed', () => app.quit());
+
+app.on('activate', () => {
+  if (BrowserWindow.getAllWindows().length === 0) createWindow();
+});
+
+app.on('window-all-closed', () => {
+  if (process.platform !== 'darwin') app.quit();
+});
