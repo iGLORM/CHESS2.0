@@ -101,10 +101,10 @@ const GameScreen = {
       ctx.fillStyle = 'rgba(0,0,0,0.6)';
       ctx.fillRect(0, 0, 1280, 800);
       ctx.fillStyle = cols.panel;
-      ctx.fillRect(340, 230, 600, 300);
+      ctx.fillRect(340, 200, 600, 360);
       ctx.strokeStyle = cols.accent;
       ctx.lineWidth = 3;
-      ctx.strokeRect(340, 230, 600, 300);
+      ctx.strokeRect(340, 200, 600, 360);
       ctx.fillStyle = cols.text;
       ctx.font = 'bold 36px monospace';
       ctx.textAlign = 'center';
@@ -112,7 +112,7 @@ const GameScreen = {
       if (this.gameResult === 'white') msg = 'White Wins!';
       else if (this.gameResult === 'black') msg = 'Black Wins!';
       else if (this.gameResult === 'draw') msg = 'Draw!';
-      ctx.fillText(msg, 640, 310);
+      ctx.fillText(msg, 640, 280);
       if (this.gameResult && this.currentCharacter) {
         ctx.fillStyle = cols.text + 'aa';
         ctx.font = '16px monospace';
@@ -120,15 +120,15 @@ const GameScreen = {
         const dlg = this.gameResult === 'white'
           ? this.currentCharacter.dialogue.after
           : this.currentCharacter.dialogue.win;
-        this.wrapText(ctx, dlg, 380, 340, 520, 22);
+        this.wrapText(ctx, dlg, 380, 310, 520, 22);
       }
       const buttons = [
-        { text: 'Play Again', action: 'rematch', x: 440, y: 420 },
-        { text: 'Menu', action: 'menu', x: 640, y: 420 },
-        { text: 'Themes', action: 'themes', x: 840, y: 420 },
+        { text: 'Play Again', action: 'rematch', x: 440, y: 450 },
+        { text: 'Menu', action: 'menu', x: 640, y: 450 },
+        { text: 'Themes', action: 'themes', x: 840, y: 450 },
       ];
       if (this.mode === 'story' && this.gameResult === 'white') {
-        buttons.push({ text: 'Next Level', action: 'next', x: 540, y: 480 });
+        buttons.push({ text: 'Next Level', action: 'next', x: 540, y: 510 });
       }
       for (const btn of buttons) {
         ctx.fillStyle = cols.buttonBg;
@@ -196,10 +196,10 @@ const GameScreen = {
     if (this.mode === 'story' && color === 'black' && this.currentCharacter) {
       ctx.fillStyle = cols.text + '88';
       ctx.font = '10px monospace';
-      ctx.fillText('Level ' + this.currentCharacter.level, x + 10, y + 520);
+      ctx.fillText('Level ' + this.currentCharacter.level, x + 10, y + 380);
       ctx.fillStyle = this.currentCharacter.colors.primary;
       ctx.font = 'bold 11px monospace';
-      ctx.fillText(this.currentCharacter.name, x + 10, y + 540);
+      ctx.fillText(this.currentCharacter.name, x + 10, y + 400);
     }
   },
 
@@ -239,10 +239,10 @@ const GameScreen = {
   handleClick(x, y) {
     if (this.gameOver) {
       for (const btn of [
-        { text: 'Play Again', action: 'rematch', bx: 360, by: 420 },
-        { text: 'Menu', action: 'menu', bx: 560, by: 420 },
-        { text: 'Themes', action: 'themes', bx: 760, by: 420 },
-        { text: 'Next Level', action: 'next', bx: 460, by: 480 },
+        { text: 'Play Again', action: 'rematch', bx: 360, by: 450 },
+        { text: 'Menu', action: 'menu', bx: 560, by: 450 },
+        { text: 'Themes', action: 'themes', bx: 760, by: 450 },
+        { text: 'Next Level', action: 'next', bx: 460, by: 510 },
       ]) {
         if (x >= btn.bx && x <= btn.bx + 160 && y >= btn.by && y <= btn.by + 40) {
           this.handleGameOverAction(btn.action);

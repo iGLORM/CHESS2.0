@@ -1,7 +1,7 @@
 const THEMES = [
   {
     id: 'space',
-    name: 'Star World',
+    name: 'Cosmic Abyss',
     desc: 'Rainbow road in the cosmos',
     colors: {
       lightSquare: '#6b5b95',
@@ -21,7 +21,7 @@ const THEMES = [
   },
   {
     id: 'medieval',
-    name: 'Castle World',
+    name: "King's Fortress",
     desc: 'Brick blocks and flags',
     colors: {
       lightSquare: '#c9a96e',
@@ -41,7 +41,7 @@ const THEMES = [
   },
   {
     id: 'ocean',
-    name: 'Water World',
+    name: 'Deep Blue',
     desc: 'Bubbles and coral pipes',
     colors: {
       lightSquare: '#4ecdc4',
@@ -61,7 +61,7 @@ const THEMES = [
   },
   {
     id: 'egypt',
-    name: 'Desert Land',
+    name: 'Golden Dunes',
     desc: 'Sand blocks and pyramids',
     colors: {
       lightSquare: '#f4e04d',
@@ -81,7 +81,7 @@ const THEMES = [
   },
   {
     id: 'cyberpunk',
-    name: 'Neon City',
+    name: 'Neon Tokyo',
     desc: 'Neon blocks and tech pipes',
     colors: {
       lightSquare: '#1a0a3e',
@@ -101,7 +101,7 @@ const THEMES = [
   },
   {
     id: 'japanese',
-    name: 'Sakura Land',
+    name: 'Sakura Garden',
     desc: 'Pink blocks and blossoms',
     colors: {
       lightSquare: '#ffb7c5',
@@ -121,7 +121,7 @@ const THEMES = [
   },
   {
     id: 'artdeco',
-    name: 'Golden Palace',
+    name: 'Art Deco',
     desc: 'Gold blocks and patterns',
     colors: {
       lightSquare: '#f5e6c8',
@@ -141,7 +141,7 @@ const THEMES = [
   },
   {
     id: 'wildwest',
-    name: 'Dry Desert',
+    name: 'Dusty Frontier',
     desc: 'Cactus and tumbleweeds',
     colors: {
       lightSquare: '#e8c99b',
@@ -161,7 +161,7 @@ const THEMES = [
   },
   {
     id: 'prehistoric',
-    name: 'Dino Land',
+    name: 'Jurassic Jungle',
     desc: 'Jungles and dino eggs',
     colors: {
       lightSquare: '#7cb342',
@@ -181,7 +181,7 @@ const THEMES = [
   },
   {
     id: 'steampunk',
-    name: 'Airship Factory',
+    name: 'Steampunk Skies',
     desc: 'Gears and brass blocks',
     colors: {
       lightSquare: '#d4b896',

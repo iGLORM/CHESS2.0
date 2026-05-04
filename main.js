@@ -1,4 +1,4 @@
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 
 function createWindow() {
@@ -6,8 +6,8 @@ function createWindow() {
     width: 1280,
     height: 800,
     useContentSize: true,
-    resizable: false,
-    fullscreenable: false,
+    resizable: true,
+    fullscreenable: true,
     title: 'Chess 2.0',
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
@@ -19,7 +19,17 @@ function createWindow() {
 
   win.setMenu(null);
   win.loadFile(path.join(__dirname, 'src', 'index.html'));
+
+  win.on('enter-full-screen', () => win.webContents.send('fullscreen-change', true));
+  win.on('leave-full-screen', () => win.webContents.send('fullscreen-change', false));
 }
+
+ipcMain.on('toggle-fullscreen', (event) => {
+  const win = BrowserWindow.fromWebContents(event.sender);
+  if (win) {
+    win.setFullScreen(!win.isFullScreen());
+  }
+});
 
 app.whenReady().then(createWindow);
 app.on('window-all-closed', () => app.quit());

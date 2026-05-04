@@ -73,7 +73,9 @@ class AudioManager {
 
   _scheduleLoop() {
     if (!this.musicPlaying) return;
-    const beat = 60 / this.bpm;
+    const themeId = store.get('theme');
+    const bpm = this._getThemeBPM(themeId);
+    const beat = 60 / bpm;
     const now = this.ctx.currentTime;
 
     // Schedule 4 bars ahead
@@ -85,43 +87,211 @@ class AudioManager {
     this.currentLoop = setTimeout(() => this._scheduleLoop(), 500);
   }
 
+  _getThemeBPM(themeId) {
+    switch (themeId) {
+      case 'cyberpunk': return 120;
+      case 'prehistoric': return 90;
+      case 'wildwest': return 70;
+      case 'medieval': return 80;
+      case 'steampunk': return 110;
+      case 'ocean': return 60;
+      case 'space': return 50;
+      case 'japanese': return 65;
+      case 'artdeco': return 100;
+      case 'egypt': return 75;
+      default: return 80;
+    }
+  }
+
   _playBar(startTime, beat) {
     if (!this.musicPlaying) return;
+    const themeId = store.get('theme');
+    switch (themeId) {
+      case 'space': this._playSpaceBar(startTime, beat); break;
+      case 'medieval': this._playMedievalBar(startTime, beat); break;
+      case 'ocean': this._playOceanBar(startTime, beat); break;
+      case 'egypt': this._playEgyptBar(startTime, beat); break;
+      case 'cyberpunk': this._playCyberpunkBar(startTime, beat); break;
+      case 'japanese': this._playJapaneseBar(startTime, beat); break;
+      case 'artdeco': this._playArtDecoBar(startTime, beat); break;
+      case 'wildwest': this._playWildWestBar(startTime, beat); break;
+      case 'prehistoric': this._playPrehistoricBar(startTime, beat); break;
+      case 'steampunk': this._playSteampunkBar(startTime, beat); break;
+      default: this._playSpaceBar(startTime, beat); break;
+    }
+  }
 
-    // Bassline - simple walking pattern
-    const bassNotes = [130.81, 146.83, 164.81, 196.00, 220.00, 196.00, 164.81, 146.83]; // C3 pentatonic
-    bassNotes.forEach((freq, i) => {
-      this._playNote(freq, beat * 0.8, 'square', 0.04, startTime + i * beat * 0.5);
-    });
+  // --- Theme-specific music bars ---
 
-    // Melody - gentle pentatonic phrase
-    const melodyNotes = [
-      { f: 523.25, d: 0.5 }, // C5
-      { f: 587.33, d: 0.5 }, // D5
-      { f: 659.25, d: 1.0 }, // E5
-      { f: 523.25, d: 0.5 },
-      { f: 440.00, d: 0.5 },
-      { f: 392.00, d: 1.0 },
-      { f: 440.00, d: 0.5 },
-      { f: 523.25, d: 0.5 },
+  _playSpaceBar(startTime, beat) {
+    // Ambient ethereal pads + slow arpeggios
+    const b = beat * 2; // half speed
+    const roots = [174.61, 196.00, 220.00, 196.00]; // F3, G3, A3
+    const intervals = [[0, 4, 7, 11], [0, 3, 7, 10], [0, 4, 7, 11], [0, 3, 7, 10]];
+    for (let bar = 0; bar < 2; bar++) {
+      const r = roots[bar % 4];
+      const freqs = intervals[bar % 4].map(semi => r * Math.pow(2, semi / 12));
+      this._playChord(freqs, b * 2, 0.025, startTime + bar * b);
+    }
+    // High twinkling notes
+    const twinkle = [698.46, 783.99, 880.00, 1046.50, 1174.66];
+    for (let i = 0; i < 6; i++) {
+      const f = twinkle[Math.floor(Math.random() * twinkle.length)];
+      const t = startTime + i * b * 0.6 + Math.random() * 0.2;
+      this._playNote(f, b * 0.8, 'sine', 0.03, t);
+    }
+  }
+
+  _playMedievalBar(startTime, beat) {
+    // Dorian mode (minor with raised 6th) - medieval feel
+    const bass = [146.83, 164.81, 174.61, 196.00, 220.00, 196.00, 174.61, 164.81];
+    bass.forEach((f, i) => this._playNote(f, beat * 0.7, 'square', 0.035, startTime + i * beat * 0.5));
+    // Lute-like melody
+    const melody = [
+      { f: 587.33, d: 0.5 }, { f: 523.25, d: 0.5 }, { f: 587.33, d: 1.0 },
+      { f: 659.25, d: 0.5 }, { f: 587.33, d: 0.5 }, { f: 523.25, d: 1.0 },
+      { f: 440.00, d: 0.5 }, { f: 392.00, d: 0.5 },
     ];
-
     let t = startTime;
-    melodyNotes.forEach(({ f, d }) => {
-      this._playNote(f, d * beat * 0.9, 'triangle', 0.06, t);
+    melody.forEach(({ f, d }) => {
+      this._playNote(f, d * beat * 0.9, 'triangle', 0.05, t);
       t += d * beat;
     });
+    // Drone
+    this._playNote(146.83, beat * 4, 'sine', 0.03, startTime);
+  }
 
-    // Harmony chords - gentle pads
-    const chordRoots = [261.63, 329.63, 392.00, 293.66];
-    const chordIntervals = [[0, 4, 7], [0, 3, 7], [0, 4, 7], [0, 3, 7]];
+  _playOceanBar(startTime, beat) {
+    // Flowing 6/8 feel, wave-like arpeggios
+    const arp = [261.63, 329.63, 392.00, 523.25, 392.00, 329.63];
+    arp.forEach((f, i) => this._playNote(f, beat * 0.6, 'sine', 0.04, startTime + i * beat * 0.66));
+    // Deep swell
+    this._playNote(130.81, beat * 3, 'sine', 0.04, startTime);
+    this._playNote(164.81, beat * 3, 'sine', 0.03, startTime + beat);
+    // Sparkle
+    const sparkle = [523.25, 587.33, 659.25, 783.99];
+    sparkle.forEach((f, i) => this._playNote(f, beat * 0.4, 'triangle', 0.025, startTime + i * beat * 0.5 + beat * 2));
+  }
 
-    for (let bar = 0; bar < 4; bar++) {
-      const root = chordRoots[bar % 4];
-      const intervals = chordIntervals[bar % 4];
-      const freqs = intervals.map(semi => root * Math.pow(2, semi / 12));
-      this._playChord(freqs, beat * 2, 0.02, startTime + bar * beat);
+  _playEgyptBar(startTime, beat) {
+    // Phrygian dominant - mysterious desert scale
+    const scale = [261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 493.88, 523.25];
+    // Bass drone on root
+    this._playNote(130.81, beat * 4, 'sine', 0.04, startTime);
+    // Plucked melody
+    const melody = [329.63, 392.00, 440.00, 523.25, 440.00, 392.00, 349.23, 329.63];
+    melody.forEach((f, i) => this._playNote(f, beat * 0.5, 'triangle', 0.04, startTime + i * beat * 0.5));
+    // Percussive clicks
+    for (let i = 0; i < 8; i++) {
+      if (i % 2 === 0) this._playNote(800, 0.03, 'square', 0.02, startTime + i * beat * 0.5);
     }
+  }
+
+  _playCyberpunkBar(startTime, beat) {
+    // Driving bass + synthwave arpeggios
+    const bass = [65.41, 65.41, 73.42, 65.41, 87.31, 65.41, 73.42, 65.41];
+    bass.forEach((f, i) => this._playNote(f, beat * 0.45, 'sawtooth', 0.05, startTime + i * beat * 0.5));
+    // Arp
+    const arp = [523.25, 587.33, 659.25, 783.99, 659.25, 587.33, 523.25, 493.88];
+    arp.forEach((f, i) => this._playNote(f, beat * 0.35, 'square', 0.035, startTime + i * beat * 0.5 + beat * 0.25));
+    // Pad chord
+    const chord = [261.63, 329.63, 392.00];
+    this._playChord(chord, beat * 2, 0.025, startTime);
+  }
+
+  _playJapaneseBar(startTime, beat) {
+    // A minor pentatonic - koto/shakuhachi feel
+    const scale = [220.00, 261.63, 293.66, 329.63, 392.00];
+    // Plucked pentatonic melody
+    const melody = [
+      { f: 440.00, d: 0.75 }, { f: 523.25, d: 0.25 }, { f: 587.33, d: 1.0 },
+      { f: 523.25, d: 0.5 }, { f: 440.00, d: 0.5 }, { f: 392.00, d: 1.0 },
+    ];
+    let t = startTime;
+    melody.forEach(({ f, d }) => {
+      this._playNote(f, d * beat * 0.85, 'triangle', 0.05, t);
+      t += d * beat;
+    });
+    // Low drone
+    this._playNote(110.00, beat * 4, 'sine', 0.03, startTime);
+    // Bell-like accents
+    const bells = [880.00, 1046.50, 783.99];
+    bells.forEach((f, i) => this._playNote(f, beat * 0.6, 'sine', 0.025, startTime + i * beat * 1.5 + beat));
+  }
+
+  _playArtDecoBar(startTime, beat) {
+    // Jazz / swing feel - brassy chords + walking bass
+    const bass = [130.81, 146.83, 164.81, 174.61, 196.00, 174.61, 164.81, 146.83];
+    bass.forEach((f, i) => this._playNote(f, beat * 0.55, 'square', 0.03, startTime + i * beat * 0.5));
+    // Brass stabs
+    const chords = [
+      [261.63, 329.63, 392.00], [293.66, 349.23, 440.00],
+      [329.63, 392.00, 493.88], [293.66, 349.23, 440.00],
+    ];
+    chords.forEach((c, i) => this._playChord(c, beat, 0.025, startTime + i * beat));
+    // High trumpet accents
+    const accents = [659.25, 783.99, 880.00, 1046.50];
+    accents.forEach((f, i) => this._playNote(f, beat * 0.4, 'triangle', 0.035, startTime + i * beat + beat * 0.5));
+  }
+
+  _playWildWestBar(startTime, beat) {
+    // Slow, lonely harmonica + acoustic bass
+    const bass = [82.41, 82.41, 98.00, 82.41, 110.00, 82.41, 98.00, 82.41];
+    bass.forEach((f, i) => this._playNote(f, beat * 0.7, 'triangle', 0.035, startTime + i * beat * 0.5));
+    // Harmonica melody
+    const melody = [
+      { f: 493.88, d: 1.0 }, { f: 440.00, d: 0.5 }, { f: 392.00, d: 1.0 },
+      { f: 440.00, d: 0.5 }, { f: 493.88, d: 1.5 },
+    ];
+    let t = startTime;
+    melody.forEach(({ f, d }) => {
+      this._playNote(f, d * beat * 0.9, 'sine', 0.04, t);
+      t += d * beat;
+    });
+    // Sparse high notes
+    this._playNote(587.33, beat * 0.5, 'triangle', 0.025, startTime + beat * 2);
+    this._playNote(659.25, beat * 0.5, 'triangle', 0.025, startTime + beat * 3);
+  }
+
+  _playPrehistoricBar(startTime, beat) {
+    // Tribal drums + primitive flute
+    // Drum pattern
+    const drumPattern = [1, 0, 1, 1, 0, 1, 0, 1];
+    drumPattern.forEach((hit, i) => {
+      if (hit) this._playNote(60, 0.08, 'square', 0.06, startTime + i * beat * 0.5);
+    });
+    // Flute melody (pentatonic)
+    const flute = [
+      { f: 392.00, d: 0.5 }, { f: 440.00, d: 0.5 }, { f: 523.25, d: 0.5 },
+      { f: 440.00, d: 0.5 }, { f: 392.00, d: 1.0 },
+    ];
+    let t = startTime;
+    flute.forEach(({ f, d }) => {
+      this._playNote(f, d * beat * 0.8, 'triangle', 0.035, t);
+      t += d * beat;
+    });
+    // Low drone
+    this._playNote(130.81, beat * 4, 'sine', 0.025, startTime);
+  }
+
+  _playSteampunkBar(startTime, beat) {
+    // Mechanical, brass-band feel - oom-pah + melody
+    // Bass oom-pah
+    const oompah = [130.81, 164.81, 130.81, 164.81, 146.83, 174.61, 146.83, 174.61];
+    oompah.forEach((f, i) => this._playNote(f, beat * 0.45, 'square', 0.04, startTime + i * beat * 0.5));
+    // Brass melody
+    const melody = [
+      { f: 392.00, d: 0.5 }, { f: 440.00, d: 0.5 }, { f: 523.25, d: 0.5 }, { f: 440.00, d: 0.5 },
+      { f: 392.00, d: 0.5 }, { f: 349.23, d: 0.5 }, { f: 329.63, d: 1.0 },
+    ];
+    let t = startTime;
+    melody.forEach(({ f, d }) => {
+      this._playNote(f, d * beat * 0.85, 'sawtooth', 0.035, t);
+      t += d * beat;
+    });
+    // High whistle
+    this._playNote(783.99, beat * 0.3, 'triangle', 0.025, startTime + beat * 2.5);
+    this._playNote(880.00, beat * 0.3, 'triangle', 0.025, startTime + beat * 3);
   }
 
   // --- Sound Effects ---

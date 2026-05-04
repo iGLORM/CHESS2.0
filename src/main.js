@@ -93,6 +93,13 @@ function initApp() {
   });
 
   document.addEventListener('keydown', (e) => {
+    if (e.key === 'F11') {
+      e.preventDefault();
+      if (window.electron && window.electron.toggleFullscreen) {
+        window.electron.toggleFullscreen();
+      }
+      return;
+    }
     if (store.get('miniGameActive')) {
       miniGameManager.handleKey(e.key);
       e.preventDefault();

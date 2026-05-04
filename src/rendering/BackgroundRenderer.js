@@ -3,6 +3,16 @@ class BackgroundRenderer {
     this.state = {};
     this.lastTheme = null;
     this.time = 0;
+    this.bgImages = {};
+    this._loadBgImage('ocean', '../assets/textures/backgrounds/ocean_bg.png');
+    this._loadBgImage('japanese', '../assets/textures/backgrounds/japanese_bg.png');
+    this._loadBgImage('wildwest', '../assets/textures/backgrounds/wildwest_bg.webp');
+  }
+
+  _loadBgImage(themeId, src) {
+    const img = new Image();
+    img.onload = () => { this.bgImages[themeId] = img; };
+    img.src = src;
   }
 
   initTheme(themeId) {
@@ -218,10 +228,7 @@ class BackgroundRenderer {
           if (p.y < -10) { p.y = 810; p.x = Math.random() * 1280; }
         }
         for (const o of s.objects) {
-          if (o.type === 'fish') {
-            o.x += o.speed;
-            if (o.x > 1300) o.x = -50;
-          } else if (o.type === 'coral') {
+          if (o.type === 'coral') {
             o.sway += dt * o.swaySpeed;
           }
         }
@@ -440,12 +447,17 @@ class BackgroundRenderer {
   }
 
   renderOcean(ctx, theme, s) {
-    // Deep water gradient
-    const grad = ctx.createLinearGradient(0, 0, 0, 800);
-    grad.addColorStop(0, '#0a2a3e');
-    grad.addColorStop(1, '#0d1a2e');
-    ctx.fillStyle = grad;
-    ctx.fillRect(0, 0, 1280, 800);
+    // Photo background
+    const img = this.bgImages['ocean'];
+    if (img) {
+      ctx.drawImage(img, 0, 0, 1280, 800);
+    } else {
+      const grad = ctx.createLinearGradient(0, 0, 0, 800);
+      grad.addColorStop(0, '#0a2a3e');
+      grad.addColorStop(1, '#0d1a2e');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, 1280, 800);
+    }
 
     // Light rays from top
     for (let i = 0; i < 5; i++) {
@@ -463,60 +475,44 @@ class BackgroundRenderer {
       ctx.fill();
     }
 
-    // Coral
-    for (const o of s.objects) {
-      if (o.type === 'coral') {
-        ctx.fillStyle = o.color + '66';
-        const sway = Math.sin(o.sway) * 5;
-        // Coral branches
-        ctx.beginPath();
-        ctx.moveTo(o.x, o.y);
-        ctx.quadraticCurveTo(o.x + sway, o.y - o.size * 0.5, o.x + sway * 0.5, o.y - o.size);
-        ctx.lineWidth = 4;
-        ctx.strokeStyle = o.color + '88';
-        ctx.stroke();
-        // Branch tips
-        ctx.beginPath();
-        ctx.arc(o.x + sway * 0.5, o.y - o.size, 3, 0, Math.PI * 2);
-        ctx.fill();
-      }
-    }
-
-    // Fish
-    for (const o of s.objects) {
-      if (o.type === 'fish') {
-        ctx.fillStyle = o.color + 'cc';
-        const tail = Math.sin(this.time * 4 + o.x * 0.01) * 5;
-        ctx.beginPath();
-        ctx.ellipse(o.x, o.y, o.size, o.size * 0.4, 0, 0, Math.PI * 2);
-        ctx.fill();
-        // Tail
-        ctx.beginPath();
-        ctx.moveTo(o.x - o.size, o.y);
-        ctx.lineTo(o.x - o.size - 8, o.y + tail);
-        ctx.lineTo(o.x - o.size - 8, o.y - tail);
-        ctx.closePath();
-        ctx.fill();
-        // Eye
-        ctx.fillStyle = '#fff';
-        ctx.beginPath();
-        ctx.arc(o.x + o.size * 0.4, o.y - 2, 2, 0, Math.PI * 2);
-        ctx.fill();
-      }
-    }
-
-    // Bubbles
+    // Animated bubbles rising
     for (const p of s.particles) {
       ctx.strokeStyle = `rgba(255,255,255,0.3)`;
       ctx.lineWidth = 1;
       ctx.beginPath();
       ctx.arc(p.x + Math.sin(p.wobble) * 2, p.y, p.size, 0, Math.PI * 2);
       ctx.stroke();
-      // Highlight
-      ctx.fillStyle = 'rgba(255,255,255,0.2)';
+      ctx.fillStyle = 'rgba(255,255,255,0.15)';
       ctx.beginPath();
       ctx.arc(p.x + Math.sin(p.wobble) * 2 - p.size * 0.3, p.y - p.size * 0.3, p.size * 0.2, 0, Math.PI * 2);
       ctx.fill();
+    }
+
+    // Twinkling stars / sparkles in upper sky
+    for (let i = 0; i < 60; i++) {
+      const sx = (i * 137 + 50) % 1280;
+      const sy = (i * 89 + 20) % 350;
+      const twinkle = Math.sin(this.time * 2 + i * 1.5) * 0.3 + 0.7;
+      const size = (i % 3 === 0) ? 2 : 1;
+      ctx.fillStyle = `rgba(255,255,230,${twinkle * 0.7})`;
+      ctx.fillRect(sx, sy, size, size);
+    }
+
+    // Swaying coral
+    for (const o of s.objects) {
+      if (o.type === 'coral') {
+        ctx.fillStyle = o.color + '66';
+        const sway = Math.sin(o.sway) * 5;
+        ctx.beginPath();
+        ctx.moveTo(o.x, o.y);
+        ctx.quadraticCurveTo(o.x + sway, o.y - o.size * 0.5, o.x + sway * 0.5, o.y - o.size);
+        ctx.lineWidth = 4;
+        ctx.strokeStyle = o.color + '88';
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(o.x + sway * 0.5, o.y - o.size, 3, 0, Math.PI * 2);
+        ctx.fill();
+      }
     }
   }
 
@@ -665,68 +661,55 @@ class BackgroundRenderer {
   }
 
   renderJapanese(ctx, theme, s) {
-    // Dark base
-    ctx.fillStyle = '#1a0a0f';
+    // Photo background
+    const img = this.bgImages['japanese'];
+    if (img) {
+      ctx.drawImage(img, 0, 0, 1280, 800);
+    } else {
+      ctx.fillStyle = '#1a0a0f';
+      ctx.fillRect(0, 0, 1280, 800);
+    }
+
+    // Soft dark vignette overlay so UI pops
+    const vig = ctx.createRadialGradient(640, 400, 300, 640, 400, 700);
+    vig.addColorStop(0, 'rgba(26,10,15,0)');
+    vig.addColorStop(1, 'rgba(26,10,15,0.6)');
+    ctx.fillStyle = vig;
     ctx.fillRect(0, 0, 1280, 800);
 
-    // Moon
-    ctx.fillStyle = '#ffd1dc44';
-    ctx.beginPath();
-    ctx.arc(1000, 150, 50, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = '#ffd1dc88';
-    ctx.beginPath();
-    ctx.arc(1000, 150, 35, 0, Math.PI * 2);
-    ctx.fill();
+    // Floating lanterns (animated glow orbs)
+    for (let i = 0; i < 5; i++) {
+      const lx = 150 + i * 240 + Math.sin(this.time * 0.4 + i * 2) * 30;
+      const ly = 120 + Math.cos(this.time * 0.3 + i * 1.5) * 40;
+      const glow = ctx.createRadialGradient(lx, ly, 4, lx, ly, 30);
+      glow.addColorStop(0, 'rgba(255,170,0,0.25)');
+      glow.addColorStop(1, 'rgba(255,170,0,0)');
+      ctx.fillStyle = glow;
+      ctx.fillRect(lx - 30, ly - 30, 60, 60);
+      ctx.fillStyle = 'rgba(255,200,100,0.8)';
+      ctx.beginPath();
+      ctx.arc(lx, ly, 5 + Math.sin(this.time * 2 + i) * 1, 0, Math.PI * 2);
+      ctx.fill();
+    }
 
-    // Mountains
-    ctx.fillStyle = '#2a1a1e';
-    ctx.beginPath();
-    ctx.moveTo(0, 500);
-    ctx.lineTo(300, 250);
-    ctx.lineTo(600, 450);
-    ctx.lineTo(900, 200);
-    ctx.lineTo(1280, 500);
-    ctx.closePath();
-    ctx.fill();
-
-    ctx.fillStyle = '#1a0a0f';
-    ctx.beginPath();
-    ctx.moveTo(0, 500);
-    ctx.lineTo(200, 350);
-    ctx.lineTo(500, 500);
-    ctx.closePath();
-    ctx.fill();
-
-    // Torii gate
-    ctx.fillStyle = '#e74c3c';
-    ctx.fillRect(500, 400, 10, 200);
-    ctx.fillRect(770, 400, 10, 200);
-    ctx.fillRect(480, 420, 320, 15);
-    ctx.fillRect(490, 450, 300, 12);
-
-    // Cherry blossoms
+    // Cherry blossoms (falling petals)
     for (const p of s.particles) {
       ctx.save();
       ctx.translate(p.x, p.y);
       ctx.rotate(p.rotation);
       ctx.fillStyle = '#ffb7c5aa';
-      // Petal shape
       ctx.beginPath();
       ctx.ellipse(0, 0, p.size, p.size * 0.6, 0, 0, Math.PI * 2);
       ctx.fill();
       ctx.restore();
     }
 
-    // Koi pond at bottom
-    ctx.fillStyle = '#0d2a3e';
-    ctx.fillRect(0, 650, 1280, 150);
-    // Water ripples
-    ctx.strokeStyle = '#4ecdc433';
+    // Water ripples at bottom (subtle)
+    ctx.strokeStyle = 'rgba(78,205,196,0.15)';
     ctx.lineWidth = 1;
     for (let i = 0; i < 5; i++) {
       const rx = 200 + i * 250;
-      const ry = 700 + Math.sin(this.time * 2 + i) * 10;
+      const ry = 720 + Math.sin(this.time * 2 + i) * 10;
       ctx.beginPath();
       ctx.ellipse(rx, ry, 30 + Math.sin(this.time + i) * 5, 8, 0, 0, Math.PI * 2);
       ctx.stroke();
@@ -785,45 +768,43 @@ class BackgroundRenderer {
   }
 
   renderWildWest(ctx, theme, s) {
-    // Sky
-    const grad = ctx.createLinearGradient(0, 0, 0, 400);
-    grad.addColorStop(0, '#1a1008');
-    grad.addColorStop(1, '#2c1810');
-    ctx.fillStyle = grad;
-    ctx.fillRect(0, 0, 1280, 400);
-
-    // Ground
-    ctx.fillStyle = '#1a1008';
-    ctx.fillRect(0, 400, 1280, 400);
-
-    // Sun
-    ctx.fillStyle = '#e8c99b33';
-    ctx.beginPath();
-    ctx.arc(200, 250, 70, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Cacti
-    for (const o of s.objects) {
-      if (o.type === 'cactus') {
-        const sway = Math.sin(o.sway) * 3;
-        ctx.fillStyle = '#2e4a2e';
-        // Main stem
-        ctx.fillRect(o.x + sway, o.y - o.size, o.size * 0.4, o.size);
-        // Arms
-        ctx.fillRect(o.x + sway - o.size * 0.3, o.y - o.size * 0.6, o.size * 0.3, o.size * 0.15);
-        ctx.fillRect(o.x + sway - o.size * 0.3, o.y - o.size * 0.6, o.size * 0.15, o.size * 0.3);
-        ctx.fillRect(o.x + sway + o.size * 0.4, o.y - o.size * 0.4, o.size * 0.3, o.size * 0.15);
-        ctx.fillRect(o.x + sway + o.size * 0.55, o.y - o.size * 0.4, o.size * 0.15, o.size * 0.3);
-      }
+    // Photo background
+    const img = this.bgImages['wildwest'];
+    if (img) {
+      ctx.drawImage(img, 0, 0, 1280, 800);
+    } else {
+      const grad = ctx.createLinearGradient(0, 0, 0, 400);
+      grad.addColorStop(0, '#1a1008');
+      grad.addColorStop(1, '#2c1810');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, 1280, 400);
+      ctx.fillStyle = '#1a1008';
+      ctx.fillRect(0, 400, 1280, 400);
     }
 
-    // Tumbleweeds
+    // Warm dust overlay / heat haze
+    const dustGrad = ctx.createLinearGradient(0, 0, 1280, 0);
+    dustGrad.addColorStop(0, 'rgba(232,201,155,0)');
+    dustGrad.addColorStop(0.5, `rgba(232,201,155,${0.08 + Math.sin(this.time * 0.5) * 0.04})`);
+    dustGrad.addColorStop(1, 'rgba(232,201,155,0)');
+    ctx.fillStyle = dustGrad;
+    ctx.fillRect(0, 0, 1280, 800);
+
+    // Blowing sand particles
+    for (let i = 0; i < 25; i++) {
+      const sx = ((i * 53 + this.time * 60) % 1380) - 50;
+      const sy = 300 + (i * 17) % 500;
+      ctx.fillStyle = `rgba(232,201,155,${0.15 + Math.sin(this.time + i) * 0.1})`;
+      ctx.fillRect(sx, sy, Math.random() * 3 + 1, 1);
+    }
+
+    // Tumbleweeds rolling across
     for (const o of s.objects) {
       if (o.type === 'tumbleweed') {
         ctx.save();
         ctx.translate(o.x, o.y);
         ctx.rotate(o.sway);
-        ctx.strokeStyle = '#a67c52';
+        ctx.strokeStyle = '#a67c52cc';
         ctx.lineWidth = 1;
         for (let i = 0; i < 8; i++) {
           const angle = (i / 8) * Math.PI * 2;
@@ -836,18 +817,20 @@ class BackgroundRenderer {
       }
     }
 
-    // Distant mesas
-    ctx.fillStyle = '#0f0a05';
-    ctx.beginPath();
-    ctx.moveTo(0, 400);
-    ctx.lineTo(200, 350);
-    ctx.lineTo(400, 370);
-    ctx.lineTo(600, 320);
-    ctx.lineTo(900, 360);
-    ctx.lineTo(1280, 330);
-    ctx.lineTo(1280, 400);
-    ctx.closePath();
-    ctx.fill();
+    // Cacti drawn on top (only if no photo, otherwise photo already has them)
+    if (!img) {
+      for (const o of s.objects) {
+        if (o.type === 'cactus') {
+          const sway = Math.sin(o.sway) * 3;
+          ctx.fillStyle = '#2e4a2e';
+          ctx.fillRect(o.x + sway, o.y - o.size, o.size * 0.4, o.size);
+          ctx.fillRect(o.x + sway - o.size * 0.3, o.y - o.size * 0.6, o.size * 0.3, o.size * 0.15);
+          ctx.fillRect(o.x + sway - o.size * 0.3, o.y - o.size * 0.6, o.size * 0.15, o.size * 0.3);
+          ctx.fillRect(o.x + sway + o.size * 0.4, o.y - o.size * 0.4, o.size * 0.3, o.size * 0.15);
+          ctx.fillRect(o.x + sway + o.size * 0.55, o.y - o.size * 0.4, o.size * 0.15, o.size * 0.3);
+        }
+      }
+    }
   }
 
   renderPrehistoric(ctx, theme, s) {
