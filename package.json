@@ -23,7 +23,9 @@
       "src/**/*",
       "assets/**/*",
       "icon.png",
-      "icon.ico"
+      "icon.ico",
+      "icon_512.png",
+      "icon_1024.png"
     ],
     "win": {
       "target": [
