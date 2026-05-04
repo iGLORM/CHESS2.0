@@ -71,21 +71,21 @@ const ThemeSelect = {
 
         // Theme name
         ctx.fillStyle = t.colors.text;
-        ctx.font = '14px monospace';
+        ctx.font = '16px monospace';
         ctx.textAlign = 'left';
         ctx.fillText(t.name, x + 10, y + 52);
 
         // Description
         ctx.fillStyle = t.colors.text + '77';
-        ctx.font = '10px monospace';
-        ctx.fillText(t.desc, x + 10, y + 70);
+        ctx.font = '12px monospace';
+        ctx.fillText(t.desc, x + 10, y + 72);
 
         // Active indicator
         if (isActive) {
           ctx.fillStyle = t.colors.accent;
-          ctx.font = 'bold 10px monospace';
+          ctx.font = 'bold 12px monospace';
           ctx.textAlign = 'left';
-          ctx.fillText('ACTIVE', x + 10, y + 95);
+          ctx.fillText('ACTIVE', x + 10, y + 97);
         }
 
         // Hover background preview

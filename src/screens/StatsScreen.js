@@ -42,14 +42,14 @@ const StatsScreen = {
     let y = 180;
     for (const item of items) {
       ctx.fillStyle = cols.text + '88';
-      ctx.font = '14px monospace';
+      ctx.font = '16px monospace';
       ctx.textAlign = 'left';
       ctx.fillText(item.label, 400, y);
       ctx.fillStyle = cols.accent;
-      ctx.font = 'bold 16px monospace';
+      ctx.font = 'bold 20px monospace';
       ctx.textAlign = 'right';
       ctx.fillText(String(item.value), 880, y);
-      y += 45;
+      y += 55;
     }
 
     // Back button

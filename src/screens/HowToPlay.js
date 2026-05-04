@@ -54,17 +54,17 @@ const HowToPlay = {
     let y = 140;
     for (const section of sections) {
       ctx.fillStyle = cols.accent;
-      ctx.font = 'bold 14px monospace';
+      ctx.font = 'bold 18px monospace';
       ctx.textAlign = 'left';
       ctx.fillText(section.title, 280, y);
-      y += 24;
+      y += 30;
       ctx.fillStyle = cols.text + 'cc';
-      ctx.font = '12px monospace';
+      ctx.font = '14px monospace';
       for (const line of section.lines) {
         ctx.fillText(line, 280, y);
-        y += 18;
+        y += 24;
       }
-      y += 10;
+      y += 14;
     }
 
     // Back button

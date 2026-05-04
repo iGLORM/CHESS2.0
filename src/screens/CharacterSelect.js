@@ -97,32 +97,32 @@ const CharacterSelect = {
 
       // Character name
       ctx.fillStyle = isUnlocked ? cols.text : cols.text + '44';
-      ctx.font = isHover ? 'bold 14px monospace' : '14px monospace';
+      ctx.font = isHover ? 'bold 16px monospace' : '16px monospace';
       ctx.textAlign = 'center';
       ctx.fillText(isUnlocked ? ch.name : '???', x + cardW / 2, y + 120);
 
       // Title
       if (isUnlocked) {
         ctx.fillStyle = ch.colors.primary;
-        ctx.font = '10px monospace';
-        ctx.fillText(ch.title, x + cardW / 2, y + 138);
+        ctx.font = '12px monospace';
+        ctx.fillText(ch.title, x + cardW / 2, y + 140);
       }
 
       // Level
       ctx.fillStyle = isUnlocked ? cols.text + '88' : cols.text + '44';
-      ctx.font = '11px monospace';
-      ctx.fillText('Level ' + ch.level, x + cardW / 2, y + 158);
+      ctx.font = '13px monospace';
+      ctx.fillText('Level ' + ch.level, x + cardW / 2, y + 160);
 
       // Dialogue preview on hover
       if (isHover && !this.showDialogue) {
         ctx.fillStyle = cols.text + 'bb';
-        ctx.font = '9px monospace';
+        ctx.font = '11px monospace';
         ctx.textAlign = 'center';
         const words = ch.dialogue.before;
-        ctx.fillText('"', x + cardW / 2, y + 178);
+        ctx.fillText('"', x + cardW / 2, y + 180);
         // Word wrap dialogue
         ctx.textAlign = 'left';
-        this.wrapText(ctx, words, x + 10, y + 188, cardW - 20, 12, 5);
+        this.wrapText(ctx, words, x + 10, y + 192, cardW - 20, 14, 5);
       }
 
       // Level progress bar for current level

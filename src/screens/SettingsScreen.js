@@ -137,7 +137,7 @@ const SettingsScreen = {
 
       // Label
       ctx.fillStyle = isHover ? cols.accent : cols.text;
-      ctx.font = '16px monospace';
+      ctx.font = '18px monospace';
       ctx.textAlign = 'left';
       ctx.fillText(opt.label, 320, y + 32);
 
@@ -145,7 +145,7 @@ const SettingsScreen = {
       if (opt.value) {
         const val = opt.value();
         ctx.fillStyle = cols.text + '88';
-        ctx.font = '14px monospace';
+        ctx.font = '16px monospace';
         ctx.textAlign = 'right';
         ctx.fillText(val, 960, y + 32);
       }
