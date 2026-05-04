@@ -17,7 +17,7 @@ class ThemeManager {
       space: 1, medieval: 1, ocean: 1,
       egypt: 2, cyberpunk: 4, japanese: 5,
       artdeco: 6, wildwest: 7, prehistoric: 8,
-      steampunk: 9, custom: 1,
+      steampunk: 9, crystal: 1, custom: 1,
     };
     const req = unlockReqs[id] || 1;
     const maxLevel = store.get('maxUnlockedLevel') || 1;

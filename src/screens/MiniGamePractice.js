@@ -55,17 +55,10 @@ const MiniGamePractice = {
       const by = startY + r * lineH;
       const isHover = i === this.selectedOption;
 
-      ctx.fillStyle = isHover ? cols.buttonHover : cols.buttonBg;
-      ctx.fillRect(bx, by, colW, 38);
-
-      if (isHover) {
-        ctx.fillStyle = cols.accent;
-        ctx.fillRect(bx, by, 3, 38);
-      }
-
-      ctx.strokeStyle = cols.text + '44';
-      ctx.lineWidth = 1;
-      ctx.strokeRect(bx, by, colW, 38);
+      UIHelpers.drawPixelFrame(ctx, bx, by, colW, 38, cols, {
+        hover: isHover,
+        fill: isHover ? cols.buttonHover : cols.buttonBg,
+      });
 
       ctx.fillStyle = isHover ? cols.accent : cols.text;
       ctx.font = '14px monospace';
@@ -74,15 +67,7 @@ const MiniGamePractice = {
     }
 
     // Back button
-    ctx.fillStyle = cols.buttonBg;
-    ctx.fillRect(30, 730, 160, 40);
-    ctx.strokeStyle = cols.text + '44';
-    ctx.lineWidth = 1;
-    ctx.strokeRect(30, 730, 160, 40);
-    ctx.fillStyle = cols.text;
-    ctx.font = '14px monospace';
-    ctx.textAlign = 'center';
-    ctx.fillText('< Back', 110, 756);
+    UIHelpers.drawButton(ctx, 30, 730, 160, 40, '< Back', cols, { font: 'bold 14px monospace' });
 
     ctx.fillStyle = cols.text + '44';
     ctx.font = '11px monospace';

@@ -158,26 +158,10 @@ const SettingsScreen = {
     ctx.fillText('Click to toggle / edit. ESC to go back.', 640, 750);
 
     // Back button
-    ctx.fillStyle = cols.buttonBg;
-    ctx.fillRect(30, 730, 160, 40);
-    ctx.strokeStyle = cols.text + '44';
-    ctx.lineWidth = 1;
-    ctx.strokeRect(30, 730, 160, 40);
-    ctx.fillStyle = cols.text;
-    ctx.font = '14px monospace';
-    ctx.textAlign = 'center';
-    ctx.fillText('< Back', 110, 756);
+    UIHelpers.drawButton(ctx, 30, 730, 160, 40, '< Back', cols, { font: 'bold 14px monospace' });
 
     // Theme shortcut
-    ctx.fillStyle = cols.buttonBg;
-    ctx.fillRect(1280 - 180, 730, 150, 40);
-    ctx.strokeStyle = cols.text + '44';
-    ctx.lineWidth = 1;
-    ctx.strokeRect(1280 - 180, 730, 150, 40);
-    ctx.fillStyle = cols.text;
-    ctx.font = '12px monospace';
-    ctx.textAlign = 'center';
-    ctx.fillText('Themes', 1280 - 105, 756);
+    UIHelpers.drawButton(ctx, 1280 - 180, 730, 150, 40, 'Themes', cols, { font: 'bold 12px monospace' });
   },
 
   handleClick(x, y) {

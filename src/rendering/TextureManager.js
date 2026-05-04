@@ -47,6 +47,12 @@ class TextureManager {
     await Promise.all(loads);
   }
 
+  static async preloadCharacters() {
+    if (typeof CHARACTERS === 'undefined') return;
+    const loads = CHARACTERS.map(ch => this.loadImage(this.buildPath('characters', ch.id)));
+    await Promise.all(loads);
+  }
+
   static getBoardTexture(themeId, isLight) {
     const color = isLight ? 'light' : 'dark';
     return this.getImage(this.buildPath('boards', `${themeId}_${color}`));
@@ -58,5 +64,9 @@ class TextureManager {
 
   static getBackgroundTexture(themeId) {
     return this.getImage(this.buildPath('backgrounds', `${themeId}_bg`));
+  }
+
+  static getCharacterTexture(characterId) {
+    return this.getImage(this.buildPath('characters', characterId));
   }
 }

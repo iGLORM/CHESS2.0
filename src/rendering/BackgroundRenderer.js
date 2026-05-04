@@ -7,6 +7,7 @@ class BackgroundRenderer {
     this._loadBgImage('ocean', '../assets/textures/backgrounds/ocean_bg.png');
     this._loadBgImage('japanese', '../assets/textures/backgrounds/japanese_bg.png');
     this._loadBgImage('wildwest', '../assets/textures/backgrounds/wildwest_bg.webp');
+    this._loadBgImage('crystal', '../assets/textures/backgrounds/crystal_bg.png');
   }
 
   _loadBgImage(themeId, src) {
@@ -197,6 +198,18 @@ class BackgroundRenderer {
           });
         }
         break;
+      case 'crystal':
+        for (let i = 0; i < 70; i++) {
+          s.particles.push({
+            x: Math.random() * 1280,
+            y: Math.random() * 800,
+            size: Math.random() > 0.8 ? 2 : 1,
+            twinkle: Math.random() * Math.PI * 2,
+            twinkleSpeed: Math.random() * 2 + 0.5,
+            color: Math.random() > 0.5 ? '#00e5ff' : '#d932ff',
+          });
+        }
+        break;
     }
     return s;
   }
@@ -327,6 +340,11 @@ class BackgroundRenderer {
           }
         }
         break;
+      case 'crystal':
+        for (const p of s.particles) {
+          p.twinkle += dt * p.twinkleSpeed;
+        }
+        break;
     }
   }
 
@@ -351,6 +369,20 @@ class BackgroundRenderer {
       case 'wildwest': this.renderWildWest(ctx, theme, s); break;
       case 'prehistoric': this.renderPrehistoric(ctx, theme, s); break;
       case 'steampunk': this.renderSteampunk(ctx, theme, s); break;
+      case 'crystal': this.renderCrystal(ctx, theme, s); break;
+    }
+  }
+
+  renderCrystal(ctx, theme, s) {
+    const img = this.bgImages['crystal'];
+    if (img) {
+      ctx.drawImage(img, 0, 0, 1280, 800);
+    }
+
+    for (const p of s.particles) {
+      const alpha = Math.sin(p.twinkle) * 0.35 + 0.45;
+      ctx.fillStyle = p.color + Math.floor(alpha * 255).toString(16).padStart(2, '0');
+      ctx.fillRect(p.x, p.y, p.size, p.size);
     }
   }
 

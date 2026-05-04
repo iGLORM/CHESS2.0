@@ -68,15 +68,7 @@ const HowToPlay = {
     }
 
     // Back button
-    ctx.fillStyle = cols.buttonBg;
-    ctx.fillRect(540, 700, 200, 40);
-    ctx.strokeStyle = cols.text + '44';
-    ctx.lineWidth = 1;
-    ctx.strokeRect(540, 700, 200, 40);
-    ctx.fillStyle = cols.text;
-    ctx.font = '14px monospace';
-    ctx.textAlign = 'center';
-    ctx.fillText('< Back', 640, 726);
+    UIHelpers.drawButton(ctx, 540, 700, 200, 40, '< Back', cols, { font: 'bold 14px monospace' });
   },
 
   handleClick(x, y) {

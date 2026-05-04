@@ -38,14 +38,7 @@ const PauseMenu = {
     ];
 
     for (const btn of buttons) {
-      ctx.fillStyle = cols.buttonBg;
-      ctx.fillRect(540, btn.y, 200, 45);
-      ctx.strokeStyle = cols.text + '44';
-      ctx.lineWidth = 1;
-      ctx.strokeRect(540, btn.y, 200, 45);
-      ctx.fillStyle = cols.text;
-      ctx.font = '16px monospace';
-      ctx.fillText(btn.text, 640, btn.y + 30);
+      UIHelpers.drawButton(ctx, 540, btn.y, 200, 45, btn.text, cols, { font: 'bold 16px monospace' });
       btn._bounds = { x: 540, y: btn.y, w: 200, h: 45 };
     }
   },

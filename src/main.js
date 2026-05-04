@@ -89,6 +89,7 @@ function gameLoop(timestamp) {
 function initApp() {
   const initialTheme = store.get('theme') || 'space';
   TextureManager.preloadTheme(initialTheme);
+  TextureManager.preloadCharacters();
 
   registerScreen('home', HomeScreen);
   registerScreen('modeSelect', ModeSelect);

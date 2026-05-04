@@ -47,11 +47,10 @@ const ModeSelect = {
       const bw = 400;
       const bh = 50;
 
-      ctx.fillStyle = isHover ? cols.buttonHover : cols.buttonBg;
-      ctx.fillRect(bx, btn.y, bw, bh);
-      ctx.strokeStyle = isHover ? cols.accent : cols.text + '44';
-      ctx.lineWidth = isHover ? 2 : 1;
-      ctx.strokeRect(bx, btn.y, bw, bh);
+      UIHelpers.drawPixelFrame(ctx, bx, btn.y, bw, bh, cols, {
+        hover: isHover,
+        fill: isHover ? cols.buttonHover : cols.buttonBg,
+      });
 
       ctx.fillStyle = isHover ? cols.accent : cols.text;
       ctx.font = isHover ? 'bold 20px monospace' : '20px monospace';
@@ -63,16 +62,7 @@ const ModeSelect = {
       btn._bounds = { x: bx, y: btn.y, w: bw, h: bh };
     }
 
-    // Back button
-    ctx.fillStyle = cols.buttonBg;
-    ctx.fillRect(30, 740, 150, 40);
-    ctx.strokeStyle = cols.text + '44';
-    ctx.lineWidth = 1;
-    ctx.strokeRect(30, 740, 150, 40);
-    ctx.fillStyle = cols.text;
-    ctx.font = '14px monospace';
-    ctx.textAlign = 'center';
-    ctx.fillText('< Home', 105, 766);
+    UIHelpers.drawButton(ctx, 30, 740, 150, 40, '< Home', cols, { font: 'bold 14px monospace' });
   },
 
   handleClick(x, y) {

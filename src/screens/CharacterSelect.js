@@ -57,23 +57,13 @@ const CharacterSelect = {
       const isUnlocked = ch.level <= this.maxUnlocked;
       const isSelected = this.selectedChar && this.selectedChar.id === ch.id;
 
-      // Card background
-      ctx.fillStyle = isUnlocked ? (isHover ? cols.buttonHover : cols.panel) : cols.panel;
+      UIHelpers.drawPixelFrame(ctx, x, y, cardW, cardH, cols, {
+        hover: isHover,
+        active: isSelected,
+        disabled: !isUnlocked,
+        fill: isUnlocked ? (isHover ? cols.buttonHover : cols.panel) : cols.panel,
+      });
       ctx.globalAlpha = isUnlocked ? 1 : 0.5;
-      ctx.fillRect(x, y, cardW, cardH);
-
-      // Card border
-      if (isSelected) {
-        ctx.strokeStyle = ch.colors.primary;
-        ctx.lineWidth = 3;
-      } else if (isUnlocked) {
-        ctx.strokeStyle = isHover ? cols.accent : cols.text + '33';
-        ctx.lineWidth = isHover ? 2 : 1;
-      } else {
-        ctx.strokeStyle = cols.text + '22';
-        ctx.lineWidth = 1;
-      }
-      ctx.strokeRect(x, y, cardW, cardH);
 
       // Character sprite (simplified - colored box with face)
       const spriteSize = 80;
@@ -149,26 +139,10 @@ const CharacterSelect = {
     }
 
     // Bottom bar with back button and theme button
-    ctx.fillStyle = cols.buttonBg;
-    ctx.fillRect(30, 740, 150, 40);
-    ctx.strokeStyle = cols.text + '44';
-    ctx.lineWidth = 1;
-    ctx.strokeRect(30, 740, 150, 40);
-    ctx.fillStyle = cols.text;
-    ctx.font = '14px monospace';
-    ctx.textAlign = 'center';
-    ctx.fillText('< Home', 105, 766);
+    UIHelpers.drawButton(ctx, 30, 740, 150, 40, '< Home', cols, { font: 'bold 14px monospace' });
 
     // Theme button
-    ctx.fillStyle = cols.buttonBg;
-    ctx.fillRect(1280 - 180, 740, 150, 40);
-    ctx.strokeStyle = cols.text + '44';
-    ctx.lineWidth = 1;
-    ctx.strokeRect(1280 - 180, 740, 150, 40);
-    ctx.fillStyle = cols.text;
-    ctx.font = '12px monospace';
-    ctx.textAlign = 'center';
-    ctx.fillText('Themes', 1280 - 105, 766);
+    UIHelpers.drawButton(ctx, 1280 - 180, 740, 150, 40, 'Themes', cols, { font: 'bold 12px monospace' });
 
     // Dialogue popup
     if (this.showDialogue && this.selectedChar) {
@@ -195,21 +169,15 @@ const CharacterSelect = {
       this.wrapText(ctx, this.selectedChar.dialogue.before, 260, 370, 780, 22);
 
       // Fight button
-      ctx.fillStyle = this.selectedChar.colors.primary;
-      ctx.fillRect(540, 490, 200, 50);
-      ctx.fillStyle = '#fff';
-      ctx.font = 'bold 18px monospace';
-      ctx.textAlign = 'center';
-      ctx.fillText('FIGHT!', 640, 522);
+      UIHelpers.drawButton(ctx, 540, 490, 200, 50, 'FIGHT!', cols, {
+        active: true,
+        fill: this.selectedChar.colors.primary,
+        textColor: '#fff',
+        font: 'bold 18px monospace',
+      });
 
       // Cancel button
-      ctx.fillStyle = cols.buttonBg;
-      ctx.strokeStyle = cols.text + '66';
-      ctx.lineWidth = 1;
-      ctx.strokeRect(540, 550, 200, 40);
-      ctx.fillStyle = cols.text;
-      ctx.font = '14px monospace';
-      ctx.fillText('Cancel', 640, 576);
+      UIHelpers.drawButton(ctx, 540, 550, 200, 40, 'Cancel', cols, { font: 'bold 14px monospace' });
     }
   },
 

@@ -16,6 +16,8 @@ class CharacterManager {
   }
 
   static getCharacterSprite(character, size) {
+    const texture = TextureManager.getCharacterTexture(character.id);
+    if (texture) return texture;
     return SpriteGen.generateCharacterSprite(character.colors, size);
   }
 }

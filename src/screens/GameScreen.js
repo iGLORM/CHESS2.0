@@ -135,15 +135,7 @@ const GameScreen = {
         buttons.push({ text: 'Next Level', action: 'next', x: 540, y: 510 });
       }
       for (const btn of buttons) {
-        ctx.fillStyle = cols.buttonBg;
-        ctx.fillRect(btn.x - 80, btn.y, 160, 40);
-        ctx.strokeStyle = cols.text + '44';
-        ctx.lineWidth = 1;
-        ctx.strokeRect(btn.x - 80, btn.y, 160, 40);
-        ctx.fillStyle = cols.text;
-        ctx.font = '14px monospace';
-        ctx.textAlign = 'center';
-        ctx.fillText(btn.text, btn.x, btn.y + 26);
+        UIHelpers.drawButton(ctx, btn.x - 80, btn.y, 160, 40, btn.text, cols, { font: 'bold 14px monospace' });
         btn._bounds = { x: btn.x - 80, y: btn.y, w: 160, h: 40 };
       }
     }

@@ -51,14 +51,12 @@ const ThemeSelect = {
       const isActive = t.id === store.get('theme');
       const unlocked = ThemeManager.isThemeUnlocked(t.id);
 
-      // Card background
-      ctx.fillStyle = isHover && unlocked ? t.colors.buttonHover : t.colors.panel;
-      ctx.fillRect(x, y, cardW, cardH);
-
-      // Card border
-      ctx.strokeStyle = isActive ? t.colors.accent : (isHover && unlocked ? t.colors.text + '88' : t.colors.text + '22');
-      ctx.lineWidth = isActive ? 3 : 1;
-      ctx.strokeRect(x, y, cardW, cardH);
+      UIHelpers.drawPixelFrame(ctx, x, y, cardW, cardH, t.colors, {
+        hover: isHover && unlocked,
+        active: isActive,
+        disabled: !unlocked,
+        fill: isHover && unlocked ? t.colors.buttonHover : t.colors.panel,
+      });
 
       if (unlocked) {
         // Color preview swatches
@@ -225,16 +223,7 @@ const ThemeSelect = {
       }
     }
 
-    // Back button
-    ctx.fillStyle = cols.buttonBg;
-    ctx.fillRect(30, 730, 160, 40);
-    ctx.strokeStyle = cols.text + '44';
-    ctx.lineWidth = 1;
-    ctx.strokeRect(30, 730, 160, 40);
-    ctx.fillStyle = cols.text;
-    ctx.font = '14px monospace';
-    ctx.textAlign = 'center';
-    ctx.fillText('< Back', 110, 755);
+    UIHelpers.drawButton(ctx, 30, 730, 160, 40, '< Back', cols, { font: 'bold 14px monospace' });
   },
 
   handleClick(x, y) {
