@@ -1,5 +1,6 @@
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const path = require('path');
+const fs = require('fs');
 
 function createWindow() {
   const win = new BrowserWindow({
@@ -29,6 +30,17 @@ ipcMain.on('toggle-fullscreen', (event) => {
   if (win) {
     win.setFullScreen(!win.isFullScreen());
   }
+});
+
+ipcMain.on('save-screenshot', (event, { name, dataUrl }) => {
+  const screenshotsDir = path.join(__dirname, 'assets', 'screenshots');
+  if (!fs.existsSync(screenshotsDir)) {
+    fs.mkdirSync(screenshotsDir, { recursive: true });
+  }
+  const base64 = dataUrl.replace(/^data:image\/png;base64,/, '');
+  const filePath = path.join(screenshotsDir, `${name}.png`);
+  fs.writeFileSync(filePath, Buffer.from(base64, 'base64'));
+  event.reply('screenshot-saved', { name, path: filePath });
 });
 
 app.whenReady().then(createWindow);

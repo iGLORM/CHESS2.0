@@ -36,7 +36,7 @@ const StatsScreen = {
       { label: 'Captures', value: stats.captures || 0 },
       { label: 'Mini-Games Played', value: stats.miniGamesPlayed || 0 },
       { label: 'Mini-Games Won', value: stats.miniGamesWon || 0 },
-      { label: 'Story Level Reached', value: store.get('maxUnlockedLevel') || 1 },
+      { label: 'Story Level Reached', value: (store.getActiveSave() && store.getActiveSave().storyLevel) || 1 },
     ];
 
     let y = 180;

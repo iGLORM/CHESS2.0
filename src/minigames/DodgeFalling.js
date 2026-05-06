@@ -36,6 +36,7 @@ class DodgeFalling {
     this.keyUp = (e) => { this.keys[e.key] = false; };
     document.addEventListener('keydown', this.keyDown);
     document.addEventListener('keyup', this.keyUp);
+    if (audioManager) audioManager.playMiniGameStart();
   }
 
   update(dt) {
@@ -224,20 +225,27 @@ class DodgeFalling {
       ctx.translate(this.shakeX, this.shakeY);
     }
 
+    // Background
+    ctx.fillStyle = 'rgba(0,0,0,0.85)';
+    ctx.fillRect(x, y, w, h);
+    ctx.strokeStyle = cols.accent;
+    ctx.lineWidth = 3;
+    ctx.strokeRect(x, y, w, h);
+
     // Title
     ctx.fillStyle = cols.text;
-    ctx.font = 'bold 16px monospace';
+    ctx.font = 'bold 20px monospace';
     ctx.textAlign = 'center';
-    ctx.fillText('DODGE FALLING', x + w / 2, y + 20);
+    ctx.fillText('DODGE FALLING', x + w / 2, y + 28);
     ctx.font = '11px monospace';
     ctx.fillStyle = cols.text + '88';
-    ctx.fillText('Dodge the falling blocks! Use arrow keys or click sides.', x + w / 2, y + 38);
+    ctx.fillText('Dodge the falling blocks! Use arrow keys or click sides.', x + w / 2, y + 46);
 
     // HP as heart circles
     const heartSize = 6;
     const heartSpacing = 18;
     const heartsStartX = x + w / 2 - ((this.hp - 1) * heartSpacing) / 2;
-    const heartsY = y + 52;
+    const heartsY = y + 60;
     for (let i = 0; i < this.hp; i++) {
       ctx.save();
       ctx.shadowBlur = 6;
@@ -252,11 +260,11 @@ class DodgeFalling {
     // Timer
     ctx.fillStyle = cols.text + '66';
     ctx.font = '12px monospace';
-    ctx.fillText('Time: ' + Math.ceil(this.timeLeft) + 's', x + w / 2, y + 72);
+    ctx.fillText('Time: ' + Math.ceil(this.timeLeft) + 's', x + w / 2, y + 78);
 
     // Play area background
     ctx.fillStyle = cols.panel + '44';
-    ctx.fillRect(x + 20, y + 90, 640, 220);
+    ctx.fillRect(x + 20, y + 96, 640, 220);
 
     // Trail particles
     for (const p of this.particles) {
@@ -290,7 +298,7 @@ class DodgeFalling {
 
     // Player character with glow
     const px = x + 20 + this.playerX;
-    const py = y + 90 + 160;
+    const py = y + 96 + 160;
 
     ctx.save();
     ctx.shadowBlur = 10;
@@ -321,7 +329,7 @@ class DodgeFalling {
     if (this.flashTimer > 0) {
       const flashAlpha = this.flashTimer / 0.15 * 0.3;
       ctx.fillStyle = 'rgba(255,50,50,' + flashAlpha.toFixed(3) + ')';
-      ctx.fillRect(x + 20, y + 90, 640, 220);
+      ctx.fillRect(x + 20, y + 96, 640, 220);
     }
 
     // Game over text

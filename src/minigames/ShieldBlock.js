@@ -52,6 +52,7 @@ class ShieldBlock {
     this._keyUpHandler = (e) => { this._keys[e.key] = false; };
     document.addEventListener('keydown', this._keyHandler);
     document.addEventListener('keyup', this._keyUpHandler);
+    if (audioManager) audioManager.playMiniGameStart();
   }
 
   cleanup() {
@@ -90,6 +91,7 @@ class ShieldBlock {
     if (this.timer >= this.duration) {
       this.done = true;
       this.winner = 'attacker';
+      if (audioManager) audioManager.playMiniGameWin();
       this.cleanup();
       return;
     }
@@ -156,6 +158,7 @@ class ShieldBlock {
           this.hp = 0;
           this.done = true;
           this.winner = 'defender';
+          if (audioManager) audioManager.playMiniGameLose();
           this.cleanup();
           return;
         }
@@ -182,6 +185,13 @@ class ShieldBlock {
 
     ctx.save();
     ctx.translate(this.shakeX, this.shakeY);
+
+    // Background
+    ctx.fillStyle = 'rgba(0,0,0,0.85)';
+    ctx.fillRect(x, y, w, h);
+    ctx.strokeStyle = cols.accent;
+    ctx.lineWidth = 3;
+    ctx.strokeRect(x, y, w, h);
 
     const arenaX = x + 10;
     const arenaY = y + 10;

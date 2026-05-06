@@ -30,13 +30,13 @@
 
 <p align="center">
 
-| Home Screen | Mode Select | Game Screen |
+| Home Screen | Bot Select | Character Select |
 |:---:|:---:|:---:|
-| ![Home Screen](assets/screenshots/home_screen.png) | ![Mode Select](assets/screenshots/mode_select.png) | ![Game Screen](assets/screenshots/game_screen.png) |
+| ![Home Screen](assets/screenshots/home_screen.png) | ![Bot Select](assets/screenshots/bot_select.png) | ![Character Select](assets/screenshots/character_select.png) |
 
-| Character Select | Theme Select | Pause Menu |
+| Theme Select | Game Screen | Pause Menu |
 |:---:|:---:|:---:|
-| ![Character Select](assets/screenshots/character_select.png) | ![Theme Select](assets/screenshots/theme_select.png) | ![Pause Menu](assets/screenshots/pause_menu.png) |
+| ![Theme Select](assets/screenshots/theme_select.png) | ![Game Screen](assets/screenshots/game_screen.png) | ![Pause Menu](assets/screenshots/pause_menu.png) |
 
 </p>
 
@@ -51,7 +51,7 @@
 | **Classic Chess** | Play against the built-in AI engine with adjustable depth (10 difficulty levels) |
 | **Dynamic Themes** | 3+ visual styles (Space, Medieval, Ocean) with unique color palettes and unlockable themes |
 | **Character System** | Each opponent has unique dialogue, colors, and AI personality |
-| **Capture Minigames** | 13 skill-based minigames trigger on piece captures for bonus rewards |
+| **Capture Minigames** | 14 skill-based minigames trigger on piece captures for bonus rewards |
 | **Particle Effects** | Animated stars, explosions, and visual feedback |
 | **Save System** | Persistent settings, unlocked themes, and progress tracking via localStorage |
 | **Custom Engine** | Full legal move generation, check/checkmate detection, and AI search with alpha-beta pruning |
@@ -112,12 +112,13 @@ When a piece is captured, a skill minigame may trigger (30% chance, toggleable i
 | Reaction Test | Reflexes |
 | Undertale Dodge | Bullet dodging |
 | Power Meter | Charge control |
-| Bar Balance | Balance keeping |
 | Target Practice | Aiming |
 | Dodge Falling | Avoidance |
 | Rhythm Tap | Rhythm timing |
 | Number Guess | Logic deduction |
 | Coin Flip | Chance |
+| Shield Block | Blocking defense |
+| Whack-a-Mole | Speed targeting |
 
 Difficulty scales based on the value of the captured piece.
 

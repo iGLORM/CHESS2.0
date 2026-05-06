@@ -20,8 +20,11 @@ class CoinFlip {
     this.playerScore = 0;
     this.cpuScore = 0;
     this.flipping = false;
+    this.flipResult = null;
+    this.playerChoice = null;
     this.difficulty = difficulty || 1;
     this.maxRounds = (isDuel ? 5 : 3) + Math.floor(this.difficulty / 2);
+    if (audioManager) audioManager.playMiniGameStart();
   }
 
   update(dt) {}
@@ -88,6 +91,10 @@ class CoinFlip {
         if (this.round >= this.maxRounds) {
           this.done = true;
           this.winner = this.playerScore >= this.cpuScore ? 'attacker' : 'defender';
+          if (audioManager) {
+            if (this.winner === 'attacker') audioManager.playMiniGameWin();
+            else audioManager.playMiniGameLose();
+          }
         }
       }, 800);
     }, 600);
@@ -95,22 +102,28 @@ class CoinFlip {
 
   render(ctx, x, y, w, h) {
     const cols = ThemeManager.getTheme(store.get('theme')).colors;
+    ctx.fillStyle = 'rgba(0,0,0,0.85)';
+    ctx.fillRect(x, y, w, h);
+    ctx.strokeStyle = cols.accent;
+    ctx.lineWidth = 3;
+    ctx.strokeRect(x, y, w, h);
+
     ctx.fillStyle = cols.text;
-    ctx.font = 'bold 16px monospace';
+    ctx.font = 'bold 20px monospace';
     ctx.textAlign = 'center';
-    ctx.fillText('COIN FLIP', x + w / 2, y + 20);
+    ctx.fillText('COIN FLIP', x + w / 2, y + 30);
     ctx.font = '11px monospace';
     ctx.fillStyle = cols.text + '88';
-    ctx.fillText('Pick Heads or Tails! Round ' + (this.round + 1) + '/' + this.maxRounds, x + w / 2, y + 38);
+    ctx.fillText('Pick Heads or Tails! Round ' + (this.round + 1) + '/' + this.maxRounds, x + w / 2, y + 50);
 
     // Score
     ctx.fillStyle = cols.accent;
     ctx.font = '13px monospace';
-    ctx.fillText('You: ' + this.playerScore + ' | Defender: ' + this.cpuScore, x + w / 2, y + 58);
+    ctx.fillText('You: ' + this.playerScore + ' | Defender: ' + this.cpuScore, x + w / 2, y + 70);
 
     // Coin
     const cx = x + w / 2;
-    const cy = y + 130;
+    const cy = y + 150;
     const coinSize = 60;
 
     if (this.flipping) {

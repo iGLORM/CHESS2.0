@@ -20,7 +20,8 @@ class ThemeManager {
       steampunk: 9, crystal: 1, custom: 1,
     };
     const req = unlockReqs[id] || 1;
-    const maxLevel = store.get('maxUnlockedLevel') || 1;
+    const save = store.getActiveSave();
+    const maxLevel = (save && save.maxUnlockedLevel) || 1;
     return maxLevel >= req;
   }
 

@@ -61,7 +61,10 @@ const GameScreen = {
     this.mode = store.get('mode');
     if (this.mode === 'story') {
       this.currentCharacter = store.get('selectedCharacter');
-      this.characterLevel = this.currentCharacter ? this.currentCharacter.level : 1;
+      const charLevel = this.currentCharacter ? this.currentCharacter.level : 1;
+      const save = store.getActiveSave();
+      const tier = save ? save.difficultyTier : 'beginner';
+      this.characterLevel = DifficultyScaler.getAiLevel(tier, charLevel);
     } else if (this.mode === 'classic') {
       this.currentCharacter = null;
       this.characterLevel = store.get('classicDifficulty') || 5;
@@ -455,10 +458,10 @@ const GameScreen = {
     // Game over buttons
     if (this.gameOver) {
       for (const btn of [
-        { text: 'Play Again', action: 'rematch', bx: 360, by: 460 },
-        { text: 'Menu', action: 'menu', bx: 560, by: 460 },
-        { text: 'Themes', action: 'themes', bx: 760, by: 460 },
-        { text: 'Next Level', action: 'next', bx: 460, by: 520 },
+        { text: 'Play Again', action: 'rematch', bx: 440, by: 460 },
+        { text: 'Menu', action: 'menu', bx: 640, by: 460 },
+        { text: 'Themes', action: 'themes', bx: 840, by: 460 },
+        { text: 'Next Level', action: 'next', bx: 540, by: 520 },
       ]) {
         if (x >= btn.bx && x <= btn.bx + 160 && y >= btn.by && y <= btn.by + 40) {
           this.handleGameOverAction(btn.action);
@@ -874,13 +877,19 @@ const GameScreen = {
     store.set('stats', stats);
 
     if (this.mode === 'story' && this.gameResult === 'white') {
-      const currentLevel = this.characterLevel || store.get('storyLevel');
-      const maxUnlocked = store.get('maxUnlockedLevel');
-      if (currentLevel >= maxUnlocked && currentLevel < 10) {
-        store.set('maxUnlockedLevel', currentLevel + 1);
-        store.set('storyLevel', currentLevel + 1);
-      } else if (currentLevel >= maxUnlocked) {
-        store.set('storyLevel', currentLevel);
+      const save = store.getActiveSave();
+      const charLevel = this.currentCharacter ? this.currentCharacter.level : 1;
+      if (charLevel >= save.maxUnlockedLevel && charLevel < 10) {
+        save.maxUnlockedLevel = charLevel + 1;
+        save.storyLevel = charLevel + 1;
+        store.setActiveSave(save);
+      } else if (charLevel >= save.maxUnlockedLevel) {
+        save.storyLevel = charLevel;
+        save.completed = true;
+        if (save.difficultyTier === 'expert' && !store.get('madnessUnlocked')) {
+          store.set('madnessUnlocked', true);
+        }
+        store.setActiveSave(save);
       }
     }
     store.saveProgress();
@@ -920,8 +929,11 @@ const GameScreen = {
           const nextLevel = this.currentCharacter.level + 1;
           if (nextLevel <= 10) {
             const nextChar = CharacterManager.getCharacterByLevel(nextLevel);
+            const save = store.getActiveSave();
+            save.selectedCharacter = nextChar;
+            save.storyLevel = nextLevel;
             store.set('selectedCharacter', nextChar);
-            store.set('storyLevel', nextLevel);
+            store.setActiveSave(save);
             this.init();
           } else {
             switchScreen('home');

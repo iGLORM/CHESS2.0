@@ -2,7 +2,7 @@ const THEMES = [
   {
     id: 'space',
     name: 'Cosmic Abyss',
-    desc: 'Rainbow road in the cosmos',
+    desc: 'Nebula storms and stardust',
     colors: {
       lightSquare: '#6b5b95',
       darkSquare: '#2d1b4e',
@@ -22,7 +22,7 @@ const THEMES = [
   {
     id: 'medieval',
     name: "King's Fortress",
-    desc: 'Brick blocks and flags',
+    desc: 'Stone walls and crackling torches',
     colors: {
       lightSquare: '#c9a96e',
       darkSquare: '#7a5c3c',
@@ -42,7 +42,7 @@ const THEMES = [
   {
     id: 'ocean',
     name: 'Deep Blue',
-    desc: 'Bubbles and coral pipes',
+    desc: 'Coral reefs and rising bubbles',
     colors: {
       lightSquare: '#4ecdc4',
       darkSquare: '#1a6b8a',
@@ -62,7 +62,7 @@ const THEMES = [
   {
     id: 'egypt',
     name: 'Golden Dunes',
-    desc: 'Sand blocks and pyramids',
+    desc: 'Sandy plains and ancient pyramids',
     colors: {
       lightSquare: '#f4e04d',
       darkSquare: '#d4a017',
@@ -82,7 +82,7 @@ const THEMES = [
   {
     id: 'cyberpunk',
     name: 'Neon Tokyo',
-    desc: 'Neon blocks and tech pipes',
+    desc: 'Neon signs and digital rain',
     colors: {
       lightSquare: '#1a0a3e',
       darkSquare: '#0d0221',
@@ -102,7 +102,7 @@ const THEMES = [
   {
     id: 'japanese',
     name: 'Sakura Garden',
-    desc: 'Pink blocks and blossoms',
+    desc: 'Cherry blossoms and soft lanterns',
     colors: {
       lightSquare: '#ffb7c5',
       darkSquare: '#d48c9e',
@@ -122,7 +122,7 @@ const THEMES = [
   {
     id: 'artdeco',
     name: 'Art Deco',
-    desc: 'Gold blocks and patterns',
+    desc: 'Gilded geometry and gold leaf',
     colors: {
       lightSquare: '#f5e6c8',
       darkSquare: '#c4a96a',
@@ -142,7 +142,7 @@ const THEMES = [
   {
     id: 'wildwest',
     name: 'Dusty Frontier',
-    desc: 'Cactus and tumbleweeds',
+    desc: 'Cacti and rolling tumbleweeds',
     colors: {
       lightSquare: '#e8c99b',
       darkSquare: '#a67c52',
@@ -162,7 +162,7 @@ const THEMES = [
   {
     id: 'prehistoric',
     name: 'Jurassic Jungle',
-    desc: 'Jungles and dino eggs',
+    desc: 'Dino eggs hidden in ferns',
     colors: {
       lightSquare: '#7cb342',
       darkSquare: '#33691e',
@@ -182,7 +182,7 @@ const THEMES = [
   {
     id: 'steampunk',
     name: 'Steampunk Skies',
-    desc: 'Gears and brass blocks',
+    desc: 'Spinning gears and brass pipes',
     colors: {
       lightSquare: '#d4b896',
       darkSquare: '#8b6f47',
@@ -202,7 +202,7 @@ const THEMES = [
   {
     id: 'crystal',
     name: 'Soulbound Pixel',
-    desc: 'Void battles and pixel souls',
+    desc: 'Crystal shards and glowing ether',
     colors: {
       lightSquare: '#e8dfcf',
       darkSquare: '#2b0d36',

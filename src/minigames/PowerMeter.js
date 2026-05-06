@@ -22,6 +22,7 @@ class PowerMeter {
     this.difficulty = difficulty || 1;
     this.speed = 1.5 + this.difficulty * 0.4;
     this.maxAttempts = isDuel ? 5 : 3;
+    if (audioManager) audioManager.playMiniGameStart();
   }
 
   update(dt) {
@@ -68,23 +69,33 @@ class PowerMeter {
       const threshold = 60 + this.difficulty * 15;
       this.done = true;
       this.winner = this.score >= threshold ? 'attacker' : 'defender';
+      if (audioManager) {
+        if (this.winner === 'attacker') audioManager.playMiniGameWin();
+        else audioManager.playMiniGameLose();
+      }
     }
   }
 
   render(ctx, x, y, w, h) {
     const cols = ThemeManager.getTheme(store.get('theme')).colors;
+    ctx.fillStyle = 'rgba(0,0,0,0.85)';
+    ctx.fillRect(x, y, w, h);
+    ctx.strokeStyle = cols.accent;
+    ctx.lineWidth = 3;
+    ctx.strokeRect(x, y, w, h);
+
     ctx.fillStyle = cols.text;
-    ctx.font = 'bold 16px monospace';
+    ctx.font = 'bold 20px monospace';
     ctx.textAlign = 'center';
-    ctx.fillText('POWER METER', x + w / 2, y + 20);
+    ctx.fillText('POWER METER', x + w / 2, y + 30);
 
     ctx.font = '11px monospace';
     ctx.fillStyle = cols.text + '88';
-    ctx.fillText('Click when the bar is in the green zone!', x + w / 2, y + 38);
+    ctx.fillText('Click when the bar is in the green zone!', x + w / 2, y + 50);
 
     // Bar
     const bx = x + 50;
-    const by = y + 60;
+    const by = y + 70;
     const bw = w - 100;
     const bh = 30;
 
@@ -129,12 +140,12 @@ class PowerMeter {
     // Score
     ctx.fillStyle = cols.accent;
     ctx.font = 'bold 13px monospace';
-    ctx.fillText('Score: ' + this.score + ' | Attempt ' + this.attempts + '/' + this.maxAttempts, x + w / 2, y + 115);
+    ctx.fillText('Score: ' + this.score + ' | Attempt ' + this.attempts + '/' + this.maxAttempts, x + w / 2, y + 125);
 
     if (this.done) {
       ctx.fillStyle = cols.accent;
       ctx.font = 'bold 16px monospace';
-      ctx.fillText(this.winner === 'attacker' ? 'YOU WIN!' : 'Defender wins!', x + w / 2, y + 150);
+      ctx.fillText(this.winner === 'attacker' ? 'YOU WIN!' : 'Defender wins!', x + w / 2, y + 155);
     }
   }
 }

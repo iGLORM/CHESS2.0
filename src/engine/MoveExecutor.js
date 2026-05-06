@@ -20,6 +20,8 @@ class MoveExecutor {
     }
 
     if (move.enPassantCapture) {
+      // The captured pawn is on the same row as the capturing pawn,
+      // in the same column as the destination square.
       board.grid[move.from.row][move.to.col] = null;
     }
   }

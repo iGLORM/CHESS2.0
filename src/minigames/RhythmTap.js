@@ -20,7 +20,8 @@ class RhythmTap {
     this.beatInterval = Math.max(0.5, 1.2 - difficulty * 0.15);
     this.beatTimer = 0;
     this.beats = [];
-    this.window = 0.25; // Acceptable hit window
+    this.window = 0.25;
+    if (audioManager) audioManager.playMiniGameStart();
   }
 
   update(dt) {
@@ -50,6 +51,10 @@ class RhythmTap {
       this.done = true;
       const needed = 4 + this.difficulty * 2;
       this.winner = this.score >= needed ? 'attacker' : 'defender';
+      if (audioManager) {
+        if (this.winner === 'attacker') audioManager.playMiniGameWin();
+        else audioManager.playMiniGameLose();
+      }
     }
   }
 
@@ -93,16 +98,22 @@ class RhythmTap {
 
   render(ctx, x, y, w, h) {
     const cols = ThemeManager.getTheme(store.get('theme')).colors;
+    ctx.fillStyle = 'rgba(0,0,0,0.85)';
+    ctx.fillRect(x, y, w, h);
+    ctx.strokeStyle = cols.accent;
+    ctx.lineWidth = 3;
+    ctx.strokeRect(x, y, w, h);
+
     ctx.fillStyle = cols.text;
-    ctx.font = 'bold 16px monospace';
+    ctx.font = 'bold 20px monospace';
     ctx.textAlign = 'center';
-    ctx.fillText('RHYTHM TAP', x + w / 2, y + 20);
+    ctx.fillText('RHYTHM TAP', x + w / 2, y + 30);
     ctx.font = '11px monospace';
     ctx.fillStyle = cols.text + '88';
-    ctx.fillText('Tap when the blocks reach the green zone!', x + w / 2, y + 38);
+    ctx.fillText('Tap when the blocks reach the green zone!', x + w / 2, y + 50);
 
     // Track
-    const trackY = y + 90;
+    const trackY = y + 100;
     ctx.fillStyle = cols.text + '11';
     ctx.fillRect(x + 20, trackY, w - 40, 30);
 

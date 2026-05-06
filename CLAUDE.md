@@ -32,26 +32,51 @@ Screens are plain objects with `init(data)`, `render(ctx, dt)`, `handleClick(x, 
 `src/state/Store.js` — A singleton `store` with `get(key)`, `set(key, value)`, `update({})`, and `on(key, fn)` for reactive listeners. Persists progress to `localStorage` under key `chess2_progress`.
 
 ### Chess Engine (`src/engine/`)
-- `Board.js` — 8×8 grid representation, piece objects `{type, color}`, castling rights, en passant tracking
-- `MoveGen.js` — Pseudo-legal move generation for all piece types
-- `LegalFilter.js` — Filters moves that leave king in check
-- `GameRules.js` — Check/checkmate/stalemate/draw detection
-- `MoveExecutor.js` — Applies moves, handles castling/en passant/promotion
-- `ai/Search.js` — Alpha-beta pruning with iterative deepening
-- `ai/Evaluate.js` — Material + piece-square table evaluation
-- `ai/AIController.js` — 10 difficulty levels (depth 1-5, with noise for lower levels)
+Core logic + AI subsystem:
 
-### Theme System
-`src/themes/themes.js` defines theme color palettes (space, medieval, ocean, plus unlockable themes). `ThemeManager` resolves current colors. Themes affect board, pieces, UI panels, text, particles, and backgrounds.
+| File | Purpose |
+|------|---------|
+| `Board.js` | 8×8 grid, piece objects `{type, color}`, castling rights, en passant |
+| `FEN.js` | FEN notation parsing and serialization |
+| `MoveGen.js` | Pseudo-legal move generation for all piece types |
+| `LegalFilter.js` | Filters moves that leave king in check |
+| `GameRules.js` | Check/checkmate/stalemate/draw detection |
+| `MoveExecutor.js` | Applies moves, handles castling/en passant/promotion |
+| `ai/Search.js` | Alpha-beta pruning with iterative deepening |
+| `ai/Evaluate.js` | Material + piece-square table evaluation |
+| `ai/CloudEval.js` | Cloud-based move evaluation |
+| `ai/AIController.js` | 10 difficulty levels (depth 1–5, with noise for lower levels) |
+
+### Rendering (`src/rendering/`)
+`BoardRenderer.js`, `PieceRenderer.js`, `TextureManager.js`, `Animator.js`, `ParticleFX.js`, `BackgroundRenderer.js`, `SpriteGen.js`, `UIHelpers.js`. Two canvases: `gameCanvas` (main) and `miniGameOverlay` (minigames).
+
+### Input (`src/input/`)
+`InputManager.js`, `Keybindings.js` — keyboard and control handling.
 
 ### Minigame System
-13 minigames in `src/minigames/` trigger on piece captures (30% chance). Each minigame is a class with `init()`, `render(ctx, dt)`, `handleClick(x, y)`, `handleKey(key)` methods. `MiniGameManager` selects and runs them on the overlay canvas.
+14 minigames in `src/minigames/`: `UndertaleDodge`, `QuickClick`, `CoinFlip`, `RhythmTap`, `BarBalance`, `DodgeFalling`, `MemoryMatch`, `NumberGuess`, `PatternPress`, `PowerMeter`, `ReactionTest`, `ShieldBlock`, `TargetPractice`, `TimingStrike`, `WhackMole`. `MiniGameManager` selects and runs them on the overlay canvas (30% chance on piece capture).
+
+### Theme System
+`src/themes/themes.js` defines theme color palettes. `ThemeManager` resolves current colors. Themes affect board, pieces, UI panels, text, particles, and backgrounds. Unlockable themes include Crystal Kingdom and Soulbound.
+
+### Asset Structure
+```
+assets/
+├── textures/          # Piece sprites and backgrounds per theme
+│   ├── backgrounds/   # Theme backgrounds (Japanese, ocean, crystal, wildwest)
+│   └── pieces/       # Organized by theme (ocean, prehistoric, wildwest, artdeco, medieval, japanese)
+├── characters/       # Character portraits (bishbosh, checkmate, grandmasterx, etc.)
+└── screenshots/      # UI screenshots
+```
 
 ### Asset Loading
-`TextureManager` loads PNG textures from `assets/textures/` (piece sprites and backgrounds per theme). `SpriteGen` provides fallback procedural piece generation. Textures follow the naming pattern: `{themeId}_{color}_{pieceType}.png`.
+`TextureManager` loads PNG textures from `assets/textures/` (piece sprites and backgrounds per theme). `SpriteGen` provides fallback procedural piece generation. Textures follow the naming pattern: `{themeId}_{color}_{pieceType}.png`. Character portraits live in `assets/characters/`. Screenshots in `assets/screenshots/`.
 
 ### Audio
 `AudioManager` uses Web Audio API for procedurally generated sound effects and music (no audio files needed).
 
 ### Characters
 `src/characters/characters.js` defines story mode opponents with personality dialogue, colors, and AI difficulty mapping. `CharacterManager` handles dialogue state.
+
+### Screens (`src/screens/`)
+`HomeScreen.js`, `GameScreen.js`, `SettingsScreen.js`, `PauseMenu.js`, `ModeSelect.js`, `CharacterSelect.js`, `BotSelect.js`, `CustomGameScreen.js`, `StatsScreen.js`, `ThemeSelect.js`, `HowToPlay.js`, `MiniGamePractice.js` — full menu and gameplay UI.

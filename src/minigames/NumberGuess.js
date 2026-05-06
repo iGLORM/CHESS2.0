@@ -13,11 +13,12 @@ class NumberGuess {
     this.done = false;
     this.winner = null;
     this.difficulty = difficulty || 1;
-    // Higher difficulty = larger range, but keep it solvable with perfect play
     this.maxNum = 10 + this.difficulty * 10;
     this.target = Math.floor(Math.random() * this.maxNum) + 1;
     this.guesses = [];
     this.maxGuesses = isDuel ? 7 : 5;
+    this.keyBuffer = '';
+    if (audioManager) audioManager.playMiniGameStart();
   }
 
   update(dt) {}
@@ -102,20 +103,26 @@ class NumberGuess {
 
   render(ctx, x, y, w, h) {
     const cols = ThemeManager.getTheme(store.get('theme')).colors;
+    ctx.fillStyle = 'rgba(0,0,0,0.85)';
+    ctx.fillRect(x, y, w, h);
+    ctx.strokeStyle = cols.accent;
+    ctx.lineWidth = 3;
+    ctx.strokeRect(x, y, w, h);
+
     ctx.fillStyle = cols.text;
-    ctx.font = 'bold 16px monospace';
+    ctx.font = 'bold 20px monospace';
     ctx.textAlign = 'center';
-    ctx.fillText('NUMBER GUESS', x + w / 2, y + 20);
+    ctx.fillText('NUMBER GUESS', x + w / 2, y + 30);
     ctx.font = '11px monospace';
     ctx.fillStyle = cols.text + '88';
-    ctx.fillText('Guess the number between 1-' + this.maxNum + ' (' + this.guesses.length + '/' + this.maxGuesses + ')', x + w / 2, y + 38);
+    ctx.fillText('Guess the number between 1-' + this.maxNum + ' (' + this.guesses.length + '/' + this.maxGuesses + ')', x + w / 2, y + 50);
 
     // Last guess hint
     if (this.guesses.length > 0) {
       const last = this.guesses[this.guesses.length - 1];
       ctx.fillStyle = last.result === 'low' ? '#ffaa00' : '#ff4444';
       ctx.font = '12px monospace';
-      ctx.fillText(last.num + ' is too ' + last.result + '!', x + w / 2, y + 55);
+      ctx.fillText(last.num + ' is too ' + last.result + '!', x + w / 2, y + 68);
     }
 
     // Number grid
@@ -124,7 +131,7 @@ class NumberGuess {
     const perRow = 10;
     const totalW = perRow * (btnSize + gap) - gap;
     const startX = x + (w - totalW) / 2;
-    const startY = y + 75;
+    const startY = y + 85;
 
     for (let num = 1; num <= this.maxNum; num++) {
       const row = Math.floor((num - 1) / perRow);

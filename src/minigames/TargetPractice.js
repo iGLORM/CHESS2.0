@@ -22,6 +22,7 @@ class TargetPractice {
     this.difficulty = difficulty || 1;
     this.spawnRate = Math.max(0.4, 1.2 - difficulty * 0.15);
     this.spawnTimer = 0;
+    if (audioManager) audioManager.playMiniGameStart();
   }
 
   update(dt) {
@@ -48,6 +49,10 @@ class TargetPractice {
       this.done = true;
       const needed = 3 + this.difficulty * 2;
       this.winner = this.hits >= needed ? 'attacker' : 'defender';
+      if (audioManager) {
+        if (this.winner === 'attacker') audioManager.playMiniGameWin();
+        else audioManager.playMiniGameLose();
+      }
     }
   }
 
@@ -63,7 +68,6 @@ class TargetPractice {
 
   botPlay(dt, timer) {
     if (this.done) return;
-    // Bot shoots at closest target with 70% accuracy
     if (this.targets.length > 0 && timer > 0.2) {
       const t = this.targets[0];
       const w = 700;
@@ -80,7 +84,6 @@ class TargetPractice {
 
   handleKey(key) {
     if (key === ' ' || key === 'Enter') {
-      // Shoot at the center of the game area
       const gx = (1280 - 700) / 2;
       const gy = (800 - 460) / 2;
       this.handleClick(gx + 350, gy + 230);
@@ -93,7 +96,6 @@ class TargetPractice {
     const h = 460;
     const gx = (1280 - w) / 2;
     const gy = (800 - h) / 2;
-    // Adjust for render offset: targets drawn at x + 20 + t.x, y + 75 + t.y
     const lx = x - (gx + 20) - 20;
     const ly = y - (gy + 95) - 75;
 
@@ -118,39 +120,41 @@ class TargetPractice {
     this.gameW = w - 40;
     this.gameH = h - 140;
 
+    ctx.fillStyle = 'rgba(0,0,0,0.85)';
+    ctx.fillRect(x, y, w, h);
+    ctx.strokeStyle = cols.accent;
+    ctx.lineWidth = 3;
+    ctx.strokeRect(x, y, w, h);
+
     ctx.fillStyle = cols.text;
-    ctx.font = 'bold 16px monospace';
+    ctx.font = 'bold 20px monospace';
     ctx.textAlign = 'center';
-    ctx.fillText('TARGET PRACTICE', x + w / 2, y + 20);
+    ctx.fillText('TARGET PRACTICE', x + w / 2, y + 30);
     ctx.font = '11px monospace';
     ctx.fillStyle = cols.text + '88';
-    ctx.fillText('Click the targets before they disappear!', x + w / 2, y + 38);
+    ctx.fillText('Click the targets before they disappear!', x + w / 2, y + 50);
 
-    // Score
     ctx.fillStyle = cols.accent;
     ctx.font = '13px monospace';
-    ctx.fillText('Hits: ' + this.hits + ' | Time: ' + Math.ceil(this.timeLeft) + 's', x + w / 2, y + 55);
+    ctx.fillText('Hits: ' + this.hits + ' | Time: ' + Math.ceil(this.timeLeft) + 's', x + w / 2, y + 65);
 
-    // Targets with rings and glow
+    const targetBaseY = y + 95;
     for (const t of this.targets) {
       const alpha = t.life / t.maxLife;
       const tx = x + 20 + t.x;
-      const ty = y + 75 + t.y;
+      const ty = targetBaseY + t.y;
       const ts = t.size * alpha;
       ctx.shadowColor = `rgba(68, 255, 68, ${alpha * 0.8})`;
       ctx.shadowBlur = 10 * alpha;
-      // Outer ring
       ctx.strokeStyle = `rgba(68, 255, 68, ${alpha})`;
       ctx.lineWidth = 2;
       ctx.beginPath();
       ctx.arc(tx, ty, ts, 0, Math.PI * 2);
       ctx.stroke();
-      // Inner fill
       ctx.fillStyle = `rgba(68, 170, 68, ${alpha * 0.6})`;
       ctx.beginPath();
       ctx.arc(tx, ty, ts * 0.7, 0, Math.PI * 2);
       ctx.fill();
-      // Bullseye
       ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
       ctx.beginPath();
       ctx.arc(tx, ty, ts * 0.25, 0, Math.PI * 2);

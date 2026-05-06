@@ -36,12 +36,12 @@ const HowToPlay = {
       { title: 'Mini-Games', lines: [
         'Capturing a piece has a 30% chance to trigger a mini-game.',
         'Win the mini-game to keep your capture. Lose, and the tile is locked.',
-        'Each mini-game has unique controls - watch the instructions!',
+        'Each mini-game has unique controls — watch the instructions!',
       ]},
       { title: 'Story Mode', lines: [
         'Face 10 unique AI opponents with increasing difficulty.',
         'Defeat each opponent to unlock the next level.',
-        'Each boss has unique dialogue and personality.',
+        'Each opponent has unique dialogue and personality.',
       ]},
       { title: 'Controls', lines: [
         'Mouse: Click to select pieces and interact with UI.',

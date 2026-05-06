@@ -47,6 +47,7 @@ class WhackMole {
         this.grid.push({ row: r, col: c, active: false, type: 'normal', timer: 0, maxTime: 0, hit: false, hitTimer: 0, popUp: 0 });
       }
     }
+    if (audioManager) audioManager.playMiniGameStart();
   }
 
   cleanup() {}
@@ -96,6 +97,10 @@ class WhackMole {
     if (this.timer >= this.duration) {
       this.done = true;
       this.winner = this.score >= this.target ? 'attacker' : 'defender';
+      if (audioManager) {
+        if (this.winner === 'attacker') audioManager.playMiniGameWin();
+        else audioManager.playMiniGameLose();
+      }
       return;
     }
 
@@ -147,6 +152,12 @@ class WhackMole {
   render(ctx, x, y, w, h) {
     const theme = ThemeManager.getTheme(store.get('theme'));
     const cols = theme.colors;
+
+    ctx.fillStyle = 'rgba(0,0,0,0.85)';
+    ctx.fillRect(x, y, w, h);
+    ctx.strokeStyle = cols.accent;
+    ctx.lineWidth = 3;
+    ctx.strokeRect(x, y, w, h);
 
     const arenaX = x + 10;
     const arenaY = y + 10;
