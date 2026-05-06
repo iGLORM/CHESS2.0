@@ -45,26 +45,26 @@ class CloudEval {
     if (level >= 9) return getUci(pvs[0]);
 
     if (level >= 7) {
-      if (Math.random() < 0.8) return getUci(pvs[0]);
+      if (Math.random() < 0.95) return getUci(pvs[0]);
       if (pvs.length > 1) return getUci(pvs[1]);
       return getUci(pvs[0]);
     }
 
     if (level >= 5) {
       const r = Math.random();
-      if (r < 0.55) return getUci(pvs[0]);
-      if (pvs.length > 1 && r < 0.85) return getUci(pvs[1]);
+      if (r < 0.7) return getUci(pvs[0]);
+      if (pvs.length > 1 && r < 0.9) return getUci(pvs[1]);
       return getUci(pvs[Math.min(pvs.length - 1, Math.floor(Math.random() * pvs.length))]);
     }
 
     if (level >= 3) {
       const r = Math.random();
-      if (r < 0.4) return getUci(pvs[0]);
-      if (pvs.length > 1 && r < 0.7) return getUci(pvs[1]);
+      if (r < 0.5) return getUci(pvs[0]);
+      if (pvs.length > 1 && r < 0.75) return getUci(pvs[1]);
       return getUci(pvs[Math.min(pvs.length - 1, Math.floor(Math.random() * pvs.length))]);
     }
 
-    return getUci(pvs[Math.floor(Math.random() * pvs.length)]);
+    return getUci(pvs[Math.floor(Math.random() * pvs.length)];
   }
 
   static uciToMoveCoords(uci) {

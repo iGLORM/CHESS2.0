@@ -59,30 +59,88 @@ class Evaluate {
       }
     }
 
-    // Mobility: count pieces that can move (cheap proxy, avoids expensive getLegalMoves)
-    let ourMobile = 0;
-    let theirMobile = 0;
-    for (let r = 0; r < 8; r++) {
-      for (let c = 0; c < 8; c++) {
+    // Pawn structure analysis
+    let ourPawns = 0, theirPawns = 0;
+    let ourDoubled = 0, theirDoubled = 0;
+    let ourIsolated = 0, theirIsolated = 0;
+
+    for (let c = 0; c < 8; c++) {
+      let foundOurPawn = false, foundTheirPawn = false;
+      for (let r = 0; r < 8; r++) {
         const p = board.grid[r][c];
-        if (!p) continue;
-        if (p.type === 'pawn') {
-          const dir = p.color === 'white' ? -1 : 1;
-          const nr = r + dir;
-          if (nr >= 0 && nr < 8 && !board.grid[nr][c]) (p.color === color ? ourMobile : theirMobile)++;
-          const caps = [c - 1, c + 1];
-          for (const cc of caps) {
-            if (cc >= 0 && cc < 8 && nr >= 0 && nr < 8) {
-              const t = board.grid[nr][cc];
-              if (t && t.color !== p.color) (p.color === color ? ourMobile : theirMobile)++;
-            }
-          }
-        } else if (p.type !== 'king') {
-          (p.color === color ? ourMobile : theirMobile)++;
+        if (!p || p.type !== 'pawn') continue;
+        if (p.color === color) {
+          if (foundOurPawn) ourDoubled++;
+          foundOurPawn = true;
+          // Check if isolated (no friendly pawns on adjacent files)
+          const leftFile = c > 0 && board.grid[r][c - 1]?.find(p2 => p2.color === color && p2.type === 'pawn');
+          const rightFile = c < 7 && board.grid[r][c + 1]?.find(p2 => p2.color === color && p2.type === 'pawn');
+          if (!leftFile && !rightFile) ourIsolated++;
+        } else {
+          if (foundTheirPawn) theirDoubled++;
+          foundTheirPawn = true;
+          const leftFile = c > 0 && board.grid[r][c - 1]?.find(p2 => p2.color === enemy && p2.type === 'pawn');
+          const rightFile = c < 7 && board.grid[r][c + 1]?.find(p2 => p2.color === enemy && p2.type === 'pawn');
+          if (!leftFile && !rightFile) theirIsolated++;
         }
       }
     }
-    score += (ourMobile - theirMobile);
+
+    // Penalize doubled and isolated pawns
+    score -= ourDoubled * 15 + ourIsolated * 20;
+    score += theirDoubled * 15 + theirIsolated * 20;
+
+    // Passed pawns (no enemy pawns ahead)
+    for (let r = 0; r < 8; r++) {
+      for (let c = 0; c < 8; c++) {
+        const p = board.grid[r][c];
+        if (!p || p.type !== 'pawn') continue;
+        const dir = p.color === 'white' ? 1 : -1;
+        let blocked = false;
+        for (let nr = r + dir; nr >= 0 && nr < 8; nr += dir) {
+          if (board.grid[nr][c]) { blocked = true; break; }
+        }
+        if (!blocked) {
+          const promoRow = p.color === 'white' ? 7 : 0;
+          const distToPromo = Math.abs(r - promoRow);
+          const bonus = (8 - distToPromo) * 25;
+          if (p.color === color) score += bonus;
+          else score -= bonus;
+        }
+      }
+    }
+
+    // King safety (penalize exposed king)
+    for (let r = 0; r < 8; r++) {
+      for (let c = 0; c < 8; c++) {
+        const p = board.grid[r][c];
+        if (!p || p.type !== 'king') continue;
+        let pawnDefenders = 0;
+        const dirs = [[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]];
+        for (const [dr, dc] of dirs) {
+          const nr = r + dr, nc = c + dc;
+          if (nr >= 0 && nr < 8 && nc >= 0 && nc < 8) {
+            const defender = board.grid[nr][nc];
+            if (defender && defender.color === p.color && defender.type === 'pawn') pawnDefenders++;
+          }
+        }
+        if (p.color === color) score += pawnDefenders * 10;
+        else score -= pawnDefenders * 10;
+      }
+    }
+
+    // Center control bonus
+    const centerSquares = [[3,3],[3,4],[4,3],[4,4]];
+    for (const [r, c] of centerSquares) {
+      const p = board.grid[r][c];
+      if (p && p.color === color) score += 15;
+      else if (p && p.color === enemy) score -= 15;
+    }
+
+    // Mobility: count legal moves
+    const ourMoves = GameRules.getLegalMoves(board, color);
+    const theirMoves = GameRules.getLegalMoves(board, enemy);
+    score += (ourMoves.length - theirMoves.length) * 3;
 
     return score;
   }

@@ -207,7 +207,7 @@ const CustomGameScreen = {
     ctx.fillStyle = cols.text + '55';
     ctx.font = '11px monospace';
     ctx.textAlign = 'center';
-    ctx.fillText('Level ' + this.difficulty + ' bot  |  Play as ' + this.playAs + '  |  ' + enabledCount + ' minigames', 640, 780);
+    ctx.fillText('Level ' + this.difficulty + ' bot  |  Play as ' + this.playAs + '  |  ' + enabledCount + ' minigames', 640, 770);
   },
 
   handleClick(x, y) {

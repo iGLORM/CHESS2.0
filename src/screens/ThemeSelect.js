@@ -120,8 +120,8 @@ const ThemeSelect = {
     const customIdx = this.themes.findIndex(t => t.id === 'custom');
     const isCustomActive = customIdx !== -1 && (this.hoveredIndex === customIdx || store.get('theme') === 'custom');
     if (isCustomActive) {
-      const editorY = 520;
-      const editorH = 220;
+      const editorY = 500;
+      const editorH = 240;
       ctx.fillStyle = cols.panel + 'dd';
       ctx.fillRect(startX, editorY, totalGridW, editorH);
       ctx.strokeStyle = cols.accent;
@@ -131,7 +131,7 @@ const ThemeSelect = {
       ctx.fillStyle = cols.text;
       ctx.font = 'bold 14px monospace';
       ctx.textAlign = 'center';
-      ctx.fillText('CLICK A SWATCH TO CYCLE COLOR', startX + totalGridW / 2, editorY + 22);
+      ctx.fillText('CLICK A SWATCH TO CYCLE COLOR', startX + totalGridW / 2, editorY + 30);
 
       const colorKeys = ['lightSquare', 'darkSquare', 'lightPiece', 'darkPiece', 'highlight', 'background', 'panel', 'text', 'accent', 'buttonBg'];
       const swatchSize = 22;
@@ -174,7 +174,7 @@ const ThemeSelect = {
       ctx.fillStyle = cols.text + 'aa';
       ctx.font = '10px monospace';
       ctx.textAlign = 'left';
-      ctx.fillText('Music:', startX + 10, editorY + 138);
+      ctx.fillText('Music:', startX + 10, editorY + 120);
       const musicY = editorY + 144;
       const currentMusic = store.get('customMusicTheme') || 'space';
       for (let i = 0; i < baseThemes.length; i++) {
@@ -200,7 +200,7 @@ const ThemeSelect = {
       ctx.fillStyle = cols.text + 'aa';
       ctx.font = '10px monospace';
       ctx.textAlign = 'left';
-      ctx.fillText('Background:', startX + 10, editorY + 184);
+      ctx.fillText('Background:', startX + 10, editorY + 168);
       const bgY = editorY + 190;
       const currentBg = store.get('customBgTheme') || 'space';
       for (let i = 0; i < baseThemes.length; i++) {
@@ -259,14 +259,14 @@ const ThemeSelect = {
     const customIdx = this.themes.findIndex(t => t.id === 'custom');
     const isCustomActive = customIdx !== -1 && (this.hoveredIndex === customIdx || store.get('theme') === 'custom');
     if (isCustomActive) {
-      const editorY = 520;
+      const editorY = 510;
       const colorKeys = ['lightSquare', 'darkSquare', 'lightPiece', 'darkPiece', 'highlight', 'background', 'panel', 'text', 'accent', 'buttonBg'];
       const swatchSize = 22;
       const swatchGap = 8;
       const colsPerRow = 5;
       const swatchTotalW = colsPerRow * (swatchSize + swatchGap) - swatchGap;
       const swatchStartX = startX + (totalGridW - swatchTotalW) / 2;
-      const swatchStartY = editorY + 38;
+      const swatchStartY = editorY + 44;
       const presets = ['#ff4444', '#44ff44', '#4444ff', '#ffff44', '#ff44ff', '#44ffff', '#ffffff', '#000000', '#888888', '#ff8800', '#8800ff', '#0088ff', '#8b4513', '#2e8b57', '#800000'];
 
       for (let i = 0; i < colorKeys.length; i++) {

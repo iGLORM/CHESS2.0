@@ -7,15 +7,18 @@ class Search {
   static maxDepth = 3;
 
   static SEARCH_LIMITS = {
-    1: { maxNodes: 5000, maxTime: 500 },
-    2: { maxNodes: 8000, maxTime: 800 },
-    3: { maxNodes: 20000, maxTime: 1500 },
-    4: { maxNodes: 50000, maxTime: 2500 },
-    5: { maxNodes: 100000, maxTime: 4000 },
+    1: { maxNodes: 8000, maxTime: 800 },
+    2: { maxNodes: 15000, maxTime: 1200 },
+    3: { maxNodes: 40000, maxTime: 2000 },
+    4: { maxNodes: 80000, maxTime: 3500 },
+    5: { maxNodes: 150000, maxTime: 5000 },
+    6: { maxNodes: 250000, maxTime: 7000 },
+    7: { maxNodes: 400000, maxTime: 10000 },
+    8: { maxNodes: 600000, maxTime: 15000 },
   };
 
   static applyLimits(depth) {
-    const limits = this.SEARCH_LIMITS[depth] || this.SEARCH_LIMITS[5];
+    const limits = this.SEARCH_LIMITS[depth] || this.SEARCH_LIMITS[8];
     this.maxNodes = limits.maxNodes;
     this.maxTime = limits.maxTime;
   }

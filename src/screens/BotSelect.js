@@ -17,13 +17,13 @@ const BotSelect = {
   getDescription(level, config) {
     const descs = {
       1: 'Makes random moves. Great for learning the rules.',
-      2: 'Still learning. Occasionally finds a good move.',
-      3: 'Thinks one move ahead. Starting to understand tactics.',
-      4: 'Two moves ahead. Can spot basic traps.',
+      2: 'Still learning. Occasionally finds a decent move.',
+      3: 'Thinks one move ahead. Starting to spot basic tactics.',
+      4: 'Two moves ahead. Can spot simple traps.',
       5: 'Three moves ahead. Solid positional play.',
       6: 'Three moves deep, very accurate. Tough to beat.',
       7: 'Four moves deep. Expert-level play.',
-      8: 'Four moves deep, no mistakes. Master-level.',
+      8: 'Four moves deep, near perfect. Master-level.',
       9: 'Five moves deep. Grandmaster strength.',
       10: 'Full strength. The ultimate challenge.',
     };
@@ -85,38 +85,38 @@ const BotSelect = {
 
       // Level number (large)
       ctx.fillStyle = isHover ? cols.accent : cols.text;
-      ctx.font = 'bold 56px monospace';
+      ctx.font = 'bold 48px monospace';
       ctx.textAlign = 'center';
-      ctx.fillText(bot.level, x + cardW / 2, y + 80);
+      ctx.fillText(bot.level, x + cardW / 2, y + 72);
 
       // Name
       ctx.fillStyle = isHover ? cols.accent : cols.text;
-      ctx.font = 'bold 16px monospace';
-      ctx.fillText(bot.name, x + cardW / 2, y + 110);
+      ctx.font = 'bold 14px monospace';
+      ctx.fillText(bot.name, x + cardW / 2, y + 100);
 
       // Depth indicator
       ctx.fillStyle = cols.text + '66';
-      ctx.font = '11px monospace';
-      ctx.fillText('Depth ' + bot.depth, x + cardW / 2, y + 130);
+      ctx.font = '10px monospace';
+      ctx.fillText('Depth ' + bot.depth, x + cardW / 2, y + 118);
 
       // Description
       ctx.fillStyle = cols.text + '88';
       ctx.font = '10px monospace';
-      this.wrapText(ctx, bot.description, x + 10, y + 155, cardW - 20, 14);
+      this.wrapText(ctx, bot.description, x + 10, y + 142, cardW - 20, 14);
     }
 
     // Bottom buttons
     ctx.fillStyle = cols.text + '44';
     ctx.font = '11px monospace';
     ctx.textAlign = 'center';
-    ctx.fillText('Click a bot to select. ESC to go back.', 640, 750);
+    ctx.fillText('Click a bot to select. ESC to go back.', 640, 730);
 
     UIHelpers.drawButton(ctx, 30, 730, 160, 40, '< Back', cols, { font: 'bold 14px monospace' });
 
     // Start button
     const selBot = this.levels[this.selectedIndex];
     if (selBot) {
-      UIHelpers.drawButton(ctx, 1280 - 220, 700, 190, 50, 'START GAME', cols, {
+      UIHelpers.drawButton(ctx, 1280 - 220, 680, 190, 50, 'START GAME', cols, {
         font: 'bold 16px monospace',
         active: true,
       });
@@ -148,7 +148,7 @@ const BotSelect = {
     }
 
     // Start button
-    if (x >= 1280 - 220 && x <= 1280 - 30 && y >= 700 && y <= 750) {
+    if (x >= 1280 - 220 && x <= 1280 - 30 && y >= 680 && y <= 730) {
       const selBot = this.levels[this.selectedIndex];
       if (selBot) {
         store.set('classicDifficulty', selBot.level);
@@ -206,7 +206,7 @@ const BotSelect = {
     }
 
     // Start button hover
-    if (x >= 1280 - 220 && x <= 1280 - 30 && y >= 700 && y <= 750) {
+    if (x >= 1280 - 220 && x <= 1280 - 30 && y >= 680 && y <= 730) {
       canvas.style.cursor = 'pointer';
       return;
     }

@@ -259,7 +259,7 @@ const HomeScreen = {
     ctx.fillStyle = cols.text + '33';
     ctx.font = '11px monospace';
     ctx.textAlign = 'center';
-    ctx.fillText('v1.0 — Use mouse or arrow keys to navigate', 640, 780);
+    ctx.fillText('Use mouse or arrow keys to navigate', 640, 760);
   },
 
   handleClick(x, y) {
@@ -323,9 +323,8 @@ const HomeScreen = {
         break;
       case '1v1':
         store.set('mode', '1v1');
-        store.set('p1IsWhite', true);
         store.set('miniGamesEnabled', true);
-        switchScreen('game');
+        switchScreen('modeSelect');
         break;
       case 'classic':
         switchScreen('botSelect');
