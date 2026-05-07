@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Chess 2.0
+Comment=A Pixel Chess Adventure with PixiJS
+Exec=bash -c 'cd "$(dirname "%k")" && npx electron .'
+Icon=icon
+Type=Application
+Terminal=false
+Categories=Game;BoardGame;
+StartupNotify=true

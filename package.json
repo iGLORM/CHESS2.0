@@ -20,6 +20,8 @@
     "files": [
       "main.js",
       "preload.js",
+      "launch.sh",
+      "chess2.desktop",
       "src/**/*",
       "assets/**/*",
       "icon.png",
@@ -51,7 +53,13 @@
         "deb"
       ],
       "icon": "icon_512.png",
-      "category": "Game"
+      "category": "Game",
+      "desktop": {
+        "Name": "Chess 2.0",
+        "Comment": "A Pixel Chess Adventure with PixiJS",
+        "Categories": "Game;BoardGame;",
+        "StartupNotify": "true"
+      }
     }
   },
   "devDependencies": {
