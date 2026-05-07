@@ -56,8 +56,6 @@ class Store {
         captures: 0,
         miniGamesPlayed: 0,
         miniGamesWon: 0,
-        rating: 1200,
-        ratingHistory: [],
       },
     };
     this.listeners = {};

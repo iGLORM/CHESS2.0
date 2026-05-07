@@ -220,18 +220,6 @@ const GameScreen = {
       else if (this.gameStatus === 'resigned') reason = 'by Resignation';
       if (reason) ctx.fillText(reason, 640, 300);
 
-      // Rating change display
-      const rStats = store.get('stats');
-      const rHistory = rStats.ratingHistory || [];
-      if (rHistory.length > 0) {
-        const lastEntry = rHistory[rHistory.length - 1];
-        const changeStr = lastEntry.change > 0 ? ('+' + lastEntry.change) : String(lastEntry.change);
-        ctx.fillStyle = lastEntry.change > 0 ? '#44dd44' : lastEntry.change < 0 ? '#dd4444' : cols.text + '88';
-        ctx.font = 'bold 18px monospace';
-        ctx.textAlign = 'center';
-        ctx.fillText('Rating: ' + rStats.rating + ' (' + changeStr + ')', 640, 320);
-      }
-
       if (this.gameResult && this.currentCharacter) {
         ctx.fillStyle = cols.text + 'aa';
         ctx.font = '16px monospace';
@@ -335,10 +323,20 @@ const GameScreen = {
     ctx.fillRect(x + 10, y + 33, 14, 14);
     ctx.strokeRect(x + 10, y + 33, 14, 14);
     const captured = this.capturedPieces[color];
+    const pieceValues = { pawn: 1, knight: 3, bishop: 3, rook: 5, queen: 9, king: 0 };
+    const pieceSymbols = { pawn: 'p', knight: 'N', bishop: 'B', rook: 'R', queen: 'Q', king: 'K' };
+
+    // Calculate material points for both sides
+    const whiteCaptures = this.capturedPieces.white; // pieces white has captured (black pieces)
+    const blackCaptures = this.capturedPieces.black; // pieces black has captured (white pieces)
+    const whiteMatCaptured = whiteCaptures.reduce((s, p) => s + (pieceValues[p.type] || 0), 0);
+    const blackMatCaptured = blackCaptures.reduce((s, p) => s + (pieceValues[p.type] || 0), 0);
+    const whiteAdvantage = whiteMatCaptured - blackMatCaptured;
+
+    // Show captured pieces with point value
     ctx.fillStyle = cols.text + '66';
     ctx.font = '10px monospace';
     ctx.fillText('Captured: ' + captured.length, x + 10, y + 65);
-    const pieceSymbols = { pawn: 'p', knight: 'N', bishop: 'B', rook: 'R', queen: 'Q', king: 'K' };
     let px = x + 10;
     let py = y + 75;
     ctx.font = '12px monospace';
@@ -347,6 +345,22 @@ const GameScreen = {
       ctx.fillText(pieceSymbols[p.type] || '?', px, py);
       px += 14;
       if (px > x + w - 10) { px = x + 10; py += 14; }
+    }
+
+    // Material advantage display (chess.com style)
+    const matY = py + 18;
+    if (whiteAdvantage !== 0) {
+      const isWhiteSide = color === 'white';
+      const advantage = isWhiteSide ? whiteAdvantage : -whiteAdvantage;
+      if (advantage > 0) {
+        ctx.fillStyle = '#44dd44';
+        ctx.font = 'bold 14px monospace';
+        ctx.fillText('+' + advantage, x + 10, matY);
+      } else if (advantage < 0) {
+        ctx.fillStyle = '#dd4444';
+        ctx.font = 'bold 14px monospace';
+        ctx.fillText(String(advantage), x + 10, matY);
+      }
     }
     if (this.mode === 'story' && color === 'black' && this.currentCharacter) {
       ctx.fillStyle = cols.text + '88';
@@ -878,20 +892,6 @@ const GameScreen = {
     if (this.gameResult === 'white') stats.wins++;
     else if (this.gameResult === 'black') stats.losses++;
     else stats.draws++;
-
-    // Elo-like rating calculation
-    const aiDifficulty = store.get('customDifficulty') || 5;
-    const aiRating = 400 + (aiDifficulty - 1) * 200; // Level 1=400, Level 10=2200
-    const playerRating = stats.rating || 1200;
-    const expectedScore = 1 / (1 + Math.pow(10, (aiRating - playerRating) / 400));
-    const actualScore = this.gameResult === 'white' ? 1 : (this.gameResult === 'draw' ? 0.5 : 0);
-    const kFactor = 32;
-    const ratingChange = Math.round(kFactor * (actualScore - expectedScore));
-    stats.rating = Math.max(100, playerRating + ratingChange);
-    if (!stats.ratingHistory) stats.ratingHistory = [];
-    stats.ratingHistory.push({ rating: stats.rating, change: ratingChange, result: this.gameResult });
-    if (stats.ratingHistory.length > 50) stats.ratingHistory = stats.ratingHistory.slice(-50);
-
     store.set('stats', stats);
 
     if (this.mode === 'story' && this.gameResult === 'white') {
