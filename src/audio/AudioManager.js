@@ -43,12 +43,13 @@ class AudioManager {
 
   _playNote(freq, duration, type, volume, when, isMusic) {
     if (!this.enabled || !this.ctx) return;
-    const t = when || this.ctx.currentTime;
+    const t = (when || this.ctx.currentTime) + (isMusic ? (Math.random() - 0.5) * 0.02 : 0);
+    const vol = (volume || 0.15) * (isMusic ? 0.85 + Math.random() * 0.3 : 1);
     const osc = this.ctx.createOscillator();
     const gain = this.ctx.createGain();
     osc.type = type || 'triangle';
     osc.frequency.setValueAtTime(freq, t);
-    gain.gain.setValueAtTime(volume || 0.15, t);
+    gain.gain.setValueAtTime(vol, t);
     gain.gain.exponentialRampToValueAtTime(0.0001, t + duration);
     osc.connect(gain);
     gain.connect(isMusic ? this.musicGain : this.sfxGain);
@@ -74,6 +75,7 @@ class AudioManager {
     if (!this.enabled || !this.ctx || this.musicPlaying) return;
     this._createMusicGain();
     this.musicPlaying = true;
+    this.barCount = 0;
     this.nextLoopTime = this.ctx.currentTime + 0.1;
     this._scheduleLoop();
   }
@@ -106,9 +108,15 @@ class AudioManager {
     const beat = 60 / bpm;
     const now = this.ctx.currentTime;
 
-    // Schedule 4 bars ahead
+    // Schedule 4 bars ahead, alternating A/B sections every 4 bars
     while (this.nextLoopTime < now + 4 * beat * 4) {
-      this._playBar(this.nextLoopTime, beat);
+      const section = Math.floor(this.barCount / 4) % 2 === 0 ? 'A' : 'B';
+      if (section === 'A') {
+        this._playBar(this.nextLoopTime, beat, this.barCount);
+      } else {
+        this._playBarB(this.nextLoopTime, beat, this.barCount);
+      }
+      this.barCount++;
       this.nextLoopTime += beat * 4;
     }
 
@@ -131,7 +139,7 @@ class AudioManager {
     }
   }
 
-  _playBar(startTime, beat) {
+  _playBar(startTime, beat, barNum) {
     if (!this.musicPlaying) return;
     const themeId = this._getMusicThemeId();
     switch (themeId) {
@@ -146,6 +154,24 @@ class AudioManager {
       case 'prehistoric': this._playPrehistoricBar(startTime, beat); break;
       case 'steampunk': this._playSteampunkBar(startTime, beat); break;
       default: this._playSpaceBar(startTime, beat); break;
+    }
+  }
+
+  _playBarB(startTime, beat, barNum) {
+    if (!this.musicPlaying) return;
+    const themeId = this._getMusicThemeId();
+    switch (themeId) {
+      case 'space': this._playSpaceBarB(startTime, beat); break;
+      case 'medieval': this._playMedievalBarB(startTime, beat); break;
+      case 'ocean': this._playOceanBarB(startTime, beat); break;
+      case 'egypt': this._playEgyptBarB(startTime, beat); break;
+      case 'cyberpunk': this._playCyberpunkBarB(startTime, beat); break;
+      case 'japanese': this._playJapaneseBarB(startTime, beat); break;
+      case 'artdeco': this._playArtDecoBarB(startTime, beat); break;
+      case 'wildwest': this._playWildWestBarB(startTime, beat); break;
+      case 'prehistoric': this._playPrehistoricBarB(startTime, beat); break;
+      case 'steampunk': this._playSteampunkBarB(startTime, beat); break;
+      default: this._playSpaceBarB(startTime, beat); break;
     }
   }
 
@@ -320,6 +346,169 @@ class AudioManager {
     // High whistle
     this._playNote(783.99, beat * 0.3, 'triangle', 0.025, startTime + beat * 2.5, true);
     this._playNote(880.00, beat * 0.3, 'triangle', 0.025, startTime + beat * 3, true);
+  }
+
+  // --- Theme-specific music bars (B sections - variations) ---
+
+  _playSpaceBarB(startTime, beat) {
+    // Higher register, more active arpeggios
+    const b = beat * 2;
+    const roots = [220.00, 196.00, 174.61, 220.00];
+    const intervals = [[0, 4, 7, 11], [0, 3, 7, 10], [0, 4, 7, 11], [0, 3, 7, 10]];
+    for (let bar = 0; bar < 2; bar++) {
+      const r = roots[bar % 4];
+      const freqs = intervals[bar % 4].map(semi => r * Math.pow(2, semi / 12));
+      this._playChord(freqs, b * 2.5, 0.04, startTime + bar * b);
+    }
+    // Descending twinkle pattern
+    const twinkle = [1174.66, 1046.50, 880.00, 783.99, 698.46, 587.33];
+    for (let i = 0; i < 8; i++) {
+      const f = twinkle[i % twinkle.length];
+      const t = startTime + i * b * 0.35 + Math.random() * 0.15;
+      this._playNote(f, b * 0.5, 'sine', 0.05, t, true);
+    }
+  }
+
+  _playMedievalBarB(startTime, beat) {
+    // Higher drone, more ornamented melody (Mixolydian flavor)
+    this._playNote(220.00, beat * 4, 'sine', 0.05, startTime, true);
+    const bass = [220.00, 196.00, 174.61, 164.81, 146.83, 164.81, 174.61, 196.00];
+    bass.forEach((f, i) => this._playNote(f, beat * 0.6, 'square', 0.06, startTime + i * beat * 0.5, true));
+    // Faster ornamented melody
+    const melody = [
+      { f: 659.25, d: 0.25 }, { f: 783.99, d: 0.25 }, { f: 659.25, d: 0.5 },
+      { f: 587.33, d: 0.5 }, { f: 523.25, d: 0.5 }, { f: 587.33, d: 0.5 },
+      { f: 659.25, d: 0.5 }, { f: 523.25, d: 0.5 }, { f: 440.00, d: 1.0 },
+    ];
+    let t = startTime;
+    melody.forEach(({ f, d }) => {
+      this._playNote(f, d * beat * 0.85, 'triangle', 0.09, t, true);
+      t += d * beat;
+    });
+  }
+
+  _playOceanBarB(startTime, beat) {
+    // Deeper, more dramatic swells
+    const arp = [392.00, 329.63, 261.63, 329.63, 392.00, 523.25, 392.00, 329.63];
+    arp.forEach((f, i) => this._playNote(f, beat * 0.5, 'triangle', 0.07, startTime + i * beat * 0.5, true));
+    // Deeper swells
+    this._playNote(98.00, beat * 3.5, 'sine', 0.1, startTime, true);
+    this._playNote(130.81, beat * 2, 'sine', 0.07, startTime + beat * 1.5, true);
+    // High sparkle on off-beats
+    const sparkle = [659.25, 783.99, 880.00, 1046.50];
+    sparkle.forEach((f, i) => this._playNote(f, beat * 0.35, 'sine', 0.04, startTime + i * beat * 0.8 + beat * 0.5, true));
+  }
+
+  _playEgyptBarB(startTime, beat) {
+    // Higher register melody, busier percussion
+    this._playNote(164.81, beat * 4, 'sine', 0.07, startTime, true);
+    const melody = [440.00, 523.25, 493.88, 440.00, 392.00, 349.23, 392.00, 440.00, 523.25, 493.88, 440.00, 392.00];
+    melody.forEach((f, i) => this._playNote(f, beat * 0.35, 'triangle', 0.07, startTime + i * beat * 0.33, true));
+    // Denser percussion
+    for (let i = 0; i < 12; i++) {
+      if (i % 3 !== 0) this._playNote(900, 0.02, 'square', 0.03, startTime + i * beat * 0.33, true);
+    }
+  }
+
+  _playCyberpunkBarB(startTime, beat) {
+    // Filter-sweep feel, different bassline, higher arp
+    const bass = [87.31, 73.42, 65.41, 73.42, 87.31, 73.42, 65.41, 65.41];
+    bass.forEach((f, i) => this._playNote(f, beat * 0.4, 'sawtooth', 0.12, startTime + i * beat * 0.5, true));
+    // Higher octave arp
+    const arp = [783.99, 880.00, 1046.50, 1174.66, 1046.50, 880.00, 783.99, 698.46];
+    arp.forEach((f, i) => this._playNote(f, beat * 0.3, 'square', 0.06, startTime + i * beat * 0.5 + beat * 0.25, true));
+    // Wider chord pad
+    const chord = [261.63, 392.00, 523.25];
+    this._playChord(chord, beat * 2.5, 0.04, startTime);
+  }
+
+  _playJapaneseBarB(startTime, beat) {
+    // Higher koto melody, more active bell pattern
+    this._playNote(146.83, beat * 4, 'sine', 0.05, startTime, true);
+    const melody = [
+      { f: 587.33, d: 0.5 }, { f: 659.25, d: 0.5 }, { f: 783.99, d: 1.0 },
+      { f: 659.25, d: 0.5 }, { f: 587.33, d: 0.5 }, { f: 523.25, d: 0.5 },
+      { f: 440.00, d: 0.5 }, { f: 523.25, d: 0.5 },
+    ];
+    let t = startTime;
+    melody.forEach(({ f, d }) => {
+      this._playNote(f, d * beat * 0.85, 'triangle', 0.09, t, true);
+      t += d * beat;
+    });
+    // More active bells
+    const bells = [783.99, 1046.50, 1174.66, 1318.50, 1046.50, 880.00];
+    bells.forEach((f, i) => this._playNote(f, beat * 0.5, 'sine', 0.04, startTime + i * beat * 0.7 + beat * 0.3, true));
+  }
+
+  _playArtDecoBarB(startTime, beat) {
+    // Walking bass variation, different chord changes
+    const bass = [196.00, 174.61, 164.81, 146.83, 130.81, 146.83, 164.81, 174.61];
+    bass.forEach((f, i) => this._playNote(f, beat * 0.5, 'triangle', 0.07, startTime + i * beat * 0.5, true));
+    // Different chord progression
+    const chords = [
+      [329.63, 392.00, 493.88], [261.63, 329.63, 392.00],
+      [293.66, 349.23, 440.00], [261.63, 329.63, 392.00],
+    ];
+    chords.forEach((c, i) => this._playChord(c, beat * 0.9, 0.06, startTime + i * beat));
+    // Sax-like lead
+    const lead = [523.25, 587.33, 659.25, 783.99, 659.25, 587.33, 523.25, 493.88];
+    lead.forEach((f, i) => this._playNote(f, beat * 0.4, 'sawtooth', 0.04, startTime + i * beat * 0.5 + beat * 0.5, true));
+  }
+
+  _playWildWestBarB(startTime, beat) {
+    // Higher harmonica, walking bass variation
+    const bass = [110.00, 98.00, 82.41, 98.00, 110.00, 82.41, 98.00, 110.00];
+    bass.forEach((f, i) => this._playNote(f, beat * 0.6, 'triangle', 0.08, startTime + i * beat * 0.5, true));
+    const melody = [
+      { f: 587.33, d: 1.0 }, { f: 659.25, d: 0.5 }, { f: 587.33, d: 1.0 },
+      { f: 523.25, d: 0.5 }, { f: 493.88, d: 1.0 },
+    ];
+    let t = startTime;
+    melody.forEach(({ f, d }) => {
+      this._playNote(f, d * beat * 0.9, 'triangle', 0.07, t, true);
+      t += d * beat;
+    });
+    // Whistle ornament
+    this._playNote(783.99, beat * 0.4, 'sine', 0.04, startTime + beat * 1.5, true);
+    this._playNote(880.00, beat * 0.3, 'sine', 0.04, startTime + beat * 3.5, true);
+  }
+
+  _playPrehistoricBarB(startTime, beat) {
+    // Different drum pattern, higher flute
+    const drumPattern = [1, 1, 0, 1, 1, 0, 1, 1];
+    drumPattern.forEach((hit, i) => {
+      if (hit) this._playNote(80, 0.06, 'square', 0.14, startTime + i * beat * 0.5, true);
+    });
+    // Higher flute melody
+    const flute = [
+      { f: 523.25, d: 0.5 }, { f: 587.33, d: 0.5 }, { f: 659.25, d: 0.5 },
+      { f: 587.33, d: 0.5 }, { f: 523.25, d: 0.5 }, { f: 440.00, d: 1.0 },
+    ];
+    let t = startTime;
+    flute.forEach(({ f, d }) => {
+      this._playNote(f, d * beat * 0.8, 'triangle', 0.08, t, true);
+      t += d * beat;
+    });
+    this._playNote(164.81, beat * 4, 'sine', 0.04, startTime, true);
+  }
+
+  _playSteampunkBarB(startTime, beat) {
+    // Different oom-pah, bridge melody
+    const oompah = [146.83, 174.61, 164.81, 174.61, 130.81, 164.81, 146.83, 174.61];
+    oompah.forEach((f, i) => this._playNote(f, beat * 0.4, 'square', 0.05, startTime + i * beat * 0.5, true));
+    const melody = [
+      { f: 440.00, d: 0.5 }, { f: 523.25, d: 0.5 }, { f: 440.00, d: 0.5 }, { f: 392.00, d: 0.5 },
+      { f: 349.23, d: 0.5 }, { f: 392.00, d: 0.5 }, { f: 440.00, d: 0.5 }, { f: 523.25, d: 1.0 },
+    ];
+    let t = startTime;
+    melody.forEach(({ f, d }) => {
+      this._playNote(f, d * beat * 0.85, 'sawtooth', 0.04, t, true);
+      t += d * beat;
+    });
+    // Clockwork ticks
+    for (let i = 0; i < 8; i++) {
+      this._playNote(1200, 0.02, 'square', 0.02, startTime + i * beat * 0.5, true);
+    }
   }
 
   // --- Sound Effects ---
