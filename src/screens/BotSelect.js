@@ -204,7 +204,7 @@ const BotSelect = {
       store.set('classicElo', this.eloValue);
       store.set('classicDifficulty', this.eloToDifficulty(this.eloValue));
       store.set('mode', 'classic');
-      store.set('miniGamesEnabled', true);
+      store.set('miniGamesEnabled', false);
       switchScreen('game');
       return;
     }
@@ -269,7 +269,7 @@ const BotSelect = {
       store.set('classicElo', this.eloValue);
       store.set('classicDifficulty', this.eloToDifficulty(this.eloValue));
       store.set('mode', 'classic');
-      store.set('miniGamesEnabled', true);
+      store.set('miniGamesEnabled', false);
       switchScreen('game');
     }
   },

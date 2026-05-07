@@ -102,6 +102,7 @@ function initApp() {
   registerScreen('botSelect', BotSelect);
   registerScreen('customGame', CustomGameScreen);
   registerScreen('stats', StatsScreen);
+  registerScreen('controls', ControlsScreen);
 
   function getMousePos(e, el) {
     const rect = el.getBoundingClientRect();

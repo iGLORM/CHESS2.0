@@ -5,19 +5,22 @@ const SettingsScreen = {
   editingOption: null,
   editText: '',
   confirmReset: false,
+  dragging: null,
+  _focusedSlider: null,
 
   init() {
     this.settings = { ...store.get('settings') };
+    if (this.settings.musicVolume == null) this.settings.musicVolume = 0.5;
+    if (this.settings.sfxVolume == null) this.settings.sfxVolume = 0.5;
     this.editingOption = null;
     this.editText = '';
     this.confirmReset = false;
+    this.dragging = null;
+    this._focusedSlider = null;
     this.buildOptions();
   },
 
   buildOptions() {
-    // Initialize default mini game sensitivity
-    if (this.settings.miniGameSensitivity == null) this.settings.miniGameSensitivity = 1.0;
-    if (this.settings.shieldSensitivity == null) this.settings.shieldSensitivity = 1.0;
     this.options = [
       {
         label: 'Practice Mini-Games',
@@ -27,62 +30,19 @@ const SettingsScreen = {
         },
       },
       {
+        label: 'Controls',
+        value: () => '→',
+        action: () => {
+          switchScreen('controls');
+        },
+      },
+      {
         label: 'Audio',
         value: () => this.settings.audioEnabled ? 'ON' : 'OFF',
         toggle: () => {
           this.settings.audioEnabled = !this.settings.audioEnabled;
           store.set('settings', this.settings);
           audioManager.setEnabled(this.settings.audioEnabled);
-          store.saveProgress();
-        },
-      },
-      {
-        label: 'Music Volume',
-        value: () => Math.round((this.settings.musicVolume || 0.5) * 100) + '%',
-        isSlider: true,
-        sliderValue: () => this.settings.musicVolume || 0.5,
-        sliderAdjust: (delta) => {
-          const current = this.settings.musicVolume || 0.5;
-          this.settings.musicVolume = Math.max(0, Math.min(1, current + delta));
-          store.set('settings', this.settings);
-          audioManager.setMusicVolume(this.settings.musicVolume);
-          store.saveProgress();
-        },
-      },
-      {
-        label: 'SFX Volume',
-        value: () => Math.round((this.settings.sfxVolume || 0.5) * 100) + '%',
-        isSlider: true,
-        sliderValue: () => this.settings.sfxVolume || 0.5,
-        sliderAdjust: (delta) => {
-          const current = this.settings.sfxVolume || 0.5;
-          this.settings.sfxVolume = Math.max(0, Math.min(1, current + delta));
-          store.set('settings', this.settings);
-          audioManager.setSFXVolume(this.settings.sfxVolume);
-          store.saveProgress();
-        },
-      },
-      {
-        label: 'Dodge Sensitivity',
-        value: () => Math.round((this.settings.miniGameSensitivity || 1.0) * 100) + '%',
-        isSlider: true,
-        sliderValue: () => this.settings.miniGameSensitivity || 1.0,
-        sliderAdjust: (delta) => {
-          const current = this.settings.miniGameSensitivity || 1.0;
-          this.settings.miniGameSensitivity = Math.max(0.5, Math.min(2.0, current + delta));
-          store.set('settings', this.settings);
-          store.saveProgress();
-        },
-      },
-      {
-        label: 'Shield Sensitivity',
-        value: () => Math.round((this.settings.shieldSensitivity || 1.0) * 100) + '%',
-        isSlider: true,
-        sliderValue: () => this.settings.shieldSensitivity || 1.0,
-        sliderAdjust: (delta) => {
-          const current = this.settings.shieldSensitivity || 1.0;
-          this.settings.shieldSensitivity = Math.max(0.5, Math.min(2.0, current + delta));
-          store.set('settings', this.settings);
           store.saveProgress();
         },
       },
@@ -113,13 +73,63 @@ const SettingsScreen = {
     this.selectedOption = 0;
   },
 
+  _sliderToValue(x, sliderX, sliderW) {
+    const pct = Math.max(0, Math.min(1, (x - sliderX) / sliderW));
+    return Math.round(pct * 100) / 100;
+  },
+
+  _drawVolumeSlider(ctx, x, y, w, value, label, cols) {
+    const h = 14;
+
+    // Label and percentage
+    ctx.fillStyle = cols.text;
+    ctx.font = 'bold 14px monospace';
+    ctx.textAlign = 'left';
+    ctx.fillText(label, x, y - 8);
+
+    ctx.fillStyle = cols.accent;
+    ctx.font = 'bold 16px monospace';
+    ctx.textAlign = 'right';
+    ctx.fillText(Math.round(value * 100) + '%', x + w, y - 8);
+
+    // Track
+    ctx.fillStyle = cols.panel;
+    ctx.fillRect(x, y, w, h);
+    ctx.strokeStyle = cols.text + '44';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(x, y, w, h);
+
+    // Gradient fill
+    const grad = ctx.createLinearGradient(x, 0, x + w, 0);
+    grad.addColorStop(0, '#444466');
+    grad.addColorStop(0.5, cols.accent);
+    grad.addColorStop(1, '#44dd44');
+    ctx.fillStyle = grad;
+    const fillW = value * w;
+    ctx.fillRect(x, y, fillW, h);
+
+    // Knob
+    const knobX = x + fillW;
+    ctx.fillStyle = cols.text;
+    ctx.fillRect(knobX - 5, y - 3, 10, h + 6);
+    ctx.fillStyle = cols.accent;
+    ctx.fillRect(knobX - 3, y - 1, 6, h + 2);
+
+    // End labels
+    ctx.fillStyle = cols.text + '66';
+    ctx.font = '10px monospace';
+    ctx.textAlign = 'left';
+    ctx.fillText('0%', x, y + h + 16);
+    ctx.textAlign = 'right';
+    ctx.fillText('100%', x + w, y + h + 16);
+  },
+
   destroy() {},
 
   render(ctx, dt) {
     const theme = ThemeManager.getTheme(store.get('theme'));
     const cols = theme.colors;
 
-    // Background - animated theme
     if (typeof backgroundRenderer !== 'undefined') {
       backgroundRenderer.render(ctx, dt);
     } else {
@@ -130,14 +140,18 @@ const SettingsScreen = {
     ctx.fillStyle = cols.text;
     ctx.font = 'bold 28px monospace';
     ctx.textAlign = 'center';
-    ctx.fillText('SETTINGS', 640, 60);
+    ctx.fillText('SETTINGS', 640, 50);
     ctx.fillStyle = cols.text + '77';
     ctx.font = '12px monospace';
-    ctx.fillText('Customize your experience', 640, 85);
-    UIHelpers.drawSeparator(ctx, 300, 95, 680, cols);
+    ctx.fillText('Customize your experience', 640, 72);
+    UIHelpers.drawSeparator(ctx, 300, 82, 680, cols);
 
-    // Settings list
-    const startY = 150;
+    // Volume sliders (full-width Elo-style)
+    this._drawVolumeSlider(ctx, 280, 130, 720, this.settings.musicVolume, 'Music Volume', cols);
+    this._drawVolumeSlider(ctx, 280, 210, 720, this.settings.sfxVolume, 'SFX Volume', cols);
+
+    // Options list below sliders
+    const startY = 280;
     const lineH = 60;
 
     for (let i = 0; i < this.options.length; i++) {
@@ -146,31 +160,25 @@ const SettingsScreen = {
       const isHover = i === this.selectedOption;
       const isEditing = this.editingOption === opt.label && (opt.label === 'Player 1 Name' || opt.label === 'Player 2 Name');
 
-      // Background
       ctx.fillStyle = isHover ? cols.buttonHover : 'transparent';
       ctx.fillRect(300, y, 680, 50);
 
-      // Border
       if (isHover) {
         ctx.fillStyle = cols.accent;
         ctx.fillRect(300, y, 3, 50);
       }
 
-      // Icon
-      const iconMap = { 'Practice Mini-Games': 'target', 'Audio': 'music', 'Music Volume': 'volume', 'SFX Volume': 'volume', 'Dodge Sensitivity': 'keyboard', 'Shield Sensitivity': 'shield', 'Player 1 Name': 'king', 'Player 2 Name': 'king', 'Reset Progress': 'skull' };
+      const iconMap = { 'Practice Mini-Games': 'target', 'Controls': 'gear', 'Audio': 'music', 'Player 1 Name': 'king', 'Player 2 Name': 'king', 'Reset Progress': 'skull' };
       if (iconMap[opt.label]) {
         UIHelpers.drawIcon(ctx, 300 + 290, y + 22, iconMap[opt.label], 10, cols);
       }
 
-      // Label
       ctx.fillStyle = isHover ? cols.accent : cols.text;
       ctx.font = '18px monospace';
       ctx.textAlign = 'left';
       ctx.fillText(opt.label, 320, y + 32);
 
-      // Value
       if (isEditing) {
-        // Inline text editor
         ctx.fillStyle = cols.panel;
         ctx.fillRect(700, y + 10, 200, 30);
         ctx.strokeStyle = cols.accent;
@@ -182,14 +190,8 @@ const SettingsScreen = {
         ctx.fillText(UIHelpers.truncateText(ctx, this.editText + (Math.floor(Date.now() / 500) % 2 === 0 ? '|' : ''), 180), 710, y + 30);
       } else if (opt.value) {
         const val = opt.value();
-        if (opt.label.includes('Volume')) {
-          const numVal = parseInt(val);
-          UIHelpers.drawVolumeSlider(ctx, 700, y + 12, 180, 10, numVal, cols);
-          UIHelpers.drawToggle(ctx, 700, y + 35, 36, 18, numVal > 0, cols);
-        } else if (opt.label === 'Audio') {
+        if (opt.label === 'Audio') {
           UIHelpers.drawToggle(ctx, 700, y + 18, 36, 18, this.settings.audioEnabled, cols);
-        } else if (opt.label.includes('Mini-Games')) {
-          UIHelpers.drawToggle(ctx, 700, y + 18, 36, 18, val === 'On', cols);
         } else {
           ctx.fillStyle = cols.text + '88';
           ctx.font = '16px monospace';
@@ -199,26 +201,19 @@ const SettingsScreen = {
       }
     }
 
-    // Controls hint
     ctx.fillStyle = cols.text + '44';
     ctx.font = '11px monospace';
     ctx.textAlign = 'center';
     if (this.editingOption) {
       ctx.fillText('Type name. Enter to confirm, Escape to cancel.', 640, 750);
     } else {
-      ctx.fillText('Click to toggle / edit. ESC to go back.', 640, 750);
+      ctx.fillText('Click to toggle / edit. Drag volume sliders. ESC to go back.', 640, 750);
     }
 
-    // Dithered bottom stripe
     UIHelpers.drawDitheredRect(ctx, 0, 770, 1280, 30, cols.accent, '11');
-
-    // Back button
     UIHelpers.drawButton(ctx, 30, 730, 160, 40, '< Back', cols, { font: 'bold 14px monospace' });
-
-    // Theme shortcut
     UIHelpers.drawButton(ctx, 1280 - 180, 730, 150, 40, 'Themes', cols, { font: 'bold 12px monospace' });
 
-    // Reset confirmation dialog
     if (this.confirmReset) {
       ctx.fillStyle = 'rgba(0,0,0,0.6)';
       ctx.fillRect(0, 0, 1280, 800);
@@ -240,16 +235,13 @@ const SettingsScreen = {
   },
 
   handleClick(x, y) {
-    // Reset confirmation dialog
     if (this.confirmReset) {
-      // Yes button
       if (x >= 460 && x <= 600 && y >= 420 && y <= 460) {
         store.resetProgress();
         this.confirmReset = false;
         this.buildOptions();
         return;
       }
-      // Cancel button
       if (x >= 680 && x <= 820 && y >= 420 && y <= 460) {
         this.confirmReset = false;
         return;
@@ -257,53 +249,46 @@ const SettingsScreen = {
       return;
     }
 
-    // Back
     if (x >= 30 && x <= 190 && y >= 730 && y <= 770) {
       switchScreen('home');
       return;
     }
-    // Theme
     if (x >= 1280 - 180 && x <= 1280 - 30 && y >= 730 && y <= 770) {
       switchScreen('themeSelect', { returnTo: 'settings' });
       return;
     }
 
-    // If editing, click outside the editor cancels
+    // Volume sliders
+    if (x >= 280 && x <= 1000 && y >= 120 && y <= 160) {
+      this.settings.musicVolume = this._sliderToValue(x, 280, 720);
+      this.dragging = 'music';
+      store.set('settings', this.settings);
+      audioManager.setMusicVolume(this.settings.musicVolume);
+      store.saveProgress();
+      return;
+    }
+    if (x >= 280 && x <= 1000 && y >= 200 && y <= 240) {
+      this.settings.sfxVolume = this._sliderToValue(x, 280, 720);
+      this.dragging = 'sfx';
+      store.set('settings', this.settings);
+      audioManager.setSFXVolume(this.settings.sfxVolume);
+      store.saveProgress();
+      return;
+    }
+
     if (this.editingOption) {
       this.editingOption = null;
       this.editText = '';
       return;
     }
 
-    const startY = 150;
+    const startY = 280;
     const lineH = 60;
     for (let i = 0; i < this.options.length; i++) {
       const oy = startY + i * lineH;
       if (x >= 300 && x <= 980 && y >= oy && y <= oy + 50) {
         const opt = this.options[i];
-        if (opt.isSlider) {
-          const sliderX = 700;
-          const sliderW = 180;
-          if (x >= sliderX && x <= sliderX + sliderW && y >= oy + 12 && y <= oy + 22) {
-            // Clicked on slider: left half = decrease, right half = increase
-            const pct = (x - sliderX) / sliderW;
-            const current = opt.sliderValue();
-            const newVal = Math.round(pct * 100) / 100;
-            const delta = newVal - current;
-            opt.sliderAdjust(delta);
-          } else if (x >= 700 && x <= 736 && y >= oy + 35 && y <= oy + 53) {
-            // Mute toggle
-            const current = opt.sliderValue();
-            if (current > 0) {
-              opt._muted = current;
-              opt.sliderAdjust(-current);
-            } else {
-              opt.sliderAdjust((opt._muted || 0.5) - current);
-            }
-          } else {
-            return;
-          }
-        } else if (opt.toggle) opt.toggle();
+        if (opt.toggle) opt.toggle();
         else if (opt.edit) opt.edit();
         else if (opt.action) opt.action();
         return;
@@ -312,17 +297,56 @@ const SettingsScreen = {
   },
 
   handleMouseMove(x, y) {
+    if (this.dragging === 'music') {
+      this.settings.musicVolume = this._sliderToValue(x, 280, 720);
+      store.set('settings', this.settings);
+      audioManager.setMusicVolume(this.settings.musicVolume);
+      store.saveProgress();
+      return;
+    }
+    if (this.dragging === 'sfx') {
+      this.settings.sfxVolume = this._sliderToValue(x, 280, 720);
+      store.set('settings', this.settings);
+      audioManager.setSFXVolume(this.settings.sfxVolume);
+      store.saveProgress();
+      return;
+    }
     if (this.confirmReset || this.editingOption) return;
     this.selectedOption = -1;
-    const startY = 150;
+    const canvas = document.getElementById('gameCanvas');
+    const onSlider = (x >= 280 && x <= 1000 && ((y >= 120 && y <= 160) || (y >= 200 && y <= 240)));
+    const startY = 280;
     const lineH = 60;
     for (let i = 0; i < this.options.length; i++) {
       const oy = startY + i * lineH;
       if (x >= 300 && x <= 980 && y >= oy && y <= oy + 50) {
         this.selectedOption = i;
+        canvas.style.cursor = 'pointer';
         return;
       }
     }
+    canvas.style.cursor = onSlider ? 'pointer' : 'default';
+  },
+
+  handleMouseDown(x, y) {
+    if (x >= 280 && x <= 1000 && y >= 116 && y <= 164) {
+      this.dragging = 'music';
+      this.settings.musicVolume = this._sliderToValue(x, 280, 720);
+      store.set('settings', this.settings);
+      audioManager.setMusicVolume(this.settings.musicVolume);
+      store.saveProgress();
+    }
+    if (x >= 280 && x <= 1000 && y >= 196 && y <= 244) {
+      this.dragging = 'sfx';
+      this.settings.sfxVolume = this._sliderToValue(x, 280, 720);
+      store.set('settings', this.settings);
+      audioManager.setSFXVolume(this.settings.sfxVolume);
+      store.saveProgress();
+    }
+  },
+
+  handleMouseUp() {
+    this.dragging = null;
   },
 
   handleKeyDown(e) {
@@ -351,7 +375,6 @@ const SettingsScreen = {
         this.editText = this.editText.slice(0, -1);
         return;
       }
-      // Only accept printable characters, max 12 chars
       if (e.key.length === 1 && this.editText.length < 12) {
         this.editText += e.key;
         return;
@@ -370,26 +393,29 @@ const SettingsScreen = {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
       const opt = this.options[this.selectedOption];
-      if (opt.isSlider) {
-        // Space/Enter toggles mute on sliders
-        const current = opt.sliderValue();
-        if (current > 0) {
-          opt._muted = current;
-          opt.sliderAdjust(-current);
-        } else {
-          opt.sliderAdjust((opt._muted || 0.5) - current);
-        }
-      } else if (opt.toggle) opt.toggle();
+      if (opt.toggle) opt.toggle();
       else if (opt.edit) opt.edit();
       else if (opt.action) opt.action();
     }
     if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
-      const opt = this.options[this.selectedOption];
-      if (opt && opt.isSlider) {
-        e.preventDefault();
-        const step = opt.label.includes('Sensitivity') ? 0.1 : 0.05;
-        opt.sliderAdjust(e.key === 'ArrowLeft' ? -step : step);
+      const step = 0.05;
+      const delta = e.key === 'ArrowLeft' ? -step : step;
+      if (this._focusedSlider === 'sfx') {
+        this.settings.sfxVolume = Math.max(0, Math.min(1, (this.settings.sfxVolume || 0.5) + delta));
+        store.set('settings', this.settings);
+        audioManager.setSFXVolume(this.settings.sfxVolume);
+        store.saveProgress();
+      } else {
+        this.settings.musicVolume = Math.max(0, Math.min(1, (this.settings.musicVolume || 0.5) + delta));
+        store.set('settings', this.settings);
+        audioManager.setMusicVolume(this.settings.musicVolume);
+        store.saveProgress();
       }
+      e.preventDefault();
+    }
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      this._focusedSlider = this._focusedSlider === 'sfx' ? null : 'sfx';
     }
   },
 };
