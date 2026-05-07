@@ -161,6 +161,8 @@ const GameScreen = {
     const theme = ThemeManager.getTheme(store.get('theme'));
     const cols = theme.colors;
 
+    UIHelpers.drawDitheredRect(ctx, 0, 0, 1280, 3, cols.accent, '33');
+
     if (this.aiCooldown > 0) {
       this.aiCooldown -= dt * 1000;
       if (this.aiCooldown < 0) this.aiCooldown = 0;
@@ -196,11 +198,10 @@ const GameScreen = {
       ctx.globalAlpha = a;
       ctx.fillStyle = 'rgba(0,0,0,0.6)';
       ctx.fillRect(0, 0, 1280, 800);
-      ctx.fillStyle = cols.panel;
-      ctx.fillRect(340, 200, 600, 400);
-      ctx.strokeStyle = cols.accent;
-      ctx.lineWidth = 3;
-      ctx.strokeRect(340, 200, 600, 400);
+      UIHelpers.drawPanel(ctx, 340, 200, 600, 400, cols, { accentTop: true });
+      if (this.gameResult && this.gameResult !== 'draw') {
+        UIHelpers.drawIcon(ctx, 636, 260, 'crown', 12, cols, { color: this.gameResult === 'white' ? cols.lightPiece : cols.darkPiece });
+      }
       ctx.fillStyle = cols.text;
       ctx.font = 'bold 36px monospace';
       ctx.textAlign = 'center';
@@ -226,7 +227,7 @@ const GameScreen = {
         const dlg = this.gameResult === 'white'
           ? this.currentCharacter.dialogue.after
           : this.currentCharacter.dialogue.win;
-        this.wrapText(ctx, dlg, 380, 320, 520, 22);
+        UIHelpers.wrapText(ctx, dlg, 380, 320, 520, 22);
       }
       const buttons = [
         { text: 'Play Again', action: 'rematch', x: 440, y: 460 },
@@ -246,6 +247,7 @@ const GameScreen = {
 
     // AI thinking indicator
     if (this.aiThinking) {
+      UIHelpers.drawIcon(ctx, 580, 20, 'hourglass', 10, cols, { color: cols.text + '88' });
       ctx.fillStyle = cols.text + '88';
       ctx.font = '14px monospace';
       ctx.textAlign = 'center';
@@ -264,12 +266,7 @@ const GameScreen = {
       const startX = 640 - totalW / 2;
       const startY = 400 - sqSize / 2;
 
-      ctx.fillStyle = cols.panel;
-      const pad = 15;
-      ctx.fillRect(startX - pad, startY - pad - 30, totalW + pad * 2, sqSize + pad * 2 + 30);
-      ctx.strokeStyle = cols.accent;
-      ctx.lineWidth = 2;
-      ctx.strokeRect(startX - pad, startY - pad - 30, totalW + pad * 2, sqSize + pad * 2 + 30);
+      UIHelpers.drawPanel(ctx, startX - 20, startY - 40, totalW + 40, sqSize + 60, cols, { accentTop: true });
 
       ctx.fillStyle = cols.text;
       ctx.font = 'bold 18px monospace';
@@ -309,13 +306,9 @@ const GameScreen = {
     const y = 100;
     const w = 160;
     const h = 600;
-    ctx.fillStyle = cols.panel + 'aa';
-    ctx.fillRect(x, y, w, h);
-    ctx.strokeStyle = cols.text + '22';
-    ctx.lineWidth = 1;
-    ctx.strokeRect(x, y, w, h);
-    const playerName = color === 'white' ? store.get('whitePlayer') : store.get('blackPlayer');
     const isPlayerTurn = this.turn === color;
+    UIHelpers.drawCard(ctx, x, y, w, h, cols, { accentStripe: isPlayerTurn && !this.gameOver ? cols.accent : null });
+    const playerName = color === 'white' ? store.get('whitePlayer') : store.get('blackPlayer');
     if (isPlayerTurn && !this.gameOver) {
       ctx.fillStyle = cols.accent;
       ctx.fillRect(x, y, 4, h);
@@ -323,7 +316,7 @@ const GameScreen = {
     ctx.fillStyle = isPlayerTurn && !this.gameOver ? cols.accent : cols.text;
     ctx.font = isPlayerTurn ? 'bold 13px monospace' : '13px monospace';
     ctx.textAlign = 'left';
-    ctx.fillText(playerName, x + 10, y + 25);
+    ctx.fillText(UIHelpers.truncateText(ctx, playerName, w - 20), x + 10, y + 25);
     ctx.fillStyle = color === 'white' ? cols.lightPiece : cols.darkPiece;
     ctx.strokeStyle = cols.text + '44';
     ctx.lineWidth = 1;
@@ -349,7 +342,7 @@ const GameScreen = {
       ctx.fillText('Level ' + this.currentCharacter.level, x + 10, y + 380);
       ctx.fillStyle = this.currentCharacter.colors.primary;
       ctx.font = 'bold 11px monospace';
-      ctx.fillText(this.currentCharacter.name, x + 10, y + 400);
+      ctx.fillText(UIHelpers.truncateText(ctx, this.currentCharacter.name, w - 20), x + 10, y + 400);
     }
 
     // Move history on left panel
@@ -375,8 +368,7 @@ const GameScreen = {
 
   renderStatusBar(ctx, cols) {
     const y = 745;
-    ctx.fillStyle = cols.panel + 'aa';
-    ctx.fillRect(200, y, 880, 35);
+    UIHelpers.drawPanel(ctx, 200, y, 880, 35, cols);
     ctx.fillStyle = cols.text;
     ctx.font = '12px monospace';
     ctx.textAlign = 'center';
@@ -895,23 +887,6 @@ const GameScreen = {
     store.saveProgress();
   },
 
-  wrapText(ctx, text, x, y, maxWidth, lineHeight) {
-    const words = text.split(' ');
-    let line = '';
-    let ly = y;
-    for (const word of words) {
-      const test = line + word + ' ';
-      const m = ctx.measureText(test);
-      if (m.width > maxWidth && line !== '') {
-        ctx.fillText(line, x, ly);
-        line = word + ' ';
-        ly += lineHeight;
-      } else {
-        line = test;
-      }
-    }
-    ctx.fillText(line, x, ly);
-  },
 
   handleGameOverAction(action) {
     switch (action) {

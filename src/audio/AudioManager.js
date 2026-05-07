@@ -18,14 +18,18 @@ class AudioManager {
       this.masterGain.gain.value = 0.8;
       this.masterGain.connect(this.ctx.destination);
 
+      this.sfxGain = this.ctx.createGain();
+      this.sfxGain.gain.value = 0.5;
+      this.sfxGain.connect(this.masterGain);
+
       this._createMusicGain();
 
       this.initialized = true;
     } catch (e) {}
     const settings = store.get('settings') || {};
     this.enabled = settings.audioEnabled !== false;
-    this.setMusicVolume(settings.musicVolume || 0.5);
-    this.setMasterVolume(settings.sfxVolume || 0.5);
+    this.setMusicVolume(settings.musicVolume != null ? settings.musicVolume : 0.5);
+    this.setSFXVolume(settings.sfxVolume != null ? settings.sfxVolume : 0.5);
   }
 
   _createMusicGain() {
@@ -47,7 +51,7 @@ class AudioManager {
     gain.gain.setValueAtTime(volume || 0.15, t);
     gain.gain.exponentialRampToValueAtTime(0.0001, t + duration);
     osc.connect(gain);
-    gain.connect(isMusic ? this.musicGain : this.masterGain);
+    gain.connect(isMusic ? this.musicGain : this.sfxGain);
     osc.start(t);
     osc.stop(t + duration);
   }
@@ -416,9 +420,9 @@ class AudioManager {
     if (this.musicGain) this.musicGain.gain.value = v * 0.6;
   }
 
-  setMasterVolume(vol) {
+  setSFXVolume(vol) {
     const v = Math.max(0, Math.min(1, vol));
-    if (this.masterGain) this.masterGain.gain.value = v * 0.9;
+    if (this.sfxGain) this.sfxGain.gain.value = v;
   }
 }
 

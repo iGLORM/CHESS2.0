@@ -32,6 +32,8 @@ const ThemeSelect = {
     ctx.fillStyle = cols.text + '88';
     ctx.fillText('Choose your visual style', 640, 85);
 
+    UIHelpers.drawSeparator(ctx, 400, 95, 480, cols);
+
     const cardW = 220;
     const cardH = 130;
     const gapX = 30;
@@ -71,12 +73,12 @@ const ThemeSelect = {
         ctx.fillStyle = t.colors.text;
         ctx.font = '16px monospace';
         ctx.textAlign = 'left';
-        ctx.fillText(t.name, x + 10, y + 52);
+        ctx.fillText(UIHelpers.truncateText(ctx, t.name, cardW - 20), x + 10, y + 52);
 
         // Description
         ctx.fillStyle = t.colors.text + '77';
         ctx.font = '12px monospace';
-        ctx.fillText(t.desc, x + 10, y + 72);
+        ctx.fillText(UIHelpers.truncateText(ctx, t.desc, cardW - 20), x + 10, y + 72);
 
         // Active indicator
         if (isActive) {
@@ -88,24 +90,21 @@ const ThemeSelect = {
 
         // Hover background preview
         if (isHover) {
-          ctx.fillStyle = t.colors.background + '33';
-          ctx.fillRect(x + cardW - 60, y + 80, 50, 40);
-          ctx.fillStyle = t.colors.highlight;
-          ctx.fillRect(x + cardW - 55, y + 85, 8, 8);
-          ctx.fillRect(x + cardW - 40, y + 85, 8, 8);
-          ctx.fillStyle = t.colors.lightSquare;
-          ctx.fillRect(x + cardW - 55, y + 97, 8, 8);
-          ctx.fillStyle = t.colors.darkSquare;
-          ctx.fillRect(x + cardW - 40, y + 97, 8, 8);
+          ctx.fillStyle = t.colors.background + '44';
+          ctx.fillRect(x + cardW - 65, y + 70, 52, 52);
+          const ps = 12;
+          for (let r = 0; r < 4; r++) {
+            for (let c = 0; c < 4; c++) {
+              ctx.fillStyle = (r + c) % 2 === 0 ? t.colors.lightSquare : t.colors.darkSquare;
+              ctx.fillRect(x + cardW - 63 + c * ps, y + 72 + r * ps, ps, ps);
+            }
+          }
         }
       } else {
         // Locked overlay
         ctx.fillStyle = 'rgba(0,0,0,0.6)';
         ctx.fillRect(x, y, cardW, cardH);
-        ctx.fillStyle = '#ff4444';
-        ctx.font = 'bold 20px monospace';
-        ctx.textAlign = 'center';
-        ctx.fillText('⚠', x + cardW / 2, y + cardH / 2 + 6);
+        UIHelpers.drawIcon(ctx, x + cardW / 2 - 5, y + cardH / 2 - 10, 'lock', 10, cols, { color: '#ff4444' });
         ctx.fillStyle = cols.text + '88';
         ctx.font = '10px monospace';
         ctx.fillText('LOCKED', x + cardW / 2, y + cardH / 2 + 24);
@@ -121,12 +120,8 @@ const ThemeSelect = {
     const isCustomActive = customIdx !== -1 && (this.hoveredIndex === customIdx || store.get('theme') === 'custom');
     if (isCustomActive) {
       const editorY = 500;
-      const editorH = 240;
-      ctx.fillStyle = cols.panel + 'dd';
-      ctx.fillRect(startX, editorY, totalGridW, editorH);
-      ctx.strokeStyle = cols.accent;
-      ctx.lineWidth = 2;
-      ctx.strokeRect(startX, editorY, totalGridW, editorH);
+      const editorH = 230;
+      UIHelpers.drawPanel(ctx, startX, editorY, totalGridW, editorH, cols, { accentTop: true });
 
       ctx.fillStyle = cols.text;
       ctx.font = 'bold 14px monospace';
@@ -223,12 +218,14 @@ const ThemeSelect = {
       }
     }
 
-    UIHelpers.drawButton(ctx, 30, 730, 160, 40, '< Back', cols, { font: 'bold 14px monospace' });
+    UIHelpers.drawButton(ctx, 30, 745, 160, 40, '< Back', cols, { font: 'bold 14px monospace' });
+
+    UIHelpers.drawDitheredRect(ctx, 0, 770, 1280, 30, cols.accent, '11');
   },
 
   handleClick(x, y) {
     // Back button
-    if (x >= 30 && x <= 190 && y >= 730 && y <= 770) {
+    if (x >= 30 && x <= 190 && y >= 745 && y <= 785) {
       switchScreen(this.returnScreen);
       return;
     }
@@ -259,14 +256,14 @@ const ThemeSelect = {
     const customIdx = this.themes.findIndex(t => t.id === 'custom');
     const isCustomActive = customIdx !== -1 && (this.hoveredIndex === customIdx || store.get('theme') === 'custom');
     if (isCustomActive) {
-      const editorY = 510;
+      const editorY = 500;
       const colorKeys = ['lightSquare', 'darkSquare', 'lightPiece', 'darkPiece', 'highlight', 'background', 'panel', 'text', 'accent', 'buttonBg'];
       const swatchSize = 22;
       const swatchGap = 8;
       const colsPerRow = 5;
       const swatchTotalW = colsPerRow * (swatchSize + swatchGap) - swatchGap;
       const swatchStartX = startX + (totalGridW - swatchTotalW) / 2;
-      const swatchStartY = editorY + 44;
+      const swatchStartY = editorY + 38;
       const presets = ['#ff4444', '#44ff44', '#4444ff', '#ffff44', '#ff44ff', '#44ffff', '#ffffff', '#000000', '#888888', '#ff8800', '#8800ff', '#0088ff', '#8b4513', '#2e8b57', '#800000'];
 
       for (let i = 0; i < colorKeys.length; i++) {

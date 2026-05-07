@@ -63,11 +63,21 @@ class ShieldBlock {
 
   botPlay(dt, totalTime) {
     if (this.done) return;
-    const target = this.arrows.find(a => !a.blocked && a.y > 0.3);
-    if (target) {
-      const targetX = target.x;
-      if (this.shieldX < targetX - 0.04) this.shieldX += dt * 3.5;
-      else if (this.shieldX > targetX + 0.04) this.shieldX -= dt * 3.5;
+    // Find the most urgent arrow (highest y = closest to shield line)
+    let mostUrgent = null;
+    let highestY = -Infinity;
+    for (const a of this.arrows) {
+      if (!a.blocked && a.y > highestY) {
+        highestY = a.y;
+        mostUrgent = a;
+      }
+    }
+    if (mostUrgent && mostUrgent.y > 0.15) {
+      const targetX = mostUrgent.x;
+      const urgency = Math.min(1, (mostUrgent.y - 0.15) / 0.7);
+      const moveSpeed = dt * (3.5 + urgency * 5);
+      if (this.shieldX < targetX - 0.03) this.shieldX += moveSpeed;
+      else if (this.shieldX > targetX + 0.03) this.shieldX -= moveSpeed;
     }
   }
 

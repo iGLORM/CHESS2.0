@@ -39,6 +39,8 @@ const CharacterSelect = {
     } else if (this.phase === 'characters') {
       this.renderCharacters(ctx, cols);
     }
+
+    UIHelpers.drawDitheredRect(ctx, 0, 770, 1280, 30, cols.accent, '11');
   },
 
   // ------------------------------------------------------------------
@@ -52,6 +54,7 @@ const CharacterSelect = {
     ctx.fillStyle = cols.text + '88';
     ctx.font = '14px monospace';
     ctx.fillText('Choose Save', 640, 85);
+    UIHelpers.drawSeparator(ctx, 400, 95, 480, cols);
 
     const saves = store.get('storySaves');
     const cardW = 300;
@@ -67,9 +70,9 @@ const CharacterSelect = {
       const isEmpty = !save.difficultyTier;
       const isHover = this.hoveredSlot === i;
 
-      UIHelpers.drawPixelFrame(ctx, x, y, cardW, cardH, cols, {
+      UIHelpers.drawCard(ctx, x, y, cardW, cardH, cols, {
         hover: isHover,
-        fill: isHover ? cols.buttonHover : cols.panel,
+        accentStripe: isEmpty ? null : (save.completed ? '#44dd44' : cols.accent),
       });
 
       ctx.fillStyle = cols.accent;
@@ -85,6 +88,7 @@ const CharacterSelect = {
         ctx.fillStyle = cols.text + '44';
         ctx.font = '13px monospace';
         ctx.fillText('Click to start', x + cardW / 2, y + 190);
+        UIHelpers.drawIcon(ctx, x + cardW / 2 - 4, y + 140, 'lock', 8, cols, { color: cols.text + '44' });
       } else {
         const tierLabel = DifficultyScaler.getTierLabel(save.difficultyTier);
         const tierElo = DifficultyScaler.getTierElo(save.difficultyTier);
@@ -102,14 +106,7 @@ const CharacterSelect = {
         ctx.fillText(`Level ${save.storyLevel} / 10`, x + cardW / 2, y + 180);
 
         // Progress bar
-        const barW = cardW - 60;
-        const barH = 8;
-        const barX = x + 30;
-        const barY = y + 200;
-        ctx.fillStyle = cols.accent + '33';
-        ctx.fillRect(barX, barY, barW, barH);
-        ctx.fillStyle = cols.accent;
-        ctx.fillRect(barX, barY, barW * (save.storyLevel / 10), barH);
+        UIHelpers.drawProgressBar(ctx, x + 30, y + 200, cardW - 60, 8, save.storyLevel / 10, cols);
 
         if (save.completed) {
           ctx.fillStyle = cols.checkHighlight || cols.accent;
@@ -137,6 +134,7 @@ const CharacterSelect = {
     ctx.fillStyle = cols.text + '88';
     ctx.font = '14px monospace';
     ctx.fillText('This determines how the AI scales across the story', 640, 85);
+    UIHelpers.drawSeparator(ctx, 300, 95, 680, cols);
 
     const tiers = ['rookie', 'beginner', 'intermediate', 'advanced', 'expert'];
     if (store.get('madnessUnlocked')) tiers.push('madness');
@@ -153,15 +151,15 @@ const CharacterSelect = {
       const y = startY + i * (btnH + gap);
       const isHover = this.hoveredTier === i;
 
-      UIHelpers.drawPixelFrame(ctx, startX, y, btnW, btnH, cols, {
+      UIHelpers.drawCard(ctx, startX, y, btnW, btnH, cols, {
         hover: isHover,
-        fill: isHover ? cols.buttonHover : cols.panel,
+        accentStripe: tier === 'madness' ? '#ff4444' : cols.accent,
       });
 
       ctx.fillStyle = tier === 'madness' ? (cols.checkHighlight || cols.accent) : cols.text;
       ctx.font = 'bold 18px monospace';
       ctx.textAlign = 'left';
-      ctx.fillText(config.label, startX + 20, y + 28);
+      ctx.fillText(UIHelpers.truncateText(ctx, config.label, 200), startX + 20, y + 28);
 
       ctx.fillStyle = cols.text + '88';
       ctx.font = '13px monospace';
@@ -171,7 +169,10 @@ const CharacterSelect = {
       ctx.fillStyle = cols.text + '66';
       ctx.font = '12px monospace';
       ctx.textAlign = 'left';
-      ctx.fillText(config.desc, startX + 20, y + 48);
+      ctx.fillText(UIHelpers.truncateText(ctx, config.desc, btnW - 40), startX + 20, y + 48);
+
+      const tierIcons = { rookie: 'shield', beginner: 'shield', intermediate: 'sword', advanced: 'sword', expert: 'crown', madness: 'skull' };
+      UIHelpers.drawIcon(ctx, startX + btnW - 25, y + 14, tierIcons[tier], 10, cols, { color: tier === 'madness' ? '#ff4444' : cols.text + '88' });
     }
 
     UIHelpers.drawButton(ctx, 30, 740, 150, 40, '< Back', cols, { font: 'bold 14px monospace' });
@@ -220,11 +221,11 @@ const CharacterSelect = {
       const isUnlocked = ch.level <= maxUnlocked;
       const isSelected = this.selectedChar && this.selectedChar.id === ch.id;
 
-      UIHelpers.drawPixelFrame(ctx, x, y, cardW, cardH, cols, {
+      UIHelpers.drawCard(ctx, x, y, cardW, cardH, cols, {
         hover: isHover,
         active: isSelected,
+        accentStripe: isUnlocked ? ch.colors.primary : null,
         disabled: !isUnlocked,
-        fill: isUnlocked ? (isHover ? cols.buttonHover : cols.panel) : cols.panel,
       });
       ctx.globalAlpha = isUnlocked ? 1 : 0.5;
 
@@ -237,12 +238,7 @@ const CharacterSelect = {
         const sprite = CharacterManager.getCharacterSprite(ch, spriteSize);
         ctx.drawImage(sprite, sx, sy, spriteSize, spriteSize);
       } else {
-        ctx.fillStyle = cols.panel;
-        ctx.fillRect(sx + 10, sy + 10, spriteSize - 20, spriteSize - 20);
-        ctx.fillStyle = cols.text + '44';
-        ctx.font = '24px monospace';
-        ctx.textAlign = 'center';
-        ctx.fillText('?', sx + spriteSize / 2, sy + spriteSize / 2 + 8);
+        UIHelpers.drawIcon(ctx, x + cardW / 2 - 5, y + 70, 'lock', 10, cols, { color: cols.text + '44' });
       }
 
       ctx.globalAlpha = 1;
@@ -251,13 +247,13 @@ const CharacterSelect = {
       ctx.fillStyle = isUnlocked ? cols.text : cols.text + '44';
       ctx.font = isHover ? 'bold 16px monospace' : '16px monospace';
       ctx.textAlign = 'center';
-      ctx.fillText(isUnlocked ? ch.name : '???', x + cardW / 2, y + 120);
+      ctx.fillText(UIHelpers.truncateText(ctx, isUnlocked ? ch.name : '???', cardW - 20), x + cardW / 2, y + 120);
 
       // Title
       if (isUnlocked) {
         ctx.fillStyle = ch.colors.primary;
         ctx.font = '12px monospace';
-        ctx.fillText(ch.title, x + cardW / 2, y + 140);
+        ctx.fillText(UIHelpers.truncateText(ctx, ch.title, cardW - 20), x + cardW / 2, y + 140);
       }
 
       // Level
@@ -273,15 +269,12 @@ const CharacterSelect = {
         const words = ch.dialogue.before;
         ctx.fillText('"', x + cardW / 2, y + 180);
         ctx.textAlign = 'left';
-        this.wrapText(ctx, words, x + 10, y + 192, cardW - 20, 14, 5);
+        UIHelpers.wrapText(ctx, words, x + 10, y + 192, cardW - 20, 14, 5);
       }
 
       // Level progress bar for current level
       if (ch.level === currentStoryLevel && isUnlocked) {
-        ctx.fillStyle = cols.accent + '44';
-        ctx.fillRect(x + 20, y + cardH - 20, cardW - 40, 6);
-        ctx.fillStyle = cols.accent;
-        ctx.fillRect(x + 20, y + cardH - 20, (cardW - 40) * (currentStoryLevel / 10), 6);
+        UIHelpers.drawProgressBar(ctx, x + 20, y + cardH - 22, cardW - 40, 6, ch.level / 10, cols, { fill: cols.accent });
       }
 
       // "CURRENT" label
@@ -305,12 +298,7 @@ const CharacterSelect = {
 
     // Dialogue popup
     if (this.showDialogue && this.selectedChar) {
-      ctx.fillStyle = 'rgba(0,0,0,0.7)';
-      ctx.fillRect(200, 250, 880, 340);
-
-      ctx.strokeStyle = this.selectedChar.colors.primary;
-      ctx.lineWidth = 3;
-      ctx.strokeRect(200, 250, 880, 340);
+      UIHelpers.drawPanel(ctx, 200, 250, 880, 340, cols, { accentTop: true });
 
       const sprite = CharacterManager.getCharacterSprite(this.selectedChar, 64);
       ctx.drawImage(sprite, 260, 290, 64, 64);
@@ -318,14 +306,20 @@ const CharacterSelect = {
       ctx.fillStyle = this.selectedChar.colors.primary;
       ctx.font = 'bold 20px monospace';
       ctx.textAlign = 'left';
-      ctx.fillText(this.selectedChar.name, 350, 320);
+      ctx.fillText(UIHelpers.truncateText(ctx, this.selectedChar.name, 700), 350, 320);
       ctx.fillStyle = cols.text + '88';
       ctx.font = '12px monospace';
-      ctx.fillText(this.selectedChar.title, 350, 340);
+      ctx.fillText(UIHelpers.truncateText(ctx, this.selectedChar.title, 700), 350, 340);
 
       ctx.fillStyle = cols.text;
       ctx.font = '14px monospace';
-      this.wrapText(ctx, this.selectedChar.dialogue.before, 260, 370, 780, 22);
+      UIHelpers.wrapText(ctx, this.selectedChar.dialogue.before, 260, 370, 780, 22);
+
+      // Fight button glow
+      ctx.fillStyle = this.selectedChar.colors.primary + '33';
+      ctx.fillRect(535, 485, 210, 60);
+      ctx.fillStyle = this.selectedChar.colors.primary + '18';
+      ctx.fillRect(525, 475, 230, 80);
 
       // Fight button
       UIHelpers.drawButton(ctx, 540, 490, 200, 50, 'FIGHT!', cols, {
@@ -333,35 +327,12 @@ const CharacterSelect = {
         fill: this.selectedChar.colors.primary,
         textColor: cols.text,
         font: 'bold 18px monospace',
+        accentStripe: this.selectedChar.colors.primary,
       });
 
       // Cancel button
       UIHelpers.drawButton(ctx, 540, 550, 200, 40, 'Cancel', cols, { font: 'bold 14px monospace' });
     }
-  },
-
-  wrapText(ctx, text, x, y, maxWidth, lineHeight, maxLines) {
-    const words = text.split(' ');
-    let line = '';
-    let ly = y;
-    let lines = 0;
-    for (const word of words) {
-      const test = line + word + ' ';
-      const m = ctx.measureText(test);
-      if (m.width > maxWidth && line !== '') {
-        if (maxLines && lines >= maxLines - 1) {
-          ctx.fillText(line.trim() + '...', x, ly);
-          return;
-        }
-        ctx.fillText(line, x, ly);
-        line = word + ' ';
-        ly += lineHeight;
-        lines++;
-      } else {
-        line = test;
-      }
-    }
-    ctx.fillText(line, x, ly);
   },
 
   // ------------------------------------------------------------------

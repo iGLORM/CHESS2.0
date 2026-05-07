@@ -7,21 +7,14 @@ class Search {
   static maxDepth = 3;
 
   static SEARCH_LIMITS = {
-    1: { maxNodes: 30000,   maxTime: 1500 },
-    2: { maxNodes: 60000,   maxTime: 2500 },
-    3: { maxNodes: 150000,  maxTime: 4000 },
-    4: { maxNodes: 300000,  maxTime: 6000 },
-    5: { maxNodes: 600000,  maxTime: 9000 },
-    6: { maxNodes: 1200000, maxTime: 14000 },
-    7: { maxNodes: 2500000, maxTime: 20000 },
-    8: { maxNodes: 5000000, maxTime: 30000 },
-    9: { maxNodes: 6000000, maxTime: 35000 },
-    10:{ maxNodes: 7000000, maxTime: 40000 },
-    11:{ maxNodes: 8000000, maxTime: 45000 },
-    12:{ maxNodes: 9000000, maxTime: 50000 },
-    13:{ maxNodes: 10000000, maxTime: 55000 },
-    14:{ maxNodes: 12000000, maxTime: 60000 },
-    15:{ maxNodes: 15000000, maxTime: 70000 },
+    1: { maxNodes: 20000,   maxTime: 1000 },
+    2: { maxNodes: 50000,   maxTime: 1500 },
+    3: { maxNodes: 100000,  maxTime: 2000 },
+    4: { maxNodes: 200000,  maxTime: 3000 },
+    5: { maxNodes: 400000,  maxTime: 5000 },
+    6: { maxNodes: 800000,  maxTime: 8000 },
+    7: { maxNodes: 1500000, maxTime: 12000 },
+    8: { maxNodes: 2500000, maxTime: 18000 },
   };
 
   static PIECE_ATTACK_ORDER = {
@@ -99,6 +92,7 @@ class Search {
     let bestScore = isMaximizing ? -Infinity : Infinity;
 
     for (const move of orderedMoves) {
+      if (this.shouldAbort()) break;
       const sim = board.clone();
       MoveExecutor.executeMove(sim, move, isMaximizing ? color : (color === 'white' ? 'black' : 'white'));
       const { score } = this.search(sim, depth - 1, color, alpha, beta, !isMaximizing);
@@ -150,6 +144,7 @@ class Search {
     captures.sort((a, b) => this.mvvLvaScore(b, board) - this.mvvLvaScore(a, board));
 
     for (const move of captures) {
+      if (this.shouldAbort()) break;
       // Delta pruning: if even capturing the most valuable piece won't help, skip
       const capturedValue = move.captured ? Evaluate.PIECE_VALUES[move.captured.type] : 0;
       const delta = capturedValue + 200;

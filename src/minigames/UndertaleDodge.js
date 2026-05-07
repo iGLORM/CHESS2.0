@@ -277,32 +277,47 @@ class UndertaleDodge {
 
   botPlay(dt, timer) {
     if (this.done || !this.running) return;
-    // Simple dodge AI: move away from nearest bullet
-    let nearest = null;
-    let minDist = Infinity;
+    const arena = { x: 200, y: 140, w: 240, h: 200 };
+    const speed = 200 * dt;
+    const lookAhead = 0.3;
+
+    // Calculate evasion force from all bullets weighted by proximity
+    let evadeX = 0;
+    let evadeY = 0;
+    let totalWeight = 0;
+
     for (const b of this.bullets) {
-      const dx = this.playerX - b.x;
-      const dy = this.playerY - b.y;
+      // Predict bullet position shortly into the future
+      const bx = b.x + b.vx * lookAhead;
+      const by = b.y + b.vy * lookAhead;
+      const dx = this.playerX - bx;
+      const dy = this.playerY - by;
       const dist = Math.sqrt(dx * dx + dy * dy);
-      if (dist < minDist) {
-        minDist = dist;
-        nearest = b;
+      const threatRange = this.playerSize + b.size + 50;
+      if (dist < threatRange && dist > 0.01) {
+        // Evade away from bullet, weighted by inverse distance
+        const weight = (threatRange - dist) / threatRange;
+        evadeX += (dx / dist) * weight;
+        evadeY += (dy / dist) * weight;
+        totalWeight += weight;
       }
     }
-    if (nearest) {
-      const arena = { x: 200, y: 140, w: 240, h: 200 };
-      const dx = this.playerX - nearest.x;
-      const dy = this.playerY - nearest.y;
-      const speed = 180 * dt;
-      if (Math.abs(dx) > Math.abs(dy)) {
-        this.playerX += (dx > 0 ? speed : -speed);
-      } else {
-        this.playerY += (dy > 0 ? speed : -speed);
-      }
-      // Clamp to arena
-      this.playerX = Math.max(arena.x + this.playerSize, Math.min(arena.x + arena.w - this.playerSize, this.playerX));
-      this.playerY = Math.max(arena.y + this.playerSize, Math.min(arena.y + arena.h - this.playerSize, this.playerY));
+
+    // Also avoid arena edges
+    const edgeMargin = 25;
+    if (this.playerX < arena.x + this.playerSize + edgeMargin) evadeX += 0.5;
+    if (this.playerX > arena.x + arena.w - this.playerSize - edgeMargin) evadeX -= 0.5;
+    if (this.playerY < arena.y + this.playerSize + edgeMargin) evadeY += 0.5;
+    if (this.playerY > arena.y + arena.h - this.playerSize - edgeMargin) evadeY -= 0.5;
+
+    if (totalWeight > 0) {
+      const mag = Math.sqrt(evadeX * evadeX + evadeY * evadeY) || 1;
+      this.playerX += (evadeX / mag) * speed;
+      this.playerY += (evadeY / mag) * speed;
     }
+
+    this.playerX = Math.max(arena.x + this.playerSize, Math.min(arena.x + arena.w - this.playerSize, this.playerX));
+    this.playerY = Math.max(arena.y + this.playerSize, Math.min(arena.y + arena.h - this.playerSize, this.playerY));
   }
 
   handleClick(x, y) {}

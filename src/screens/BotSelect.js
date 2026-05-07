@@ -51,6 +51,9 @@ const BotSelect = {
     ctx.font = '12px monospace';
     ctx.fillText('Choose your AI opponent', 640, 80);
 
+    // Decorative separator between title and card grid
+    UIHelpers.drawSeparator(ctx, 300, 95, 680, cols);
+
     // Grid layout: 5 per row, 2 rows
     const cardW = 200;
     const cardH = 240;
@@ -68,20 +71,31 @@ const BotSelect = {
       const y = startY + row * (cardH + gapY);
       const isHover = i === this.selectedIndex;
 
-      // Card shadow
-      ctx.fillStyle = 'rgba(0,0,0,0.3)';
-      ctx.fillRect(x + 3, y + 3, cardW, cardH);
+      // Card with beveled edges, accent stripe, corner ornaments
+      UIHelpers.drawCard(ctx, x, y, cardW, cardH, cols, {
+        hover: isHover,
+        active: i === this.selectedIndex,
+        accentStripe: UIHelpers.difficultyColor(bot.level, cols),
+      });
 
-      // Card background
-      const difficultyHue = 240 - bot.level * 20;
-      const cardBg = isHover ? cols.buttonHover : cols.panel;
-      ctx.fillStyle = cardBg;
-      ctx.fillRect(x, y, cardW, cardH);
+      // Difficulty progress bar
+      UIHelpers.drawProgressBar(ctx, x + 10, y + cardH - 25, cardW - 20, 6, bot.level / 10, cols, {
+        fill: UIHelpers.difficultyColor(bot.level, cols),
+      });
 
-      // Card border
-      ctx.strokeStyle = isHover ? cols.accent : cols.text + '44';
-      ctx.lineWidth = isHover ? 3 : 1.5;
-      ctx.strokeRect(x, y, cardW, cardH);
+      // Difficulty tier icon
+      const tierIcon = bot.level <= 3 ? 'shield' : bot.level <= 6 ? 'sword' : bot.level <= 9 ? 'crown' : 'star';
+      UIHelpers.drawIcon(ctx, x + cardW - 20, y + 8, tierIcon, 8, cols, {
+        color: UIHelpers.difficultyColor(bot.level, cols),
+      });
+
+      // Difficulty level dots
+      const dotColor = UIHelpers.difficultyColor(bot.level, cols);
+      const dotEmpty = cols.text + '33';
+      for (let d = 0; d < 10; d++) {
+        ctx.fillStyle = d < bot.level ? dotColor : dotEmpty;
+        ctx.fillRect(x + 10 + d * 12, y + 82, 3, 3);
+      }
 
       // Level number (large)
       ctx.fillStyle = isHover ? cols.accent : cols.text;
@@ -102,42 +116,29 @@ const BotSelect = {
       // Description
       ctx.fillStyle = cols.text + '88';
       ctx.font = '10px monospace';
-      this.wrapText(ctx, bot.description, x + 10, y + 142, cardW - 20, 14);
+      UIHelpers.wrapText(ctx, bot.description, x + 10, y + 142, cardW - 20, 14, 3);
     }
 
     // Bottom buttons
-    ctx.fillStyle = cols.text + '44';
+    ctx.fillStyle = cols.text + '66';
     ctx.font = '11px monospace';
     ctx.textAlign = 'center';
     ctx.fillText('Click a bot to select. ESC to go back.', 640, 730);
 
     UIHelpers.drawButton(ctx, 30, 730, 160, 40, '< Back', cols, { font: 'bold 14px monospace' });
 
-    // Start button
+    // Start button with glow effect
     const selBot = this.levels[this.selectedIndex];
     if (selBot) {
+      ctx.fillStyle = UIHelpers.alpha(cols.accent, '22');
+      ctx.fillRect(1280 - 218, 682, 194, 54);
+      ctx.fillRect(1280 - 216, 684, 198, 58);
       UIHelpers.drawButton(ctx, 1280 - 220, 680, 190, 50, 'START GAME', cols, {
         font: 'bold 16px monospace',
         active: true,
+        accentStripe: cols.accent,
       });
     }
-  },
-
-  wrapText(ctx, text, x, y, maxWidth, lineHeight) {
-    const words = text.split(' ');
-    let line = '';
-    let ly = y;
-    for (const word of words) {
-      const test = line + word + ' ';
-      if (ctx.measureText(test).width > maxWidth && line !== '') {
-        ctx.fillText(line, x, ly);
-        line = word + ' ';
-        ly += lineHeight;
-      } else {
-        line = test;
-      }
-    }
-    ctx.fillText(line, x, ly);
   },
 
   handleClick(x, y) {

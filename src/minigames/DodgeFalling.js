@@ -73,7 +73,7 @@ class DodgeFalling {
     }
 
     // Movement
-    const speed = 250 * dt;
+    const speed = 200 * dt;
     if (this.keys['ArrowLeft'] || this.keys['a']) this.playerX -= speed;
     if (this.keys['ArrowRight'] || this.keys['d']) this.playerX += speed;
     this.playerX = Math.max(20, Math.min(620, this.playerX));
@@ -149,50 +149,46 @@ class DodgeFalling {
 
   botPlay(dt, timer) {
     if (this.done) return;
-    const speed = 250 * dt;
-    const playerLeft = this.playerX - 12;
-    const playerRight = this.playerX + 12;
+    const speed = 200 * dt;
+    const playerLeft = this.playerX - 14;
+    const playerRight = this.playerX + 14;
 
-    // Find dangerous blocks (above player and falling)
-    let threatLeft = 0;
-    let threatRight = 0;
-    let nearestThreat = null;
-    let minThreatDist = Infinity;
+    // Find all threats that overlap with player's current position
+    let bestEscapeDir = 0;
+    let mostUrgentDist = -Infinity;
 
     for (const b of this.blocks) {
-      if (b.y < 0 || b.y > 260) continue;
+      if (b.y < 0 || b.y > 270) continue;
       const blockLeft = b.x;
       const blockRight = b.x + b.w;
       const overlap = blockLeft < playerRight && blockRight > playerLeft;
-      const dist = 240 - b.y;
-      if (overlap && dist < minThreatDist) {
-        minThreatDist = dist;
-        nearestThreat = b;
-      }
-      // Count threats on each side for general danger
-      if (b.y > 100 && b.y < 260) {
-        if (blockRight < this.playerX) threatLeft++;
-        else if (blockLeft > this.playerX) threatRight++;
+      const distToPlayer = 240 - b.y;
+
+      if (overlap && distToPlayer > mostUrgentDist) {
+        mostUrgentDist = distToPlayer;
+        // Escape toward the side that gives more clearance
+        const spaceLeft = this.playerX - 20;
+        const spaceRight = 620 - this.playerX;
+        // Also consider other blocks when choosing direction
+        let blockedLeft = false;
+        let blockedRight = false;
+        for (const other of this.blocks) {
+          if (other === b) continue;
+          if (other.y > 100 && other.y < 270) {
+            const oLeft = other.x;
+            const oRight = other.x + other.w;
+            if (oRight > this.playerX - 60 && oLeft < this.playerX) blockedLeft = true;
+            if (oLeft < this.playerX + 60 && oRight > this.playerX) blockedRight = true;
+          }
+        }
+        if (blockedLeft && !blockedRight) bestEscapeDir = 1;
+        else if (blockedRight && !blockedLeft) bestEscapeDir = -1;
+        else bestEscapeDir = spaceRight > spaceLeft ? 1 : -1;
       }
     }
 
-    if (nearestThreat) {
-      // Move to the side with more escape room
-      const blockCenter = nearestThreat.x + nearestThreat.w / 2;
-      const spaceLeft = blockCenter;
-      const spaceRight = 640 - blockCenter;
-      if (spaceLeft > spaceRight) {
-        this.playerX -= speed;
-      } else {
-        this.playerX += speed;
-      }
-    } else {
-      // Drift toward the side with fewer threats
-      if (threatLeft > threatRight && timer > 0.2) {
-        this.playerX += speed * 0.5;
-      } else if (threatRight > threatLeft && timer > 0.2) {
-        this.playerX -= speed * 0.5;
-      }
+    if (bestEscapeDir !== 0) {
+      this.playerX += bestEscapeDir * speed;
     }
 
     this.playerX = Math.max(20, Math.min(620, this.playerX));

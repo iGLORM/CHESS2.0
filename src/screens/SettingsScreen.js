@@ -36,11 +36,11 @@ const SettingsScreen = {
       {
         label: 'Music Volume',
         value: () => Math.round((this.settings.musicVolume || 0.5) * 100) + '%',
-        toggle: () => {
-          const levels = [0, 0.25, 0.5, 0.75, 1];
+        isSlider: true,
+        sliderValue: () => this.settings.musicVolume || 0.5,
+        sliderAdjust: (delta) => {
           const current = this.settings.musicVolume || 0.5;
-          const idx = levels.indexOf(current);
-          this.settings.musicVolume = levels[(idx + 1) % levels.length];
+          this.settings.musicVolume = Math.max(0, Math.min(1, current + delta));
           store.set('settings', this.settings);
           audioManager.setMusicVolume(this.settings.musicVolume);
           store.saveProgress();
@@ -49,13 +49,13 @@ const SettingsScreen = {
       {
         label: 'SFX Volume',
         value: () => Math.round((this.settings.sfxVolume || 0.5) * 100) + '%',
-        toggle: () => {
-          const levels = [0, 0.25, 0.5, 0.75, 1];
+        isSlider: true,
+        sliderValue: () => this.settings.sfxVolume || 0.5,
+        sliderAdjust: (delta) => {
           const current = this.settings.sfxVolume || 0.5;
-          const idx = levels.indexOf(current);
-          this.settings.sfxVolume = levels[(idx + 1) % levels.length];
+          this.settings.sfxVolume = Math.max(0, Math.min(1, current + delta));
           store.set('settings', this.settings);
-          audioManager.setMasterVolume(this.settings.sfxVolume);
+          audioManager.setSFXVolume(this.settings.sfxVolume);
           store.saveProgress();
         },
       },
@@ -107,6 +107,7 @@ const SettingsScreen = {
     ctx.fillStyle = cols.text + '77';
     ctx.font = '12px monospace';
     ctx.fillText('Customize your experience', 640, 85);
+    UIHelpers.drawSeparator(ctx, 300, 95, 680, cols);
 
     // Settings list
     const startY = 150;
@@ -128,6 +129,12 @@ const SettingsScreen = {
         ctx.fillRect(300, y, 3, 50);
       }
 
+      // Icon
+      const iconMap = { 'Practice Mini-Games': 'target', 'Audio': 'music', 'Music Volume': 'volume', 'SFX Volume': 'volume', 'Player 1 Name': 'king', 'Player 2 Name': 'king', 'Reset Progress': 'skull' };
+      if (iconMap[opt.label]) {
+        UIHelpers.drawIcon(ctx, 300 + 290, y + 22, iconMap[opt.label], 10, cols);
+      }
+
       // Label
       ctx.fillStyle = isHover ? cols.accent : cols.text;
       ctx.font = '18px monospace';
@@ -145,13 +152,23 @@ const SettingsScreen = {
         ctx.fillStyle = cols.text;
         ctx.font = '14px monospace';
         ctx.textAlign = 'left';
-        ctx.fillText(this.editText + (Math.floor(Date.now() / 500) % 2 === 0 ? '|' : ''), 710, y + 30);
+        ctx.fillText(UIHelpers.truncateText(ctx, this.editText + (Math.floor(Date.now() / 500) % 2 === 0 ? '|' : ''), 180), 710, y + 30);
       } else if (opt.value) {
         const val = opt.value();
-        ctx.fillStyle = cols.text + '88';
-        ctx.font = '16px monospace';
-        ctx.textAlign = 'right';
-        ctx.fillText(val, 960, y + 32);
+        if (opt.label.includes('Volume')) {
+          const numVal = parseInt(val);
+          UIHelpers.drawVolumeSlider(ctx, 700, y + 12, 180, 10, numVal, cols);
+          UIHelpers.drawToggle(ctx, 700, y + 35, 36, 18, numVal > 0, cols);
+        } else if (opt.label === 'Audio') {
+          UIHelpers.drawToggle(ctx, 700, y + 18, 36, 18, this.settings.audioEnabled, cols);
+        } else if (opt.label.includes('Mini-Games')) {
+          UIHelpers.drawToggle(ctx, 700, y + 18, 36, 18, val === 'On', cols);
+        } else {
+          ctx.fillStyle = cols.text + '88';
+          ctx.font = '16px monospace';
+          ctx.textAlign = 'right';
+          ctx.fillText(UIHelpers.truncateText(ctx, val, 240), 960, y + 32);
+        }
       }
     }
 
@@ -165,6 +182,9 @@ const SettingsScreen = {
       ctx.fillText('Click to toggle / edit. ESC to go back.', 640, 750);
     }
 
+    // Dithered bottom stripe
+    UIHelpers.drawDitheredRect(ctx, 0, 770, 1280, 30, cols.accent, '11');
+
     // Back button
     UIHelpers.drawButton(ctx, 30, 730, 160, 40, '< Back', cols, { font: 'bold 14px monospace' });
 
@@ -176,11 +196,8 @@ const SettingsScreen = {
       ctx.fillStyle = 'rgba(0,0,0,0.6)';
       ctx.fillRect(0, 0, 1280, 800);
 
-      ctx.fillStyle = cols.panel;
-      ctx.fillRect(440, 300, 400, 180);
-      ctx.strokeStyle = cols.accent;
-      ctx.lineWidth = 3;
-      ctx.strokeRect(440, 300, 400, 180);
+      UIHelpers.drawPanel(ctx, 440, 300, 400, 180, cols);
+      UIHelpers.drawIcon(ctx, 636, 325, 'skull', 10, cols, { color: '#ff4444' });
 
       ctx.fillStyle = cols.text;
       ctx.font = 'bold 20px monospace';
@@ -236,9 +253,32 @@ const SettingsScreen = {
     for (let i = 0; i < this.options.length; i++) {
       const oy = startY + i * lineH;
       if (x >= 300 && x <= 980 && y >= oy && y <= oy + 50) {
-        if (this.options[i].toggle) this.options[i].toggle();
-        else if (this.options[i].edit) this.options[i].edit();
-        else if (this.options[i].action) this.options[i].action();
+        const opt = this.options[i];
+        if (opt.isSlider) {
+          const sliderX = 700;
+          const sliderW = 180;
+          if (x >= sliderX && x <= sliderX + sliderW && y >= oy + 12 && y <= oy + 22) {
+            // Clicked on slider: left half = decrease, right half = increase
+            const pct = (x - sliderX) / sliderW;
+            const current = opt.sliderValue();
+            const newVal = Math.round(pct * 100) / 100;
+            const delta = newVal - current;
+            opt.sliderAdjust(delta);
+          } else if (x >= 700 && x <= 736 && y >= oy + 35 && y <= oy + 53) {
+            // Mute toggle
+            const current = opt.sliderValue();
+            if (current > 0) {
+              opt._muted = current;
+              opt.sliderAdjust(-current);
+            } else {
+              opt.sliderAdjust((opt._muted || 0.5) - current);
+            }
+          } else {
+            return;
+          }
+        } else if (opt.toggle) opt.toggle();
+        else if (opt.edit) opt.edit();
+        else if (opt.action) opt.action();
         return;
       }
     }
@@ -303,9 +343,25 @@ const SettingsScreen = {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
       const opt = this.options[this.selectedOption];
-      if (opt.toggle) opt.toggle();
+      if (opt.isSlider) {
+        // Space/Enter toggles mute on sliders
+        const current = opt.sliderValue();
+        if (current > 0) {
+          opt._muted = current;
+          opt.sliderAdjust(-current);
+        } else {
+          opt.sliderAdjust((opt._muted || 0.5) - current);
+        }
+      } else if (opt.toggle) opt.toggle();
       else if (opt.edit) opt.edit();
       else if (opt.action) opt.action();
+    }
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+      const opt = this.options[this.selectedOption];
+      if (opt && opt.isSlider) {
+        e.preventDefault();
+        opt.sliderAdjust(e.key === 'ArrowLeft' ? -0.05 : 0.05);
+      }
     }
   },
 };

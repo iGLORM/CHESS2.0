@@ -33,6 +33,13 @@ const ModeSelect = {
     ctx.fillStyle = cols.text + '88';
     ctx.fillText('Select your side', 640, 240);
 
+    // Decorative separator below title area
+    UIHelpers.drawSeparator(ctx, 400, 280, 480, cols);
+
+    // Decorative piece sprites
+    UIHelpers.drawIcon(ctx, 300, 220, 'king', 24, cols, { color: cols.lightPiece });
+    UIHelpers.drawIcon(ctx, 940, 220, 'king', 24, cols, { color: cols.darkPiece });
+
     // Side selection buttons
     this.buttons = [
       { text: 'Play as White', action: 'white', y: 320 },
@@ -43,26 +50,43 @@ const ModeSelect = {
     for (let i = 0; i < this.buttons.length; i++) {
       const btn = this.buttons[i];
       const isHover = i === this.selectedButton;
+      const isSelected = i === this.selectedButton;
       const bx = 440;
       const bw = 400;
       const bh = 50;
 
-      UIHelpers.drawPixelFrame(ctx, bx, btn.y, bw, bh, cols, {
-        hover: isHover,
-        fill: isHover ? cols.buttonHover : cols.buttonBg,
-      });
+      UIHelpers.drawCard(ctx, bx, btn.y, bw, bh, cols, { hover: isHover, active: isSelected });
+
+      // Button icon
+      if (btn.action === 'white') {
+        UIHelpers.drawIcon(ctx, bx + 20, btn.y + 15, 'king', 12, cols, { color: cols.lightPiece });
+      } else if (btn.action === 'black') {
+        UIHelpers.drawIcon(ctx, bx + 20, btn.y + 15, 'queen', 12, cols, { color: cols.darkPiece });
+      } else if (btn.action === 'random') {
+        UIHelpers.drawIcon(ctx, bx + 20, btn.y + 15, 'dice', 12, cols, { color: cols.accent });
+      }
 
       ctx.fillStyle = isHover ? cols.accent : cols.text;
       ctx.font = isHover ? 'bold 20px monospace' : '20px monospace';
-      ctx.textAlign = 'center';
+      ctx.textAlign = 'left';
       ctx.textBaseline = 'middle';
-      ctx.fillText(btn.text, 640, btn.y + bh / 2);
+      ctx.fillText(btn.text, bx + 45, btn.y + bh / 2);
       ctx.textBaseline = 'alphabetic';
+
+      // Subtitle description
+      const subtitles = { white: 'First move advantage', black: 'Defensive strategy', random: 'Leave it to fate' };
+      ctx.fillStyle = cols.text + '66';
+      ctx.font = '10px monospace';
+      ctx.textAlign = 'left';
+      ctx.fillText(subtitles[btn.action], bx + 45, btn.y + bh / 2 + 14);
 
       btn._bounds = { x: bx, y: btn.y, w: bw, h: bh };
     }
 
     UIHelpers.drawButton(ctx, 30, 740, 150, 40, '< Home', cols, { font: 'bold 14px monospace' });
+
+    // Bottom decorative dithered floor stripe
+    UIHelpers.drawDitheredRect(ctx, 0, 700, 1280, 40, cols.accent);
   },
 
   handleClick(x, y) {

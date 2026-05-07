@@ -32,9 +32,9 @@ class GameRules {
     const total = pieces.white.length + pieces.black.length;
     if (total === 2) return true;
     if (total === 3) {
-      const hasKnight = pieces.white.some(p => p.type === 'knight') ||
-                        pieces.black.some(p => p.type === 'knight');
-      if (hasKnight) return true;
+      const hasMinor = pieces.white.some(p => p.type === 'knight' || p.type === 'bishop') ||
+                       pieces.black.some(p => p.type === 'knight' || p.type === 'bishop');
+      if (hasMinor) return true;
     }
     if (total === 4) {
       const wb = pieces.white.filter(p => p.type === 'bishop');

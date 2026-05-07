@@ -1,6 +1,13 @@
 const MiniGamePractice = {
   selectedOption: 0,
   games: [],
+  gameIcons: {
+    quickClick: 'target', memoryMatch: 'star', timingStrike: 'sword',
+    patternPress: 'check', reactionTest: 'target', undertaleDodge: 'shield',
+    powerMeter: 'gear', targetPractice: 'target', dodgeFalling: 'shield',
+    rhythmTap: 'music', numberGuess: 'dice', coinFlip: 'dice',
+    shieldBlock: 'shield', whackMole: 'sword'
+  },
 
   init() {
     this.selectedOption = 0;
@@ -43,6 +50,8 @@ const MiniGamePractice = {
     ctx.font = '12px monospace';
     ctx.fillText('Practice any mini-game', 640, 85);
 
+    UIHelpers.drawSeparator(ctx, 400, 95, 480, cols);
+
     const startY = 130;
     const lineH = 46;
     const colsCount = 2;
@@ -57,15 +66,16 @@ const MiniGamePractice = {
       const by = startY + r * lineH;
       const isHover = i === this.selectedOption;
 
-      UIHelpers.drawPixelFrame(ctx, bx, by, colW, 38, cols, {
-        hover: isHover,
-        fill: isHover ? cols.buttonHover : cols.buttonBg,
-      });
+      UIHelpers.drawCard(ctx, bx, by, colW, 38, cols, { hover: isHover, active: i === this.selectedOption });
+
+      const gameType = this.games[i].type.name ? this.games[i].type.name.charAt(0).toLowerCase() + this.games[i].type.name.slice(1) : '';
+      const iconType = this.gameIcons[gameType] || 'target';
+      UIHelpers.drawIcon(ctx, bx + 48, by + 10, iconType, 8, cols, { color: isHover ? cols.accent : cols.text + '55' });
 
       ctx.fillStyle = isHover ? cols.accent : cols.text;
       ctx.font = '14px monospace';
       ctx.textAlign = 'left';
-      ctx.fillText(this.games[i].name, bx + 14, by + 24);
+      ctx.fillText(UIHelpers.truncateText(ctx, this.games[i].name, colW - 28), bx + 14, by + 24);
     }
 
     // Back button
@@ -75,6 +85,15 @@ const MiniGamePractice = {
     ctx.font = '11px monospace';
     ctx.textAlign = 'center';
     ctx.fillText('Click a game to play. ESC to go back.', 640, 750);
+
+    // Decorative footer
+    UIHelpers.drawDitheredRect(ctx, 0, 580, 1280, 40, cols.accent, '11');
+    ctx.fillStyle = cols.text + '33';
+    ctx.font = '10px monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('Win mini-games to keep captured pieces in battle!', 640, 600);
+
+    UIHelpers.drawDitheredRect(ctx, 0, 770, 1280, 30, cols.accent, '11');
   },
 
   handleClick(x, y) {

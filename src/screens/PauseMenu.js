@@ -43,11 +43,8 @@ const PauseMenu = {
       ctx.fillStyle = 'rgba(0,0,0,0.7)';
       ctx.fillRect(0, 0, 1280, 800);
 
-      ctx.fillStyle = cols.panel;
-      ctx.fillRect(440, 300, 400, 180);
-      ctx.strokeStyle = cols.accent;
-      ctx.lineWidth = 3;
-      ctx.strokeRect(440, 300, 400, 180);
+      UIHelpers.drawPanel(ctx, 440, 300, 400, 180, cols);
+      UIHelpers.drawIcon(ctx, 636, 325, 'skull', 10, cols, { color: '#ff4444' });
 
       ctx.fillStyle = cols.text;
       ctx.font = 'bold 22px monospace';
@@ -68,16 +65,21 @@ const PauseMenu = {
     ctx.fillStyle = 'rgba(0,0,0,0.7)';
     ctx.fillRect(0, 0, 1280, 800);
 
-    ctx.fillStyle = cols.panel;
-    ctx.fillRect(390, 160, 500, 420);
-    ctx.strokeStyle = cols.accent;
-    ctx.lineWidth = 3;
-    ctx.strokeRect(390, 160, 500, 420);
+    UIHelpers.drawPanel(ctx, 390, 160, 500, 420, cols, { accentTop: true });
 
+    UIHelpers.drawIcon(ctx, 636, 200, 'gear', 12, cols);
     ctx.fillStyle = cols.text;
     ctx.font = 'bold 32px monospace';
     ctx.textAlign = 'center';
     ctx.fillText('PAUSED', 640, 230);
+
+    UIHelpers.drawSeparator(ctx, 420, 248, 440, cols);
+
+    const moveCount = (typeof GameScreen !== 'undefined' && GameScreen.moveHistory) ? GameScreen.moveHistory.length : 0;
+    ctx.fillStyle = cols.text + '55';
+    ctx.font = '12px monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('Move ' + moveCount, 640, 265);
 
     const buttons = [
       { text: 'Resume', action: 'resume', y: 290 },

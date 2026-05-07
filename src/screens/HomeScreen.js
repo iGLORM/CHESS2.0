@@ -97,7 +97,7 @@ const HomeScreen = {
     }
 
     // Decorative lines
-    ctx.strokeStyle = cols.accent + '22';
+    ctx.strokeStyle = cols.accent + '44';
     ctx.lineWidth = 1;
     for (let i = 0; i < 3; i++) {
       const y = 120 + i * 25 + Math.sin(this.titlePulse + i) * 4;
@@ -106,6 +106,9 @@ const HomeScreen = {
       ctx.lineTo(930, y);
       ctx.stroke();
     }
+
+    // Crown icon above title
+    UIHelpers.drawIcon(ctx, 636, 190, 'crown', 12, cols);
 
     // Title - "CHESS" in monospace, "2.0" in sans-serif to avoid wide dot
     ctx.textAlign = 'center';
@@ -146,62 +149,96 @@ const HomeScreen = {
     ctx.fillStyle = cols.accent;
     ctx.fillText('A New Era of Battle', 640, 268);
 
+    // Small animated pixel-art chess piece decorations in the gap
+    const pieceColor = cols.accent + '44';
+    const bob1 = Math.sin(this.titlePulse) * 2;
+    const bob2 = Math.sin(this.titlePulse + 1.5) * 2;
+    const bob3 = Math.sin(this.titlePulse + 3) * 2;
+    // Knight (left)
+    ctx.fillStyle = pieceColor;
+    const kx = 520, ky = 240 + bob1;
+    ctx.fillRect(kx, ky, 4, 2);
+    ctx.fillRect(kx - 2, ky + 2, 6, 2);
+    ctx.fillRect(kx, ky + 4, 4, 1);
+    ctx.fillRect(kx + 2, ky + 5, 2, 1);
+    ctx.fillRect(kx - 2, ky + 6, 6, 1);
+    ctx.fillRect(kx - 2, ky + 7, 6, 1);
+    ctx.fillRect(kx - 1, ky + 8, 4, 2);
+    // Pawn (center)
+    const px = 637, py = 242 + bob2;
+    ctx.fillRect(px, py, 2, 1);
+    ctx.fillRect(px - 1, py + 1, 4, 2);
+    ctx.fillRect(px - 2, py + 3, 6, 1);
+    ctx.fillRect(px - 1, py + 4, 4, 1);
+    ctx.fillRect(px - 2, py + 5, 6, 2);
+    ctx.fillRect(px - 1, py + 7, 4, 2);
+    // Rook (right)
+    const rx = 756, ry = 240 + bob3;
+    ctx.fillRect(rx, ry, 2, 2);
+    ctx.fillRect(rx + 4, ry, 2, 2);
+    ctx.fillRect(rx - 2, ry + 2, 10, 2);
+    ctx.fillRect(rx - 1, ry + 4, 8, 1);
+    ctx.fillRect(rx, ry + 5, 6, 2);
+    ctx.fillRect(rx - 1, ry + 7, 8, 2);
+    ctx.fillRect(rx - 2, ry + 9, 10, 2);
+
     // Theme pill
     const themeName = 'Theme: ' + theme.name;
     ctx.font = '12px monospace';
     const tw = ctx.measureText(themeName).width;
-    this._roundRect(ctx, 640 - tw / 2 - 14, 290, tw + 28, 24, 12);
+    const pillX = 640 - tw / 2 - 14;
+    const pillW = tw + 28;
+    this._roundRect(ctx, pillX, 290, pillW, 24, 12);
     ctx.fillStyle = cols.buttonBg + 'aa';
     ctx.fill();
     ctx.strokeStyle = cols.text + '22';
     ctx.lineWidth = 1;
     ctx.stroke();
+    // Board color swatches at left edge of pill
+    const swY = 295;
+    const swX = pillX + 8;
+    ctx.fillStyle = cols.lightSquare;
+    ctx.fillRect(swX, swY, 3, 3);
+    ctx.fillStyle = cols.darkSquare;
+    ctx.fillRect(swX + 4, swY, 3, 3);
+    ctx.fillStyle = cols.accent;
+    ctx.fillRect(swX + 8, swY, 3, 3);
     ctx.fillStyle = cols.text + 'cc';
     ctx.font = '12px monospace';
     ctx.textAlign = 'center';
     ctx.fillText(themeName, 640, 307);
 
     // --- Main game mode buttons ---
+    const mainIcons = { story: 'sword', '1v1': 'dice', classic: 'crown', custom: 'gear' };
     for (let i = 0; i < 4; i++) {
       const btn = this.buttons[i];
       const b = this._getMainBounds(i);
       const isHover = i === this.selectedButton;
 
-      // Shadow
-      ctx.fillStyle = 'rgba(0,0,0,0.3)';
-      this._roundRect(ctx, b.x + 3, b.y + 3, b.w, b.h, 8);
-      ctx.fill();
-
-      // Background
-      ctx.fillStyle = isHover ? cols.buttonHover : cols.buttonBg;
-      this._roundRect(ctx, b.x, b.y, b.w, b.h, 8);
-      ctx.fill();
-
-      // Border
-      ctx.strokeStyle = isHover ? cols.accent : cols.text + '55';
-      ctx.lineWidth = isHover ? 2.5 : 1.5;
-      this._roundRect(ctx, b.x, b.y, b.w, b.h, 8);
-      ctx.stroke();
-
-      // Left accent bar on hover
-      if (isHover) {
-        this._roundRect(ctx, b.x, b.y, 5, b.h, 3);
-        ctx.fillStyle = cols.accent;
-        ctx.fill();
-      }
+      // Card background
+      UIHelpers.drawCard(ctx, b.x, b.y, b.w, b.h, cols, {
+        hover: isHover,
+        accentStripe: isHover ? cols.accent : null,
+      });
 
       // Button text
       ctx.fillStyle = isHover ? cols.accent : '#ffffff';
       ctx.font = isHover ? 'bold 22px monospace' : 'bold 20px monospace';
       ctx.textAlign = 'left';
       ctx.textBaseline = 'middle';
-      ctx.fillText(btn.text, b.x + 24, b.y + b.h / 2 - (btn.sub ? 7 : 0));
+      ctx.fillText(UIHelpers.truncateText(ctx, btn.text, b.w - 48), b.x + 24, b.y + b.h / 2 - (btn.sub ? 7 : 0));
 
       // Subtitle
       if (btn.sub) {
         ctx.fillStyle = isHover ? cols.accent + 'aa' : cols.text + 'aa';
         ctx.font = '13px monospace';
-        ctx.fillText(btn.sub, b.x + 24, b.y + b.h / 2 + 15);
+        ctx.fillText(UIHelpers.truncateText(ctx, btn.sub, b.w - 48), b.x + 24, b.y + b.h / 2 + 15);
+      }
+
+      // Pixel-art icon
+      const iconType = mainIcons[btn.action];
+      if (iconType) {
+        UIHelpers.drawIcon(ctx, b.x + b.w - 30, b.y + (b.h / 2) - 6, iconType, 10, cols, { color: isHover ? cols.accent : cols.text + '88' });
       }
 
       // Right arrow on hover
@@ -209,54 +246,44 @@ const HomeScreen = {
         ctx.fillStyle = cols.accent;
         ctx.font = 'bold 20px monospace';
         ctx.textAlign = 'right';
-        ctx.fillText('>', b.x + b.w - 18, b.y + b.h / 2);
+        ctx.fillText('>', b.x + b.w - 46, b.y + b.h / 2);
       }
     }
 
     ctx.textBaseline = 'alphabetic';
 
     // --- Divider ---
-    ctx.strokeStyle = cols.text + '15';
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(460, 596);
-    ctx.lineTo(820, 596);
-    ctx.stroke();
+    UIHelpers.drawSeparator(ctx, 460, 596, 360, cols);
 
     // --- Utility buttons row ---
+    const utilIcons = { settings: 'gear', help: 'book', stats: 'trophy' };
     for (let i = 4; i < 7; i++) {
       const btn = this.buttons[i];
       const b = this._getUtilBounds(btn.idx);
       const isHover = i === this.selectedButton;
 
-      // Shadow
-      ctx.fillStyle = 'rgba(0,0,0,0.2)';
-      this._roundRect(ctx, b.x + 2, b.y + 2, b.w, b.h, 6);
-      ctx.fill();
+      // Card background
+      UIHelpers.drawCard(ctx, b.x, b.y, b.w, b.h, cols, { hover: isHover });
 
-      // Background
-      ctx.fillStyle = isHover ? cols.buttonHover : cols.buttonBg;
-      this._roundRect(ctx, b.x, b.y, b.w, b.h, 6);
-      ctx.fill();
-
-      // Border
-      ctx.strokeStyle = isHover ? cols.accent : cols.text + '44';
-      ctx.lineWidth = isHover ? 2 : 1.5;
-      this._roundRect(ctx, b.x, b.y, b.w, b.h, 6);
-      ctx.stroke();
+      // Icon to left of text
+      const iconType = utilIcons[btn.action];
+      if (iconType) {
+        UIHelpers.drawIcon(ctx, b.x + 10, b.y + (b.h / 2) - 5, iconType, 10, cols, { color: isHover ? cols.accent : cols.text + '88' });
+      }
 
       // Text
       ctx.fillStyle = isHover ? cols.accent : '#ffffff';
       ctx.font = isHover ? 'bold 16px monospace' : 'bold 15px monospace';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText(btn.text, b.x + b.w / 2, b.y + b.h / 2);
+      ctx.fillText(UIHelpers.truncateText(ctx, btn.text, b.w - 28), b.x + b.w / 2 + 6, b.y + b.h / 2);
     }
 
     ctx.textBaseline = 'alphabetic';
 
     // Footer
-    ctx.fillStyle = cols.text + '33';
+    UIHelpers.drawSeparator(ctx, 460, 748, 360, cols);
+    ctx.fillStyle = cols.text + '55';
     ctx.font = '11px monospace';
     ctx.textAlign = 'center';
     ctx.fillText('Use mouse or arrow keys to navigate', 640, 760);
