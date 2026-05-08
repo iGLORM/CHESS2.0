@@ -65,7 +65,7 @@ const PauseMenu = {
     ctx.fillStyle = 'rgba(0,0,0,0.7)';
     ctx.fillRect(0, 0, 1280, 800);
 
-    UIHelpers.drawPanel(ctx, 390, 160, 500, 420, cols, { accentTop: true });
+    UIHelpers.drawPanel(ctx, 390, 160, 500, 480, cols, { accentTop: true });
 
     UIHelpers.drawIcon(ctx, 636, 200, 'gear', 12, cols);
     ctx.fillStyle = cols.text;
@@ -79,13 +79,13 @@ const PauseMenu = {
     ctx.fillStyle = cols.text + '55';
     ctx.font = '12px monospace';
     ctx.textAlign = 'center';
-    ctx.fillText('Move ' + moveCount, 640, 265);
+    ctx.fillText('Move ' + moveCount, 640, 268);
 
     const buttons = [
-      { text: 'Resume', action: 'resume', y: 290 },
-      { text: 'Settings', action: 'settings', y: 350 },
-      { text: 'Surrender', action: 'surrender', y: 410 },
-      { text: 'Quit to Menu', action: 'quit', y: 470 },
+      { text: 'Resume', action: 'resume', y: 295 },
+      { text: 'Settings', action: 'settings', y: 365 },
+      { text: 'Surrender', action: 'surrender', y: 435 },
+      { text: 'Quit to Menu', action: 'quit', y: 505 },
     ];
 
     for (const btn of buttons) {
@@ -109,10 +109,10 @@ const PauseMenu = {
     }
 
     const buttons = [
-      { action: 'resume', y: 290 },
-      { action: 'settings', y: 350 },
-      { action: 'surrender', y: 410 },
-      { action: 'quit', y: 470 },
+      { action: 'resume', y: 295 },
+      { action: 'settings', y: 365 },
+      { action: 'surrender', y: 435 },
+      { action: 'quit', y: 505 },
     ];
     for (const btn of buttons) {
       if (x >= 540 && x <= 740 && y >= btn.y && y <= btn.y + 45) {
@@ -143,10 +143,10 @@ const PauseMenu = {
     }
 
     const buttons = [
-      { text: 'Resume', action: 'resume', y: 290 },
-      { text: 'Settings', action: 'settings', y: 350 },
-      { text: 'Surrender', action: 'surrender', y: 410 },
-      { text: 'Quit to Menu', action: 'quit', y: 470 },
+      { text: 'Resume', action: 'resume', y: 295 },
+      { text: 'Settings', action: 'settings', y: 365 },
+      { text: 'Surrender', action: 'surrender', y: 435 },
+      { text: 'Quit to Menu', action: 'quit', y: 505 },
     ];
     for (const btn of buttons) {
       if (x >= 540 && x <= 740 && y >= btn.y && y <= btn.y + 45) {

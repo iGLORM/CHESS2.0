@@ -11,6 +11,8 @@ class CoinFlip {
     this.flipResult = null;
     this.playerChoice = null;
     this.difficulty = 1;
+    this.sparkles = [];
+    this.lastRect = { x: 0, y: 0, w: 1, h: 1 };
   }
 
   init(attacker, defender, difficulty, isDuel) {
@@ -24,17 +26,35 @@ class CoinFlip {
     this.playerChoice = null;
     this.difficulty = difficulty || 1;
     this.maxRounds = (isDuel ? 5 : 3) + Math.floor(this.difficulty / 2);
+    this.sparkles = [];
     if (audioManager) audioManager.playMiniGameStart();
   }
 
-  update(dt) {}
+  update(dt) {
+    if (this.flipping && Math.random() < 0.8) {
+      const a = Math.random() * Math.PI * 2;
+      const r = 70 + Math.random() * 24;
+      this.sparkles.push({
+        x: Math.cos(a) * r,
+        y: Math.sin(a) * r,
+        life: 0.35 + Math.random() * 0.25,
+        maxLife: 0.35 + Math.random() * 0.25,
+        size: 2 + Math.random() * 3,
+      });
+    }
+    for (let i = this.sparkles.length - 1; i >= 0; i--) {
+      this.sparkles[i].life -= dt;
+      if (this.sparkles[i].life <= 0) this.sparkles.splice(i, 1);
+    }
+  }
 
   botPlay(dt, timer) {
     if (this.done || this.flipping || this.round >= this.maxRounds) return;
     // Bot picks randomly
     if (timer > 0.5) {
-      const x = Math.random() > 0.5 ? 500 : 800;
-      this.handleClick(x, 300);
+      const rect = this.lastRect || { x: 0, y: 0, w: 1, h: 1 };
+      const sx = Math.random() > 0.5 ? rect.x + rect.w * 0.3 : rect.x + rect.w * 0.7;
+      this.handleClick(sx, rect.y + rect.h * 0.5);
     }
   }
 
@@ -53,13 +73,9 @@ class CoinFlip {
   handleClick(x, y) {
     if (this.done || this.flipping || this.round >= this.maxRounds) return;
 
-    const w = 700;
-    const h = 460;
-    const cx = (1280 - w) / 2;
-    const cy = (800 - h) / 2 + 95;
-
     // Heads button (left half)
-    if (x < 640) {
+    const rect = this.lastRect || { x: 0, y: 0, w: 1, h: 1 };
+    if (x < rect.x + rect.w / 2) {
       this.playerChoice = 'heads';
     } else {
       this.playerChoice = 'tails';
@@ -102,23 +118,26 @@ class CoinFlip {
 
   render(ctx, x, y, w, h) {
     const cols = ThemeManager.getTheme(store.get('theme')).colors;
-    ctx.fillStyle = 'rgba(0,0,0,0.85)';
+    this.lastRect = { x, y, w, h };
+    ctx.fillStyle = cols.background || cols.bg || cols.panel;
     ctx.fillRect(x, y, w, h);
     ctx.strokeStyle = cols.accent;
     ctx.lineWidth = 3;
     ctx.strokeRect(x, y, w, h);
 
     ctx.fillStyle = cols.text;
-    ctx.font = 'bold 20px monospace';
+    ctx.font = 'bold 18px monospace';
     ctx.textAlign = 'center';
     ctx.fillText('COIN FLIP', x + w / 2, y + 30);
-    ctx.font = '11px monospace';
+    ctx.font = 'bold 12px monospace';
     ctx.fillStyle = cols.text + '88';
     ctx.fillText('Pick Heads or Tails! Round ' + (this.round + 1) + '/' + this.maxRounds, x + w / 2, y + 50);
 
     // Score
+    ctx.fillStyle = cols.panel + 'dd';
+    ctx.fillRect(x + w / 2 - 130, y + 58, 260, 24);
     ctx.fillStyle = cols.accent;
-    ctx.font = '13px monospace';
+    ctx.font = 'bold 13px monospace';
     ctx.fillText('You: ' + this.playerScore + ' | Defender: ' + this.cpuScore, x + w / 2, y + 70);
 
     // Coin
@@ -135,53 +154,77 @@ class CoinFlip {
       ctx.scale(scaleX, 1);
       // Coin body with gradient
       const coinGrad = ctx.createLinearGradient(-coinSize, -coinSize, coinSize, coinSize);
-      coinGrad.addColorStop(0, '#ffee66');
-      coinGrad.addColorStop(0.5, '#ffcc00');
-      coinGrad.addColorStop(1, '#cc9900');
+      coinGrad.addColorStop(0, cols.highlight || cols.accent);
+      coinGrad.addColorStop(0.5, cols.accent);
+      coinGrad.addColorStop(1, cols.panel);
       ctx.fillStyle = coinGrad;
       ctx.beginPath();
       ctx.arc(0, 0, coinSize, 0, Math.PI * 2);
       ctx.fill();
       // Inner ring
-      ctx.strokeStyle = '#cc9900';
+      ctx.strokeStyle = cols.highlight || cols.accent;
       ctx.lineWidth = 2;
       ctx.beginPath();
       ctx.arc(0, 0, coinSize * 0.75, 0, Math.PI * 2);
       ctx.stroke();
-      ctx.fillStyle = '#664400';
+      ctx.fillStyle = cols.panel;
       ctx.font = 'bold 20px monospace';
       ctx.textAlign = 'center';
       ctx.fillText('?', 0, 7);
       ctx.restore();
     } else {
       // Show result
+      if (this.flipResult) {
+        ctx.save();
+        ctx.shadowColor = cols.accent;
+        ctx.shadowBlur = 18;
+        ctx.strokeStyle = cols.accent;
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(cx, cy, coinSize + 10 + Math.sin(Date.now() / 180) * 3, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.restore();
+      }
       const coinGrad = ctx.createRadialGradient(cx - coinSize * 0.3, cy - coinSize * 0.3, coinSize * 0.1, cx, cy, coinSize);
-      coinGrad.addColorStop(0, '#ffee66');
-      coinGrad.addColorStop(0.5, '#ffcc00');
-      coinGrad.addColorStop(1, '#cc9900');
+      coinGrad.addColorStop(0, cols.highlight || cols.accent);
+      coinGrad.addColorStop(0.5, cols.accent);
+      coinGrad.addColorStop(1, cols.panel);
       ctx.fillStyle = coinGrad;
       ctx.beginPath();
       ctx.arc(cx, cy, coinSize, 0, Math.PI * 2);
       ctx.fill();
-      ctx.strokeStyle = '#cc9900';
+      ctx.strokeStyle = cols.highlight || cols.accent;
       ctx.lineWidth = 3;
       ctx.stroke();
       // Inner ring
-      ctx.strokeStyle = '#aa8800';
+      ctx.strokeStyle = cols.panel;
       ctx.lineWidth = 1.5;
       ctx.beginPath();
       ctx.arc(cx, cy, coinSize * 0.7, 0, Math.PI * 2);
       ctx.stroke();
 
       if (this.flipResult) {
-        ctx.fillStyle = '#664400';
+        ctx.fillStyle = cols.panel;
         ctx.font = 'bold 16px monospace';
         ctx.fillText(this.flipResult.toUpperCase(), cx, cy + 5);
       } else {
-        ctx.fillStyle = '#664400';
+        ctx.fillStyle = cols.panel;
         ctx.font = 'bold 20px monospace';
         ctx.fillText('?', cx, cy + 6);
       }
+    }
+
+    for (const s of this.sparkles) {
+      const alpha = Math.max(0, s.life / s.maxLife);
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.fillStyle = cols.highlight || cols.accent;
+      ctx.shadowColor = ctx.fillStyle;
+      ctx.shadowBlur = 8;
+      ctx.beginPath();
+      ctx.arc(cx + s.x, cy + s.y, s.size * alpha, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
     }
 
     // Buttons
@@ -208,9 +251,17 @@ class CoinFlip {
     }
 
     if (this.done) {
-      ctx.fillStyle = cols.accent;
-      ctx.font = 'bold 16px monospace';
-      ctx.fillText(this.winner === 'attacker' ? 'YOU WIN!' : 'Defender wins!', x + w / 2, y + h - 20);
+      const win = this.winner === 'attacker';
+      ctx.fillStyle = win ? 'rgba(80, 220, 130, 0.30)' : 'rgba(220, 70, 80, 0.30)';
+      ctx.fillRect(x, y, w, h);
+      ctx.fillStyle = cols.text;
+      ctx.shadowColor = win ? cols.accent : (cols.highlight || cols.accent);
+      ctx.shadowBlur = 14;
+      ctx.font = 'bold 18px monospace';
+      ctx.fillText(win ? 'You Win!' : 'You Lose!', x + w / 2, y + h / 2);
+      ctx.shadowBlur = 0;
     }
   }
+
+  cleanup() {}
 }

@@ -232,12 +232,12 @@ class ReactionTest {
 
     // Title
     ctx.fillStyle = cols.text;
-    ctx.font = 'bold 20px monospace';
+    ctx.font = 'bold 18px monospace';
     ctx.textAlign = 'center';
     ctx.fillText('REACTION TEST', x + w / 2, y + 35);
 
     // Subtitle
-    ctx.font = '11px monospace';
+    ctx.font = 'bold 12px monospace';
     ctx.fillStyle = cols.text + '88';
     ctx.fillText('Click when the screen turns green!', x + w / 2, y + 55);
 
@@ -269,8 +269,8 @@ class ReactionTest {
 
       // Blue gradient background for waiting
       const waitGrad = ctx.createLinearGradient(areaX, areaY, areaX, areaY + areaH);
-      waitGrad.addColorStop(0, '#3333aa');
-      waitGrad.addColorStop(1, '#222266');
+      waitGrad.addColorStop(0, cols.panel);
+      waitGrad.addColorStop(1, cols.background || cols.bg || cols.panel);
       ctx.fillStyle = waitGrad;
       ctx.fillRect(areaX, areaY, areaW, areaH);
 
@@ -306,8 +306,8 @@ class ReactionTest {
       ctx.clip();
 
       const readyGrad = ctx.createLinearGradient(areaX, areaY, areaX + areaW, areaY + areaH);
-      readyGrad.addColorStop(0, '#22cc22');
-      readyGrad.addColorStop(1, '#118811');
+      readyGrad.addColorStop(0, cols.accent);
+      readyGrad.addColorStop(1, cols.panel);
       ctx.fillStyle = readyGrad;
       ctx.fillRect(areaX, areaY, areaW, areaH);
 
@@ -323,14 +323,14 @@ class ReactionTest {
       ctx.restore();
 
       // Pulsing glow border
-      ctx.shadowColor = '#44ff44';
+      ctx.shadowColor = cols.accent;
       ctx.shadowBlur = glowStrength;
-      ctx.strokeStyle = '#44ff44';
+      ctx.strokeStyle = cols.accent;
       ctx.lineWidth = 2;
       ctx.strokeRect(areaX, areaY, areaW, areaH);
       ctx.shadowBlur = 0;
 
-      ctx.fillStyle = '#000';
+      ctx.fillStyle = cols.background || cols.bg || cols.panel;
       ctx.font = 'bold 18px monospace';
       ctx.textAlign = 'center';
       ctx.fillText('CLICK NOW!', x + w / 2, areaY + areaH / 2 + 6);
@@ -344,8 +344,8 @@ class ReactionTest {
         ctx.clip();
 
         const redGrad = ctx.createLinearGradient(areaX, areaY, areaX, areaY + areaH);
-        redGrad.addColorStop(0, '#cc2222');
-        redGrad.addColorStop(1, '#881111');
+        redGrad.addColorStop(0, cols.highlight || cols.accent);
+        redGrad.addColorStop(1, cols.panel);
         ctx.fillStyle = redGrad;
         ctx.fillRect(areaX, areaY, areaW, areaH);
 
@@ -365,9 +365,9 @@ class ReactionTest {
         ctx.restore();
 
         // Red glow border
-        ctx.shadowColor = '#ff4444';
+        ctx.shadowColor = cols.highlight || cols.accent;
         ctx.shadowBlur = glowStrength;
-        ctx.strokeStyle = '#ff4444';
+        ctx.strokeStyle = cols.highlight || cols.accent;
         ctx.lineWidth = 2;
         ctx.strokeRect(areaX, areaY, areaW, areaH);
         ctx.shadowBlur = 0;
@@ -380,8 +380,8 @@ class ReactionTest {
       } else {
         // Result time display
         const isFast = this.reactionTime < 300;
-        const bgTop = isFast ? '#228822' : '#888800';
-        const bgBot = isFast ? '#115511' : '#555500';
+        const bgTop = isFast ? cols.accent : (cols.highlight || cols.text);
+        const bgBot = cols.panel;
 
         ctx.save();
         ctx.beginPath();
@@ -406,14 +406,14 @@ class ReactionTest {
         ctx.restore();
 
         // Glow border matching result quality
-        ctx.shadowColor = isFast ? '#44aa44' : '#aaaa00';
+        ctx.shadowColor = isFast ? cols.accent : (cols.highlight || cols.accent);
         ctx.shadowBlur = glowStrength;
-        ctx.strokeStyle = isFast ? '#44aa44' : '#aaaa00';
+        ctx.strokeStyle = isFast ? cols.accent : (cols.highlight || cols.accent);
         ctx.lineWidth = 2;
         ctx.strokeRect(areaX, areaY, areaW, areaH);
         ctx.shadowBlur = 0;
 
-        ctx.fillStyle = '#fff';
+        ctx.fillStyle = cols.text;
         ctx.font = 'bold 16px monospace';
         ctx.textAlign = 'center';
         ctx.fillText(Math.round(this.reactionTime) + 'ms', x + w / 2, areaY + areaH / 2 + 6);
@@ -423,9 +423,9 @@ class ReactionTest {
     // Draw particles
     for (const p of this.particles) {
       ctx.globalAlpha = Math.max(0, p.life);
-      ctx.fillStyle = p.color === 'green' ? '#44ff44'
-                     : p.color === 'yellow' ? '#ffff44'
-                     : '#ff4444';
+      ctx.fillStyle = p.color === 'green' ? cols.accent
+                     : p.color === 'yellow' ? (cols.highlight || cols.accent)
+                     : (cols.highlight || cols.text);
       ctx.shadowColor = ctx.fillStyle;
       ctx.shadowBlur = 6;
       ctx.beginPath();
@@ -460,10 +460,18 @@ class ReactionTest {
     ctx.fillText('Target: <' + this.targetTime + 'ms to win', x + w / 2, areaY + areaH + 65);
 
     if (this.done) {
-      ctx.fillStyle = cols.accent;
+      const win = this.winner === 'attacker';
+      ctx.fillStyle = win ? 'rgba(80, 220, 130, 0.30)' : 'rgba(220, 70, 80, 0.30)';
+      ctx.fillRect(x, y, w, h);
+      ctx.fillStyle = cols.text;
+      ctx.shadowColor = win ? cols.accent : (cols.highlight || cols.accent);
+      ctx.shadowBlur = 14;
       ctx.font = 'bold 18px monospace';
       ctx.textAlign = 'center';
-      ctx.fillText(this.winner === 'attacker' ? 'YOU WIN!' : 'Defender wins!', x + w / 2, y + 270);
+      ctx.fillText(win ? 'You Win!' : 'You Lose!', x + w / 2, y + h / 2);
+      ctx.shadowBlur = 0;
     }
   }
+
+  cleanup() {}
 }

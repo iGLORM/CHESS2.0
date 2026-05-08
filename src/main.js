@@ -46,6 +46,7 @@ function _doSwitchScreen() {
   if (isMenuScreen && typeof PixiMenuBackground !== 'undefined') {
     PixiMenuBackground.init();
   }
+  canvas.style.pointerEvents = (currentScreen && currentScreen.isPixiScreen) ? 'none' : 'auto';
 }
 
 function resizeCanvas() {
@@ -55,11 +56,7 @@ function resizeCanvas() {
   canvas.height = h;
   miniCanvas.width = w;
   miniCanvas.height = h;
-  const pixiCanvas = document.getElementById('pixiCanvas');
-  if (pixiCanvas) {
-    pixiCanvas.width = w;
-    pixiCanvas.height = h;
-  }
+  // Don't touch pixiCanvas — PixiJS manages its own canvas buffer
 }
 
 function gameLoop(timestamp) {
@@ -71,7 +68,9 @@ function gameLoop(timestamp) {
   ctx.setTransform(scaleX, 0, 0, scaleY, 0, 0);
   ctx.clearRect(0, 0, 1280, 800);
 
-  if (currentScreen && currentScreen.render) {
+  if (currentScreen && currentScreen.isPixiScreen) {
+    if (currentScreen.pixiUpdate) currentScreen.pixiUpdate(dt);
+  } else if (currentScreen && currentScreen.render) {
     currentScreen.render(ctx, dt);
   }
 
@@ -143,6 +142,7 @@ function initApp() {
       PauseMenu.handleClick(x, y);
       return;
     }
+    if (currentScreen && currentScreen.isPixiScreen) return;
     if (currentScreen && currentScreen.handleClick) {
       currentScreen.handleClick(x, y);
     }
@@ -157,11 +157,7 @@ function initApp() {
   });
 
   canvas.addEventListener('mousemove', (e) => {
-    const rect = canvas.getBoundingClientRect();
-    const scaleX = 1280 / rect.width;
-    const scaleY = 800 / rect.height;
-    const x = (e.clientX - rect.left) * scaleX;
-    const y = (e.clientY - rect.top) * scaleY;
+    const { x, y } = getMousePos(e, canvas);
     if (PauseMenu.visible && PauseMenu.handleMouseMove) {
       PauseMenu.handleMouseMove(x, y);
     } else if (currentScreen && currentScreen.handleMouseMove) {
@@ -201,7 +197,9 @@ function initApp() {
     }
     if (e.key === 'F12') {
       e.preventDefault();
-      ScreenshotCapture.captureAll();
+      if (typeof ScreenshotCapture !== 'undefined') {
+        ScreenshotCapture.captureAll();
+      }
       return;
     }
     if (store.get('miniGameActive')) {
@@ -222,12 +220,14 @@ function initApp() {
   });
   resizeCanvas();
 
-  // Initialize PixiJS (for game board rendering)
-  if (typeof PixiApp !== 'undefined') {
-    PixiApp.init();
-  }
-
-  switchScreen('home');
+  // Initialize PixiJS (async for v8)
+  const pixiReady = (typeof PixiApp !== 'undefined') ? PixiApp.init() : Promise.resolve();
+  pixiReady.then(() => {
+    if (typeof PixiScreenManager !== 'undefined') {
+      PixiScreenManager.init();
+    }
+    switchScreen('home');
+  });
 
   // Initialize audio on first user interaction
   function initAudio() {

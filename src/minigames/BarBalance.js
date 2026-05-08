@@ -15,6 +15,7 @@ class BarBalance {
     this.flashTimer = 0;
     this.flashColor = null;
     this.bgOffset = 0;
+    this.lastRect = { x: 0, y: 0, w: 1, h: 1 };
   }
 
   init(attacker, defender, difficulty, isDuel) {
@@ -156,10 +157,8 @@ class BarBalance {
 
   handleClick(x, y) {
     if (this.done) return;
-    const w = 700;
-    const h = 460;
-    const cx = 640;
-    const cy = 300;
+    const rect = this.lastRect || { x: 0, y: 0, w: 1, h: 1 };
+    const cx = rect.x + rect.w / 2;
     if (x < cx) {
       this.clicksLeft++;
     } else {
@@ -171,6 +170,10 @@ class BarBalance {
   render(ctx, x, y, w, h) {
     const theme = ThemeManager.getTheme(store.get('theme'));
     const cols = theme.colors;
+    this.lastRect = { x, y, w, h };
+
+    ctx.fillStyle = cols.background || cols.bg || cols.panel;
+    ctx.fillRect(x, y, w, h);
 
     // Animated background pattern: scrolling dots
     ctx.save();
@@ -201,10 +204,10 @@ class BarBalance {
 
     // Title
     ctx.fillStyle = cols.text;
-    ctx.font = 'bold 16px monospace';
+    ctx.font = 'bold 18px monospace';
     ctx.textAlign = 'center';
     ctx.fillText('BAR BALANCE', x + w / 2, y + 24);
-    ctx.font = '11px monospace';
+    ctx.font = 'bold 12px monospace';
     ctx.globalAlpha = 0.55;
     ctx.fillStyle = cols.text;
     ctx.fillText('Click LEFT side to push left, RIGHT side to push right', x + w / 2, y + 42);
@@ -265,9 +268,9 @@ class BarBalance {
       barGrad.addColorStop(0.4, cols.accent);
       barGrad.addColorStop(1, this._darkenColor(cols.accent, 50));
     } else {
-      barGrad.addColorStop(0, '#ee6666');
-      barGrad.addColorStop(0.4, '#aa4444');
-      barGrad.addColorStop(1, '#662222');
+      barGrad.addColorStop(0, cols.highlight || cols.accent);
+      barGrad.addColorStop(0.4, cols.highlight || cols.text);
+      barGrad.addColorStop(1, cols.panel);
     }
     ctx.fillStyle = barGrad;
     this._roundRect(ctx, -barW / 2, -barH / 2, barW, barH, 5);
@@ -276,7 +279,7 @@ class BarBalance {
     // Top highlight stripe
     ctx.save();
     ctx.globalAlpha = 0.35;
-    ctx.fillStyle = '#ffffff';
+    ctx.fillStyle = cols.text;
     this._roundRect(ctx, -barW / 2 + 4, -barH / 2 + 1, barW - 8, 3, 2);
     ctx.fill();
     ctx.restore();
@@ -296,15 +299,15 @@ class BarBalance {
 
     // Ball glow
     ctx.save();
-    ctx.shadowColor = isBalanced ? cols.accent : '#ff4444';
+    ctx.shadowColor = isBalanced ? cols.accent : (cols.highlight || cols.accent);
     ctx.shadowBlur = 10;
     const ballGrad = ctx.createRadialGradient(
       ballOffset - 2, -barH / 2 - ballRadius + 2, 2,
       ballOffset, -barH / 2 - ballRadius, ballRadius
     );
-    ballGrad.addColorStop(0, '#ffffff');
-    ballGrad.addColorStop(0.6, isBalanced ? cols.accent : '#ff4444');
-    ballGrad.addColorStop(1, this._darkenColor(isBalanced ? cols.accent : '#ff4444', 60));
+    ballGrad.addColorStop(0, cols.text);
+    ballGrad.addColorStop(0.6, isBalanced ? cols.accent : (cols.highlight || cols.accent));
+    ballGrad.addColorStop(1, this._darkenColor(isBalanced ? cols.accent : (cols.highlight || cols.accent), 60));
     ctx.fillStyle = ballGrad;
     ctx.beginPath();
     ctx.arc(ballOffset, -barH / 2 - ballRadius, ballRadius, 0, Math.PI * 2);
@@ -314,7 +317,7 @@ class BarBalance {
     // Ball highlight
     ctx.save();
     ctx.globalAlpha = 0.5;
-    ctx.fillStyle = '#ffffff';
+    ctx.fillStyle = cols.text;
     ctx.beginPath();
     ctx.arc(ballOffset - 3, -barH / 2 - ballRadius - 3, 3, 0, Math.PI * 2);
     ctx.fill();
@@ -322,7 +325,7 @@ class BarBalance {
 
     // End caps / weights on bar ends
     const capSize = 14;
-    ctx.fillStyle = this._darkenColor(isBalanced ? cols.accent : '#aa4444', 30);
+    ctx.fillStyle = this._darkenColor(isBalanced ? cols.accent : (cols.highlight || cols.accent), 30);
     ctx.beginPath();
     ctx.arc(-barW / 2, 0, capSize / 2, 0, Math.PI * 2);
     ctx.fill();
@@ -332,7 +335,7 @@ class BarBalance {
     // Cap shine
     ctx.save();
     ctx.globalAlpha = 0.25;
-    ctx.fillStyle = '#ffffff';
+    ctx.fillStyle = cols.text;
     ctx.beginPath();
     ctx.arc(-barW / 2 - 1, -2, 3, 0, Math.PI * 2);
     ctx.fill();
@@ -367,14 +370,20 @@ class BarBalance {
       ctx.fillStyle = cols.text + 'aa';
       ctx.fillText('WOBBLING', x + w / 2, y + 192);
     } else {
-      ctx.fillStyle = '#ff6666';
+      ctx.fillStyle = cols.highlight || cols.accent;
       ctx.fillText('DANGER!', x + w / 2, y + 192);
     }
 
     if (this.done) {
-      ctx.fillStyle = cols.accent;
-      ctx.font = 'bold 16px monospace';
-      ctx.fillText(this.winner === 'attacker' ? 'YOU WIN!' : 'Defender wins!', x + w / 2, y + 215);
+      const win = this.winner === 'attacker';
+      ctx.fillStyle = win ? 'rgba(80, 220, 130, 0.30)' : 'rgba(220, 70, 80, 0.30)';
+      ctx.fillRect(x - this.shakeX, y - this.shakeY, w, h);
+      ctx.fillStyle = cols.text;
+      ctx.shadowColor = win ? cols.accent : (cols.highlight || cols.accent);
+      ctx.shadowBlur = 14;
+      ctx.font = 'bold 18px monospace';
+      ctx.fillText(win ? 'You Win!' : 'You Lose!', x + w / 2, y + h / 2);
+      ctx.shadowBlur = 0;
     }
 
     ctx.restore(); // un-shake
@@ -433,4 +442,6 @@ class BarBalance {
     const num = parseInt(hex, 16);
     return { r: (num >> 16) & 255, g: (num >> 8) & 255, b: num & 255 };
   }
+
+  cleanup() {}
 }

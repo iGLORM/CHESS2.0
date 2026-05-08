@@ -74,7 +74,7 @@ class WhackMole {
 
     const cx = (cell.col + 0.5) / this.cols;
     const cy = (cell.row + 0.5) / this.rows;
-    const color = cell.type === 'gold' ? '#ffdd44' : '#44ff88';
+    const color = cell.type === 'gold' ? 'gold' : 'hit';
     for (let i = 0; i < 5; i++) {
       this.sparks.push({
         x: cx, y: cy,
@@ -153,7 +153,7 @@ class WhackMole {
     const theme = ThemeManager.getTheme(store.get('theme'));
     const cols = theme.colors;
 
-    ctx.fillStyle = 'rgba(0,0,0,0.85)';
+    ctx.fillStyle = cols.background || cols.bg || cols.panel;
     ctx.fillRect(x, y, w, h);
     ctx.strokeStyle = cols.accent;
     ctx.lineWidth = 3;
@@ -171,13 +171,13 @@ class WhackMole {
 
     if (this.flashTimer > 0) {
       ctx.globalAlpha = this.flashTimer * 2;
-      ctx.fillStyle = '#44ff4422';
+      ctx.fillStyle = 'rgba(80,220,130,0.13)';
       ctx.fillRect(arenaX, arenaY, arenaW, arenaH);
       ctx.globalAlpha = 1;
     }
     if (this.missFlash > 0) {
       ctx.globalAlpha = this.missFlash;
-      ctx.fillStyle = '#ff444422';
+      ctx.fillStyle = 'rgba(220,70,80,0.13)';
       ctx.fillRect(arenaX, arenaY, arenaW, arenaH);
       ctx.globalAlpha = 1;
     }
@@ -200,7 +200,7 @@ class WhackMole {
 
       const holeTop = cy + cellH - holeH - holePad;
 
-      ctx.fillStyle = '#22222288';
+      ctx.fillStyle = cols.background || cols.bg || cols.panel;
       ctx.beginPath();
       ctx.ellipse(cx + cellW / 2, holeTop + holeH / 2, (cellW - holePad * 2) / 2.2, holeH / 2.5, 0, 0, Math.PI * 2);
       ctx.fill();
@@ -216,9 +216,9 @@ class WhackMole {
         const popOffset = moleH * cell.popUp * 0.5;
         const moleY = moleBaseY - popOffset;
 
-        const moleColor = cell.type === 'gold' ? '#ffcc33' : '#cc8855';
-        const moleHighlight = cell.type === 'gold' ? '#ffee88' : '#ddaa77';
-        const eyeColor = cell.type === 'gold' ? '#884400' : '#332211';
+        const moleColor = cell.type === 'gold' ? (cols.highlight || cols.accent) : cols.accent;
+        const moleHighlight = cols.text;
+        const eyeColor = cols.panel;
 
         ctx.save();
         ctx.beginPath();
@@ -227,12 +227,12 @@ class WhackMole {
 
         if (cell.hit) {
           ctx.globalAlpha = cell.hitTimer / 0.3;
-          ctx.fillStyle = '#ffffff';
+          ctx.fillStyle = cols.text;
           ctx.beginPath();
           ctx.arc(moleX, moleY, moleW / 2, 0, Math.PI * 2);
           ctx.fill();
           ctx.font = 'bold 14px monospace';
-          ctx.fillStyle = cell.type === 'gold' ? '#ffcc33' : '#44ff44';
+          ctx.fillStyle = cell.type === 'gold' ? (cols.highlight || cols.accent) : cols.accent;
           ctx.textAlign = 'center';
           ctx.fillText(cell.type === 'gold' ? '+2' : '+1', moleX, moleY + 5);
         } else {
@@ -257,7 +257,7 @@ class WhackMole {
           ctx.arc(moleX + moleW * 0.2, moleY - moleW * 0.08, 3, 0, Math.PI * 2);
           ctx.fill();
 
-          ctx.fillStyle = '#ffffff';
+          ctx.fillStyle = cols.text;
           ctx.beginPath();
           ctx.arc(moleX - moleW * 0.2 - 1, moleY - moleW * 0.08 - 1, 1.5, 0, Math.PI * 2);
           ctx.fill();
@@ -267,17 +267,17 @@ class WhackMole {
 
           if (!cell.hit) {
             const noseWobble = Math.sin(Date.now() / 300 + cell.col) * 1;
-            ctx.fillStyle = '#ff6688';
+            ctx.fillStyle = cols.highlight || cols.accent;
             ctx.beginPath();
             ctx.arc(moleX + noseWobble, moleY + moleW * 0.12, 3, 0, Math.PI * 2);
             ctx.fill();
           }
 
           if (cell.type === 'gold') {
-            ctx.fillStyle = '#ffee44';
+            ctx.fillStyle = cols.highlight || cols.accent;
             ctx.font = 'bold 11px monospace';
             ctx.textAlign = 'center';
-            ctx.shadowColor = '#ffee44';
+            ctx.shadowColor = cols.highlight || cols.accent;
             ctx.shadowBlur = 6;
             ctx.fillText('★', moleX, moleY - moleW / 2 - 4);
             ctx.shadowBlur = 0;
@@ -285,7 +285,7 @@ class WhackMole {
 
           const urgency = cell.timer / cell.maxTime;
           if (urgency < 0.3) {
-            ctx.strokeStyle = '#ff4444aa';
+            ctx.strokeStyle = cols.highlight || cols.accent;
             ctx.lineWidth = 2;
             ctx.beginPath();
             ctx.arc(moleX, moleY, moleW / 2 + 3, 0, Math.PI * 2 * (1 - urgency / 0.3));
@@ -299,8 +299,8 @@ class WhackMole {
 
     for (const spark of this.sparks) {
       ctx.globalAlpha = spark.life / 0.6;
-      ctx.fillStyle = spark.color;
-      ctx.shadowColor = spark.color;
+      ctx.fillStyle = spark.color === 'gold' ? (cols.highlight || cols.accent) : cols.accent;
+      ctx.shadowColor = ctx.fillStyle;
       ctx.shadowBlur = 6;
       const sx = arenaX + spark.x * arenaW;
       const sy = arenaY + spark.y * arenaH;
@@ -315,17 +315,17 @@ class WhackMole {
     ctx.fillRect(x, barY, w, barH);
 
     ctx.fillStyle = cols.text;
-    ctx.font = 'bold 11px monospace';
+    ctx.font = 'bold 13px monospace';
     ctx.textAlign = 'left';
     ctx.fillText('Hits: ' + this.score + '/' + this.target, x + 8, barY + 13);
 
     ctx.textAlign = 'center';
     const timeLeft = Math.max(0, this.duration - this.timer);
-    ctx.fillStyle = timeLeft < 3 ? '#ff4444' : cols.text;
+    ctx.fillStyle = timeLeft < 3 ? (cols.highlight || cols.accent) : cols.text;
     ctx.fillText(timeLeft.toFixed(1) + 's', x + w / 2, barY + 13);
 
     if (this.streak > 1) {
-      ctx.fillStyle = '#ffdd44';
+      ctx.fillStyle = cols.highlight || cols.accent;
       ctx.textAlign = 'right';
       ctx.fillText(this.streak + 'x streak', x + w - 8, barY + 13);
     }
@@ -333,10 +333,23 @@ class WhackMole {
     const progW = w * 0.4;
     const progX = x + (w - progW) / 2;
     const progY = barY + 1;
-    ctx.fillStyle = '#33333388';
+    ctx.fillStyle = cols.panel + 'cc';
     ctx.fillRect(progX, progY + barH - 5, progW, 3);
-    ctx.fillStyle = this.score >= this.target ? '#44dd44' : cols.accent;
+    ctx.fillStyle = this.score >= this.target ? cols.accent : (cols.highlight || cols.accent);
     ctx.fillRect(progX, progY + barH - 5, progW * Math.min(1, this.score / this.target), 3);
+
+    if (this.done) {
+      const win = this.winner === 'attacker';
+      ctx.fillStyle = win ? 'rgba(80, 220, 130, 0.30)' : 'rgba(220, 70, 80, 0.30)';
+      ctx.fillRect(x, y, w, h);
+      ctx.fillStyle = cols.text;
+      ctx.shadowColor = win ? cols.accent : (cols.highlight || cols.accent);
+      ctx.shadowBlur = 14;
+      ctx.font = 'bold 18px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText(win ? 'You Win!' : 'You Lose!', x + w / 2, y + h / 2);
+      ctx.shadowBlur = 0;
+    }
   }
 
   handleClick(x, y) {

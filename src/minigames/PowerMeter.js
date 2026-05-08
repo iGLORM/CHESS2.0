@@ -10,6 +10,11 @@ class PowerMeter {
     this.maxAttempts = 3;
     this.score = 0;
     this.difficulty = 1;
+    this.hitHistory = [];
+    this.particles = [];
+    this.shakeTimer = 0;
+    this.shakeX = 0;
+    this.shakeY = 0;
   }
 
   init(attacker, defender, difficulty, isDuel) {
@@ -22,17 +27,42 @@ class PowerMeter {
     this.difficulty = difficulty || 1;
     this.speed = 1.5 + this.difficulty * 0.4;
     this.maxAttempts = isDuel ? 5 : 3;
+    this.hitHistory = [];
+    this.particles = [];
+    this.shakeTimer = 0;
+    this.shakeX = 0;
+    this.shakeY = 0;
     if (audioManager) audioManager.playMiniGameStart();
   }
 
   update(dt) {
-    if (this.done || this.attempts >= this.maxAttempts) return;
-    if (this.rising) {
-      this.power += this.speed * dt * 60;
-      if (this.power >= 100) { this.power = 100; this.rising = false; }
+    if (!this.done && this.attempts < this.maxAttempts) {
+      if (this.rising) {
+        this.power += this.speed * dt * 60;
+        if (this.power >= 100) { this.power = 100; this.rising = false; }
+      } else {
+        this.power -= this.speed * dt * 60;
+        if (this.power <= 0) { this.power = 0; this.rising = true; }
+      }
+    }
+
+    if (this.shakeTimer > 0) {
+      this.shakeTimer = Math.max(0, this.shakeTimer - dt);
+      const amt = (this.shakeTimer / 0.22) * 6;
+      this.shakeX = (Math.random() - 0.5) * amt;
+      this.shakeY = (Math.random() - 0.5) * amt;
     } else {
-      this.power -= this.speed * dt * 60;
-      if (this.power <= 0) { this.power = 0; this.rising = true; }
+      this.shakeX = 0;
+      this.shakeY = 0;
+    }
+
+    for (let i = this.particles.length - 1; i >= 0; i--) {
+      const p = this.particles[i];
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+      p.vy += 160 * dt;
+      p.life -= dt;
+      if (p.life <= 0) this.particles.splice(i, 1);
     }
   }
 
@@ -59,9 +89,14 @@ class PowerMeter {
 
     if (this.power >= minTarget && this.power <= maxTarget) {
       this.score += 100;
+      this.hitHistory.push(true);
+      this._burst(this.power, true);
       audioManager.playTone(700, 0.1, 'square', 0.08);
     } else {
       this.score += Math.max(10, 50 - Math.abs(this.power - (minTarget + maxTarget) / 2));
+      this.hitHistory.push(false);
+      this._burst(this.power, false);
+      this.shakeTimer = 0.22;
       audioManager.playTone(300, 0.1, 'square', 0.06);
     }
 
@@ -76,52 +111,106 @@ class PowerMeter {
     }
   }
 
+  _burst(power, success) {
+    for (let i = 0; i < 18; i++) {
+      const angle = (Math.PI * 2 * i) / 18 + Math.random() * 0.25;
+      const speed = 80 + Math.random() * 120;
+      this.particles.push({
+        power,
+        x: 0,
+        y: 0,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        life: 0.45 + Math.random() * 0.25,
+        maxLife: 0.45 + Math.random() * 0.25,
+        size: success ? 4 : 3,
+        success,
+      });
+    }
+  }
+
+  _roundRect(ctx, rx, ry, rw, rh, r) {
+    r = Math.min(r, rw / 2, rh / 2);
+    ctx.beginPath();
+    ctx.moveTo(rx + r, ry);
+    ctx.arcTo(rx + rw, ry, rx + rw, ry + rh, r);
+    ctx.arcTo(rx + rw, ry + rh, rx, ry + rh, r);
+    ctx.arcTo(rx, ry + rh, rx, ry, r);
+    ctx.arcTo(rx, ry, rx + rw, ry, r);
+    ctx.closePath();
+  }
+
+  _resultOverlay(ctx, x, y, w, h, cols) {
+    if (!this.done) return;
+    const win = this.winner === 'attacker';
+    ctx.save();
+    ctx.fillStyle = win ? 'rgba(80, 220, 130, 0.30)' : 'rgba(220, 70, 80, 0.30)';
+    ctx.fillRect(x, y, w, h);
+    ctx.shadowColor = win ? (cols.accent || cols.highlight) : (cols.highlight || cols.accent);
+    ctx.shadowBlur = 14;
+    ctx.fillStyle = cols.text;
+    ctx.font = 'bold 18px monospace';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(win ? 'You Win!' : 'You Lose!', x + w / 2, y + h / 2);
+    ctx.restore();
+  }
+
   render(ctx, x, y, w, h) {
     const cols = ThemeManager.getTheme(store.get('theme')).colors;
-    ctx.fillStyle = 'rgba(0,0,0,0.85)';
+    ctx.save();
+    ctx.translate(this.shakeX, this.shakeY);
+
+    ctx.fillStyle = cols.background || cols.bg || cols.panel;
     ctx.fillRect(x, y, w, h);
     ctx.strokeStyle = cols.accent;
     ctx.lineWidth = 3;
     ctx.strokeRect(x, y, w, h);
 
     ctx.fillStyle = cols.text;
-    ctx.font = 'bold 20px monospace';
+    ctx.font = 'bold 18px monospace';
     ctx.textAlign = 'center';
     ctx.fillText('POWER METER', x + w / 2, y + 30);
 
-    ctx.font = '11px monospace';
+    ctx.font = 'bold 12px monospace';
     ctx.fillStyle = cols.text + '88';
     ctx.fillText('Click when the bar is in the green zone!', x + w / 2, y + 50);
 
     // Bar
-    const bx = x + 50;
-    const by = y + 70;
-    const bw = w - 100;
-    const bh = 30;
+    const bx = x + Math.max(44, w * 0.08);
+    const by = y + h * 0.22;
+    const bw = w - (bx - x) * 2;
+    const bh = Math.max(28, h * 0.07);
 
     // Zones with glow
     const minTarget = 30 + this.difficulty * 10;
     const maxTarget = 90 - (5 - this.difficulty) * 5;
+    const zoneX = bx + bw * (minTarget / 100);
+    const zoneW = bw * ((maxTarget - minTarget) / 100);
+    const pulse = 0.5 + 0.5 * Math.sin(Date.now() / 130);
     const zoneGrad = ctx.createLinearGradient(bx + bw * (minTarget / 100), by, bx + bw * (minTarget / 100), by + bh);
-    zoneGrad.addColorStop(0, '#448844');
-    zoneGrad.addColorStop(0.5, '#225522');
-    zoneGrad.addColorStop(1, '#448844');
+    zoneGrad.addColorStop(0, cols.highlight || cols.accent);
+    zoneGrad.addColorStop(0.45, cols.accent);
+    zoneGrad.addColorStop(1, cols.highlight || cols.accent);
     ctx.fillStyle = zoneGrad;
-    ctx.fillRect(bx + bw * (minTarget / 100), by, bw * ((maxTarget - minTarget) / 100), bh);
-    ctx.shadowColor = '#44ff44';
-    ctx.shadowBlur = 8;
-    ctx.strokeStyle = '#44aa44';
+    ctx.fillRect(zoneX, by, zoneW, bh);
+    ctx.shadowColor = cols.accent;
+    ctx.shadowBlur = 8 + pulse * 12;
+    ctx.strokeStyle = cols.highlight || cols.accent;
     ctx.lineWidth = 2;
-    ctx.strokeRect(bx + bw * (minTarget / 100), by, bw * ((maxTarget - minTarget) / 100), bh);
+    ctx.strokeRect(zoneX, by, zoneW, bh);
     ctx.shadowBlur = 0;
 
     // Bar track
-    const trackGrad = ctx.createLinearGradient(bx, by, bx, by + bh);
-    trackGrad.addColorStop(0, cols.text + '15');
-    trackGrad.addColorStop(0.5, cols.text + '28');
-    trackGrad.addColorStop(1, cols.text + '15');
-    ctx.fillStyle = trackGrad;
+    const fillW = bw * (this.power / 100);
+    const trackGrad = ctx.createLinearGradient(bx, by, bx + bw, by);
+    trackGrad.addColorStop(0, cols.panel);
+    trackGrad.addColorStop(Math.max(0.02, this.power / 100), cols.accent);
+    trackGrad.addColorStop(1, cols.text + '22');
+    ctx.fillStyle = cols.text + '18';
     ctx.fillRect(bx, by, bw, bh);
+    ctx.fillStyle = trackGrad;
+    ctx.fillRect(bx, by, fillW, bh);
     ctx.strokeStyle = cols.text + '44';
     ctx.lineWidth = 1;
     ctx.strokeRect(bx, by, bw, bh);
@@ -129,23 +218,55 @@ class PowerMeter {
     // Marker with glow
     const mx = bx + (this.power / 100) * bw;
     const inZone = this.power >= minTarget && this.power <= maxTarget;
-    ctx.shadowColor = inZone ? '#44ff44' : '#ff4444';
+    ctx.shadowColor = inZone ? cols.accent : (cols.highlight || cols.accent);
     ctx.shadowBlur = 12;
-    ctx.fillStyle = inZone ? '#66ff66' : '#ff6666';
+    ctx.fillStyle = inZone ? cols.accent : (cols.highlight || cols.accent);
     ctx.beginPath();
     ctx.arc(mx, by + bh / 2, 7, 0, Math.PI * 2);
     ctx.fill();
     ctx.shadowBlur = 0;
 
-    // Score
+    // Particles
+    for (const p of this.particles) {
+      const alpha = Math.max(0, p.life / p.maxLife);
+      const px = bx + (p.power / 100) * bw + p.x;
+      const py = by + bh / 2 + p.y;
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.fillStyle = p.success ? cols.accent : (cols.highlight || cols.text);
+      ctx.beginPath();
+      ctx.arc(px, py, p.size * alpha, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+
+    // Score panel
+    const panelW = Math.min(360, w - 80);
+    const panelX = x + (w - panelW) / 2;
+    const panelY = by + bh + 20;
+    this._roundRect(ctx, panelX, panelY, panelW, 54, 8);
+    ctx.fillStyle = cols.panel + 'dd';
+    ctx.fill();
+    ctx.strokeStyle = cols.text + '22';
+    ctx.stroke();
+
     ctx.fillStyle = cols.accent;
     ctx.font = 'bold 13px monospace';
-    ctx.fillText('Score: ' + this.score + ' | Attempt ' + this.attempts + '/' + this.maxAttempts, x + w / 2, y + 125);
+    ctx.fillText('Score: ' + Math.round(this.score) + ' | Attempt ' + this.attempts + '/' + this.maxAttempts, x + w / 2, panelY + 20);
 
-    if (this.done) {
-      ctx.fillStyle = cols.accent;
-      ctx.font = 'bold 16px monospace';
-      ctx.fillText(this.winner === 'attacker' ? 'YOU WIN!' : 'Defender wins!', x + w / 2, y + 155);
+    const dotR = 5;
+    const totalDots = this.maxAttempts * 16;
+    const startX = x + w / 2 - totalDots / 2 + 8;
+    for (let i = 0; i < this.maxAttempts; i++) {
+      ctx.fillStyle = i >= this.hitHistory.length ? cols.text + '33' : (this.hitHistory[i] ? cols.accent : cols.highlight || cols.text);
+      ctx.beginPath();
+      ctx.arc(startX + i * 16, panelY + 38, dotR, 0, Math.PI * 2);
+      ctx.fill();
     }
+
+    ctx.restore();
+    this._resultOverlay(ctx, x, y, w, h, cols);
   }
+
+  cleanup() {}
 }

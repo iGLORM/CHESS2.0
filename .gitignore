@@ -4,3 +4,8 @@ dist/
 .claude/settings.local.json
 *.local.json
 .worktrees
+assets/dropbox/
+assets/generated/
+electron_err.log
+dev-screenshot.png
+.screenshot-trigger

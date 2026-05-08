@@ -17,6 +17,8 @@ class QuickClick {
     this.particles = [];
     this.p2ShakeTimer = 0;
     this.p2FlashTimer = 0;
+    this.cursorTrail = [];
+    this.lastRect = { x: 0, y: 0, w: 1, h: 1 };
   }
 
   init(attacker, defender) {
@@ -39,6 +41,7 @@ class QuickClick {
     this.particles = [];
     this.p2ShakeTimer = 0;
     this.p2FlashTimer = 0;
+    this.cursorTrail = [];
     audioManager.playMiniGameStart();
   }
 
@@ -76,6 +79,10 @@ class QuickClick {
     }
     if (this.p2FlashTimer > 0) this.p2FlashTimer = Math.max(0, this.p2FlashTimer - dt);
     if (this.p2ShakeTimer > 0) this.p2ShakeTimer = Math.max(0, this.p2ShakeTimer - dt);
+    for (let i = this.cursorTrail.length - 1; i >= 0; i--) {
+      this.cursorTrail[i].life -= dt;
+      if (this.cursorTrail[i].life <= 0) this.cursorTrail.splice(i, 1);
+    }
 
     // Update particles
     for (let i = this.particles.length - 1; i >= 0; i--) {
@@ -115,8 +122,11 @@ class QuickClick {
 
     // Particle burst (4-6 small colored squares)
     const count = 4 + Math.floor(Math.random() * 3);
-    const cx = (x > 0) ? x : 640;
-    const cy = (y > 0) ? y : 400;
+    const rect = this.lastRect || { x: 0, y: 0, w: 1, h: 1 };
+    const cx = (x > 0) ? x : rect.x + rect.w / 2;
+    const cy = (y > 0) ? y : rect.y + rect.h / 2;
+    this.cursorTrail.push({ x: cx, y: cy, life: 0.38, maxLife: 0.38 });
+    if (this.cursorTrail.length > 14) this.cursorTrail.shift();
     for (let i = 0; i < count; i++) {
       const angle = (Math.PI * 2 / count) * i + Math.random() * 0.5;
       const speed = 80 + Math.random() * 120;
@@ -128,7 +138,7 @@ class QuickClick {
         life: 0.3 + Math.random() * 0.2,
         maxLife: 0.3 + Math.random() * 0.2,
         size: 3 + Math.random() * 3,
-        color: Math.random() > 0.5 ? '#44ff44' : '#88ffaa',
+        color: null,
       });
     }
 
@@ -165,6 +175,7 @@ class QuickClick {
     this._bounds = { x, y, w, h };
     const theme = ThemeManager.getTheme(store.get('theme'));
     const cols = theme.colors;
+    this.lastRect = { x, y, w, h };
 
     // Apply screen shake offset
     let shakeX = 0, shakeY = 0;
@@ -178,7 +189,7 @@ class QuickClick {
     ctx.translate(shakeX, shakeY);
 
     // Background
-    ctx.fillStyle = 'rgba(0,0,0,0.85)';
+    ctx.fillStyle = cols.background || cols.bg || cols.panel;
     ctx.fillRect(x, y, w, h);
 
     // Border with accent glow
@@ -199,22 +210,22 @@ class QuickClick {
 
     // Title
     ctx.fillStyle = cols.text;
-    ctx.font = 'bold 20px monospace';
+    ctx.font = 'bold 18px monospace';
     ctx.textAlign = 'center';
     ctx.fillText('QUICK CLICK!', x + w / 2, y + 40);
 
     // Subtitle
-    ctx.font = '12px monospace';
+    ctx.font = 'bold 12px monospace';
     ctx.fillStyle = cols.text;
     ctx.globalAlpha = 0.5;
     ctx.fillText('Click as fast as you can!', x + w / 2, y + 60);
     ctx.globalAlpha = 1;
 
     // Timer
-    const timerColor = this.timeLeft < 2 ? '#ff4444' : cols.text;
+    const timerColor = this.timeLeft < 2 ? (cols.highlight || cols.accent) : cols.text;
     ctx.save();
     if (this.timeLeft < 2) {
-      ctx.shadowColor = '#ff4444';
+      ctx.shadowColor = cols.highlight || cols.accent;
       ctx.shadowBlur = 10;
     }
     ctx.fillStyle = timerColor;
@@ -247,10 +258,10 @@ class QuickClick {
       ctx.save();
       this._drawRoundedBar(ctx, a1x, a1y, fillW, barH, barRadius);
       const grad = ctx.createLinearGradient(a1x, a1y, a1x, a1y + barH);
-      grad.addColorStop(0, '#66ff66');
-      grad.addColorStop(1, '#22aa22');
+      grad.addColorStop(0, cols.highlight || cols.accent);
+      grad.addColorStop(1, cols.accent);
       ctx.fillStyle = grad;
-      ctx.shadowColor = '#44ff44';
+      ctx.shadowColor = cols.accent;
       ctx.shadowBlur = 12;
       ctx.fill();
       ctx.restore();
@@ -291,10 +302,10 @@ class QuickClick {
       ctx.save();
       this._drawRoundedBar(ctx, a2x, a2y, fillW, barH, barRadius);
       const grad2 = ctx.createLinearGradient(a2x, a2y, a2x, a2y + barH);
-      grad2.addColorStop(0, '#ff6666');
-      grad2.addColorStop(1, '#aa2222');
+      grad2.addColorStop(0, cols.highlight || cols.accent);
+      grad2.addColorStop(1, cols.panel);
       ctx.fillStyle = grad2;
-      ctx.shadowColor = '#ff4444';
+      ctx.shadowColor = cols.highlight || cols.accent;
       ctx.shadowBlur = 12;
       ctx.fill();
       ctx.restore();
@@ -334,9 +345,21 @@ class QuickClick {
       const alpha = Math.max(0, p.life / p.maxLife);
       ctx.save();
       ctx.globalAlpha = alpha;
-      ctx.fillStyle = p.color;
+      ctx.fillStyle = p.color || cols.accent;
       const half = p.size / 2;
       ctx.fillRect(p.x - half, p.y - half, p.size, p.size);
+      ctx.restore();
+    }
+
+    // Cursor trail
+    for (const p of this.cursorTrail) {
+      const alpha = Math.max(0, p.life / p.maxLife);
+      ctx.save();
+      ctx.globalAlpha = alpha * 0.65;
+      ctx.fillStyle = cols.highlight || cols.accent;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 3 + alpha * 4, 0, Math.PI * 2);
+      ctx.fill();
       ctx.restore();
     }
 
@@ -350,18 +373,23 @@ class QuickClick {
     // Result
     if (this.done) {
       ctx.save();
-      ctx.shadowColor = cols.accent;
+      const win = this.winner === 'attacker';
+      ctx.fillStyle = win ? 'rgba(80, 220, 130, 0.30)' : 'rgba(220, 70, 80, 0.30)';
+      ctx.fillRect(x, y, w, h);
+      ctx.shadowColor = win ? cols.accent : (cols.highlight || cols.accent);
       ctx.shadowBlur = 14;
-      ctx.fillStyle = cols.accent;
+      ctx.fillStyle = cols.text;
       ctx.font = 'bold 18px monospace';
       if (this.winner === 'attacker') {
-        ctx.fillText('YOU WIN!', x + w / 2, y + 260);
+        ctx.fillText('You Win!', x + w / 2, y + h / 2);
       } else {
-        ctx.fillText('Defender wins!', x + w / 2, y + 260);
+        ctx.fillText('You Lose!', x + w / 2, y + h / 2);
       }
       ctx.restore();
     }
 
     ctx.restore(); // undo shake translate
   }
+
+  cleanup() {}
 }

@@ -67,6 +67,7 @@
     "electron-builder": "^25.1.8"
   },
   "dependencies": {
+    "@chenglou/pretext": "^0.0.6",
     "stockfish": "^18.0.7"
   }
 }

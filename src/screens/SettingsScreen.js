@@ -149,13 +149,29 @@ const SettingsScreen = {
     ctx.fillText('Customize your experience', 640, 72);
     UIHelpers.drawSeparator(ctx, 300, 82, 680, cols);
 
+    // Grouping panel behind all settings controls
+    UIHelpers.drawPanel(ctx, 240, 95, 800, 600, cols, { accentTop: true });
+
+    // Vertically center content in panel (panel y=95, h=600)
+    const contentH = 160 + 20 + this.options.length * 60;
+    const panelInner = 592;
+    const contentTop = 95 + 4 + Math.max(0, (panelInner - contentH) / 2);
+    const sliderY1 = contentTop;
+    const sliderY2 = contentTop + 80;
+    const optionsTop = sliderY2 + 80 + 20;
+    this._sliderY1 = sliderY1;
+    this._sliderY2 = sliderY2;
+    this._optStartY = optionsTop;
+
     // Volume sliders (full-width Elo-style)
-    this._drawVolumeSlider(ctx, 280, 130, 720, this.settings.musicVolume, 'Music Volume', cols);
-    this._drawVolumeSlider(ctx, 280, 210, 720, this.settings.sfxVolume, 'SFX Volume', cols);
+    this._drawVolumeSlider(ctx, 280, sliderY1, 720, this.settings.musicVolume, 'Music Volume', cols);
+    this._drawVolumeSlider(ctx, 280, sliderY2, 720, this.settings.sfxVolume, 'SFX Volume', cols);
 
     // Options list below sliders
-    const startY = 280;
+    const startY = optionsTop;
     const lineH = 60;
+
+    const iconMap = { 'Practice Mini-Games': 'target', 'Controls': 'gear', 'Audio': 'music', 'Player 1 Name': 'king', 'Player 2 Name': 'king', 'Reset Progress': 'skull' };
 
     for (let i = 0; i < this.options.length; i++) {
       const opt = this.options[i];
@@ -163,43 +179,39 @@ const SettingsScreen = {
       const isHover = i === this.selectedOption;
       const isEditing = this.editingOption === opt.label && (opt.label === 'Player 1 Name' || opt.label === 'Player 2 Name');
 
-      ctx.fillStyle = isHover ? cols.buttonHover : 'transparent';
-      ctx.fillRect(300, y, 680, 50);
+      // Draw beveled card for each option row (behind text/icons)
+      UIHelpers.drawCard(ctx, 260, y - 10, 760, 50, cols, { hover: isHover, active: false });
 
-      if (isHover) {
-        ctx.fillStyle = cols.accent;
-        ctx.fillRect(300, y, 3, 50);
-      }
-
-      const iconMap = { 'Practice Mini-Games': 'target', 'Controls': 'gear', 'Audio': 'music', 'Player 1 Name': 'king', 'Player 2 Name': 'king', 'Reset Progress': 'skull' };
+      // Icon left-aligned within the card
       if (iconMap[opt.label]) {
-        UIHelpers.drawIcon(ctx, 300 + 290, y + 22, iconMap[opt.label], 10, cols);
+        UIHelpers.drawIcon(ctx, 275, y + 12, iconMap[opt.label], 10, cols);
       }
 
+      // Option label text
       ctx.fillStyle = isHover ? cols.accent : cols.text;
       ctx.font = '18px monospace';
       ctx.textAlign = 'left';
-      ctx.fillText(opt.label, 320, y + 32);
+      ctx.fillText(opt.label, 300, y + 22);
 
       if (isEditing) {
         ctx.fillStyle = cols.panel;
-        ctx.fillRect(700, y + 10, 200, 30);
+        ctx.fillRect(700, y + 0, 200, 30);
         ctx.strokeStyle = cols.accent;
         ctx.lineWidth = 2;
-        ctx.strokeRect(700, y + 10, 200, 30);
+        ctx.strokeRect(700, y + 0, 200, 30);
         ctx.fillStyle = cols.text;
         ctx.font = '14px monospace';
         ctx.textAlign = 'left';
-        ctx.fillText(UIHelpers.truncateText(ctx, this.editText + (Math.floor(Date.now() / 500) % 2 === 0 ? '|' : ''), 180), 710, y + 30);
+        ctx.fillText(UIHelpers.truncateText(ctx, this.editText + (Math.floor(Date.now() / 500) % 2 === 0 ? '|' : ''), 180), 710, y + 20);
       } else if (opt.value) {
         const val = opt.value();
         if (opt.label === 'Audio') {
-          UIHelpers.drawToggle(ctx, 700, y + 18, 36, 18, this.settings.audioEnabled, cols);
+          UIHelpers.drawToggle(ctx, 700, y + 8, 36, 18, this.settings.audioEnabled, cols);
         } else {
           ctx.fillStyle = cols.text + '88';
           ctx.font = '16px monospace';
           ctx.textAlign = 'right';
-          ctx.fillText(UIHelpers.truncateText(ctx, val, 240), 960, y + 32);
+          ctx.fillText(UIHelpers.truncateText(ctx, val, 240), 960, y + 22);
         }
       }
     }
@@ -261,8 +273,10 @@ const SettingsScreen = {
       return;
     }
 
-    // Volume sliders
-    if (x >= 280 && x <= 1000 && y >= 120 && y <= 160) {
+    // Volume sliders (using stored Y positions from render)
+    const sy1 = this._sliderY1 || 130;
+    const sy2 = this._sliderY2 || 210;
+    if (x >= 280 && x <= 1000 && y >= sy1 - 5 && y <= sy1 + 40) {
       this.settings.musicVolume = this._sliderToValue(x, 280, 720);
       this.dragging = 'music';
       store.set('settings', this.settings);
@@ -270,7 +284,7 @@ const SettingsScreen = {
       store.saveProgress();
       return;
     }
-    if (x >= 280 && x <= 1000 && y >= 200 && y <= 240) {
+    if (x >= 280 && x <= 1000 && y >= sy2 - 5 && y <= sy2 + 40) {
       this.settings.sfxVolume = this._sliderToValue(x, 280, 720);
       this.dragging = 'sfx';
       store.set('settings', this.settings);
@@ -285,11 +299,11 @@ const SettingsScreen = {
       return;
     }
 
-    const startY = 280;
+    const startY = this._optStartY || 280;
     const lineH = 60;
     for (let i = 0; i < this.options.length; i++) {
       const oy = startY + i * lineH;
-      if (x >= 300 && x <= 980 && y >= oy && y <= oy + 50) {
+      if (x >= 260 && x <= 1020 && y >= oy - 10 && y <= oy + 40) {
         const opt = this.options[i];
         if (opt.toggle) opt.toggle();
         else if (opt.edit) opt.edit();
@@ -317,12 +331,14 @@ const SettingsScreen = {
     if (this.confirmReset || this.editingOption) return;
     this.selectedOption = -1;
     const canvas = document.getElementById('gameCanvas');
-    const onSlider = (x >= 280 && x <= 1000 && ((y >= 120 && y <= 160) || (y >= 200 && y <= 240)));
-    const startY = 280;
+    const sy1 = this._sliderY1 || 130;
+    const sy2 = this._sliderY2 || 210;
+    const onSlider = (x >= 280 && x <= 1000 && ((y >= sy1 - 5 && y <= sy1 + 40) || (y >= sy2 - 5 && y <= sy2 + 40)));
+    const startY = this._optStartY || 280;
     const lineH = 60;
     for (let i = 0; i < this.options.length; i++) {
       const oy = startY + i * lineH;
-      if (x >= 300 && x <= 980 && y >= oy && y <= oy + 50) {
+      if (x >= 260 && x <= 1020 && y >= oy - 10 && y <= oy + 40) {
         this.selectedOption = i;
         canvas.style.cursor = 'pointer';
         return;
@@ -332,14 +348,16 @@ const SettingsScreen = {
   },
 
   handleMouseDown(x, y) {
-    if (x >= 280 && x <= 1000 && y >= 116 && y <= 164) {
+    const sy1 = this._sliderY1 || 130;
+    const sy2 = this._sliderY2 || 210;
+    if (x >= 280 && x <= 1000 && y >= sy1 - 10 && y <= sy1 + 44) {
       this.dragging = 'music';
       this.settings.musicVolume = this._sliderToValue(x, 280, 720);
       store.set('settings', this.settings);
       audioManager.setMusicVolume(this.settings.musicVolume);
       store.saveProgress();
     }
-    if (x >= 280 && x <= 1000 && y >= 196 && y <= 244) {
+    if (x >= 280 && x <= 1000 && y >= sy2 - 10 && y <= sy2 + 44) {
       this.dragging = 'sfx';
       this.settings.sfxVolume = this._sliderToValue(x, 280, 720);
       store.set('settings', this.settings);

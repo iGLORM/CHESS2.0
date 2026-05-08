@@ -206,13 +206,20 @@ const CharacterSelect = {
     }
 
     // Character grid
-    const startX = 100;
+    const startX = 54;
     const startY = 110;
-    const cardW = 200;
-    const cardH = 280;
-    const gapX = 30;
-    const gapY = 30;
+    const cardW = 220;
+    const cardH = 260;
+    const gapX = 18;
+    const gapY = 24;
     const perRow = 5;
+
+    // Grouping panel behind the character grid
+    const totalRows = Math.ceil(this.characters.length / perRow);
+    const gridW = perRow * cardW + (perRow - 1) * gapX;
+    const gridH = totalRows * cardH + (totalRows - 1) * gapY;
+    const panelPad = 12;
+    UIHelpers.drawPanel(ctx, startX - panelPad, startY - panelPad, gridW + panelPad * 2, gridH + panelPad * 2, cols);
 
     for (let i = 0; i < this.characters.length; i++) {
       const ch = this.characters[i];
@@ -241,39 +248,28 @@ const CharacterSelect = {
         const sprite = CharacterManager.getCharacterSprite(ch, spriteSize);
         ctx.drawImage(sprite, sx, sy, spriteSize, spriteSize);
       } else {
-        UIHelpers.drawIcon(ctx, x + cardW / 2 - 5, y + 70, 'lock', 10, cols, { color: cols.text + '44' });
+        UIHelpers.drawIcon(ctx, x + cardW / 2 - 10, y + 50, 'lock', 20, cols, { color: cols.text + '44' });
       }
 
       ctx.globalAlpha = 1;
 
       // Character name
       ctx.fillStyle = isUnlocked ? cols.text : cols.text + '44';
-      ctx.font = isHover ? 'bold 16px monospace' : '16px monospace';
+      ctx.font = isHover ? 'bold 15px "Pixelify Sans", monospace' : '15px "Pixelify Sans", monospace';
       ctx.textAlign = 'center';
-      ctx.fillText(UIHelpers.truncateText(ctx, isUnlocked ? ch.name : '???', cardW - 20), x + cardW / 2, y + 120);
+      ctx.fillText(UIHelpers.truncateText(ctx, isUnlocked ? ch.name : '???', cardW - 20), x + cardW / 2, y + 118);
 
       // Title
       if (isUnlocked) {
         ctx.fillStyle = ch.colors.primary;
-        ctx.font = '12px monospace';
-        ctx.fillText(UIHelpers.truncateText(ctx, ch.title, cardW - 20), x + cardW / 2, y + 140);
+        ctx.font = '12px "Pixelify Sans", monospace';
+        ctx.fillText(UIHelpers.truncateText(ctx, ch.title, cardW - 20), x + cardW / 2, y + 136);
       }
 
       // Level
       ctx.fillStyle = isUnlocked ? cols.text + '88' : cols.text + '44';
-      ctx.font = '13px monospace';
+      ctx.font = '13px "Pixelify Sans", monospace';
       ctx.fillText('Level ' + ch.level, x + cardW / 2, y + 160);
-
-      // Dialogue preview on hover
-      if (isHover && !this.showDialogue) {
-        ctx.fillStyle = cols.text + 'bb';
-        ctx.font = '11px monospace';
-        ctx.textAlign = 'center';
-        const words = ch.dialogue.before;
-        ctx.fillText('"', x + cardW / 2, y + 180);
-        ctx.textAlign = 'left';
-        UIHelpers.wrapText(ctx, words, x + 10, y + 192, cardW - 20, 14, 5);
-      }
 
       // Level progress bar for current level
       if (ch.level === currentStoryLevel && isUnlocked) {
@@ -283,8 +279,49 @@ const CharacterSelect = {
       // "CURRENT" label
       if (ch.level === currentStoryLevel) {
         ctx.fillStyle = cols.accent;
-        ctx.font = 'bold 10px monospace';
+        ctx.font = 'bold 10px "Pixelify Sans", monospace';
+        ctx.textAlign = 'center';
         ctx.fillText('NEXT', x + cardW / 2, y + cardH - 30);
+      }
+
+      // Dialogue preview on hover — centered, clipped
+      if (isHover && !this.showDialogue) {
+        const hasBottom = (ch.level === currentStoryLevel);
+        const clipBottom = hasBottom ? 48 : 12;
+        const dlgY = y + 176;
+        const dlgMaxH = cardH - 176 - clipBottom;
+        const dlgMaxLines = Math.max(2, Math.floor(dlgMaxH / 15));
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(x + 4, dlgY - 4, cardW - 8, dlgMaxH + 4);
+        ctx.clip();
+        ctx.fillStyle = cols.text + 'cc';
+        ctx.font = '12px “Pixelify Sans”, monospace';
+        ctx.textAlign = 'center';
+        const quote = '”' + ch.dialogue.before + '”';
+        const words = quote.split(' ');
+        let line = '';
+        let lineNum = 0;
+        for (const word of words) {
+          const test = line ? line + ' ' + word : word;
+          if (ctx.measureText(test).width > cardW - 24 && line) {
+            if (lineNum >= dlgMaxLines - 1) {
+              ctx.fillText(line + '...', x + cardW / 2, dlgY + lineNum * 15);
+              lineNum++;
+              line = '';
+              break;
+            }
+            ctx.fillText(line, x + cardW / 2, dlgY + lineNum * 15);
+            lineNum++;
+            line = word;
+          } else {
+            line = test;
+          }
+        }
+        if (line && lineNum < dlgMaxLines) {
+          ctx.fillText(line, x + cardW / 2, dlgY + lineNum * 15);
+        }
+        ctx.restore();
       }
 
       // Beat indicator
@@ -301,40 +338,63 @@ const CharacterSelect = {
 
     // Dialogue popup
     if (this.showDialogue && this.selectedChar) {
-      UIHelpers.drawPanel(ctx, 200, 250, 880, 340, cols, { accentTop: true });
+      const panelX = 200;
+      const panelY = 220;
+      const panelW = 880;
+      const panelH = 400;
+      const pad = 30;
+      const charColor = this.selectedChar.colors.primary;
 
-      const sprite = CharacterManager.getCharacterSprite(this.selectedChar, 64);
-      ctx.drawImage(sprite, 260, 290, 64, 64);
+      // Dimmed backdrop
+      ctx.fillStyle = 'rgba(0,0,0,0.4)';
+      ctx.fillRect(0, 0, 1280, 800);
 
-      ctx.fillStyle = this.selectedChar.colors.primary;
-      ctx.font = 'bold 20px monospace';
+      UIHelpers.drawPanel(ctx, panelX, panelY, panelW, panelH, cols, { accentTop: true });
+
+      // Character sprite
+      const sprite = CharacterManager.getCharacterSprite(this.selectedChar, 72);
+      ctx.drawImage(sprite, panelX + pad, panelY + pad, 72, 72);
+
+      // Character name
+      ctx.fillStyle = charColor;
+      ctx.font = 'bold 22px monospace';
       ctx.textAlign = 'left';
-      ctx.fillText(UIHelpers.truncateText(ctx, this.selectedChar.name, 700), 350, 320);
-      ctx.fillStyle = cols.text + '88';
-      ctx.font = '12px monospace';
-      ctx.fillText(UIHelpers.truncateText(ctx, this.selectedChar.title, 700), 350, 340);
+      ctx.fillText(UIHelpers.truncateText(ctx, this.selectedChar.name, 700), panelX + pad + 86, panelY + pad + 22);
 
+      // Character title
+      ctx.fillStyle = cols.text + '88';
+      ctx.font = '13px monospace';
+      ctx.fillText(UIHelpers.truncateText(ctx, this.selectedChar.title, 700), panelX + pad + 86, panelY + pad + 42);
+
+      // Dialogue text
       ctx.fillStyle = cols.text;
       ctx.font = '14px monospace';
-      UIHelpers.wrapText(ctx, this.selectedChar.dialogue.before, 260, 370, 780, 22);
+      UIHelpers.wrapText(ctx, this.selectedChar.dialogue.before, panelX + pad, panelY + pad + 80, panelW - pad * 2, 22);
 
-      // Fight button glow
-      ctx.fillStyle = this.selectedChar.colors.primary + '33';
-      ctx.fillRect(535, 485, 210, 60);
-      ctx.fillStyle = this.selectedChar.colors.primary + '18';
-      ctx.fillRect(525, 475, 230, 80);
+      // Buttons area — centered, proper spacing from bottom
+      const btnW = 220;
+      const btnH = 44;
+      const btnX = panelX + (panelW - btnW) / 2;
+      const fightY = panelY + panelH - pad - btnH - 50;
+      const cancelY = fightY + btnH + 10;
 
-      // Fight button
-      UIHelpers.drawButton(ctx, 540, 490, 200, 50, 'FIGHT!', cols, {
-        active: true,
-        fill: this.selectedChar.colors.primary,
-        textColor: cols.text,
+      // Fight button with subtle accent glow
+      ctx.shadowColor = charColor;
+      ctx.shadowBlur = 12;
+      UIHelpers.drawButton(ctx, btnX, fightY, btnW, btnH, 'FIGHT!', cols, {
+        hover: true,
         font: 'bold 18px monospace',
-        accentStripe: this.selectedChar.colors.primary,
       });
+      ctx.shadowBlur = 0;
+
+      // Accent stripe on fight button
+      ctx.fillStyle = charColor;
+      ctx.fillRect(btnX + 5, fightY + 5, btnW - 10, 3);
 
       // Cancel button
-      UIHelpers.drawButton(ctx, 540, 550, 200, 40, 'Cancel', cols, { font: 'bold 14px monospace' });
+      UIHelpers.drawButton(ctx, btnX, cancelY, btnW, btnH, 'Cancel', cols, {
+        font: 'bold 14px monospace',
+      });
     }
   },
 
@@ -438,13 +498,17 @@ const CharacterSelect = {
     const save = store.getActiveSave();
     const maxUnlocked = save ? save.maxUnlockedLevel : 1;
 
-    // Dialogue buttons
+    // Dialogue buttons (match updated dialog layout)
     if (this.showDialogue && this.selectedChar) {
-      if (x >= 540 && x <= 740 && y >= 490 && y <= 540) {
+      const btnX = 530;
+      const btnW = 220;
+      const fightY = 496;
+      const cancelY = 550;
+      const btnH = 44;
+      if (x >= btnX && x <= btnX + btnW && y >= fightY && y <= fightY + btnH) {
         store.set('selectedCharacter', this.selectedChar);
         store.set('storyLevel', this.selectedChar.level);
         store.set('mode', 'story');
-        // Also update the active save
         store.setActiveSave({
           selectedCharacter: this.selectedChar,
           storyLevel: this.selectedChar.level,
@@ -452,7 +516,7 @@ const CharacterSelect = {
         switchScreen('game');
         return;
       }
-      if (x >= 540 && x <= 740 && y >= 550 && y <= 590) {
+      if (x >= btnX && x <= btnX + btnW && y >= cancelY && y <= cancelY + btnH) {
         this.showDialogue = false;
         this.selectedChar = null;
         return;
@@ -461,12 +525,12 @@ const CharacterSelect = {
     }
 
     // Character cards
-    const startX = 100;
+    const startX = 54;
     const startY = 110;
-    const cardW = 200;
-    const cardH = 280;
-    const gapX = 30;
-    const gapY = 30;
+    const cardW = 220;
+    const cardH = 260;
+    const gapX = 18;
+    const gapY = 24;
     const perRow = 5;
 
     for (let i = 0; i < this.characters.length; i++) {
@@ -527,12 +591,12 @@ const CharacterSelect = {
       const save = store.getActiveSave();
       const maxUnlocked = save ? save.maxUnlockedLevel : 1;
       this.hoveredIndex = -1;
-      const startX = 100;
+      const startX = 54;
       const startY = 110;
-      const cardW = 200;
-      const cardH = 280;
-      const gapX = 30;
-      const gapY = 30;
+      const cardW = 220;
+      const cardH = 260;
+      const gapX = 18;
+      const gapY = 24;
       const perRow = 5;
 
       for (let i = 0; i < this.characters.length; i++) {

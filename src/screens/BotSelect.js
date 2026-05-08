@@ -156,16 +156,16 @@ const BotSelect = {
     ctx.fillText('Play as:', 640, 470);
 
     const p1IsWhite = store.get('p1IsWhite') !== false;
-    const btnW = 140;
-    const btnH = 36;
+    const btnW = 160;
+    const btnH = 40;
     const btnGap = 20;
 
     UIHelpers.drawButton(ctx, 640 - btnW - btnGap / 2, 485, btnW, btnH, 'White', cols, {
-      font: 'bold 13px monospace',
+      font: 'bold 14px "Pixelify Sans", sans-serif',
       active: p1IsWhite,
     });
     UIHelpers.drawButton(ctx, 640 + btnGap / 2, 485, btnW, btnH, 'Black', cols, {
-      font: 'bold 13px monospace',
+      font: 'bold 14px "Pixelify Sans", sans-serif',
       active: !p1IsWhite,
     });
 
@@ -214,14 +214,14 @@ const BotSelect = {
 
     // Side selection
     const p1IsWhite = store.get('p1IsWhite') !== false;
-    const btnW = 140;
-    const btnH = 36;
+    const btnW = 160;
+    const btnH = 40;
     const btnGap = 20;
-    if (x >= 640 - btnW - btnGap / 2 && x <= 640 - btnGap / 2 && y >= 485 && y <= 521) {
+    if (x >= 640 - btnW - btnGap / 2 && x <= 640 - btnGap / 2 && y >= 485 && y <= 485 + btnH) {
       store.set('p1IsWhite', true);
       return;
     }
-    if (x >= 640 + btnGap / 2 && x <= 640 + btnGap / 2 + btnW && y >= 485 && y <= 521) {
+    if (x >= 640 + btnGap / 2 && x <= 640 + btnGap / 2 + btnW && y >= 485 && y <= 485 + btnH) {
       store.set('p1IsWhite', false);
       return;
     }

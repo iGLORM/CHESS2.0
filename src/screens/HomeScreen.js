@@ -1,356 +1,546 @@
 const HomeScreen = {
-  stars: [],
-  titlePulse: 0,
-  buttons: [],
-  selectedButton: 0,
+  isPixiScreen: true,
+  pixiContainer: null,
+  _particles: [],
+  _tickerFn: null,
+  _titlePulse: 0,
+  _btnContainers: [],
+  _selectedIndex: 0,
+
+  LAYOUT: {
+    W: 1280, H: 800,
+    LOGO_Y: 218,
+    LOGO_MAX_W: 480,
+    MAIN_START_Y: 350,
+    MAIN_BTN_W: 460,
+    MAIN_BTN_H: 62,
+    MAIN_BTN_GAP: 8,
+    UTIL_Y: 647,
+    UTIL_BTN_W: 190,
+    UTIL_BTN_H: 44,
+    UTIL_GAP: 14,
+    FOOTER_Y: 760,
+  },
+
+  BUTTONS: [
+    { text: 'Story Mode',    sub: 'Battle unique characters', action: 'story',    group: 'main' },
+    { text: 'Local 1v1',     sub: 'Play with a friend',       action: '1v1',      group: 'main' },
+    { text: 'Classic Chess', sub: 'Challenge the AI engine',  action: 'classic',  group: 'main' },
+    { text: 'Custom Game',   sub: 'Configure your own rules', action: 'custom',   group: 'main' },
+    { text: 'Settings',      action: 'settings', group: 'util', idx: 0 },
+    { text: 'How to Play',   action: 'help',     group: 'util', idx: 1 },
+    { text: 'Stats',         action: 'stats',    group: 'util', idx: 2 },
+  ],
 
   init() {
-    this.stars = [];
-    this.buttons = [
-      { text: 'Story Mode', sub: 'Battle unique characters', action: 'story', group: 'main' },
-      { text: 'Local 1v1', sub: 'Play with a friend', action: '1v1', group: 'main' },
-      { text: 'Classic Chess', sub: 'Challenge the AI engine', action: 'classic', group: 'main' },
-      { text: 'Custom Game', sub: 'Configure your own rules', action: 'custom', group: 'main' },
-      { text: 'Settings', action: 'settings', group: 'util', idx: 0 },
-      { text: 'How to Play', action: 'help', group: 'util', idx: 1 },
-      { text: 'Stats', action: 'stats', group: 'util', idx: 2 },
-    ];
-    this.selectedButton = 0;
-    this.titlePulse = 0;
-  },
-
-  destroy() {},
-
-  _roundRect(ctx, x, y, w, h, r) {
-    ctx.beginPath();
-    ctx.moveTo(x + r, y);
-    ctx.lineTo(x + w - r, y);
-    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
-    ctx.lineTo(x + w, y + h - r);
-    ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-    ctx.lineTo(x + r, y + h);
-    ctx.quadraticCurveTo(x, y + h, x, y + h - r);
-    ctx.lineTo(x, y + r);
-    ctx.quadraticCurveTo(x, y, x + r, y);
-    ctx.closePath();
-  },
-
-  _getMainBounds(i) {
-    const bw = 420;
-    const bh = 58;
-    const gap = 10;
-    const bx = (1280 - bw) / 2;
-    const startY = 320;
-    return { x: bx, y: startY + i * (bh + gap), w: bw, h: bh };
-  },
-
-  _getUtilBounds(idx) {
-    const btnW = 180;
-    const btnH = 46;
-    const gap = 20;
-    const totalW = 3 * btnW + 2 * gap;
-    const startX = (1280 - totalW) / 2;
-    const rowY = 620;
-    return { x: startX + idx * (btnW + gap), y: rowY, w: btnW, h: btnH };
-  },
-
-  _getBounds(i) {
-    const btn = this.buttons[i];
-    if (btn.group === 'main') return this._getMainBounds(i);
-    return this._getUtilBounds(btn.idx);
-  },
-
-  render(ctx, dt) {
     const theme = ThemeManager.getTheme(store.get('theme'));
     const cols = theme.colors;
-    this.titlePulse += dt * 2;
+    const L = this.LAYOUT;
 
-    // Background
-    const usePixiBg = typeof PixiMenuBackground !== 'undefined' && PixiMenuBackground.initialized;
-    if (usePixiBg) {
-      ctx.clearRect(0, 0, 1280, 800);
-    } else if (typeof backgroundRenderer !== 'undefined') {
-      backgroundRenderer.render(ctx, dt);
-    } else {
-      ctx.fillStyle = cols.background;
-      ctx.fillRect(0, 0, 1280, 800);
+    this.pixiContainer = new PIXI.Container();
+    this._btnContainers = [];
+    this._selectedIndex = 0;
+    this._titlePulse = 0;
+
+    // --- Background ---
+    if (typeof PixiBackgroundRenderer !== 'undefined') {
+      PixiBackgroundRenderer.init(this.pixiContainer);
+      PixiBackgroundRenderer.render(store.get('theme') || 'space');
     }
 
-    // Decorative lines
-    ctx.strokeStyle = cols.accent + '44';
-    ctx.lineWidth = 1;
-    for (let i = 0; i < 3; i++) {
-      const y = 120 + i * 25 + Math.sin(this.titlePulse + i) * 4;
-      ctx.beginPath();
-      ctx.moveTo(350, y);
-      ctx.lineTo(930, y);
-      ctx.stroke();
-    }
+    // Vignette overlay
+    const vignette = new PIXI.Graphics();
+    vignette.rect(0, 0, L.W, L.H).fill({ color: 0x000000, alpha: 0.3 });
+    this.pixiContainer.addChild(vignette);
 
-    // Crown icon above title
-    UIHelpers.drawIcon(ctx, 636, 190, 'crown', 12, cols);
-
-    // Title - "CHESS" in monospace, "2.0" in sans-serif to avoid wide dot
-    ctx.textAlign = 'center';
-    ctx.font = 'bold 72px monospace';
-    const chessW = ctx.measureText('CHESS').width;
-    ctx.font = 'bold 72px sans-serif';
-    const verW = ctx.measureText('2.0').width;
-    const gap = 18;
-    const totalW = chessW + gap + verW;
-    const titleX = 640 - totalW / 2;
-
-    // Outline pass
-    ctx.strokeStyle = 'rgba(0,0,0,0.7)';
-    ctx.lineWidth = 6;
-    ctx.lineJoin = 'round';
-    ctx.textAlign = 'left';
-    ctx.font = 'bold 72px monospace';
-    ctx.strokeText('CHESS', titleX, 220);
-    ctx.font = 'bold 72px sans-serif';
-    ctx.strokeText('2.0', titleX + chessW + gap, 220);
-
-    // Glow + fill pass
-    ctx.shadowColor = cols.accent;
-    ctx.shadowBlur = 20;
-    ctx.fillStyle = cols.text;
-    ctx.font = 'bold 72px monospace';
-    ctx.fillText('CHESS', titleX, 220);
-    ctx.font = 'bold 72px sans-serif';
-    ctx.fillText('2.0', titleX + chessW + gap, 220);
-    ctx.shadowBlur = 0;
-    ctx.textAlign = 'center';
-
-    // Subtitle outline
-    ctx.font = 'bold 20px monospace';
-    ctx.strokeStyle = 'rgba(0,0,0,0.6)';
-    ctx.lineWidth = 4;
-    ctx.strokeText('A New Era of Battle', 640, 268);
-    ctx.fillStyle = cols.accent;
-    ctx.fillText('A New Era of Battle', 640, 268);
-
-    // Small animated pixel-art chess piece decorations in the gap
-    const pieceColor = cols.accent + '44';
-    const bob1 = Math.sin(this.titlePulse) * 2;
-    const bob2 = Math.sin(this.titlePulse + 1.5) * 2;
-    const bob3 = Math.sin(this.titlePulse + 3) * 2;
-    // Knight (left)
-    ctx.fillStyle = pieceColor;
-    const kx = 520, ky = 240 + bob1;
-    ctx.fillRect(kx, ky, 4, 2);
-    ctx.fillRect(kx - 2, ky + 2, 6, 2);
-    ctx.fillRect(kx, ky + 4, 4, 1);
-    ctx.fillRect(kx + 2, ky + 5, 2, 1);
-    ctx.fillRect(kx - 2, ky + 6, 6, 1);
-    ctx.fillRect(kx - 2, ky + 7, 6, 1);
-    ctx.fillRect(kx - 1, ky + 8, 4, 2);
-    // Pawn (center)
-    const px = 637, py = 242 + bob2;
-    ctx.fillRect(px, py, 2, 1);
-    ctx.fillRect(px - 1, py + 1, 4, 2);
-    ctx.fillRect(px - 2, py + 3, 6, 1);
-    ctx.fillRect(px - 1, py + 4, 4, 1);
-    ctx.fillRect(px - 2, py + 5, 6, 2);
-    ctx.fillRect(px - 1, py + 7, 4, 2);
-    // Rook (right)
-    const rx = 756, ry = 240 + bob3;
-    ctx.fillRect(rx, ry, 2, 2);
-    ctx.fillRect(rx + 4, ry, 2, 2);
-    ctx.fillRect(rx - 2, ry + 2, 10, 2);
-    ctx.fillRect(rx - 1, ry + 4, 8, 1);
-    ctx.fillRect(rx, ry + 5, 6, 2);
-    ctx.fillRect(rx - 1, ry + 7, 8, 2);
-    ctx.fillRect(rx - 2, ry + 9, 10, 2);
-
-    // Theme pill
-    const themeName = 'Theme: ' + theme.name;
-    ctx.font = '12px monospace';
-    const tw = ctx.measureText(themeName).width;
-    const pillX = 640 - tw / 2 - 14;
-    const pillW = tw + 28;
-    this._roundRect(ctx, pillX, 290, pillW, 24, 12);
-    ctx.fillStyle = cols.buttonBg + 'aa';
-    ctx.fill();
-    ctx.strokeStyle = cols.text + '22';
-    ctx.lineWidth = 1;
-    ctx.stroke();
-    // Board color swatches at left edge of pill
-    const swY = 295;
-    const swX = pillX + 8;
-    ctx.fillStyle = cols.lightSquare;
-    ctx.fillRect(swX, swY, 3, 3);
-    ctx.fillStyle = cols.darkSquare;
-    ctx.fillRect(swX + 4, swY, 3, 3);
-    ctx.fillStyle = cols.accent;
-    ctx.fillRect(swX + 8, swY, 3, 3);
-    ctx.fillStyle = cols.text + 'cc';
-    ctx.font = '12px monospace';
-    ctx.textAlign = 'center';
-    ctx.fillText(themeName, 640, 307);
-
-    // --- Main game mode buttons ---
-    const mainIcons = { story: 'sword', '1v1': 'dice', classic: 'crown', custom: 'gear' };
-    for (let i = 0; i < 4; i++) {
-      const btn = this.buttons[i];
-      const b = this._getMainBounds(i);
-      const isHover = i === this.selectedButton;
-
-      // Card background
-      UIHelpers.drawCard(ctx, b.x, b.y, b.w, b.h, cols, {
-        hover: isHover,
-        accentStripe: isHover ? cols.accent : null,
+    // --- Floating particles ---
+    this._particles = [];
+    const particleContainer = new PIXI.Container();
+    particleContainer.label = 'particles';
+    for (let i = 0; i < 80; i++) {
+      const p = new PIXI.Graphics();
+      const size = Math.random() * 2 + 0.5;
+      p.rect(0, 0, size, size).fill({ color: 0xffffff, alpha: 0.4 + Math.random() * 0.4 });
+      p.x = Math.random() * L.W;
+      p.y = Math.random() * L.H;
+      particleContainer.addChild(p);
+      this._particles.push({
+        gfx: p,
+        speed: Math.random() * 0.4 + 0.1,
+        twinkleSpeed: Math.random() * 2 + 1,
+        twinklePhase: Math.random() * Math.PI * 2,
+        baseAlpha: 0.3 + Math.random() * 0.5,
       });
+    }
+    this.pixiContainer.addChild(particleContainer);
 
-      // Button text
-      ctx.fillStyle = isHover ? cols.accent : '#ffffff';
-      ctx.font = isHover ? 'bold 22px monospace' : 'bold 20px monospace';
-      ctx.textAlign = 'left';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(UIHelpers.truncateText(ctx, btn.text, b.w - 48), b.x + 24, b.y + b.h / 2 - (btn.sub ? 7 : 0));
+    // --- Decorative accent lines container ---
+    const decoLines = new PIXI.Graphics();
+    decoLines.label = 'decoLines';
+    this.pixiContainer.addChild(decoLines);
+    this._decoLines = decoLines;
 
-      // Subtitle
-      if (btn.sub) {
-        ctx.fillStyle = isHover ? cols.accent + 'aa' : cols.text + 'aa';
-        ctx.font = '13px monospace';
-        ctx.fillText(UIHelpers.truncateText(ctx, btn.sub, b.w - 48), b.x + 24, b.y + b.h / 2 + 15);
-      }
+    // --- Title logo ---
+    const accentNum = PixiColorUtil.hexToNum(cols.accent);
+    const titleContainer = new PIXI.Container();
+    titleContainer.x = L.W / 2;
+    titleContainer.y = L.LOGO_Y;
+    titleContainer.label = 'titleGroup';
 
-      // Pixel-art icon
-      const iconType = mainIcons[btn.action];
-      if (iconType) {
-        UIHelpers.drawIcon(ctx, b.x + b.w - 30, b.y + (b.h / 2) - 6, iconType, 10, cols, { color: isHover ? cols.accent : cols.text + '88' });
-      }
+    const logoFile = this._getLogoVariant(store.get('theme'));
+    TextureManager.loadImage(`../assets/textures/${logoFile}`).then(img => {
+      if (!img || !titleContainer.parent) return;
+      titleContainer.removeChildren();
 
-      // Right arrow on hover
-      if (isHover) {
-        ctx.fillStyle = cols.accent;
-        ctx.font = 'bold 20px monospace';
-        ctx.textAlign = 'right';
-        ctx.fillText('>', b.x + b.w - 46, b.y + b.h / 2);
-      }
+      const texture = PIXI.Texture.from(img);
+      const logoScale = Math.min(1, L.LOGO_MAX_W / texture.width);
+
+      // Glow layer (tinted accent, blurred)
+      const glow = new PIXI.Sprite(texture);
+      glow.anchor.set(0.5);
+      glow.scale.set(logoScale);
+      glow.alpha = 0.2;
+      glow.tint = accentNum;
+      glow.filters = [new PIXI.BlurFilter({ strength: 8, quality: 3 })];
+      titleContainer.addChild(glow);
+
+      // Main logo sprite
+      const logo = new PIXI.Sprite(texture);
+      logo.anchor.set(0.5);
+      logo.scale.set(logoScale);
+      logo.label = 'mainTitle';
+      titleContainer.addChild(logo);
+    });
+
+    // Text fallback while image loads
+    const titleFallback = new PIXI.Text({
+      text: 'CHESS 2.0',
+      style: {
+        fontFamily: PixiTextStyles.FONT_TITLE,
+        fontSize: 64, fontWeight: 'bold',
+        fill: cols.text, letterSpacing: 8, padding: 30,
+        stroke: { color: '#000000', width: 4 },
+        dropShadow: { color: cols.accent, blur: 6, distance: 0, alpha: 0.4 },
+      },
+    });
+    titleFallback.anchor.set(0.5);
+    titleContainer.addChild(titleFallback);
+
+    this.pixiContainer.addChild(titleContainer);
+    this._titleContainer = titleContainer;
+
+    // Separator above main buttons
+    const sep1 = new PixiSeparator({ width: 340, cols: cols });
+    sep1.x = (L.W - 340) / 2;
+    sep1.y = L.MAIN_START_Y - 16;
+    this.pixiContainer.addChild(sep1);
+
+    // --- Main buttons ---
+    for (let i = 0; i < 4; i++) {
+      const btn = this.BUTTONS[i];
+      const bx = (L.W - L.MAIN_BTN_W) / 2;
+      const by = L.MAIN_START_Y + i * (L.MAIN_BTN_H + L.MAIN_BTN_GAP);
+      const container = this._createMainButton(btn, bx, by, L.MAIN_BTN_W, L.MAIN_BTN_H, cols, i);
+      this.pixiContainer.addChild(container);
+      this._btnContainers.push({ container, index: i, bounds: { x: bx, y: by, w: L.MAIN_BTN_W, h: L.MAIN_BTN_H } });
     }
 
-    ctx.textBaseline = 'alphabetic';
+    // Separator before utility buttons
+    const sep2 = new PixiSeparator({ width: 320, cols: cols });
+    sep2.x = (L.W - 320) / 2;
+    sep2.y = L.UTIL_Y - 20;
+    this.pixiContainer.addChild(sep2);
 
-    // --- Divider ---
-    UIHelpers.drawSeparator(ctx, 460, 596, 360, cols);
-
-    // --- Utility buttons row ---
-    const utilIcons = { settings: 'gear', help: 'book', stats: 'trophy' };
-    for (let i = 4; i < 7; i++) {
-      const btn = this.buttons[i];
-      const b = this._getUtilBounds(btn.idx);
-      const isHover = i === this.selectedButton;
-
-      // Card background
-      UIHelpers.drawCard(ctx, b.x, b.y, b.w, b.h, cols, { hover: isHover });
-
-      // Icon to left of text
-      const iconType = utilIcons[btn.action];
-      if (iconType) {
-        UIHelpers.drawIcon(ctx, b.x + 10, b.y + (b.h / 2) - 5, iconType, 10, cols, { color: isHover ? cols.accent : cols.text + '88' });
-      }
-
-      // Text
-      ctx.fillStyle = isHover ? cols.accent : '#ffffff';
-      ctx.font = isHover ? 'bold 16px monospace' : 'bold 15px monospace';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(UIHelpers.truncateText(ctx, btn.text, b.w - 28), b.x + b.w / 2 + 6, b.y + b.h / 2);
+    // --- Utility buttons ---
+    const utilTotalW = 3 * L.UTIL_BTN_W + 2 * L.UTIL_GAP;
+    const utilStartX = (L.W - utilTotalW) / 2;
+    for (let i = 0; i < 3; i++) {
+      const btn = this.BUTTONS[4 + i];
+      const bx = utilStartX + i * (L.UTIL_BTN_W + L.UTIL_GAP);
+      const by = L.UTIL_Y;
+      const container = this._createUtilButton(btn, bx, by, L.UTIL_BTN_W, L.UTIL_BTN_H, cols, 4 + i);
+      this.pixiContainer.addChild(container);
+      this._btnContainers.push({ container, index: 4 + i, bounds: { x: bx, y: by, w: L.UTIL_BTN_W, h: L.UTIL_BTN_H } });
     }
 
-    ctx.textBaseline = 'alphabetic';
+    // --- Footer ---
+    const footer = new PIXI.Text({
+      text: 'Use mouse or arrow keys to navigate',
+      style: { fontFamily: PixiTextStyles.FONT_BODY, fontSize: 16, fill: PixiColorUtil.alpha(cols.text, '44') },
+    });
+    footer.anchor.set(0.5);
+    footer.x = L.W / 2;
+    footer.y = L.FOOTER_Y;
+    this.pixiContainer.addChild(footer);
 
-    // Footer
-    UIHelpers.drawSeparator(ctx, 460, 748, 360, cols);
-    ctx.fillStyle = cols.text + '55';
-    ctx.font = '11px monospace';
-    ctx.textAlign = 'center';
-    ctx.fillText('Use mouse or arrow keys to navigate', 640, 760);
+    // Dithered footer line
+    const footerDeco = new PixiDitheredRect({ width: L.W, height: 16, color: cols.accent, alpha: 0.04 });
+    footerDeco.y = L.H - 16;
+    this.pixiContainer.addChild(footerDeco);
+
+    // --- Animation ticker ---
+    this._tickerFn = (ticker) => {
+      const dt = ticker.deltaTime / 60;
+      this._titlePulse += dt * 2;
+
+      for (const p of this._particles) {
+        p.gfx.y += p.speed;
+        if (p.gfx.y > L.H) { p.gfx.y = -5; p.gfx.x = Math.random() * L.W; }
+        p.twinklePhase += dt * p.twinkleSpeed;
+        p.gfx.alpha = p.baseAlpha * (0.5 + 0.5 * Math.sin(p.twinklePhase));
+      }
+
+      // Title glow breathing
+      if (this._titleContainer && this._titleContainer.children.length > 1) {
+        const glowChild = this._titleContainer.children[0];
+        if (glowChild) glowChild.alpha = 0.15 + Math.sin(this._titlePulse * 0.8) * 0.08;
+      }
+
+      // Animated accent lines below logo
+      const dg = this._decoLines;
+      dg.clear();
+      for (let i = 0; i < 2; i++) {
+        const ly = L.LOGO_Y + 80 + i * 5 + Math.sin(this._titlePulse + i * 1.5) * 1.5;
+        const halfW = 160 - i * 30;
+        dg.moveTo(L.W / 2 - halfW, ly).lineTo(L.W / 2 + halfW, ly)
+          .stroke({ width: 1, color: accentNum, alpha: 0.1 - i * 0.03 });
+      }
+    };
+    PixiApp.app.ticker.add(this._tickerFn);
+
+    this._updateSelection();
+
+    // Re-fit all button text after fonts load
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(() => this._refitAllText());
+    }
+
+    PixiScreenManager.setScreenContainer(this.pixiContainer);
   },
 
-  handleClick(x, y) {
-    for (let i = 0; i < this.buttons.length; i++) {
-      const b = this._getBounds(i);
-      if (x >= b.x && x <= b.x + b.w && y >= b.y && y <= b.y + b.h) {
-        this.handleAction(this.buttons[i].action);
-        return;
+  _fitText(textObj, maxWidth) {
+    textObj.scale.set(1);
+    if (textObj.width > maxWidth) {
+      textObj.scale.set(maxWidth / textObj.width);
+    }
+  },
+
+  _refitAllText() {
+    for (const entry of this._btnContainers) {
+      const d = entry.container._btnData;
+      const titleNode = entry.container.getChildByLabel('title');
+      if (titleNode) this._fitText(titleNode, d.w - d.pad);
+      const subNode = entry.container.getChildByLabel('sub');
+      if (subNode) this._fitText(subNode, d.w - d.pad);
+    }
+  },
+
+  _createMainButton(btn, x, y, w, h, cols, index) {
+    const pad = 24;
+    const container = new PIXI.Container();
+    container.x = x;
+    container.y = y;
+    container.eventMode = 'static';
+    container.cursor = 'pointer';
+    container.hitArea = new PIXI.Rectangle(0, 0, w, h);
+
+    const bg = new PIXI.Graphics();
+    bg.label = 'bg';
+    container.addChild(bg);
+
+    // Centered title
+    const titleText = new PIXI.Text({
+      text: btn.text,
+      style: {
+        fontFamily: PixiTextStyles.FONT_TITLE,
+        fontSize: 20,
+        fontWeight: 'bold',
+        fill: cols.text,
+        letterSpacing: 2,
+      },
+    });
+    titleText.anchor.set(0.5);
+    titleText.x = w / 2;
+    titleText.y = btn.sub ? h * 0.36 : h / 2;
+    titleText.label = 'title';
+    this._fitText(titleText, w - pad);
+    container.addChild(titleText);
+
+    // Centered subtitle
+    if (btn.sub) {
+      const subText = new PIXI.Text({
+        text: btn.sub,
+        style: {
+          fontFamily: PixiTextStyles.FONT_BODY,
+          fontSize: 14,
+          fill: PixiColorUtil.alpha(cols.text, '77'),
+          letterSpacing: 1,
+        },
+      });
+      subText.anchor.set(0.5);
+      subText.x = w / 2;
+      subText.y = h * 0.67;
+      subText.label = 'sub';
+      this._fitText(subText, w - pad);
+      container.addChild(subText);
+    }
+
+    // Flash overlay for click effect
+    const flash = new PIXI.Graphics();
+    flash.rect(4, 4, w - 8, h - 8).fill({ color: 0xffffff, alpha: 1 });
+    flash.alpha = 0;
+    flash.label = 'flash';
+    container.addChild(flash);
+
+    this._drawMainBtnBg(bg, w, h, cols, false);
+
+    container.on('pointerover', () => {
+      this._selectedIndex = index;
+      this._updateSelection();
+    });
+    container.on('pointerdown', () => {
+      const tl = gsap.timeline();
+      tl.to(container.scale, { x: 0.93, y: 0.93, duration: 0.06, ease: 'power2.in' })
+        .to(container.scale, { x: 1.02, y: 1.02, duration: 0.08, ease: 'back.out(2)' })
+        .to(container.scale, { x: 1, y: 1, duration: 0.05 });
+      const flashGfx = container.getChildByLabel('flash');
+      if (flashGfx) gsap.fromTo(flashGfx, { alpha: 0.3 }, { alpha: 0, duration: 0.2 });
+      this.handleAction(btn.action);
+    });
+
+    container._btnData = { btn, w, h, cols, bg, pad };
+    return container;
+  },
+
+  _drawMainBtnBg(g, w, h, cols, hover) {
+    g.clear();
+    const S = 3;
+    const accentNum = PixiColorUtil.hexToNum(cols.accent);
+    const panelNum = PixiColorUtil.hexToNum(cols.panel);
+
+    // Drop shadow
+    g.rect(S, S, w, h).fill({ color: 0x000000, alpha: 0.4 });
+
+    // Outer frame
+    g.rect(0, 0, w, h).fill(0x080810);
+
+    // Border
+    const borderCol = hover ? accentNum : PixiColorUtil.hexToNum(PixiColorUtil.alpha(cols.text, '44'));
+    g.rect(2, 2, w - 4, h - 4).fill(borderCol);
+
+    // Inner edge
+    g.rect(3, 3, w - 6, h - 6).fill(0x0a0a14);
+
+    // Content fill
+    const bgColor = hover
+      ? PixiColorUtil.hexToNum(PixiColorUtil.lighten(cols.panel, 12))
+      : panelNum;
+    g.rect(4, 4, w - 8, h - 8).fill({ color: bgColor, alpha: 0.95 });
+
+    // Top bevel
+    g.rect(4, 4, w - 8, 1).fill({ color: 0xffffff, alpha: 0.06 });
+
+    // Corner ornaments
+    const cornerCol = hover ? accentNum : PixiColorUtil.hexToNum(PixiColorUtil.alpha(cols.text, '44'));
+    g.rect(0, 0, 4, 1).rect(0, 1, 1, 3)
+      .rect(w - 4, 0, 4, 1).rect(w - 1, 1, 1, 3)
+      .rect(0, h - 1, 4, 1).rect(0, h - 4, 1, 3)
+      .rect(w - 4, h - 1, 4, 1).rect(w - 1, h - 4, 1, 3)
+      .fill(cornerCol);
+
+    // Accent rails on hover
+    if (hover) {
+      g.rect(5, 5, w - 10, 2)
+        .rect(5, h - 7, w - 10, 2)
+        .rect(5, 5, 2, h - 10)
+        .rect(w - 7, 5, 2, h - 10)
+        .fill({ color: accentNum, alpha: 0.7 });
+    }
+  },
+
+  _createUtilButton(btn, x, y, w, h, cols, index) {
+    const pad = 20;
+    const container = new PIXI.Container();
+    container.x = x;
+    container.y = y;
+    container.eventMode = 'static';
+    container.cursor = 'pointer';
+    container.hitArea = new PIXI.Rectangle(0, 0, w, h);
+
+    const bg = new PIXI.Graphics();
+    bg.label = 'bg';
+    container.addChild(bg);
+
+    // Centered text (scaled to fit)
+    const label = new PIXI.Text({
+      text: btn.text,
+      style: {
+        fontFamily: PixiTextStyles.FONT_TITLE,
+        fontSize: 16,
+        fontWeight: 'bold',
+        fill: cols.text,
+        letterSpacing: 1,
+      },
+    });
+    label.anchor.set(0.5);
+    label.x = w / 2;
+    label.y = h / 2;
+    label.label = 'title';
+    this._fitText(label, w - pad);
+    container.addChild(label);
+
+    // Flash overlay for click effect
+    const flash = new PIXI.Graphics();
+    flash.rect(4, 4, w - 8, h - 8).fill({ color: 0xffffff, alpha: 1 });
+    flash.alpha = 0;
+    flash.label = 'flash';
+    container.addChild(flash);
+
+    this._drawUtilBtnBg(bg, w, h, cols, false);
+
+    container.on('pointerover', () => {
+      this._selectedIndex = index;
+      this._updateSelection();
+    });
+    container.on('pointerdown', () => {
+      const tl = gsap.timeline();
+      tl.to(container.scale, { x: 0.93, y: 0.93, duration: 0.06, ease: 'power2.in' })
+        .to(container.scale, { x: 1.02, y: 1.02, duration: 0.08, ease: 'back.out(2)' })
+        .to(container.scale, { x: 1, y: 1, duration: 0.05 });
+      const flashGfx = container.getChildByLabel('flash');
+      if (flashGfx) gsap.fromTo(flashGfx, { alpha: 0.3 }, { alpha: 0, duration: 0.2 });
+      this.handleAction(btn.action);
+    });
+
+    container._btnData = { btn, w, h, cols, bg, pad };
+    return container;
+  },
+
+  _drawUtilBtnBg(g, w, h, cols, hover) {
+    g.clear();
+    const S = 2;
+    const accentNum = PixiColorUtil.hexToNum(cols.accent);
+    const panelNum = PixiColorUtil.hexToNum(cols.panel);
+
+    g.rect(S, S, w, h).fill({ color: 0x000000, alpha: 0.35 });
+    g.rect(0, 0, w, h).fill(0x080810);
+
+    const borderCol = hover ? accentNum : PixiColorUtil.hexToNum(PixiColorUtil.alpha(cols.text, '44'));
+    g.rect(2, 2, w - 4, h - 4).fill(borderCol);
+    g.rect(3, 3, w - 6, h - 6).fill(0x0a0a14);
+
+    const bgColor = hover
+      ? PixiColorUtil.hexToNum(PixiColorUtil.lighten(cols.panel, 10))
+      : panelNum;
+    g.rect(4, 4, w - 8, h - 8).fill({ color: bgColor, alpha: 0.92 });
+    g.rect(4, 4, w - 8, 1).fill({ color: 0xffffff, alpha: 0.05 });
+
+    const cornerCol = hover ? accentNum : PixiColorUtil.hexToNum(PixiColorUtil.alpha(cols.text, '44'));
+    g.rect(0, 0, 3, 1).rect(0, 1, 1, 2)
+      .rect(w - 3, 0, 3, 1).rect(w - 1, 1, 1, 2)
+      .rect(0, h - 1, 3, 1).rect(0, h - 3, 1, 2)
+      .rect(w - 3, h - 1, 3, 1).rect(w - 1, h - 3, 1, 2)
+      .fill(cornerCol);
+
+    if (hover) {
+      g.rect(5, 5, w - 10, 1)
+        .rect(5, h - 6, w - 10, 1)
+        .rect(5, 5, 1, h - 10)
+        .rect(w - 6, 5, 1, h - 10)
+        .fill({ color: accentNum, alpha: 0.5 });
+    }
+  },
+
+  _updateSelection() {
+    const cols = ThemeManager.getTheme(store.get('theme')).colors;
+    for (const entry of this._btnContainers) {
+      const isSelected = entry.index === this._selectedIndex;
+      const d = entry.container._btnData;
+
+      if (d.btn.group === 'main') {
+        this._drawMainBtnBg(d.bg, d.w, d.h, d.cols, isSelected);
+        const titleNode = entry.container.getChildByLabel('title');
+        if (titleNode) {
+          titleNode.style.fill = isSelected ? cols.accent : cols.text;
+          this._fitText(titleNode, d.w - d.pad);
+        }
+        const subNode = entry.container.getChildByLabel('sub');
+        if (subNode) {
+          subNode.style.fill = isSelected
+            ? PixiColorUtil.alpha(cols.accent, 'aa')
+            : PixiColorUtil.alpha(cols.text, '88');
+          this._fitText(subNode, d.w - d.pad);
+        }
+      } else {
+        this._drawUtilBtnBg(d.bg, d.w, d.h, d.cols, isSelected);
+        const titleNode = entry.container.getChildByLabel('title');
+        if (titleNode) {
+          titleNode.style.fill = isSelected ? cols.accent : cols.text;
+          this._fitText(titleNode, d.w - d.pad);
+        }
       }
     }
   },
 
-  handleMouseMove(x, y) {
-    for (let i = 0; i < this.buttons.length; i++) {
-      const b = this._getBounds(i);
-      if (x >= b.x && x <= b.x + b.w && y >= b.y && y <= b.y + b.h) {
-        this.selectedButton = i;
-        return;
-      }
+  _getLogoVariant(themeId) {
+    const warm = ['medieval', 'egypt', 'wildwest', 'steampunk', 'prehistoric'];
+    const cool = ['ocean', 'crystal'];
+    if (warm.includes(themeId)) return 'title_logo_magma.png';
+    if (cool.includes(themeId)) return 'title_logo_ice.png';
+    return 'title_logo_original.png';
+  },
+
+  destroy() {
+    if (this._tickerFn && PixiApp.app) {
+      PixiApp.app.ticker.remove(this._tickerFn);
+      this._tickerFn = null;
     }
+    if (typeof PixiBackgroundRenderer !== 'undefined') {
+      PixiBackgroundRenderer.destroy();
+    }
+    if (this.pixiContainer) {
+      PixiScreenManager.setScreenContainer(null);
+      this.pixiContainer.destroy({ children: true });
+      this.pixiContainer = null;
+    }
+    this._particles = [];
+    this._btnContainers = [];
+    this._titleContainer = null;
   },
 
   handleKeyDown(e) {
-    const btn = this.buttons[this.selectedButton];
+    const btn = this.BUTTONS[this._selectedIndex];
     if (e.key === 'ArrowUp') {
       e.preventDefault();
-      if (btn.group === 'util') {
-        this.selectedButton = 3;
-      } else if (this.selectedButton > 0) {
-        this.selectedButton--;
-      }
+      if (btn.group === 'util') { this._selectedIndex = 3; }
+      else if (this._selectedIndex > 0) { this._selectedIndex--; }
+      this._updateSelection();
     } else if (e.key === 'ArrowDown') {
       e.preventDefault();
-      if (btn.group === 'main' && this.selectedButton < 3) {
-        this.selectedButton++;
-      } else if (btn.group === 'main' && this.selectedButton === 3) {
-        this.selectedButton = 4;
-      }
+      if (btn.group === 'main' && this._selectedIndex < 3) { this._selectedIndex++; }
+      else if (this._selectedIndex === 3) { this._selectedIndex = 4; }
+      this._updateSelection();
     } else if (e.key === 'ArrowLeft') {
       e.preventDefault();
-      if (btn.group === 'util' && btn.idx > 0) {
-        this.selectedButton--;
-      }
+      if (btn.group === 'util' && btn.idx > 0) { this._selectedIndex--; this._updateSelection(); }
     } else if (e.key === 'ArrowRight') {
       e.preventDefault();
-      if (btn.group === 'util' && btn.idx < 2) {
-        this.selectedButton++;
-      }
-    }
-    if (e.key === 'Enter' || e.key === ' ') {
+      if (btn.group === 'util' && btn.idx < 2) { this._selectedIndex++; this._updateSelection(); }
+    } else if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
-      this.handleAction(this.buttons[this.selectedButton].action);
+      this.handleAction(this.BUTTONS[this._selectedIndex].action);
     }
   },
 
   handleAction(action) {
     switch (action) {
-      case 'story':
-        store.set('mode', 'story');
-        switchScreen('characterSelect');
-        break;
-      case '1v1':
-        store.set('mode', '1v1');
-        store.set('miniGamesEnabled', true);
-        switchScreen('game', { mode: '1v1' });
-        break;
-      case 'classic':
-        switchScreen('botSelect');
-        break;
-      case 'custom':
-        switchScreen('customGame');
-        break;
-      case 'settings':
-        switchScreen('settings');
-        break;
-      case 'themes':
-        switchScreen('themeSelect', { returnTo: 'home' });
-        break;
-      case 'help':
-        switchScreen('howToPlay');
-        break;
-      case 'stats':
-        switchScreen('stats');
-        break;
+      case 'story':  store.set('mode', 'story'); switchScreen('characterSelect'); break;
+      case '1v1':    store.set('mode', '1v1'); store.set('miniGamesEnabled', true); switchScreen('game', { mode: '1v1' }); break;
+      case 'classic': switchScreen('botSelect'); break;
+      case 'custom': switchScreen('customGame'); break;
+      case 'settings': switchScreen('settings'); break;
+      case 'help':   switchScreen('howToPlay'); break;
+      case 'stats':  switchScreen('stats'); break;
     }
   },
 };

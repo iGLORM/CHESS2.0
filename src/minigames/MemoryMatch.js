@@ -11,6 +11,8 @@ class MemoryMatch {
     this.maxAttempts = 8;
     this.pairs = 0;
     this.totalPairs = 4;
+    this.flipAnims = {};
+    this.lastRect = { x: 0, y: 0, w: 1, h: 1 };
   }
 
   init(attacker, defender) {
@@ -22,6 +24,7 @@ class MemoryMatch {
     this.attempts = 0;
     this.pairs = 0;
     this.totalPairs = 4;
+    this.flipAnims = {};
 
     const symbols = ['♔', '♕', '♖', '♗'];
     this.cards = [...symbols, ...symbols];
@@ -35,6 +38,10 @@ class MemoryMatch {
 
   update(dt) {
     if (this.done) return;
+    for (const k of Object.keys(this.flipAnims)) {
+      this.flipAnims[k] += dt;
+      if (this.flipAnims[k] >= 0.28) delete this.flipAnims[k];
+    }
     if (this.matched.length === this.totalPairs * 2) {
       this.done = true;
       this.winner = this.attempts <= this.totalPairs + 2 ? 'attacker' : 'defender';
@@ -91,12 +98,11 @@ class MemoryMatch {
     const cardW = 55;
     const cardH = 65;
     const gap = 10;
-    const overlayX = Math.floor((1280 - 700) / 2);
-    const overlayY = Math.floor((800 - 460) / 2);
-    const gameX = overlayX + 20;
-    const gameY = overlayY + 95;
+    const rect = this.lastRect || { x: 0, y: 0, w: 1, h: 1 };
+    const gameX = rect.x;
+    const gameY = rect.y;
     const totalW = 4 * (cardW + gap) - gap;
-    const startX = gameX + (660 - totalW) / 2;
+    const startX = gameX + (rect.w - totalW) / 2;
     const startY = gameY + 80;
     const col = idx % 4;
     const row = Math.floor(idx / 4);
@@ -117,11 +123,10 @@ class MemoryMatch {
     const totalH = gridH * (cardH + gap) - gap;
 
     // Game render area bounds
-    const overlayX = Math.floor((1280 - 700) / 2);
-    const overlayY = Math.floor((800 - 460) / 2);
-    const gameX = overlayX + 20;
-    const gameY = overlayY + 95;
-    const startX = gameX + (660 - totalW) / 2;
+    const rect = this.lastRect || { x: 0, y: 0, w: 1, h: 1 };
+    const gameX = rect.x;
+    const gameY = rect.y;
+    const startX = gameX + (rect.w - totalW) / 2;
     const startY = gameY + 80;
 
     const col = Math.floor((screenX - startX) / (cardW + gap));
@@ -132,6 +137,7 @@ class MemoryMatch {
     if (this.flipped.includes(idx) || this.matched.includes(idx)) return;
 
     this.flipped.push(idx);
+    this.flipAnims[idx] = 0;
     audioManager.playTone(500, 0.08, 'square', 0.05);
 
     if (this.flipped.length === 2) {
@@ -160,19 +166,20 @@ class MemoryMatch {
   render(ctx, x, y, w, h) {
     const theme = ThemeManager.getTheme(store.get('theme'));
     const cols = theme.colors;
+    this.lastRect = { x, y, w, h };
 
-    ctx.fillStyle = 'rgba(0,0,0,0.85)';
+    ctx.fillStyle = cols.background || cols.bg || cols.panel;
     ctx.fillRect(x, y, w, h);
     ctx.strokeStyle = cols.accent;
     ctx.lineWidth = 3;
     ctx.strokeRect(x, y, w, h);
 
     ctx.fillStyle = cols.text;
-    ctx.font = 'bold 20px monospace';
+    ctx.font = 'bold 18px monospace';
     ctx.textAlign = 'center';
     ctx.fillText('MEMORY MATCH', x + w / 2, y + 35);
 
-    ctx.font = '11px monospace';
+    ctx.font = 'bold 12px monospace';
     ctx.fillStyle = cols.text + '88';
     ctx.fillText('Match the pairs! Attempts: ' + this.attempts + '/' + this.maxAttempts, x + w / 2, y + 55);
 
@@ -191,13 +198,22 @@ class MemoryMatch {
       const cx = startX + (i % 4) * (cardW + gap);
       const cy = startY + Math.floor(i / 4) * (cardH + gap);
       const isFlipped = this.flipped.includes(i) || this.matched.includes(i);
+      const anim = this.flipAnims[i];
+      const animT = anim === undefined ? 1 : Math.min(1, anim / 0.28);
+      const scaleX = anim === undefined ? 1 : Math.max(0.08, Math.abs(Math.cos(animT * Math.PI)));
+      const showFace = anim === undefined || animT >= 0.5;
       const r = 6;
 
-      if (isFlipped) {
+      ctx.save();
+      ctx.translate(cx + cardW / 2, cy + cardH / 2);
+      ctx.scale(scaleX, 1);
+      ctx.translate(-(cx + cardW / 2), -(cy + cardH / 2));
+
+      if (isFlipped && showFace) {
         const isMatched = this.matched.includes(i);
-        ctx.fillStyle = isMatched ? '#338833' : cols.buttonHover;
+        ctx.fillStyle = isMatched ? cols.accent : cols.buttonHover;
         if (isMatched) {
-          ctx.shadowColor = '#44ff44';
+          ctx.shadowColor = cols.accent;
           ctx.shadowBlur = 10;
         }
         ctx.beginPath();
@@ -213,7 +229,7 @@ class MemoryMatch {
         ctx.closePath();
         ctx.fill();
         ctx.shadowBlur = 0;
-        ctx.strokeStyle = isMatched ? '#66ff66' : cols.text + '44';
+        ctx.strokeStyle = isMatched ? cols.highlight || cols.accent : cols.text + '44';
         ctx.lineWidth = 2;
         ctx.stroke();
         ctx.fillStyle = cols.text;
@@ -243,6 +259,7 @@ class MemoryMatch {
         ctx.textAlign = 'center';
         ctx.fillText('?', cx + cardW / 2, cy + cardH / 2 + 6);
       }
+      ctx.restore();
     }
 
     // Progress
@@ -252,9 +269,17 @@ class MemoryMatch {
     ctx.fillText('Pairs: ' + this.pairs + '/' + this.totalPairs, x + w / 2, y + 230);
 
     if (this.done) {
-      ctx.fillStyle = cols.accent;
+      const win = this.winner === 'attacker';
+      ctx.fillStyle = win ? 'rgba(80, 220, 130, 0.30)' : 'rgba(220, 70, 80, 0.30)';
+      ctx.fillRect(x, y, w, h);
+      ctx.fillStyle = cols.text;
+      ctx.shadowColor = win ? cols.accent : (cols.highlight || cols.accent);
+      ctx.shadowBlur = 14;
       ctx.font = 'bold 18px monospace';
-      ctx.fillText(this.winner === 'attacker' ? 'YOU WIN!' : 'Defender wins!', x + w / 2, y + 265);
+      ctx.fillText(win ? 'You Win!' : 'You Lose!', x + w / 2, y + h / 2);
+      ctx.shadowBlur = 0;
     }
   }
+
+  cleanup() {}
 }

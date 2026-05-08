@@ -16,6 +16,10 @@ class UndertaleDodge {
     this.keys = {};
     this.running = false;
     this.difficulty = 1;
+    this.hitFlashTimer = 0;
+    this.shakeTimer = 0;
+    this.shakeX = 0;
+    this.shakeY = 0;
   }
 
   init(attacker, defender, difficulty, isDuel) {
@@ -34,6 +38,10 @@ class UndertaleDodge {
     this.spawnTimer = 0;
     this.running = true;
     this.keys = {};
+    this.hitFlashTimer = 0;
+    this.shakeTimer = 0;
+    this.shakeX = 0;
+    this.shakeY = 0;
 
     document.addEventListener('keydown', this.keyHandler = (e) => {
       this.keys[e.key] = true;
@@ -47,6 +55,16 @@ class UndertaleDodge {
 
   update(dt) {
     if (!this.running || this.done) return;
+    if (this.hitFlashTimer > 0) this.hitFlashTimer = Math.max(0, this.hitFlashTimer - dt);
+    if (this.shakeTimer > 0) {
+      this.shakeTimer = Math.max(0, this.shakeTimer - dt);
+      const s = (this.shakeTimer / 0.16) * 5;
+      this.shakeX = (Math.random() - 0.5) * s;
+      this.shakeY = (Math.random() - 0.5) * s;
+    } else {
+      this.shakeX = 0;
+      this.shakeY = 0;
+    }
 
     // Player movement
     const sens = (store.get('settings').miniGameSensitivity || 1.0);
@@ -92,6 +110,8 @@ class UndertaleDodge {
       const dist = Math.sqrt(dx * dx + dy * dy);
       if (dist < this.playerSize + b.size) {
         this.hp--;
+        this.hitFlashTimer = 1;
+        this.shakeTimer = 0.16;
         this.bullets.splice(i, 1);
         audioManager.playTone(200, 0.08, 'sawtooth', 0.1);
         if (typeof PixiMiniGameFX !== 'undefined' && this._bounds) {
@@ -137,7 +157,7 @@ class UndertaleDodge {
             vx: fromLeft ? 80 + this.phase * 20 + diffBonus : -(80 + this.phase * 20 + diffBonus),
             vy: 0,
             size: 6,
-            color: '#ff6666',
+            color: 'danger',
           });
         }
         break;
@@ -150,7 +170,7 @@ class UndertaleDodge {
             vx: 0,
             vy: fromTop ? 80 + this.phase * 20 + diffBonus : -(80 + this.phase * 20 + diffBonus),
             size: 6,
-            color: '#ffaa44',
+            color: 'warm',
           });
         }
         break;
@@ -164,7 +184,7 @@ class UndertaleDodge {
             vx: Math.cos(angle) * spd,
             vy: Math.sin(angle) * spd,
             size: 5,
-            color: '#ff44ff',
+            color: 'magic',
           });
         }
         break;
@@ -178,7 +198,7 @@ class UndertaleDodge {
             vx: Math.cos(angle) * speed,
             vy: Math.sin(angle) * speed,
             size: 4,
-            color: '#44aaff',
+            color: 'cool',
           });
         }
         break;
@@ -190,32 +210,35 @@ class UndertaleDodge {
     const theme = ThemeManager.getTheme(store.get('theme'));
     const cols = theme.colors;
 
-    ctx.fillStyle = 'rgba(0,0,0,0.85)';
+    ctx.save();
+    ctx.translate(this.shakeX, this.shakeY);
+
+    ctx.fillStyle = cols.background || cols.bg || cols.panel;
     ctx.fillRect(x, y, w, h);
     ctx.strokeStyle = cols.accent;
     ctx.lineWidth = 3;
     ctx.strokeRect(x, y, w, h);
 
     ctx.fillStyle = cols.text;
-    ctx.font = 'bold 20px monospace';
+    ctx.font = 'bold 18px monospace';
     ctx.textAlign = 'center';
     ctx.fillText('SOUL DODGE', x + w / 2, y + 30);
 
     // HP bar
     const hpBarW = 200;
     const hpBarH = 12;
-    ctx.fillStyle = '#440000';
+    ctx.fillStyle = cols.panel;
     ctx.fillRect(x + w / 2 - hpBarW / 2, y + 45, hpBarW, hpBarH);
     const hpPct = this.hp / this.maxHp;
-    ctx.fillStyle = hpPct > 0.5 ? '#44cc44' : hpPct > 0.25 ? '#cccc44' : '#cc4444';
+    ctx.fillStyle = hpPct > 0.5 ? cols.accent : hpPct > 0.25 ? (cols.highlight || cols.accent) : (cols.highlight || cols.text);
     ctx.fillRect(x + w / 2 - hpBarW / 2, y + 45, hpBarW * hpPct, hpBarH);
     ctx.fillStyle = cols.text;
-    ctx.font = '9px monospace';
+    ctx.font = '12px monospace';
     ctx.fillText('HP: ' + this.hp + '/' + this.maxHp, x + w / 2, y + 55);
 
     // Timer
     ctx.fillStyle = cols.text + '88';
-    ctx.font = '11px monospace';
+    ctx.font = 'bold 12px monospace';
     ctx.fillText('Survive: ' + Math.ceil(this.timeLeft) + 's', x + w / 2, y + 75);
 
     // Arena
@@ -225,7 +248,7 @@ class UndertaleDodge {
     const arenaH = 200;
 
     // Arena background
-    ctx.fillStyle = 'rgba(20, 0, 40, 0.4)';
+    ctx.fillStyle = cols.panel + 'aa';
     ctx.fillRect(arenaX, arenaY, arenaW, arenaH);
     ctx.shadowColor = cols.accent;
     ctx.shadowBlur = 8;
@@ -238,9 +261,13 @@ class UndertaleDodge {
     for (const b of this.bullets) {
       const bx = arenaX + (b.x - 200);
       const by = arenaY + (b.y - 140);
-      ctx.shadowColor = b.color;
+      const bulletColor = b.color === 'warm' ? (cols.highlight || cols.accent)
+        : b.color === 'magic' ? cols.text
+        : b.color === 'cool' ? cols.accent
+        : (cols.highlight || cols.accent);
+      ctx.shadowColor = bulletColor;
       ctx.shadowBlur = 8;
-      ctx.fillStyle = b.color;
+      ctx.fillStyle = bulletColor;
       ctx.beginPath();
       ctx.arc(bx, by, b.size, 0, Math.PI * 2);
       ctx.fill();
@@ -257,9 +284,10 @@ class UndertaleDodge {
     const py = arenaY + (this.playerY - 140);
     const ps = this.playerSize;
 
-    ctx.shadowColor = '#ff4444';
+    const flashWhite = this.hitFlashTimer > 0 && Math.floor(this.hitFlashTimer * 12) % 2 === 0;
+    ctx.shadowColor = flashWhite ? cols.text : (cols.highlight || cols.accent);
     ctx.shadowBlur = 12;
-    ctx.fillStyle = '#ff4444';
+    ctx.fillStyle = flashWhite ? cols.text : (cols.highlight || cols.accent);
     // Heart shape
     ctx.beginPath();
     ctx.moveTo(px, py + ps * 0.3);
@@ -277,15 +305,23 @@ class UndertaleDodge {
 
     // Controls hint
     ctx.fillStyle = cols.text + '44';
-    ctx.font = '10px monospace';
+    ctx.font = '12px monospace';
     ctx.textAlign = 'center';
     ctx.fillText('Arrow keys / WASD to dodge', x + w / 2, y + 320);
 
     if (this.done) {
-      ctx.fillStyle = cols.accent;
+      const win = this.winner === 'attacker';
+      ctx.fillStyle = win ? 'rgba(80, 220, 130, 0.30)' : 'rgba(220, 70, 80, 0.30)';
+      ctx.fillRect(x, y, w, h);
+      ctx.fillStyle = cols.text;
+      ctx.shadowColor = win ? cols.accent : (cols.highlight || cols.accent);
+      ctx.shadowBlur = 14;
       ctx.font = 'bold 18px monospace';
-      ctx.fillText(this.winner === 'attacker' ? 'YOU SURVIVED!' : 'Defeated!', x + w / 2, y + 360);
+      ctx.fillText(win ? 'You Win!' : 'You Lose!', x + w / 2, y + h / 2);
+      ctx.shadowBlur = 0;
     }
+
+    ctx.restore();
   }
 
   botPlay(dt, timer) {
@@ -334,6 +370,8 @@ class UndertaleDodge {
   }
 
   handleClick(x, y) {}
+
+  handleKey(key) {}
 
   cleanup() {
     document.removeEventListener('keydown', this.keyHandler);

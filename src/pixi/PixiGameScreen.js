@@ -17,7 +17,6 @@ const PixiGameScreen = {
 
     PixiParticleFX.update(dt);
 
-    // Background updates on theme change
     const currentTheme = store.get('theme') || 'space';
     if (this._lastTheme !== currentTheme) {
       PixiBackgroundRenderer.render(currentTheme);
@@ -26,6 +25,14 @@ const PixiGameScreen = {
         PixiBoardRenderer.setPieces(gameState.board, currentTheme);
       }
       this._lastTheme = currentTheme;
+    }
+
+    if (gameState.board) {
+      const boardKey = this._getBoardKey(gameState.board);
+      if (this._lastBoardKey !== boardKey) {
+        PixiBoardRenderer.setPieces(gameState.board, currentTheme);
+        this._lastBoardKey = boardKey;
+      }
     }
 
     // Sync highlights
@@ -109,13 +116,25 @@ const PixiGameScreen = {
     PixiApp.resize();
   },
 
+  _getBoardKey(board) {
+    let key = '';
+    for (let r = 0; r < 8; r++) {
+      for (let c = 0; c < 8; c++) {
+        const p = board.grid[r][c];
+        key += p ? p.color[0] + p.type[0] : '..';
+      }
+    }
+    return key;
+  },
+
   destroy() {
-    PixiAnimator.killTweensOf(PixiBoardRenderer.container);
+    if (PixiBoardRenderer.container) PixiAnimator.killTweensOf(PixiBoardRenderer.container);
     PixiParticleFX.destroy();
     PixiBoardRenderer.destroy();
     PixiBackgroundRenderer.destroy();
-    PixiApp.clearStage();
     this.initialized = false;
     this._lastTheme = null;
+    this._lastBoardKey = null;
+    this._lastSelection = null;
   },
 };

@@ -300,109 +300,190 @@ const GameScreen = {
 
   renderSidePanel(ctx, cols, side, color) {
     const isLeft = side === 'left';
-    const x = isLeft ? 20 : 1280 - 200;
-    const y = 100;
-    const w = 160;
-    const h = 600;
+    const x = isLeft ? 16 : 1280 - 210;
+    const y = 80;
+    const w = 194;
+    const h = 640;
+    const pad = 14;
     const isPlayerTurn = this.turn === color;
-    UIHelpers.drawCard(ctx, x, y, w, h, cols, { accentStripe: isPlayerTurn && !this.gameOver ? cols.accent : null });
     const playerName = color === 'white' ? store.get('whitePlayer') : store.get('blackPlayer');
+
+    // Panel background — rounded with transparency
+    ctx.save();
+    this._roundRect(ctx, x, y, w, h, 8);
+    ctx.fillStyle = cols.panel + 'dd';
+    ctx.fill();
+    ctx.strokeStyle = isPlayerTurn && !this.gameOver ? cols.accent + '88' : cols.text + '22';
+    ctx.lineWidth = isPlayerTurn ? 2 : 1;
+    ctx.stroke();
+    ctx.restore();
+
+    // Active turn indicator — glowing left/right stripe
     if (isPlayerTurn && !this.gameOver) {
-      ctx.fillStyle = cols.accent;
-      ctx.fillRect(x, y, 4, h);
+      ctx.fillStyle = cols.accent + '44';
+      if (isLeft) {
+        ctx.fillRect(x, y + 4, 3, h - 8);
+      } else {
+        ctx.fillRect(x + w - 3, y + 4, 3, h - 8);
+      }
     }
+
+    // Player name
+    let cy = y + pad + 4;
     ctx.fillStyle = isPlayerTurn && !this.gameOver ? cols.accent : cols.text;
-    ctx.font = isPlayerTurn ? 'bold 13px monospace' : '13px monospace';
+    ctx.font = 'bold 16px "VT323", monospace';
     ctx.textAlign = 'left';
-    ctx.fillText(UIHelpers.truncateText(ctx, playerName, w - 20), x + 10, y + 25);
-    ctx.fillStyle = color === 'white' ? cols.lightPiece : cols.darkPiece;
+    ctx.fillText(UIHelpers.truncateText(ctx, playerName, w - pad * 2), x + pad, cy);
+    cy += 6;
+
+    // Color indicator
+    ctx.fillStyle = color === 'white' ? '#e8e0d0' : '#3a3530';
+    this._roundRect(ctx, x + pad, cy, 18, 18, 3);
+    ctx.fill();
     ctx.strokeStyle = cols.text + '44';
     ctx.lineWidth = 1;
-    ctx.fillRect(x + 10, y + 33, 14, 14);
-    ctx.strokeRect(x + 10, y + 33, 14, 14);
+    ctx.stroke();
+
+    // Turn label next to indicator
+    if (isPlayerTurn && !this.gameOver) {
+      ctx.fillStyle = cols.accent + 'cc';
+      ctx.font = '14px "VT323", monospace';
+      ctx.fillText('YOUR TURN', x + pad + 24, cy + 14);
+    }
+    cy += 28;
+
+    // Separator
+    ctx.fillStyle = cols.text + '22';
+    ctx.fillRect(x + pad, cy, w - pad * 2, 1);
+    cy += 12;
+
+    // Captured pieces section
     const captured = this.capturedPieces[color];
     const pieceValues = { pawn: 1, knight: 3, bishop: 3, rook: 5, queen: 9, king: 0 };
-    const pieceSymbols = { pawn: 'p', knight: 'N', bishop: 'B', rook: 'R', queen: 'Q', king: 'K' };
+    const pieceSymbols = { pawn: '♟', knight: '♞', bishop: '♝', rook: '♜', queen: '♛', king: '♚' };
 
-    // Calculate material points for both sides
-    const whiteCaptures = this.capturedPieces.white; // pieces white has captured (black pieces)
-    const blackCaptures = this.capturedPieces.black; // pieces black has captured (white pieces)
+    ctx.fillStyle = cols.text + '88';
+    ctx.font = '14px "VT323", monospace';
+    ctx.fillText('CAPTURED', x + pad, cy);
+    cy += 8;
+
+    if (captured.length === 0) {
+      ctx.fillStyle = cols.text + '33';
+      ctx.font = '14px "VT323", monospace';
+      ctx.fillText('None yet', x + pad, cy + 8);
+      cy += 20;
+    } else {
+      let px = x + pad;
+      ctx.font = '18px "VT323", monospace';
+      for (const p of captured.slice(0, 20)) {
+        ctx.fillStyle = p.color === 'white' ? '#e8e0d0' : '#888';
+        ctx.fillText(pieceSymbols[p.type] || '?', px, cy + 10);
+        px += 16;
+        if (px > x + w - pad) { px = x + pad; cy += 18; }
+      }
+      cy += 22;
+    }
+
+    // Material advantage
+    const whiteCaptures = this.capturedPieces.white;
+    const blackCaptures = this.capturedPieces.black;
     const whiteMatCaptured = whiteCaptures.reduce((s, p) => s + (pieceValues[p.type] || 0), 0);
     const blackMatCaptured = blackCaptures.reduce((s, p) => s + (pieceValues[p.type] || 0), 0);
     const whiteAdvantage = whiteMatCaptured - blackMatCaptured;
 
-    // Show captured pieces with point value
-    ctx.fillStyle = cols.text + '66';
-    ctx.font = '10px monospace';
-    ctx.fillText('Captured: ' + captured.length, x + 10, y + 65);
-    let px = x + 10;
-    let py = y + 75;
-    ctx.font = '12px monospace';
-    for (const p of captured.slice(0, 20)) {
-      ctx.fillStyle = p.color === 'white' ? cols.lightPiece : cols.darkPiece;
-      ctx.fillText(pieceSymbols[p.type] || '?', px, py);
-      px += 14;
-      if (px > x + w - 10) { px = x + 10; py += 14; }
-    }
-
-    // Material advantage display (chess.com style)
-    const matY = py + 18;
     if (whiteAdvantage !== 0) {
       const isWhiteSide = color === 'white';
       const advantage = isWhiteSide ? whiteAdvantage : -whiteAdvantage;
       if (advantage > 0) {
         ctx.fillStyle = '#44dd44';
-        ctx.font = 'bold 14px monospace';
-        ctx.fillText('+' + advantage, x + 10, matY);
+        ctx.font = 'bold 16px "VT323", monospace';
+        ctx.fillText('+' + advantage + ' material', x + pad, cy);
       } else if (advantage < 0) {
         ctx.fillStyle = '#dd4444';
-        ctx.font = 'bold 14px monospace';
-        ctx.fillText(String(advantage), x + 10, matY);
+        ctx.font = 'bold 16px "VT323", monospace';
+        ctx.fillText(advantage + ' material', x + pad, cy);
       }
-    }
-    if (this.mode === 'story' && color === 'black' && this.currentCharacter) {
-      ctx.fillStyle = cols.text + '88';
-      ctx.font = '10px monospace';
-      ctx.fillText('Level ' + this.currentCharacter.level, x + 10, y + 380);
-      ctx.fillStyle = this.currentCharacter.colors.primary;
-      ctx.font = 'bold 11px monospace';
-      ctx.fillText(UIHelpers.truncateText(ctx, this.currentCharacter.name, w - 20), x + 10, y + 400);
+      cy += 18;
     }
 
-    // Move history on left panel
-    if (isLeft && this.moveHistory.length > 0) {
-      ctx.fillStyle = cols.text + '44';
-      ctx.font = '10px monospace';
-      ctx.fillText('Moves:', x + 10, y + 430);
+    // Separator
+    cy += 4;
+    ctx.fillStyle = cols.text + '22';
+    ctx.fillRect(x + pad, cy, w - pad * 2, 1);
+    cy += 12;
+
+    // Story mode character info
+    if (this.mode === 'story' && color === 'black' && this.currentCharacter) {
+      ctx.fillStyle = this.currentCharacter.colors.primary;
+      ctx.font = 'bold 16px "VT323", monospace';
+      ctx.fillText(UIHelpers.truncateText(ctx, this.currentCharacter.name, w - pad * 2), x + pad, cy);
+      cy += 4;
       ctx.fillStyle = cols.text + '66';
-      ctx.font = '9px monospace';
+      ctx.font = '14px "VT323", monospace';
+      ctx.fillText('Level ' + this.currentCharacter.level, x + pad, cy + 8);
+      cy += 20;
+    }
+
+    // Move history (left panel only)
+    if (isLeft && this.moveHistory.length > 0) {
+      ctx.fillStyle = cols.text + '66';
+      ctx.font = '14px "VT323", monospace';
+      ctx.fillText('MOVE HISTORY', x + pad, cy);
+      cy += 8;
+
+      ctx.fillStyle = cols.text + '88';
+      ctx.font = '16px "VT323", monospace';
       const files = 'abcdefgh';
-      const recentMoves = this.moveHistory.slice(-8);
-      let my = y + 445;
+      const recentMoves = this.moveHistory.slice(-10);
       for (let i = 0; i < recentMoves.length; i++) {
         const m = recentMoves[i];
         const moveNum = this.moveHistory.length - recentMoves.length + i + 1;
         const pieceChar = { pawn: '', knight: 'N', bishop: 'B', rook: 'R', queen: 'Q', king: 'K' }[m.piece?.type || 'pawn'] || '';
         const to = files[m.to.col] + (8 - m.to.row);
-        ctx.fillText(moveNum + '. ' + pieceChar + to, x + 10, my);
-        my += 14;
+        const isLast = i === recentMoves.length - 1;
+        ctx.fillStyle = isLast ? cols.accent : cols.text + '77';
+        ctx.fillText(moveNum + '. ' + pieceChar + to, x + pad, cy + 10);
+        cy += 16;
       }
     }
   },
 
+  _roundRect(ctx, x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.lineTo(x + w - r, y);
+    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+    ctx.lineTo(x + w, y + h - r);
+    ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    ctx.lineTo(x + r, y + h);
+    ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+    ctx.lineTo(x, y + r);
+    ctx.quadraticCurveTo(x, y, x + r, y);
+    ctx.closePath();
+  },
+
   renderStatusBar(ctx, cols) {
     const y = 745;
-    UIHelpers.drawPanel(ctx, 200, y, 880, 35, cols);
+    // Rounded status bar
+    ctx.save();
+    this._roundRect(ctx, 210, y, 860, 38, 6);
+    ctx.fillStyle = cols.panel + 'dd';
+    ctx.fill();
+    ctx.strokeStyle = cols.text + '22';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    ctx.restore();
+
     ctx.fillStyle = cols.text;
-    ctx.font = '12px monospace';
+    ctx.font = '18px "VT323", monospace';
     ctx.textAlign = 'center';
     const turnText = this.turn === 'white' ? "White's Turn" : "Black's Turn";
     if (this.gameStatus === 'check') {
       ctx.fillStyle = cols.checkHighlight || cols.accent;
-      ctx.font = 'bold 14px monospace';
+      ctx.font = 'bold 12px "Press Start 2P", monospace';
       ctx.fillText('CHECK!', 640, y + 18);
       ctx.fillStyle = cols.text + '88';
-      ctx.font = '10px monospace';
+      ctx.font = '14px "VT323", monospace';
       ctx.fillText(turnText, 640, y + 32);
     } else {
       ctx.fillText(turnText, 640, y + 22);
@@ -691,9 +772,13 @@ const GameScreen = {
 
       if (typeof PixiGameScreen !== 'undefined' && PixiGameScreen.initialized) {
         const isMajor = captured && (captured.type === 'rook' || captured.type === 'queen');
-        PixiGameScreen.spawnCaptureParticles(cx, cy, parseInt(theme.colors.accent.replace('#', '0x'), 16), captured.type);
+        PixiGameScreen.spawnCaptureParticles(cx, cy, PixiColorUtil.hexToNum(theme.colors.accent), captured.type);
         PixiGameScreen.shakeScreen(isMajor ? 14 : 8);
         PixiGameScreen.flashScreen(isMajor ? 0xffeeaa : 0xffffff);
+      } else {
+        this.particleFX.captureEffect(cx, cy, theme);
+        this.boardRenderer.triggerScreenShake(8);
+        this.boardRenderer.triggerCaptureFlash(move.to.row, move.to.col);
       }
 
       audioManager.playCapture();
@@ -708,7 +793,9 @@ const GameScreen = {
       const cy = offsetY + move.to.row * sqSize + sqSize / 2;
 
       if (typeof PixiGameScreen !== 'undefined' && PixiGameScreen.initialized) {
-        PixiGameScreen.spawnMoveParticles(cx, cy, parseInt(theme.colors.accent.replace('#', '0x'), 16));
+        PixiGameScreen.spawnMoveParticles(cx, cy, PixiColorUtil.hexToNum(theme.colors.accent));
+      } else {
+        this.particleFX.moveEffect(cx, cy, theme);
       }
     }
 

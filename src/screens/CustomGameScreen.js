@@ -163,17 +163,17 @@ const CustomGameScreen = {
     ctx.textAlign = 'left';
     ctx.fillText('Play As', 50, playY);
 
-    const btnW = 100;
-    const btnH = 32;
+    const btnW = 120;
+    const btnH = 36;
     const btnGap = 12;
     const btnStartX = 50;
 
     UIHelpers.drawButton(ctx, btnStartX, playY + 10, btnW, btnH, 'White', cols, {
-      font: 'bold 12px monospace',
+      font: 'bold 13px monospace',
       active: this.playAs === 'white',
     });
     UIHelpers.drawButton(ctx, btnStartX + btnW + btnGap, playY + 10, btnW, btnH, 'Black', cols, {
-      font: 'bold 12px monospace',
+      font: 'bold 13px monospace',
       active: this.playAs === 'black',
     });
 
@@ -196,10 +196,16 @@ const CustomGameScreen = {
 
     // 2-column grid with better spacing
     const mgStartY = mgLabelY + 40;
-    const mgLineH = 40;
+    const mgLineH = 52;
     const mgColW = 580;
     const mgCol1X = 50;
     const mgCol2X = 660;
+    const mgCardH = 44;
+    const mgRows = Math.ceil(this.minigameList.length / 2);
+    const mgGridH = mgRows * mgLineH;
+
+    // Grouping panel behind the entire minigame grid
+    UIHelpers.drawPanel(ctx, mgCol1X - 10, mgStartY - 10, 1280 - (mgCol1X - 10) * 2, mgGridH + 20, cols);
 
     for (let i = 0; i < this.minigameList.length; i++) {
       const mg = this.minigameList[i];
@@ -210,23 +216,18 @@ const CustomGameScreen = {
       const isOn = this.minigameToggles[mg.key];
       const isHov = this.hoveredItem === 'mg_' + mg.key;
 
-      UIHelpers.drawCard(ctx, bx, by, mgColW, 34, cols, {
+      UIHelpers.drawCard(ctx, bx, by, mgColW, mgCardH, cols, {
         hover: isHov,
         active: isOn,
         accentStripe: isOn ? cols.accent : null,
       });
 
-      UIHelpers.drawToggle(ctx, bx + 8, by + 8, 36, 18, isOn, cols);
-
-      const iconType = this.minigameIcons[mg.key] || 'check';
-      UIHelpers.drawIcon(ctx, bx + 52, by + 8, iconType, 8, cols, {
-        color: isOn ? cols.accent : cols.text + '55',
-      });
+      UIHelpers.drawToggle(ctx, bx + 10, by + 13, 36, 18, isOn, cols);
 
       ctx.fillStyle = isOn ? cols.text : cols.text + '55';
       ctx.font = isHov ? 'bold 13px monospace' : '12px monospace';
       ctx.textAlign = 'left';
-      ctx.fillText(mg.name, bx + 66, by + 22);
+      ctx.fillText(mg.name, bx + 52, by + 27);
     }
 
     // Bottom bar
@@ -269,10 +270,10 @@ const CustomGameScreen = {
       return;
     }
 
-    // Play As
+    // Play As (buttons: 120x36)
     const playY = 195;
-    const btnW = 100;
-    const btnH = 32;
+    const btnW = 120;
+    const btnH = 36;
     const btnGap = 12;
     if (x >= 50 && x <= 50 + btnW && y >= playY && y <= playY + btnH) {
       this.playAs = 'white';
@@ -295,16 +296,16 @@ const CustomGameScreen = {
       return;
     }
 
-    // Minigame toggles
+    // Minigame toggles (mgLineH: 52, card height: 44)
     const mgStartY = mgLabelY + 40;
-    const mgLineH = 40;
+    const mgLineH = 52;
     const mgColW = 580;
     for (let i = 0; i < this.minigameList.length; i++) {
       const c = i % 2;
       const r = Math.floor(i / 2);
       const bx = c === 0 ? 50 : 660;
       const by = mgStartY + r * mgLineH;
-      if (x >= bx && x <= bx + mgColW && y >= by && y <= by + 34) {
+      if (x >= bx && x <= bx + mgColW && y >= by && y <= by + 44) {
         this.minigameToggles[this.minigameList[i].key] = !this.minigameToggles[this.minigameList[i].key];
         return;
       }
@@ -320,16 +321,16 @@ const CustomGameScreen = {
     const canvas = document.getElementById('gameCanvas');
     canvas.style.cursor = 'default';
 
-    // Minigame toggles hover
+    // Minigame toggles hover (mgLineH: 52, card height: 44)
     const mgStartY = 290;
-    const mgLineH = 40;
+    const mgLineH = 52;
     const mgColW = 580;
     for (let i = 0; i < this.minigameList.length; i++) {
       const c = i % 2;
       const r = Math.floor(i / 2);
       const bx = c === 0 ? 50 : 660;
       const by = mgStartY + r * mgLineH;
-      if (x >= bx && x <= bx + mgColW && y >= by && y <= by + 34) {
+      if (x >= bx && x <= bx + mgColW && y >= by && y <= by + 44) {
         this.hoveredItem = 'mg_' + this.minigameList[i].key;
         canvas.style.cursor = 'pointer';
         return;

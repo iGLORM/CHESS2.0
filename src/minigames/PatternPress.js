@@ -12,7 +12,7 @@ class PatternPress {
     this.currentStep = 0;
     this.length = 0;
     this.maxLength = 6;
-    this.colors = ['#ff4444', '#44ff44', '#4444ff', '#ffff44'];
+    this.colors = ['alert', 'accent', 'text', 'highlight'];
     this.keys = ['q', 'w', 'e', 'r'];
     // Visual polish state
     this.shakeTimer = 0;
@@ -20,6 +20,8 @@ class PatternPress {
     this.shakeY = 0;
     this.particles = [];
     this.pulsePhase = 0;
+    this.lastRect = { x: 0, y: 0, w: 1, h: 1 };
+    this._lastPalette = null;
   }
 
   init(attacker, defender) {
@@ -142,15 +144,15 @@ class PatternPress {
     const btnSize = 60;
     const gap = 15;
     const totalW = 4 * (btnSize + gap) - gap;
-    const overlayX = Math.floor((1280 - 700) / 2);
-    const overlayY = Math.floor((800 - 460) / 2);
-    const gameX = overlayX + 20;
-    const gameY = overlayY + 95;
-    const startX = gameX + (660 - totalW) / 2;
+    const rect = this.lastRect || { x: 0, y: 0, w: 1, h: 1 };
+    const gameX = rect.x;
+    const gameY = rect.y;
+    const startX = gameX + (rect.w - totalW) / 2;
     const startY = gameY + 90;
     const cx = startX + totalW / 2;
     const cy = startY + btnSize / 2;
-    const color = this.colors[btnIdx];
+    const palette = this._lastPalette || [this.colors[0], this.colors[1], this.colors[2], this.colors[3]];
+    const color = palette[btnIdx];
 
     for (let i = 0; i < 10; i++) {
       const angle = (Math.PI * 2 / 10) * i + (Math.random() - 0.5) * 0.5;
@@ -180,23 +182,38 @@ class PatternPress {
     ctx.closePath();
   }
 
-  darkenColor(hex, amt) {
-    const r = parseInt(hex.slice(1, 3), 16);
-    const g = parseInt(hex.slice(3, 5), 16);
-    const b = parseInt(hex.slice(5, 7), 16);
-    return `rgb(${Math.floor(r * amt)},${Math.floor(g * amt)},${Math.floor(b * amt)})`;
+  colorWithAlpha(color, alpha) {
+    if (!color) return 'rgba(255,255,255,' + alpha + ')';
+    if (color.startsWith('#')) {
+      const rgb = this.hexToRgb(color);
+      return rgb ? `rgba(${rgb.r},${rgb.g},${rgb.b},${alpha})` : color;
+    }
+    if (color.startsWith('rgb(')) return color.replace('rgb(', 'rgba(').replace(')', ',' + alpha + ')');
+    return color;
   }
 
-  lightenColor(hex, amt) {
-    const r = parseInt(hex.slice(1, 3), 16);
-    const g = parseInt(hex.slice(3, 5), 16);
-    const b = parseInt(hex.slice(5, 7), 16);
-    return `rgb(${Math.min(255, Math.floor(r + (255 - r) * amt))},${Math.min(255, Math.floor(g + (255 - g) * amt))},${Math.min(255, Math.floor(b + (255 - b) * amt))})`;
+  hexToRgb(hex) {
+    const clean = hex.replace('#', '');
+    const num = parseInt(clean.length === 3 ? clean.split('').map(c => c + c).join('') : clean, 16);
+    if (Number.isNaN(num)) return null;
+    return { r: (num >> 16) & 255, g: (num >> 8) & 255, b: num & 255 };
+  }
+
+  palette(cols) {
+    return [
+      cols.highlight || cols.accent,
+      cols.accent,
+      cols.text,
+      cols.panel || cols.background || cols.bg || cols.accent,
+    ];
   }
 
   render(ctx, x, y, w, h) {
     const theme = ThemeManager.getTheme(store.get('theme'));
     const cols = theme.colors;
+    this.lastRect = { x, y, w, h };
+    const palette = this.palette(cols);
+    this._lastPalette = palette;
 
     ctx.save();
 
@@ -204,14 +221,14 @@ class PatternPress {
     ctx.translate(this.shakeX, this.shakeY);
 
     // Background panel
-    ctx.fillStyle = cols.panel || '#1a1a2e';
+    ctx.fillStyle = cols.panel || cols.background || cols.bg;
     this.roundRect(ctx, x, y, w, h, 12);
     ctx.fill();
 
     // Subtle grid pattern
     ctx.save();
     ctx.clip(); // clip to the rounded rect
-    ctx.strokeStyle = (cols.text || '#ffffff') + '0a';
+    ctx.strokeStyle = (cols.text || 'rgba(255,255,255,1)') + '0a';
     ctx.lineWidth = 1;
     const gridSize = 28;
     for (let gx = x; gx < x + w; gx += gridSize) {
@@ -236,13 +253,13 @@ class PatternPress {
 
     // Title
     ctx.fillStyle = cols.text;
-    ctx.font = 'bold 20px monospace';
+    ctx.font = 'bold 18px monospace';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText('PATTERN PRESS', x + w / 2, y + 35);
 
     // Subtitle
-    ctx.font = '11px monospace';
+    ctx.font = 'bold 12px monospace';
     ctx.fillStyle = cols.text + '88';
     ctx.fillText('Repeat the pattern! Length: ' + this.length + '/' + this.maxLength, x + w / 2, y + 55);
 
@@ -292,15 +309,15 @@ class PatternPress {
       ctx.restore();
 
       // Gradient fill
-      const baseColor = isActive ? this.colors[i] : this.darkenColor(this.colors[i], 0.5);
-      const topColor = isActive ? this.lightenColor(this.colors[i], 0.3) : this.darkenColor(this.colors[i], 0.65);
+      const baseColor = isActive ? palette[i] : this.colorWithAlpha(palette[i], 0.55);
+      const topColor = isActive ? this.colorWithAlpha(cols.text, 0.75) : this.colorWithAlpha(palette[i], 0.38);
       const grad = ctx.createLinearGradient(bx, by, bx, by + btnSize);
       grad.addColorStop(0, topColor);
       grad.addColorStop(1, baseColor);
 
       // Glow for active
       if (isActive) {
-        ctx.shadowColor = this.colors[i];
+        ctx.shadowColor = palette[i];
         ctx.shadowBlur = glowBlur;
         ctx.shadowOffsetX = 0;
         ctx.shadowOffsetY = 0;
@@ -315,13 +332,13 @@ class PatternPress {
       ctx.shadowBlur = 0;
 
       // Subtle border
-      ctx.strokeStyle = (cols.text || '#ffffff') + '33';
+      ctx.strokeStyle = (cols.text || 'rgba(255,255,255,1)') + '33';
       ctx.lineWidth = 1;
       this.roundRect(ctx, bx, by, btnSize, btnSize, cornerR);
       ctx.stroke();
 
       // Key label
-      ctx.fillStyle = isActive ? '#fff' : cols.text + '88';
+      ctx.fillStyle = isActive ? cols.text : cols.text + '88';
       ctx.font = 'bold 16px monospace';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
@@ -347,12 +364,12 @@ class PatternPress {
       for (let i = 0; i < this.sequence.length; i++) {
         const dotX = dotStartX + i * dotSpacing;
         const filled = i < this.playerSequence.length;
-        const dotColor = filled ? this.colors[this.playerSequence[i]] : (cols.text + '44');
+        const dotColor = filled ? palette[this.playerSequence[i]] : (cols.text + '44');
 
         if (filled) {
           // Filled dot with a subtle glow
           ctx.save();
-          ctx.shadowColor = this.colors[this.playerSequence[i]];
+          ctx.shadowColor = palette[this.playerSequence[i]];
           ctx.shadowBlur = 6;
           ctx.fillStyle = dotColor;
           ctx.beginPath();
@@ -361,7 +378,7 @@ class PatternPress {
           ctx.restore();
         } else {
           // Empty dot outline
-          ctx.strokeStyle = (cols.text || '#ffffff') + '44';
+          ctx.strokeStyle = (cols.text || 'rgba(255,255,255,1)') + '44';
           ctx.lineWidth = 1.5;
           ctx.beginPath();
           ctx.arc(dotX, progressY, 7, 0, Math.PI * 2);
@@ -386,11 +403,17 @@ class PatternPress {
 
     // Done message
     if (this.done) {
-      ctx.fillStyle = cols.accent;
+      const win = this.winner === 'attacker';
+      ctx.fillStyle = win ? 'rgba(80, 220, 130, 0.30)' : 'rgba(220, 70, 80, 0.30)';
+      ctx.fillRect(x, y, w, h);
+      ctx.fillStyle = cols.text;
+      ctx.shadowColor = win ? cols.accent : (cols.highlight || cols.accent);
+      ctx.shadowBlur = 14;
       ctx.font = 'bold 18px monospace';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText(this.winner === 'attacker' ? 'YOU WIN!' : 'Defender wins!', x + w / 2, y + 250);
+      ctx.fillText(win ? 'You Win!' : 'You Lose!', x + w / 2, y + h / 2);
+      ctx.shadowBlur = 0;
     }
 
     ctx.restore();
@@ -422,11 +445,10 @@ class PatternPress {
     const gap = 15;
     const totalW = 4 * (btnSize + gap) - gap;
     // Use screen coords - game render area is at overlayX+20, overlayY+95
-    const overlayX = Math.floor((1280 - 700) / 2);
-    const overlayY = Math.floor((800 - 460) / 2);
-    const gameX = overlayX + 20;
-    const gameY = overlayY + 95;
-    const startX = gameX + (660 - totalW) / 2;
+    const rect = this.lastRect || { x: 0, y: 0, w: 1, h: 1 };
+    const gameX = rect.x;
+    const gameY = rect.y;
+    const startX = gameX + (rect.w - totalW) / 2;
     const startY = gameY + 90;
 
     for (let i = 0; i < 4; i++) {
@@ -438,4 +460,6 @@ class PatternPress {
       }
     }
   }
+
+  cleanup() {}
 }

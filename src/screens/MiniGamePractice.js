@@ -233,18 +233,23 @@ const MiniGamePractice = {
 
     // Scrollable card list - 2 columns with preview thumbnails
     const cardW = 540;
-    const cardH = 80;
+    const cardH = 96;
     const gapX = 20;
-    const gapY = 10;
+    const gapY = 12;
     const startY = 100;
-    const maxVisible = 7; // rows visible at once
+    const maxVisible = 6; // rows visible at once
     const col1X = 640 - cardW - gapX / 2;
     const col2X = 640 + gapX / 2;
+    const visibleH = maxVisible * (cardH + gapY);
+
+    // Grouping panel behind the card grid
+    const panelPad = 10;
+    UIHelpers.drawPanel(ctx, col1X - panelPad, startY - panelPad, cardW * 2 + gapX + panelPad * 2, visibleH + panelPad * 2, cols);
 
     // Clip to visible area
     ctx.save();
     ctx.beginPath();
-    ctx.rect(0, startY - 5, 1280, maxVisible * (cardH + gapY) + 10);
+    ctx.rect(0, startY - 5, 1280, visibleH + 10);
     ctx.clip();
 
     for (let i = 0; i < this.games.length; i++) {
@@ -296,9 +301,9 @@ const MiniGamePractice = {
     // Scroll indicators
     const totalRows = Math.ceil(this.games.length / 2);
     const totalH = totalRows * (cardH + gapY);
-    if (totalH > maxVisible * (cardH + gapY)) {
+    if (totalH > visibleH) {
       // Scroll bar
-      const scrollBarH = maxVisible * (cardH + gapY);
+      const scrollBarH = visibleH;
       const scrollBarX = 1280 - 20;
       const scrollThumbH = Math.max(30, (scrollBarH / totalH) * scrollBarH);
       const scrollThumbY = startY + (this.scrollOffset / totalH) * scrollBarH;
@@ -318,9 +323,9 @@ const MiniGamePractice = {
   },
 
   _getMaxScroll() {
-    const cardH = 80;
-    const gapY = 10;
-    const maxVisible = 7;
+    const cardH = 96;
+    const gapY = 12;
+    const maxVisible = 6;
     const totalRows = Math.ceil(this.games.length / 2);
     const totalH = totalRows * (cardH + gapY);
     const visibleH = maxVisible * (cardH + gapY);
@@ -334,9 +339,9 @@ const MiniGamePractice = {
     }
 
     const cardW = 540;
-    const cardH = 80;
+    const cardH = 96;
     const gapX = 20;
-    const gapY = 10;
+    const gapY = 12;
     const startY = 100;
     const col1X = 640 - cardW - gapX / 2;
     const col2X = 640 + gapX / 2;
@@ -355,9 +360,9 @@ const MiniGamePractice = {
 
   handleMouseMove(x, y) {
     const cardW = 540;
-    const cardH = 80;
+    const cardH = 96;
     const gapX = 20;
-    const gapY = 10;
+    const gapY = 12;
     const startY = 100;
     const col1X = 640 - cardW - gapX / 2;
     const col2X = 640 + gapX / 2;
@@ -407,14 +412,15 @@ const MiniGamePractice = {
       this.selectedOption = idx;
 
       // Auto-scroll to keep selection visible
-      const cardH = 80;
-      const gapY = 10;
+      const cardH = 96;
+      const gapY = 12;
       const startY = 100;
+      const maxVisible = 6;
       const selY = Math.floor(idx / 2) * (cardH + gapY);
       const visibleTop = this.scrollOffset;
-      const visibleBottom = this.scrollOffset + 7 * (cardH + gapY);
+      const visibleBottom = this.scrollOffset + maxVisible * (cardH + gapY);
       if (selY < visibleTop) this.scrollOffset = selY;
-      if (selY + cardH > visibleBottom) this.scrollOffset = selY + cardH - 7 * (cardH + gapY);
+      if (selY + cardH > visibleBottom) this.scrollOffset = selY + cardH - maxVisible * (cardH + gapY);
       this.scrollOffset = Math.max(0, Math.min(this._getMaxScroll(), this.scrollOffset));
     }
 

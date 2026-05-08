@@ -14,6 +14,8 @@ class DodgeFalling {
     this.shakeY = 0;
     this.flashTimer = 0;
     this.particles = [];
+    this.playerTrail = [];
+    this.lastRect = { x: 0, y: 0, w: 1, h: 1 };
   }
 
   init(attacker, defender, difficulty, isDuel) {
@@ -31,6 +33,7 @@ class DodgeFalling {
     this.shakeY = 0;
     this.flashTimer = 0;
     this.particles = [];
+    this.playerTrail = [];
 
     this.keyDown = (e) => { this.keys[e.key] = true; };
     this.keyUp = (e) => { this.keys[e.key] = false; };
@@ -73,11 +76,20 @@ class DodgeFalling {
     }
 
     // Movement
+    const oldX = this.playerX;
     const sens = (store.get('settings').miniGameSensitivity || 1.0);
     const speed = 160 * dt * sens;
     if (this.keys['ArrowLeft'] || this.keys['a']) this.playerX -= speed;
     if (this.keys['ArrowRight'] || this.keys['d']) this.playerX += speed;
     this.playerX = Math.max(20, Math.min(620, this.playerX));
+    if (Math.abs(this.playerX - oldX) > 0.2) {
+      this.playerTrail.push({ x: this.playerX, life: 0.28, maxLife: 0.28 });
+      if (this.playerTrail.length > 5) this.playerTrail.shift();
+    }
+    for (let i = this.playerTrail.length - 1; i >= 0; i--) {
+      this.playerTrail[i].life -= dt;
+      if (this.playerTrail[i].life <= 0) this.playerTrail.splice(i, 1);
+    }
 
     // Spawn blocks
     this.spawnTimer += dt;
@@ -199,7 +211,8 @@ class DodgeFalling {
   }
 
   handleClick(x, y) {
-    const cx = 640;
+    const rect = this.lastRect || { x: 0, y: 0, w: 1, h: 1 };
+    const cx = rect.x + rect.w / 2;
     if (x < cx) {
       this.keys['ArrowLeft'] = true;
       setTimeout(() => this.keys['ArrowLeft'] = false, 150);
@@ -217,6 +230,7 @@ class DodgeFalling {
   render(ctx, x, y, w, h) {
     const theme = ThemeManager.getTheme(store.get('theme'));
     const cols = theme.colors;
+    this.lastRect = { x, y, w, h };
 
     ctx.save();
 
@@ -226,7 +240,7 @@ class DodgeFalling {
     }
 
     // Background
-    ctx.fillStyle = 'rgba(0,0,0,0.85)';
+    ctx.fillStyle = cols.background || cols.bg || cols.panel;
     ctx.fillRect(x, y, w, h);
     ctx.strokeStyle = cols.accent;
     ctx.lineWidth = 3;
@@ -234,10 +248,10 @@ class DodgeFalling {
 
     // Title
     ctx.fillStyle = cols.text;
-    ctx.font = 'bold 20px monospace';
+    ctx.font = 'bold 18px monospace';
     ctx.textAlign = 'center';
     ctx.fillText('DODGE FALLING', x + w / 2, y + 28);
-    ctx.font = '11px monospace';
+    ctx.font = 'bold 12px monospace';
     ctx.fillStyle = cols.text + '88';
     ctx.fillText('Dodge the falling blocks! Use arrow keys or click sides.', x + w / 2, y + 46);
 
@@ -263,22 +277,28 @@ class DodgeFalling {
     ctx.fillText('Time: ' + Math.ceil(this.timeLeft) + 's', x + w / 2, y + 78);
 
     // Play area background
+    const areaX = x + 20;
+    const areaY = y + 96;
+    const areaW = w - 40;
+    const areaH = h - 240;
+    const sx = areaW / 640;
+    const sy = areaH / 220;
     ctx.fillStyle = cols.panel + '44';
-    ctx.fillRect(x + 20, y + 96, 640, 220);
+    ctx.fillRect(areaX, areaY, areaW, areaH);
 
     // Trail particles
     for (const p of this.particles) {
       const alpha = Math.max(0, p.life / p.maxLife);
       ctx.globalAlpha = alpha * 0.5;
       ctx.fillStyle = cols.accent;
-      ctx.fillRect(x + 20 + p.x - p.w / 2, y + 90 + p.y, p.w, p.h);
+      ctx.fillRect(areaX + (p.x - p.w / 2) * sx, areaY - 6 + p.y * sy, p.w * sx, p.h * sy);
     }
     ctx.globalAlpha = 1;
 
     // Falling blocks with highlight and glow
     for (const b of this.blocks) {
-      const bx = x + 20 + b.x;
-      const by = y + 90 + b.y;
+      const bx = areaX + b.x * sx;
+      const by = areaY - 6 + b.y * sy;
 
       // Glow
       ctx.save();
@@ -287,18 +307,29 @@ class DodgeFalling {
 
       // Main block body
       ctx.fillStyle = cols.accent;
-      ctx.fillRect(bx, by, b.w, b.h);
+      ctx.fillRect(bx, by, b.w * sx, b.h * sy);
 
       ctx.restore();
 
       // Top highlight stripe
       ctx.fillStyle = 'rgba(255,255,255,0.3)';
-      ctx.fillRect(bx, by, b.w, 3);
+      ctx.fillRect(bx, by, b.w * sx, Math.max(2, 3 * sy));
     }
 
     // Player character with glow
-    const px = x + 20 + this.playerX;
-    const py = y + 96 + 160;
+    const py = areaY + 160 * sy;
+
+    for (const p of this.playerTrail) {
+      const alpha = Math.max(0, p.life / p.maxLife);
+      const tx = areaX + p.x * sx;
+      ctx.save();
+      ctx.globalAlpha = alpha * 0.35;
+      ctx.fillStyle = cols.accent;
+      ctx.fillRect(tx - 10 * sx, py - 18 * sy, 20 * sx, 28 * sy);
+      ctx.restore();
+    }
+
+    const px = areaX + this.playerX * sx;
 
     ctx.save();
     ctx.shadowBlur = 10;
@@ -328,16 +359,22 @@ class DodgeFalling {
     // Flash overlay on hit
     if (this.flashTimer > 0) {
       const flashAlpha = this.flashTimer / 0.15 * 0.3;
-      ctx.fillStyle = 'rgba(255,50,50,' + flashAlpha.toFixed(3) + ')';
-      ctx.fillRect(x + 20, y + 96, 640, 220);
+      ctx.fillStyle = 'rgba(220,70,80,' + flashAlpha.toFixed(3) + ')';
+      ctx.fillRect(areaX, areaY, areaW, areaH);
     }
 
     // Game over text
     if (this.done) {
-      ctx.fillStyle = cols.accent;
-      ctx.font = 'bold 16px monospace';
+      const win = this.winner === 'attacker';
+      ctx.fillStyle = win ? 'rgba(80, 220, 130, 0.30)' : 'rgba(220, 70, 80, 0.30)';
+      ctx.fillRect(x, y, w, h);
+      ctx.fillStyle = cols.text;
+      ctx.shadowColor = win ? cols.accent : (cols.highlight || cols.accent);
+      ctx.shadowBlur = 14;
+      ctx.font = 'bold 18px monospace';
       ctx.textAlign = 'center';
-      ctx.fillText(this.winner === 'attacker' ? 'YOU WIN!' : 'Defender wins!', x + w / 2, y + h - 20);
+      ctx.fillText(win ? 'You Win!' : 'You Lose!', x + w / 2, y + h / 2);
+      ctx.shadowBlur = 0;
     }
 
     ctx.restore();

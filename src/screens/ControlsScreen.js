@@ -8,6 +8,7 @@ const ControlsScreen = {
     this.dodgeSensitivity = settings.miniGameSensitivity != null ? settings.miniGameSensitivity : 1.0;
     this.shieldSensitivity = settings.shieldSensitivity != null ? settings.shieldSensitivity : 1.0;
     this.dragging = null;
+    this._focusedSlider = 'dodge';
   },
 
   destroy() {},
@@ -101,20 +102,34 @@ const ControlsScreen = {
     // Dodge Sensitivity slider
     this._drawSlider(ctx, 280, 200, 720, this.dodgeSensitivity, 0.5, 2.0, 0.1, 'Dodge Sensitivity', 'x', cols);
 
+    // Focus indicator for dodge slider
+    if (this._focusedSlider === 'dodge') {
+      ctx.strokeStyle = cols.accent;
+      ctx.lineWidth = 2;
+      ctx.strokeRect(280 - 2, 200 - 2, 720 + 4, 14 + 4);
+    }
+
     ctx.fillStyle = cols.text + '55';
     ctx.font = '11px monospace';
     ctx.textAlign = 'center';
-    ctx.fillText('Controls how fast your character moves in dodge mini-games', 640, 245);
-    ctx.fillText('Lower = slower and more precise  |  Higher = faster and more responsive', 640, 262);
+    ctx.fillText('Controls how fast your character moves in dodge mini-games', 640, 240);
+    ctx.fillText('Lower = slower and more precise  |  Higher = faster and more responsive', 640, 257);
 
     // Shield Sensitivity slider
     this._drawSlider(ctx, 280, 340, 720, this.shieldSensitivity, 0.5, 2.0, 0.1, 'Shield Sensitivity', 'x', cols);
 
+    // Focus indicator for shield slider
+    if (this._focusedSlider === 'shield') {
+      ctx.strokeStyle = cols.accent;
+      ctx.lineWidth = 2;
+      ctx.strokeRect(280 - 2, 340 - 2, 720 + 4, 14 + 4);
+    }
+
     ctx.fillStyle = cols.text + '55';
     ctx.font = '11px monospace';
     ctx.textAlign = 'center';
-    ctx.fillText('Controls how responsive the shield is in Shield Block', 640, 385);
-    ctx.fillText('Lower = more deliberate  |  Higher = snappier movement', 640, 402);
+    ctx.fillText('Controls how responsive the shield is in Shield Block', 640, 380);
+    ctx.fillText('Lower = more deliberate  |  Higher = snappier movement', 640, 397);
 
     // Preset buttons
     const presets = [

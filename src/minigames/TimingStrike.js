@@ -11,6 +11,8 @@ class TimingStrike {
     this.score = 0;
     this.targets = [];
     this.waitingForStrike = false;
+    this.particles = [];
+    this.flashTimer = 0;
   }
 
   init(attacker, defender) {
@@ -22,14 +24,26 @@ class TimingStrike {
     this.strikes = 0;
     this.score = 0;
     this.waitingForStrike = true;
+    this.particles = [];
+    this.flashTimer = 0;
     audioManager.playMiniGameStart();
   }
 
   update(dt) {
-    if (this.done || !this.waitingForStrike) return;
-    this.pos += this.speed * this.direction * dt * 60;
-    if (this.pos > 100) { this.pos = 100; this.direction = -1; }
-    if (this.pos < 0) { this.pos = 0; this.direction = 1; }
+    if (!this.done && this.waitingForStrike) {
+      this.pos += this.speed * this.direction * dt * 60;
+      if (this.pos > 100) { this.pos = 100; this.direction = -1; }
+      if (this.pos < 0) { this.pos = 0; this.direction = 1; }
+    }
+    if (this.flashTimer > 0) this.flashTimer = Math.max(0, this.flashTimer - dt);
+    for (let i = this.particles.length - 1; i >= 0; i--) {
+      const p = this.particles[i];
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+      p.vy += 180 * dt;
+      p.life -= dt;
+      if (p.life <= 0) this.particles.splice(i, 1);
+    }
   }
 
   botPlay(dt, timer) {
@@ -61,6 +75,8 @@ class TimingStrike {
       else { points = 0; }
 
       this.score += points;
+      this._impactBurst(this.pos, points);
+      if (points === 100) this.flashTimer = 0.18;
 
       if (points >= 75) {
         audioManager.playTone(800, 0.1, 'square', 0.1);
@@ -84,26 +100,50 @@ class TimingStrike {
     }
   }
 
+  _impactBurst(pos, points) {
+    for (let i = 0; i < 14; i++) {
+      const a = (Math.PI * 2 * i) / 14 + Math.random() * 0.35;
+      const spd = 70 + Math.random() * 120;
+      this.particles.push({
+        pos,
+        x: 0,
+        y: 0,
+        vx: Math.cos(a) * spd,
+        vy: Math.sin(a) * spd,
+        life: 0.45 + Math.random() * 0.2,
+        maxLife: 0.45 + Math.random() * 0.2,
+        size: points >= 75 ? 4 : 3,
+        points,
+      });
+    }
+  }
+
   render(ctx, x, y, w, h) {
     const theme = ThemeManager.getTheme(store.get('theme'));
     const cols = theme.colors;
 
-    ctx.fillStyle = 'rgba(0,0,0,0.85)';
+    ctx.fillStyle = cols.background || cols.bg || cols.panel;
     ctx.fillRect(x, y, w, h);
     ctx.strokeStyle = cols.accent;
     ctx.lineWidth = 3;
     ctx.strokeRect(x, y, w, h);
 
     ctx.fillStyle = cols.text;
-    ctx.font = 'bold 20px monospace';
+    ctx.font = 'bold 18px monospace';
     ctx.textAlign = 'center';
     ctx.fillText('TIMING STRIKE', x + w / 2, y + 35);
 
-    ctx.font = '11px monospace';
+    ctx.font = 'bold 12px monospace';
     ctx.fillStyle = cols.text + '88';
     ctx.fillText('Stop the bar in the green zone!', x + w / 2, y + 55);
 
     // Score
+    ctx.save();
+    ctx.fillStyle = cols.panel + 'dd';
+    ctx.beginPath();
+    ctx.roundRect ? ctx.roundRect(x + w / 2 - 95, y + 64, 190, 24, 6) : ctx.rect(x + w / 2 - 95, y + 64, 190, 24);
+    ctx.fill();
+    ctx.restore();
     ctx.fillStyle = cols.accent;
     ctx.font = 'bold 14px monospace';
     ctx.fillText('Score: ' + this.score + '/300', x + w / 2, y + 78);
@@ -129,28 +169,30 @@ class TimingStrike {
     const center = barX + barW * 0.4;
     const zoneW = barW * 0.2;
     const greenGrad = ctx.createLinearGradient(center, barY, center, barY + barH);
-    greenGrad.addColorStop(0, '#66cc66');
-    greenGrad.addColorStop(0.5, '#44aa44');
-    greenGrad.addColorStop(1, '#338833');
+    greenGrad.addColorStop(0, cols.highlight || cols.accent);
+    greenGrad.addColorStop(0.5, cols.accent);
+    greenGrad.addColorStop(1, cols.panel);
     ctx.fillStyle = greenGrad;
     ctx.fillRect(center, barY, zoneW, barH);
-    ctx.shadowColor = '#44ff44';
+    ctx.shadowColor = cols.accent;
     ctx.shadowBlur = 12;
-    ctx.strokeStyle = '#66ff66';
+    ctx.strokeStyle = cols.highlight || cols.accent;
     ctx.lineWidth = 2;
     ctx.strokeRect(center, barY, zoneW, barH);
     ctx.shadowBlur = 0;
 
     // Good zones
-    ctx.fillStyle = '#888800';
+    ctx.fillStyle = cols.highlight || cols.text;
+    ctx.globalAlpha = 0.45;
     ctx.fillRect(center - barW * 0.1, barY, barW * 0.1, barH);
     ctx.fillRect(center + zoneW, barY, barW * 0.1, barH);
+    ctx.globalAlpha = 1;
 
     // The moving marker with glow
     const markerX = barX + (this.pos / 100) * barW;
-    ctx.shadowColor = '#ff4444';
+    ctx.shadowColor = cols.highlight || cols.accent;
     ctx.shadowBlur = 10;
-    ctx.fillStyle = '#ff6666';
+    ctx.fillStyle = cols.highlight || cols.accent;
     ctx.beginPath();
     ctx.moveTo(markerX, barY - 8);
     ctx.lineTo(markerX - 6, barY - 2);
@@ -160,6 +202,17 @@ class TimingStrike {
     ctx.closePath();
     ctx.fill();
     ctx.shadowBlur = 0;
+
+    for (const p of this.particles) {
+      const alpha = Math.max(0, p.life / p.maxLife);
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.fillStyle = p.points >= 75 ? cols.accent : (cols.highlight || cols.text);
+      ctx.beginPath();
+      ctx.arc(barX + (p.pos / 100) * barW + p.x, barY + barH / 2 + p.y, p.size * alpha, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
 
     // Labels
     ctx.fillStyle = cols.text + '66';
@@ -180,10 +233,23 @@ class TimingStrike {
     ctx.font = '11px monospace';
     ctx.fillText('Strike ' + (this.strikes + 1) + '/' + this.maxStrikes, x + w / 2, y + 220);
 
+    if (this.flashTimer > 0) {
+      ctx.fillStyle = 'rgba(255,255,255,' + (this.flashTimer / 0.18 * 0.28).toFixed(3) + ')';
+      ctx.fillRect(x, y, w, h);
+    }
+
     if (this.done) {
-      ctx.fillStyle = cols.accent;
+      const win = this.winner === 'attacker';
+      ctx.fillStyle = win ? 'rgba(80, 220, 130, 0.30)' : 'rgba(220, 70, 80, 0.30)';
+      ctx.fillRect(x, y, w, h);
+      ctx.fillStyle = cols.text;
+      ctx.shadowColor = win ? cols.accent : (cols.highlight || cols.accent);
+      ctx.shadowBlur = 14;
       ctx.font = 'bold 18px monospace';
-      ctx.fillText(this.winner === 'attacker' ? 'YOU WIN!' : 'Defender wins!', x + w / 2, y + 265);
+      ctx.fillText(win ? 'You Win!' : 'You Lose!', x + w / 2, y + h / 2);
+      ctx.shadowBlur = 0;
     }
   }
+
+  cleanup() {}
 }

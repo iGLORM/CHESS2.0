@@ -8,6 +8,9 @@ class RhythmTap {
     this.score = 0;
     this.timeLeft = 12;
     this.difficulty = 1;
+    this.combo = 0;
+    this.feedbacks = [];
+    this.lastTrackW = 660;
   }
 
   init(attacker, defender, difficulty, isDuel) {
@@ -21,6 +24,8 @@ class RhythmTap {
     this.beatTimer = 0;
     this.beats = [];
     this.window = 0.25;
+    this.combo = 0;
+    this.feedbacks = [];
     if (audioManager) audioManager.playMiniGameStart();
   }
 
@@ -41,10 +46,16 @@ class RhythmTap {
 
     // Update beats
     for (const b of this.beats) {
-      b.x += (600 / 1.5) * dt;
+      b.x += ((this.lastTrackW || 660) / 1.5) * dt;
       b.life -= dt;
     }
     this.beats = this.beats.filter(b => b.life > 0 && !b.hit);
+    for (let i = this.feedbacks.length - 1; i >= 0; i--) {
+      const f = this.feedbacks[i];
+      f.life -= dt;
+      f.y -= 26 * dt;
+      if (f.life <= 0) this.feedbacks.splice(i, 1);
+    }
 
     if (this.timeLeft <= 0) {
       this.timeLeft = 0;
@@ -60,7 +71,7 @@ class RhythmTap {
 
   botPlay(dt, timer) {
     if (this.done) return;
-    const targetX = 300;
+    const targetX = (this.lastTrackW || 660) * 0.455;
     const window = 50;
     for (const b of this.beats) {
       if (!b.hit && Math.abs(b.x - targetX) < window * 0.6) {
@@ -77,64 +88,100 @@ class RhythmTap {
   handleClick(x, y) {
     if (this.done) return;
     // Check if any beat is in the target zone
-    const targetX = 300;
+    const targetX = (this.lastTrackW || 660) * 0.455;
     const window = 50;
     let hit = false;
     for (const b of this.beats) {
       if (!b.hit && Math.abs(b.x - targetX) < window) {
         b.hit = true;
         this.score++;
+        this.combo++;
         hit = true;
         const accuracy = 1 - Math.abs(b.x - targetX) / window;
+        const label = accuracy > 0.82 ? 'Perfect!' : 'Good';
+        this.feedbacks.push({ text: label, life: 0.7, maxLife: 0.7, y: 0, accuracy });
         const pitch = 400 + accuracy * 400;
         audioManager.playTone(pitch, 0.1, 'square', 0.08);
         break;
       }
     }
     if (!hit) {
+      this.combo = 0;
+      this.feedbacks.push({ text: 'Miss', life: 0.65, maxLife: 0.65, y: 0, accuracy: 0 });
       audioManager.playTone(200, 0.05, 'sawtooth', 0.04);
     }
   }
 
+  _roundRect(ctx, rx, ry, rw, rh, r) {
+    r = Math.min(r, rw / 2, rh / 2);
+    ctx.beginPath();
+    ctx.moveTo(rx + r, ry);
+    ctx.arcTo(rx + rw, ry, rx + rw, ry + rh, r);
+    ctx.arcTo(rx + rw, ry + rh, rx, ry + rh, r);
+    ctx.arcTo(rx, ry + rh, rx, ry, r);
+    ctx.arcTo(rx, ry, rx + rw, ry, r);
+    ctx.closePath();
+  }
+
+  _resultOverlay(ctx, x, y, w, h, cols) {
+    if (!this.done) return;
+    const win = this.winner === 'attacker';
+    ctx.save();
+    ctx.fillStyle = win ? 'rgba(80, 220, 130, 0.30)' : 'rgba(220, 70, 80, 0.30)';
+    ctx.fillRect(x, y, w, h);
+    ctx.shadowColor = win ? cols.accent : (cols.highlight || cols.accent);
+    ctx.shadowBlur = 14;
+    ctx.fillStyle = cols.text;
+    ctx.font = 'bold 18px monospace';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(win ? 'You Win!' : 'You Lose!', x + w / 2, y + h / 2);
+    ctx.restore();
+  }
+
   render(ctx, x, y, w, h) {
     const cols = ThemeManager.getTheme(store.get('theme')).colors;
-    ctx.fillStyle = 'rgba(0,0,0,0.85)';
+    ctx.fillStyle = cols.background || cols.bg || cols.panel;
     ctx.fillRect(x, y, w, h);
     ctx.strokeStyle = cols.accent;
     ctx.lineWidth = 3;
     ctx.strokeRect(x, y, w, h);
 
     ctx.fillStyle = cols.text;
-    ctx.font = 'bold 20px monospace';
+    ctx.font = 'bold 18px monospace';
     ctx.textAlign = 'center';
     ctx.fillText('RHYTHM TAP', x + w / 2, y + 30);
-    ctx.font = '11px monospace';
+    ctx.font = 'bold 12px monospace';
     ctx.fillStyle = cols.text + '88';
     ctx.fillText('Tap when the blocks reach the green zone!', x + w / 2, y + 50);
 
     // Track
-    const trackY = y + 100;
+    const trackX = x + 20;
+    const trackY = y + h * 0.28;
+    const trackW = w - 40;
+    this.lastTrackW = trackW;
     ctx.fillStyle = cols.text + '11';
-    ctx.fillRect(x + 20, trackY, w - 40, 30);
+    ctx.fillRect(trackX, trackY, trackW, 30);
 
     // Target zone with glow
-    const targetX = x + 20 + 300;
-    ctx.shadowColor = '#44aa44';
-    ctx.shadowBlur = 10;
-    ctx.fillStyle = '#225522';
+    const pulse = 0.5 + 0.5 * Math.sin((this.beatTimer / this.beatInterval) * Math.PI * 2);
+    const targetX = trackX + trackW * 0.455;
+    ctx.shadowColor = cols.accent;
+    ctx.shadowBlur = 8 + pulse * 16;
+    ctx.fillStyle = cols.accent + '66';
     ctx.fillRect(targetX - 25, trackY, 50, 30);
-    ctx.strokeStyle = '#66ff66';
+    ctx.strokeStyle = cols.highlight || cols.accent;
     ctx.lineWidth = 2;
     ctx.strokeRect(targetX - 25, trackY, 50, 30);
     ctx.shadowBlur = 0;
 
     // Beats with rounded rects and glow
     for (const b of this.beats) {
-      const bx = x + 20 + b.x - 8;
+      const bx = trackX + b.x - 8;
       const by = trackY + 5;
-      ctx.shadowColor = b.hit ? '#44ff44' : '#ffaa00';
+      ctx.shadowColor = b.hit ? cols.accent : (cols.highlight || cols.accent);
       ctx.shadowBlur = b.hit ? 12 : 6;
-      ctx.fillStyle = b.hit ? '#44ff44' : '#ffaa00';
+      ctx.fillStyle = b.hit ? cols.accent : (cols.highlight || cols.accent);
       // Rounded rect
       const r = 4;
       ctx.beginPath();
@@ -155,15 +202,42 @@ class RhythmTap {
       ctx.fillRect(bx + 3, by + 2, 10, 6);
     }
 
-    // Score
-    ctx.fillStyle = cols.accent;
-    ctx.font = '13px monospace';
-    ctx.fillText('Score: ' + this.score + ' | Time: ' + Math.ceil(this.timeLeft) + 's', x + w / 2, trackY + 55);
-
-    if (this.done) {
-      ctx.fillStyle = cols.accent;
-      ctx.font = 'bold 16px monospace';
-      ctx.fillText(this.winner === 'attacker' ? 'YOU WIN!' : 'Defender wins!', x + w / 2, y + h - 20);
+    for (const f of this.feedbacks) {
+      const alpha = Math.max(0, f.life / f.maxLife);
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.fillStyle = f.accuracy > 0 ? cols.accent : (cols.highlight || cols.text);
+      ctx.font = 'bold 13px monospace';
+      ctx.shadowColor = ctx.fillStyle;
+      ctx.shadowBlur = 8;
+      ctx.fillText(f.text, x + w / 2, trackY - 18 + f.y);
+      ctx.restore();
     }
+
+    // Score panel
+    this._roundRect(ctx, x + w / 2 - 150, trackY + 48, 300, 48, 7);
+    ctx.fillStyle = cols.panel + 'dd';
+    ctx.fill();
+    ctx.fillStyle = cols.accent;
+    ctx.font = 'bold 13px monospace';
+    ctx.fillText('Score: ' + this.score + ' | Time: ' + Math.ceil(this.timeLeft) + 's', x + w / 2, trackY + 68);
+
+    ctx.fillStyle = cols.text;
+    ctx.font = 'bold 13px monospace';
+    ctx.fillText('Combo: ' + this.combo, x + w / 2, trackY + 88);
+
+    if (this.combo > 2) {
+      ctx.save();
+      ctx.fillStyle = cols.highlight || cols.accent;
+      ctx.font = 'bold 18px monospace';
+      ctx.shadowColor = ctx.fillStyle;
+      ctx.shadowBlur = 12;
+      ctx.fillText(this.combo + 'x', x + w / 2, trackY + 128);
+      ctx.restore();
+    }
+
+    this._resultOverlay(ctx, x, y, w, h, cols);
   }
+
+  cleanup() {}
 }

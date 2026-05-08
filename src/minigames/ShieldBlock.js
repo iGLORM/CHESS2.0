@@ -145,11 +145,11 @@ class ShieldBlock {
               vx: (Math.random() - 0.5) * 3,
               vy: -Math.random() * 2 - 1,
               life: 0.5 + Math.random() * 0.3,
-              color: Math.random() > 0.5 ? '#ffdd44' : '#ff8833',
+              color: 'spark',
             });
           }
           this.flashTimer = 0.1;
-          this.flashColor = '#44ff44';
+          this.flashColor = 'block';
           audioManager.playSelect();
           if (typeof PixiMiniGameFX !== 'undefined' && this._bounds) {
             const cx = this._bounds.x + this._bounds.w / 2;
@@ -168,7 +168,7 @@ class ShieldBlock {
         this.hp -= 2;
         this.shakeTimer = 0.2;
         this.flashTimer = 0.15;
-        this.flashColor = '#ff4444';
+        this.flashColor = 'hit';
         this.comboCount = 0;
         audioManager.playCapture();
         audioManager.playScreenShake();
@@ -212,7 +212,7 @@ class ShieldBlock {
     ctx.translate(this.shakeX, this.shakeY);
 
     // Background
-    ctx.fillStyle = 'rgba(0,0,0,0.85)';
+    ctx.fillStyle = cols.background || cols.bg || cols.panel;
     ctx.fillRect(x, y, w, h);
     ctx.strokeStyle = cols.accent;
     ctx.lineWidth = 3;
@@ -225,7 +225,7 @@ class ShieldBlock {
 
     if (this.flashTimer > 0) {
       ctx.globalAlpha = this.flashTimer * 3;
-      ctx.fillStyle = this.flashColor;
+      ctx.fillStyle = this.flashColor === 'block' ? cols.accent : (cols.highlight || cols.accent);
       ctx.fillRect(arenaX, arenaY, arenaW, arenaH);
       ctx.globalAlpha = 1;
     }
@@ -252,8 +252,8 @@ class ShieldBlock {
       ctx.translate(ax, ay);
       ctx.rotate(arrow.angle * 2);
 
-      ctx.fillStyle = '#ff6644';
-      ctx.shadowColor = '#ff4422';
+      ctx.fillStyle = cols.highlight || cols.accent;
+      ctx.shadowColor = cols.highlight || cols.accent;
       ctx.shadowBlur = 8;
       ctx.beginPath();
       ctx.moveTo(0, -10);
@@ -263,14 +263,14 @@ class ShieldBlock {
       ctx.closePath();
       ctx.fill();
 
-      ctx.strokeStyle = '#ffaa44';
+      ctx.strokeStyle = cols.accent;
       ctx.lineWidth = 1.5;
       ctx.beginPath();
       ctx.moveTo(0, 2);
       ctx.lineTo(0, 12);
       ctx.stroke();
 
-      ctx.fillStyle = '#ffcc88';
+      ctx.fillStyle = cols.text;
       ctx.beginPath();
       ctx.moveTo(0, 14);
       ctx.lineTo(-3, 10);
@@ -285,8 +285,8 @@ class ShieldBlock {
 
     for (const spark of this.sparks) {
       ctx.globalAlpha = spark.life / 0.8;
-      ctx.fillStyle = spark.color;
-      ctx.shadowColor = spark.color;
+      ctx.fillStyle = cols.highlight || cols.accent;
+      ctx.shadowColor = cols.highlight || cols.accent;
       ctx.shadowBlur = 6;
       ctx.fillRect(arenaX + spark.x * arenaW - 2, arenaY + spark.y * arenaH - 2, 4, 4);
     }
@@ -325,10 +325,10 @@ class ShieldBlock {
     const hpX = arenaX + (arenaW - hpW) / 2;
     const hpY = arenaY + 8;
 
-    ctx.fillStyle = '#33333388';
+    ctx.fillStyle = cols.panel + 'cc';
     ctx.fillRect(hpX, hpY, hpW, hpH);
     const hpRatio = this.hp / this.maxHp;
-    const hpColor = hpRatio > 0.5 ? '#44dd44' : hpRatio > 0.25 ? '#ddaa22' : '#dd3333';
+    const hpColor = hpRatio > 0.5 ? cols.accent : hpRatio > 0.25 ? (cols.highlight || cols.accent) : (cols.highlight || cols.text);
     ctx.fillStyle = hpColor;
     ctx.fillRect(hpX, hpY, hpW * hpRatio, hpH);
     ctx.strokeStyle = cols.text + '44';
@@ -339,7 +339,7 @@ class ShieldBlock {
     ctx.fillText('HP ' + this.hp + '/' + this.maxHp, hpX + hpW / 2, hpY + 9);
 
     const timeLeft = Math.max(0, this.duration - this.timer);
-    ctx.fillStyle = timeLeft < 3 ? '#ff4444' : cols.text;
+    ctx.fillStyle = timeLeft < 3 ? (cols.highlight || cols.accent) : cols.text;
     ctx.font = 'bold 12px monospace';
     ctx.textAlign = 'right';
     ctx.fillText(timeLeft.toFixed(1) + 's', arenaX + arenaW - 8, hpY + 9);
@@ -350,12 +350,25 @@ class ShieldBlock {
     ctx.fillText('Blocks: ' + this.blockCount, arenaX + 8, hpY + 9);
 
     if (this.comboCount > 1) {
-      ctx.fillStyle = '#ffdd44';
+      ctx.fillStyle = cols.highlight || cols.accent;
       ctx.font = 'bold 14px monospace';
       ctx.textAlign = 'center';
-      ctx.shadowColor = '#ffdd44';
+      ctx.shadowColor = cols.highlight || cols.accent;
       ctx.shadowBlur = 8;
       ctx.fillText(this.comboCount + 'x COMBO', arenaX + arenaW / 2, arenaY + arenaH - 12);
+      ctx.shadowBlur = 0;
+    }
+
+    if (this.done) {
+      const win = this.winner === 'attacker';
+      ctx.fillStyle = win ? 'rgba(80, 220, 130, 0.30)' : 'rgba(220, 70, 80, 0.30)';
+      ctx.fillRect(x, y, w, h);
+      ctx.fillStyle = cols.text;
+      ctx.shadowColor = win ? cols.accent : (cols.highlight || cols.accent);
+      ctx.shadowBlur = 14;
+      ctx.font = 'bold 18px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText(win ? 'You Win!' : 'You Lose!', x + w / 2, y + h / 2);
       ctx.shadowBlur = 0;
     }
 

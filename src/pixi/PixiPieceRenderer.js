@@ -18,7 +18,7 @@ const PixiPieceRenderer = {
     canvas.height = 64;
     const ctx = canvas.getContext('2d');
     SpriteGen.drawPiece(ctx, type, color, 0, 0, 64, themeId);
-    const texture = PIXI.Texture.from(canvas);
+    const texture = PIXI.Texture.from({ resource: canvas, scaleMode: 'nearest' });
     this.textures[key] = texture;
     return texture;
   },

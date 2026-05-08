@@ -22,16 +22,7 @@ const PixiParticleFX = {
     // Main particle burst
     for (let i = 0; i < count; i++) {
       const p = new PIXI.Graphics();
-      const size = isMajor ? (1 + Math.random() * 4) : (1.5 + Math.random() * 2.5);
-      const fillColor = typeof color === 'string' ? parseInt(color.replace('#', '0x'), 16) : color;
-      const r = (fillColor >> 16) & 0xff;
-      const g = (fillColor >> 8) & 0xff;
-      const b = fillColor & 0xff;
-      const variant = Math.random() > 0.7 ? 0xffffff : fillColor;
-
-      p.beginFill(variant, 0.9);
-      p.drawRect(-size / 2, -size / 2, size, size);
-      p.endFill();
+      p.circle(0, 0, 2 + Math.random() * 3).fill(color);
       p.x = x;
       p.y = y;
 
@@ -91,11 +82,7 @@ const PixiParticleFX = {
   spawnMove(x, y, color) {
     for (let i = 0; i < 10; i++) {
       const p = new PIXI.Graphics();
-      const size = 1.5 + Math.random() * 2;
-      const fillColor = typeof color === 'string' ? parseInt(color.replace('#', '0x'), 16) : color;
-      p.beginFill(fillColor, 0.7);
-      p.drawRect(-size / 2, -size / 2, size, size);
-      p.endFill();
+      p.circle(0, 0, 1.5 + Math.random() * 2).fill(color);
       p.x = x;
       p.y = y;
       p.vx = (Math.random() - 0.5) * 150;

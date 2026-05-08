@@ -43,6 +43,9 @@ const ModeSelect = {
     UIHelpers.drawIcon(ctx, 300, 220, 'king', 24, cols, { color: cols.lightPiece });
     UIHelpers.drawIcon(ctx, 940, 220, 'king', 24, cols, { color: cols.darkPiece });
 
+    // Grouping panel behind button area
+    UIHelpers.drawPanel(ctx, 340, 300, 600, 260, cols, { accentTop: true });
+
     // Side selection buttons
     this.buttons = [
       { text: 'Play as White', action: 'white', y: 320 },
@@ -54,9 +57,9 @@ const ModeSelect = {
       const btn = this.buttons[i];
       const isHover = i === this.selectedButton;
       const isSelected = i === this.selectedButton;
-      const bx = 440;
-      const bw = 400;
-      const bh = 50;
+      const bx = 420;
+      const bw = 440;
+      const bh = 55;
 
       UIHelpers.drawCard(ctx, bx, btn.y, bw, bh, cols, { hover: isHover, active: isSelected });
 
