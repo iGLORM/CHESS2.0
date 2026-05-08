@@ -120,7 +120,7 @@ const PixiGameOverOverlay = {
     PixiPremiumUI.fitText(reason, panelW - 100);
     c.addChild(reason);
 
-    let buttonY = panelY + 206;
+    let buttonY = panelY + 166;
     if (game.currentCharacter && game.gameResult) {
       const dialogue = game.gameResult === 'white'
         ? game.currentCharacter.dialogue.after
@@ -136,7 +136,7 @@ const PixiGameOverOverlay = {
       text.x = panelX + 43;
       text.y = panelY + 154;
       c.addChild(text);
-      buttonY = panelY + Math.min(panelH - 112, 170 + text.height);
+      buttonY = panelY + Math.min(panelH - 92, 170 + text.height);
     }
 
     const actions = [

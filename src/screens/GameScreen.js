@@ -216,9 +216,6 @@ const GameScreen = {
       this.renderStatusBar(ctx, cols);
     }
 
-    if (typeof PixiGameOverOverlay !== 'undefined') {
-      PixiGameOverOverlay.update(this);
-    }
     if (this.gameOver) {
       this.renderGameOverOverlay(ctx, cols);
     }
@@ -283,12 +280,12 @@ const GameScreen = {
 
   getGameOverButtons() {
     const buttons = [
-      { text: 'Play Again', action: 'rematch', x: 390, y: 470, w: 150, h: 42 },
-      { text: 'Main Menu', action: 'menu', x: 565, y: 470, w: 150, h: 42 },
-      { text: 'Themes', action: 'themes', x: 740, y: 470, w: 150, h: 42 },
+      { text: 'Play Again', action: 'rematch', x: 390, y: 405, w: 150, h: 42 },
+      { text: 'Main Menu', action: 'menu', x: 565, y: 405, w: 150, h: 42 },
+      { text: 'Themes', action: 'themes', x: 740, y: 405, w: 150, h: 42 },
     ];
     if (this.mode === 'story' && this.gameResult === 'white') {
-      buttons.push({ text: 'Next Level', action: 'next', x: 565, y: 530, w: 150, h: 42 });
+      buttons.push({ text: 'Next Level', action: 'next', x: 565, y: 465, w: 150, h: 42 });
     }
     return buttons;
   },
@@ -301,9 +298,9 @@ const GameScreen = {
     ctx.fillRect(0, 0, 1280, 800);
 
     const panelX = 320;
-    const panelY = 225;
+    const panelY = 245;
     const panelW = 640;
-    const panelH = (this.mode === 'story' && this.gameResult === 'white') ? 395 : 340;
+    const panelH = (this.mode === 'story' && this.gameResult === 'white') ? 300 : 245;
     UIHelpers.drawPanel(ctx, panelX, panelY, panelW, panelH, cols, { accentTop: true });
 
     if (this.gameResult && this.gameResult !== 'draw') {
