@@ -1220,6 +1220,7 @@ const GameScreen = {
       name: character.name,
       text: text,
       colors: character.colors,
+      characterId: character.id,
       cols: ThemeManager.getTheme(store.get('theme')).colors,
       duration: 5000,
     });

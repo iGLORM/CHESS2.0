@@ -10,7 +10,7 @@ class PixiDialogueBubble extends PIXI.Container {
   }
 
   _build(config) {
-    const { name, text, colors, cols } = config;
+    const { name, text, colors, cols, characterId } = config;
     const isPortrait = Layout.isPortrait;
     const portraitSize = isPortrait ? 64 : 48;
     const bubbleW = isPortrait ? 520 : 260;
@@ -18,11 +18,27 @@ class PixiDialogueBubble extends PIXI.Container {
     const nameSize = isPortrait ? 18 : 13;
     const textSize = isPortrait ? 18 : 15;
 
-    const portraitCanvas = SpriteGen.generateCharacterSprite(colors, portraitSize);
-    const portraitTexture = PIXI.Texture.from({ resource: portraitCanvas, scaleMode: 'nearest' });
-    const portrait = new PIXI.Sprite(portraitTexture);
+    const portrait = new PIXI.Sprite();
     portrait.x = padding;
     portrait.y = padding;
+    portrait.width = portraitSize;
+    portrait.height = portraitSize;
+
+    if (characterId) {
+      const imgPath = `assets/textures/characters/${characterId}.png`;
+      PIXI.Assets.load(imgPath).then(tex => {
+        if (!this.destroyed) {
+          portrait.texture = tex;
+          portrait.texture.source.scaleMode = 'nearest';
+        }
+      }).catch(() => {
+        const canvas = SpriteGen.generateCharacterSprite(colors, portraitSize);
+        portrait.texture = PIXI.Texture.from({ resource: canvas, scaleMode: 'nearest' });
+      });
+    } else {
+      const canvas = SpriteGen.generateCharacterSprite(colors, portraitSize);
+      portrait.texture = PIXI.Texture.from({ resource: canvas, scaleMode: 'nearest' });
+    }
 
     const portraitBorder = new PIXI.Graphics();
     portraitBorder.roundRect(padding - 2, padding - 2, portraitSize + 4, portraitSize + 4, 4)
