@@ -210,10 +210,11 @@ const PixiGameHud = {
   },
 
   _drawHorizPanel(game, cols, side, color) {
-    const isTop = side === 'left';
+    const isTop = side === 'right';
     const boardBottom = PixiBoardRenderer.boardOffsetY + PixiBoardRenderer.squareSize * 8;
+    const gap = PixiBoardRenderer.portraitGap || 20;
     const x = 32;
-    const y = isTop ? 40 : boardBottom + 20;
+    const y = isTop ? 40 : boardBottom + gap;
     const w = Layout.W - 64;
     const h = 120;
     const pad = 14;
