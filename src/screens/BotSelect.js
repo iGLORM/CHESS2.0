@@ -48,55 +48,65 @@ const BotSelect = {
   render(ctx, dt) {
     const theme = ThemeManager.getTheme(store.get('theme'));
     const cols = theme.colors;
+    const W = Layout.W;
+    const H = Layout.H;
+    const cx = Layout.cx;
+    const portrait = Layout.isPortrait;
 
     const usePixiBg = typeof PixiMenuBackground !== 'undefined' && PixiMenuBackground.initialized;
     if (usePixiBg) {
-      ctx.clearRect(0, 0, 1280, 800);
+      ctx.clearRect(0, 0, W, H);
     } else if (typeof backgroundRenderer !== 'undefined') {
       backgroundRenderer.render(ctx, dt);
     } else {
       ctx.fillStyle = cols.background;
-      ctx.fillRect(0, 0, 1280, 800);
+      ctx.fillRect(0, 0, W, H);
     }
 
     ctx.fillStyle = cols.text;
     ctx.font = 'bold 28px "Pixelify Sans", sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText('SELECT OPPONENT', 640, 55);
+    ctx.fillText('SELECT OPPONENT', cx, 55);
     ctx.fillStyle = cols.text + '77';
     ctx.font = '12px "Pixelify Sans", sans-serif';
-    ctx.fillText('Choose your AI opponent strength', 640, 80);
-    UIHelpers.drawSeparator(ctx, 300, 95, 680, cols);
+    ctx.fillText('Choose your AI opponent strength', cx, 80);
+    UIHelpers.drawSeparator(ctx, cx - 340, 95, 680, cols);
 
     // Central panel
-    UIHelpers.drawPanel(ctx, 240, 130, 800, 440, cols, { accentTop: true });
+    const panelX = portrait ? 50 : 240;
+    const panelW = portrait ? 700 : 800;
+    const panelH = portrait ? 600 : 440;
+    UIHelpers.drawPanel(ctx, panelX, 130, panelW, panelH, cols, { accentTop: true });
 
     // Elo number (large)
     ctx.fillStyle = cols.accent;
     ctx.font = 'bold 64px "Pixelify Sans", sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText(this.eloValue, 640, 220);
+    ctx.fillText(this.eloValue, cx, 220);
 
     ctx.fillStyle = cols.text + '88';
     ctx.font = '16px "Pixelify Sans", sans-serif';
-    ctx.fillText('ELO', 640, 240);
+    ctx.fillText('ELO', cx, 240);
 
     // Difficulty name
     const name = this.eloToName(this.eloValue);
     ctx.fillStyle = cols.accent;
     ctx.font = 'bold 22px "Pixelify Sans", sans-serif';
-    ctx.fillText(name, 640, 280);
+    ctx.fillText(name, cx, 280);
 
     // Description
     ctx.fillStyle = cols.text + '88';
     ctx.font = '14px "Pixelify Sans", sans-serif';
-    ctx.fillText(this.eloToDescription(this.eloValue), 640, 305);
+    ctx.fillText(this.eloToDescription(this.eloValue), cx, 305);
 
     // Elo slider bar
-    const sliderX = 300;
+    const sliderX = portrait ? 80 : 300;
+    const sliderW = portrait ? 640 : 680;
     const sliderY = 350;
-    const sliderW = 680;
     const sliderH = 16;
+
+    // Store slider bounds for hit testing
+    this._sliderBounds = { x: sliderX, y: sliderY, w: sliderW, h: sliderH };
 
     // Track background
     ctx.fillStyle = cols.panel;
@@ -146,65 +156,89 @@ const BotSelect = {
       ctx.fillStyle = cols.text + '66';
       ctx.font = '12px "Pixelify Sans", sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText('Depth: ' + config.depth + '  |  AI Level: ' + diff, 640, 420);
+      ctx.fillText('Depth: ' + config.depth + '  |  AI Level: ' + diff, cx, 420);
     }
 
     // Side selection (play as white/black)
+    const sideY = portrait ? 460 : 470;
     ctx.fillStyle = cols.text + '88';
     ctx.font = '14px "Pixelify Sans", sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText('Play as:', 640, 470);
+    ctx.fillText('Play as:', cx, sideY);
 
     const p1IsWhite = store.get('p1IsWhite') !== false;
     const btnW = 160;
     const btnH = 40;
     const btnGap = 20;
+    const sideBtnY = sideY + 15;
 
-    UIHelpers.drawButton(ctx, 640 - btnW - btnGap / 2, 485, btnW, btnH, 'White', cols, {
+    UIHelpers.drawButton(ctx, cx - btnW - btnGap / 2, sideBtnY, btnW, btnH, 'White', cols, {
       font: 'bold 14px "Pixelify Sans", sans-serif',
       active: p1IsWhite,
     });
-    UIHelpers.drawButton(ctx, 640 + btnGap / 2, 485, btnW, btnH, 'Black', cols, {
+    UIHelpers.drawButton(ctx, cx + btnGap / 2, sideBtnY, btnW, btnH, 'Black', cols, {
       font: 'bold 14px "Pixelify Sans", sans-serif',
       active: !p1IsWhite,
     });
+
+    // Store side button bounds for hit testing
+    this._sideBtnY = sideBtnY;
+    this._sideBtnW = btnW;
+    this._sideBtnH = btnH;
+    this._sideBtnGap = btnGap;
 
     // Hint
     ctx.fillStyle = cols.text + '44';
     ctx.font = '11px "Pixelify Sans", sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText('Drag slider or use arrow keys. Click to start.', 640, 550);
+    ctx.fillText('Drag slider or use arrow keys. Click to start.', cx, sideBtnY + btnH + 30);
 
     // Bottom
-    UIHelpers.drawDitheredRect(ctx, 0, 770, 1280, 30, cols.accent, '11');
-    UIHelpers.drawButton(ctx, 30, 730, 160, 40, '< Back', cols, { font: 'bold 14px "Pixelify Sans", sans-serif' });
+    const backY = H - 60;
+    const ditherY = backY - 10;
+    UIHelpers.drawDitheredRect(ctx, 0, ditherY, W, 30, cols.accent, '11');
+    UIHelpers.drawButton(ctx, 30, backY - 10, 160, 40, '< Back', cols, { font: 'bold 14px "Pixelify Sans", sans-serif' });
 
     // Start button
+    const startW = portrait ? 300 : 190;
+    const startH = 50;
+    const startX = portrait ? 250 : W - 220;
+    const startY = H - 120;
     ctx.fillStyle = cols.accent + '22';
-    ctx.fillRect(1280 - 218, 712, 194, 54);
-    ctx.fillRect(1280 - 216, 714, 198, 58);
-    UIHelpers.drawButton(ctx, 1280 - 220, 710, 190, 50, 'START GAME', cols, {
+    ctx.fillRect(startX + 2, startY + 2, startW - 4, startH + 4);
+    ctx.fillRect(startX + 4, startY + 4, startW, startH + 8);
+    UIHelpers.drawButton(ctx, startX, startY, startW, startH, 'START GAME', cols, {
       font: 'bold 16px "Pixelify Sans", sans-serif',
       active: true,
     });
+
+    // Store start button bounds for hit testing
+    this._startBounds = { x: startX, y: startY, w: startW, h: startH };
+    this._backBounds = { x: 30, y: backY - 10, w: 160, h: 40 };
   },
 
   _sliderToElo(x) {
-    const sliderX = 300;
-    const sliderW = 680;
-    const pct = Math.max(0, Math.min(1, (x - sliderX) / sliderW));
+    const sb = this._sliderBounds || { x: Layout.isPortrait ? 80 : 300, w: Layout.isPortrait ? 640 : 680 };
+    const pct = Math.max(0, Math.min(1, (x - sb.x) / sb.w));
     return Math.round((200 + pct * 1800) / 50) * 50; // snap to 50
   },
 
+  _inBounds(x, y, b) {
+    return b && x >= b.x && x <= b.x + b.w && y >= b.y && y <= b.y + b.h;
+  },
+
   handleClick(x, y) {
-    if (x >= 30 && x <= 190 && y >= 730 && y <= 770) {
+    const cx = Layout.cx;
+
+    // Back button
+    if (this._inBounds(x, y, this._backBounds)) {
       if (typeof audioManager !== 'undefined' && typeof audioManager.playButton === 'function') audioManager.playButton();
       switchScreen('home');
       return;
     }
 
     // Start button
-    if (x >= 1280 - 220 && x <= 1280 - 30 && y >= 710 && y <= 760) {
+    if (this._inBounds(x, y, this._startBounds)) {
       if (typeof audioManager !== 'undefined' && typeof audioManager.playButton === 'function') audioManager.playButton();
       store.set('classicElo', this.eloValue);
       store.set('classicDifficulty', this.eloToDifficulty(this.eloValue));
@@ -215,23 +249,24 @@ const BotSelect = {
     }
 
     // Side selection
-    const p1IsWhite = store.get('p1IsWhite') !== false;
-    const btnW = 160;
-    const btnH = 40;
-    const btnGap = 20;
-    if (x >= 640 - btnW - btnGap / 2 && x <= 640 - btnGap / 2 && y >= 485 && y <= 485 + btnH) {
+    const btnW = this._sideBtnW || 160;
+    const btnH = this._sideBtnH || 40;
+    const btnGap = this._sideBtnGap || 20;
+    const sideBtnY = this._sideBtnY || 485;
+    if (x >= cx - btnW - btnGap / 2 && x <= cx - btnGap / 2 && y >= sideBtnY && y <= sideBtnY + btnH) {
       if (typeof audioManager !== 'undefined' && typeof audioManager.playButton === 'function') audioManager.playButton();
       store.set('p1IsWhite', true);
       return;
     }
-    if (x >= 640 + btnGap / 2 && x <= 640 + btnGap / 2 + btnW && y >= 485 && y <= 485 + btnH) {
+    if (x >= cx + btnGap / 2 && x <= cx + btnGap / 2 + btnW && y >= sideBtnY && y <= sideBtnY + btnH) {
       if (typeof audioManager !== 'undefined' && typeof audioManager.playButton === 'function') audioManager.playButton();
       store.set('p1IsWhite', false);
       return;
     }
 
     // Slider click
-    if (x >= 300 && x <= 980 && y >= 346 && y <= 370) {
+    const sb = this._sliderBounds || { x: Layout.isPortrait ? 80 : 300, y: 350, w: Layout.isPortrait ? 640 : 680, h: 16 };
+    if (x >= sb.x && x <= sb.x + sb.w && y >= sb.y - 4 && y <= sb.y + sb.h + 4) {
       this.eloValue = this._sliderToElo(x);
       this.dragging = true;
       return;
@@ -244,14 +279,16 @@ const BotSelect = {
       return;
     }
     const canvas = document.getElementById('gameCanvas');
-    const onSlider = x >= 300 && x <= 980 && y >= 346 && y <= 370;
-    const onStart = x >= 1280 - 220 && x <= 1280 - 30 && y >= 710 && y <= 760;
-    const onBack = x >= 30 && x <= 190 && y >= 730 && y <= 770;
+    const sb = this._sliderBounds || { x: Layout.isPortrait ? 80 : 300, y: 350, w: Layout.isPortrait ? 640 : 680, h: 16 };
+    const onSlider = x >= sb.x && x <= sb.x + sb.w && y >= sb.y - 4 && y <= sb.y + sb.h + 4;
+    const onStart = this._inBounds(x, y, this._startBounds);
+    const onBack = this._inBounds(x, y, this._backBounds);
     canvas.style.cursor = (onSlider || onStart || onBack) ? 'pointer' : 'default';
   },
 
   handleMouseDown(x, y) {
-    if (x >= 300 && x <= 980 && y >= 340 && y <= 375) {
+    const sb = this._sliderBounds || { x: Layout.isPortrait ? 80 : 300, y: 350, w: Layout.isPortrait ? 640 : 680, h: 16 };
+    if (x >= sb.x && x <= sb.x + sb.w && y >= sb.y - 10 && y <= sb.y + sb.h + 10) {
       this.dragging = true;
       this.eloValue = this._sliderToElo(x);
     }

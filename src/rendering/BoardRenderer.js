@@ -18,8 +18,8 @@ class BoardRenderer {
     const maxSize = 640;
     this.squareSize = Math.floor(maxSize / 8);
     const boardPx = this.squareSize * 8;
-    this.boardX = Math.floor((1280 - boardPx) / 2);
-    this.boardY = Math.floor((800 - boardPx) / 2);
+    this.boardX = Math.floor((Layout.W - boardPx) / 2);
+    this.boardY = Math.floor((Layout.H - boardPx) / 2);
   }
 
   boardToScreen(row, col) {
@@ -68,7 +68,7 @@ class BoardRenderer {
       backgroundRenderer.render(ctx, dt);
     } else {
       ctx.fillStyle = cols.background;
-      ctx.fillRect(0, 0, 1280, 800);
+      ctx.fillRect(0, 0, Layout.W, Layout.H);
     }
 
     // Side decorations (Mario platformer style)
@@ -357,7 +357,7 @@ class BoardRenderer {
         ctx.fillStyle = 'rgba(255,255,255,0.6)';
         for (let i = 0; i < 12; i++) {
           const sx = (i * 37 + 10) % 180;
-          const sy = (i * 53 + 20 + Math.sin(time * 0.5 + i) * 3) % 800;
+          const sy = (i * 53 + 20 + Math.sin(time * 0.5 + i) * 3) % Layout.H;
           ctx.fillRect(Math.floor(sx), Math.floor(sy), 2, 2);
         }
         break;
@@ -383,7 +383,7 @@ class BoardRenderer {
         // Bubbles
         for (let i = 0; i < 10; i++) {
           const bx = (i * 23 + 30) % 180;
-          const by = (time * 30 + i * 47) % 800;
+          const by = (time * 30 + i * 47) % Layout.H;
           ctx.fillStyle = 'rgba(200,240,255,0.3)';
           ctx.beginPath();
           ctx.arc(Math.floor(bx), Math.floor(by), 3 + (i % 3), 0, Math.PI * 2);
@@ -438,7 +438,7 @@ class BoardRenderer {
         // Cherry blossoms falling
         for (let i = 0; i < 8; i++) {
           const sx = (i * 47 + 20 + Math.sin(time + i) * 10) % 180;
-          const sy = (time * 20 + i * 73 + 50) % 800;
+          const sy = (time * 20 + i * 73 + 50) % Layout.H;
           ctx.fillStyle = '#ffb7c5';
           ctx.beginPath();
           ctx.arc(Math.floor(sx), Math.floor(sy), 4, 0, Math.PI * 2);
@@ -559,7 +559,7 @@ class BoardRenderer {
         drawPipe(1110, 150, 70, '#228b22', '#1a6b1a');
         for (let i = 0; i < 8; i++) {
           const bx = 1100 + (i * 31) % 180;
-          const by = (time * 25 + i * 53) % 800;
+          const by = (time * 25 + i * 53) % Layout.H;
           ctx.fillStyle = 'rgba(200,240,255,0.2)';
           ctx.beginPath();
           ctx.arc(Math.floor(bx), Math.floor(by), 2 + (i % 3), 0, Math.PI * 2);
@@ -585,7 +585,7 @@ class BoardRenderer {
       case 'japanese':
         for (let i = 0; i < 6; i++) {
           const sx = 1100 + (i * 53 + 20 + Math.sin(time * 0.5 + i) * 10) % 180;
-          const sy = (time * 20 + i * 79 + 50) % 800;
+          const sy = (time * 20 + i * 79 + 50) % Layout.H;
           ctx.fillStyle = '#ffb7c5';
           ctx.beginPath();
           ctx.arc(Math.floor(sx), Math.floor(sy), 4, 0, Math.PI * 2);

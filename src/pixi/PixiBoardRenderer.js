@@ -14,6 +14,22 @@ const PixiBoardRenderer = {
   FRAME_PAD: 6,
   PIECE_SIZE: 72,
 
+  computeLayout() {
+    if (Layout.isPortrait) {
+      const maxBoard = Layout.W - 80;
+      this.squareSize = Math.floor(maxBoard / 8);
+      const boardPx = this.squareSize * 8;
+      this.boardOffsetX = Math.floor((Layout.W - boardPx) / 2);
+      this.boardOffsetY = 280;
+      this.PIECE_SIZE = Math.floor(this.squareSize * 0.9);
+    } else {
+      this.squareSize = 80;
+      this.boardOffsetX = 320;
+      this.boardOffsetY = 58;
+      this.PIECE_SIZE = 72;
+    }
+  },
+
   init(parentStage) {
     this.container = new PIXI.Container();
     parentStage.addChild(this.container);
@@ -36,6 +52,7 @@ const PixiBoardRenderer = {
   },
 
   drawBoard(themeId) {
+    this.computeLayout();
     const theme = ThemeManager.getTheme(themeId);
     const cols = theme.colors;
     this.boardContainer.removeChildren();

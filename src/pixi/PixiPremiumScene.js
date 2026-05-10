@@ -1,7 +1,7 @@
 const PixiPremiumScene = {
-  W: 1280,
-  H: 800,
-  safe: { x: 64, top: 104, bottom: 744 },
+  get W() { return typeof Layout !== 'undefined' ? Layout.W : 1280; },
+  get H() { return typeof Layout !== 'undefined' ? Layout.H : 800; },
+  get safe() { return { x: 64, top: 104, bottom: this.H - 56 }; },
 
   cols() {
     return ThemeManager.getCurrentColors();
@@ -49,8 +49,8 @@ const PixiPremiumScene = {
     bg.addChild(wash);
 
     const light = new PIXI.Graphics();
-    light.ellipse(640, 210, 500, 170).fill({ color: this.color(cols.accent), alpha: 0.08 });
-    light.ellipse(250, 620, 340, 120).fill({ color: this.color(cols.lightSquare), alpha: 0.045 });
+    light.ellipse(this.W / 2, 210, Math.min(500, this.W * 0.4), 170).fill({ color: this.color(cols.accent), alpha: 0.08 });
+    light.ellipse(this.W * 0.2, this.H * 0.78, Math.min(340, this.W * 0.27), 120).fill({ color: this.color(cols.lightSquare), alpha: 0.045 });
     bg.addChild(light);
 
     const stars = new PIXI.Container();
@@ -60,7 +60,7 @@ const PixiPremiumScene = {
       const size = i % 5 === 0 ? 4 : 2;
       dot.rect(0, 0, size, size).fill({ color: this.color(i % 3 ? cols.text : cols.accent), alpha: 0.18 + (i % 7) * 0.04 });
       dot.x = (i * 97) % this.W;
-      dot.y = 24 + ((i * 53) % 650);
+      dot.y = 24 + ((i * 53) % (this.H - 150));
       stars.addChild(dot);
     }
     root._premiumDrift.push({ obj: stars, baseX: 0, baseY: 0, ampX: 16, ampY: 7, speed: 0.18 });
@@ -109,9 +109,11 @@ const PixiPremiumScene = {
     }
 
     const sep = new PIXI.Graphics();
-    sep.rect(355, 106, 570, 2).fill({ color: this.color(cols.text), alpha: 0.18 });
-    sep.rect(635, 101, 10, 10).fill({ color: this.color(cols.accent), alpha: 0.92 });
-    sep.rect(639, 97, 2, 18).fill({ color: this.color(cols.accent), alpha: 0.55 });
+    const sepW = 570;
+    const sepX = Math.floor((this.W - sepW) / 2);
+    sep.rect(sepX, 106, sepW, 2).fill({ color: this.color(cols.text), alpha: 0.18 });
+    sep.rect(sepX + sepW / 2 - 5, 101, 10, 10).fill({ color: this.color(cols.accent), alpha: 0.92 });
+    sep.rect(sepX + sepW / 2 - 1, 97, 2, 18).fill({ color: this.color(cols.accent), alpha: 0.55 });
     group.addChild(sep);
     return group;
   },
@@ -120,17 +122,18 @@ const PixiPremiumScene = {
     const footer = new PIXI.Container();
     footer.label = 'premiumFooter';
     root.addChild(footer);
+    const footerY = this.H - 34;
     const line = new PIXI.Graphics()
-      .rect(0, 766, this.W, 34)
+      .rect(0, footerY, this.W, 34)
       .fill({ color: 0x020712, alpha: 0.42 })
-      .rect(0, 766, this.W, 2)
+      .rect(0, footerY, this.W, 2)
       .fill({ color: this.color(cols.accent), alpha: 0.22 });
     footer.addChild(line);
     if (hint) {
       const text = this.text(hint, { fontSize: 14, fill: this.alpha(cols.text, '77') });
       text.anchor.set(0.5);
       text.x = this.W / 2;
-      text.y = 784;
+      text.y = footerY + 18;
       footer.addChild(text);
     }
     return footer;

@@ -35,19 +35,23 @@ const CharacterSelect = {
     if (this.phase === 'slots') this.buildSlots();
     if (this.phase === 'difficulty') this.buildDifficulty();
     if (this.phase === 'characters') this.buildCharacters();
-    PixiPremiumScene.button(this.pixiContainer, 36, 718, 160, 44, this.phase === 'slots' ? 'Home' : 'Back', () => this.back(), { icon: 'back' });
+    const btnY = Layout.H - 82;
+    PixiPremiumScene.button(this.pixiContainer, 36, btnY, 160, 44, this.phase === 'slots' ? 'Home' : 'Back', () => this.back(), { icon: 'back' });
   },
 
   buildSlots() {
     const saves = store.get('storySaves');
-    const startX = 92;
-    const y = 156;
-    const w = 344;
-    const h = 446;
-    const gap = 30;
+    const portrait = Layout.isPortrait;
+    const w = portrait ? 700 : 344;
+    const h = portrait ? 300 : 446;
+    const gap = portrait ? 20 : 30;
+    const startX = portrait ? Math.floor((Layout.W - w) / 2) : 92;
+    const startY = 156;
     saves.forEach((save, index) => {
       const isEmpty = !save.difficultyTier;
-      PixiPremiumScene.card(this.pixiContainer, startX + index * (w + gap), y, w, h, {
+      const cardX = portrait ? startX : startX + index * (w + gap);
+      const cardY = portrait ? startY + index * (h + gap) : startY;
+      PixiPremiumScene.card(this.pixiContainer, cardX, cardY, w, h, {
         active: store.get('activeSaveSlot') === index + 1,
         activeColor: isEmpty ? ThemeManager.getCurrentColors().accent : (save.completed ? '#7dea99' : ThemeManager.getCurrentColors().accent),
         alpha: 0.86,
@@ -254,20 +258,24 @@ const CharacterSelect = {
     const tiers = ['rookie', 'beginner', 'intermediate', 'advanced', 'expert'];
     if (store.get('madnessUnlocked')) tiers.push('madness');
 
+    const portrait = Layout.isPortrait;
+    const cardW = portrait ? 700 : 660;
+    const cardX = Math.floor((Layout.W - cardW) / 2);
+
     const intro = PixiPremiumScene.text('Each tier keeps the same story, but changes the AI curve across all ten opponents.', {
       fontSize: 19,
       fill: PixiPremiumScene.alpha(ThemeManager.getCurrentColors().text, 'bb'),
     });
     intro.anchor.set(0.5);
-    intro.x = 640;
+    intro.x = Layout.cx;
     intro.y = 146;
-    PixiPremiumScene.fit(intro, 900);
+    PixiPremiumScene.fit(intro, portrait ? 720 : 900);
     this.pixiContainer.addChild(intro);
 
     const startY = 190;
     tiers.forEach((tier, i) => {
       const config = DifficultyScaler.TIER_CONFIG[tier];
-      PixiPremiumScene.card(this.pixiContainer, 310, startY + i * 76, 660, 60, {
+      PixiPremiumScene.card(this.pixiContainer, cardX, startY + i * 76, cardW, 60, {
         activeColor: tier === 'madness' ? '#ff4868' : ThemeManager.getCurrentColors().accent,
         onClick: () => this.chooseDifficulty(tier),
         draw: (card) => {
@@ -290,7 +298,7 @@ const CharacterSelect = {
 
           const elo = PixiPremiumScene.text(config.elo, { fontSize: 18, fontWeight: '800', fill: cols.accent });
           elo.anchor.set(1, 0.5);
-          elo.x = 628;
+          elo.x = cardW - 32;
           elo.y = 32;
           card.addChild(elo);
         },
@@ -306,18 +314,24 @@ const CharacterSelect = {
       this.selectedChar = this.characters.find(ch => ch.level === storyLevel && ch.level <= maxUnlocked) || this.characters.find(ch => ch.level <= maxUnlocked);
     }
 
-    PixiPremiumScene.panel(this.pixiContainer, 72, 132, 492, 560, { accentAlpha: 0.42 });
+    const portrait = Layout.isPortrait;
+    const cols_per_row = portrait ? 3 : 2;
+    const listPanelW = portrait ? (Layout.W - 80) : 492;
+    const listPanelX = portrait ? 40 : 72;
+    const listPanelH = portrait ? 420 : 560;
+
+    PixiPremiumScene.panel(this.pixiContainer, listPanelX, 132, listPanelW, listPanelH, { accentAlpha: 0.42 });
     const listTitle = PixiPremiumScene.text(`Story ${storyLevel} / 10`, { fontSize: 19, fontWeight: '800', fill: ThemeManager.getCurrentColors().text });
-    listTitle.x = 100;
+    listTitle.x = listPanelX + 28;
     listTitle.y = 154;
     this.pixiContainer.addChild(listTitle);
 
-    const cardW = 216;
+    const cardW = portrait ? Math.floor((listPanelW - 60 - (cols_per_row - 1) * 18) / cols_per_row) : 216;
     const cardGap = 18;
-    const cardStartX = 92;
+    const cardStartX = listPanelX + 20;
     this.characters.forEach((ch, i) => {
-      const row = i % 5;
-      const col = Math.floor(i / 5);
+      const col = i % cols_per_row;
+      const row = Math.floor(i / cols_per_row);
       const x = cardStartX + col * (cardW + cardGap);
       const y = 196 + row * 92;
       const unlocked = ch.level <= maxUnlocked;
@@ -356,49 +370,60 @@ const CharacterSelect = {
     });
 
     this.buildCharacterDetail();
-    PixiPremiumScene.button(this.pixiContainer, 1084, 718, 160, 44, 'Themes', () => switchScreen('themeSelect', { returnTo: 'characterSelect' }), { icon: 'spark' });
+    const btnY = Layout.H - 82;
+    PixiPremiumScene.button(this.pixiContainer, Layout.W - 196, btnY, 160, 44, 'Themes', () => switchScreen('themeSelect', { returnTo: 'characterSelect' }), { icon: 'spark' });
   },
 
   buildCharacterDetail() {
     const ch = this.selectedChar;
     if (!ch) return;
     const cols = ThemeManager.getCurrentColors();
-    PixiPremiumScene.panel(this.pixiContainer, 604, 132, 604, 560, { accent: ch.colors.primary, accentAlpha: 0.9 });
+    const portrait = Layout.isPortrait;
 
-    const portrait = new PIXI.Sprite(PixiPremiumAssets.characterCard(ch.id));
-    portrait.width = 238;
-    portrait.height = 292;
-    portrait.x = 640;
-    portrait.y = 170;
-    this.pixiContainer.addChild(portrait);
+    // Detail panel positioning: right side in landscape, below list in portrait
+    const detailX = portrait ? Math.floor((Layout.W - 720) / 2) : 604;
+    const detailY = portrait ? 580 : 132;
+    const detailW = portrait ? 720 : 604;
+    const detailH = portrait ? 500 : 560;
+    PixiPremiumScene.panel(this.pixiContainer, detailX, detailY, detailW, detailH, { accent: ch.colors.primary, accentAlpha: 0.9 });
+
+    const portraitSprite = new PIXI.Sprite(PixiPremiumAssets.characterCard(ch.id));
+    portraitSprite.width = portrait ? 200 : 238;
+    portraitSprite.height = portrait ? 246 : 292;
+    portraitSprite.x = detailX + 36;
+    portraitSprite.y = detailY + 38;
+    this.pixiContainer.addChild(portraitSprite);
+
+    const infoX = detailX + (portrait ? 260 : 310);
+    const infoMaxW = detailW - (portrait ? 300 : 350);
 
     const name = PixiPremiumScene.text(ch.name, { fontSize: 34, fontWeight: '900', fill: cols.text });
-    name.x = 914;
-    name.y = 174;
-    PixiPremiumScene.fit(name, 250);
+    name.x = infoX;
+    name.y = detailY + 42;
+    PixiPremiumScene.fit(name, infoMaxW);
     this.pixiContainer.addChild(name);
 
     const title = PixiPremiumScene.text(ch.title, { fontSize: 20, fontWeight: '800', fill: ch.colors.primary });
-    title.x = 916;
-    title.y = 218;
-    PixiPremiumScene.fit(title, 250);
+    title.x = infoX;
+    title.y = detailY + 86;
+    PixiPremiumScene.fit(title, infoMaxW);
     this.pixiContainer.addChild(title);
 
     const meta = PixiPremiumScene.text(`Level ${ch.level}  |  ${DifficultyScaler.getTierLabel((store.getActiveSave() || {}).difficultyTier)}`, {
       fontSize: 16,
       fill: PixiPremiumScene.alpha(cols.text, 'aa'),
     });
-    meta.x = 916;
-    meta.y = 252;
-    PixiPremiumScene.fit(meta, 250);
+    meta.x = infoX;
+    meta.y = detailY + 120;
+    PixiPremiumScene.fit(meta, infoMaxW);
     this.pixiContainer.addChild(meta);
 
     const quotePanel = new PIXI.Container();
     this.pixiContainer.addChild(quotePanel);
-    const quoteX = 904;
-    const quoteY = 286;
-    const quoteW = 276;
-    const quoteH = 190;
+    const quoteX = infoX - 10;
+    const quoteY = detailY + 154;
+    const quoteW = Math.min(infoMaxW + 10, 300);
+    const quoteH = portrait ? 140 : 190;
     PixiPremiumScene.panel(quotePanel, quoteX, quoteY, quoteW, quoteH, { accent: ch.colors.primary, accentAlpha: 0.35, alpha: 0.52 });
     const quote = PixiPremiumScene.text(ch.dialogue.before, {
       fontSize: 16,
@@ -416,11 +441,11 @@ const CharacterSelect = {
     const next = ch.level === ((store.getActiveSave() || {}).storyLevel || 1);
     const status = beat ? 'Defeated' : next ? 'Next Battle' : 'Unlocked';
     const statusText = PixiPremiumScene.text(status, { fontSize: 18, fontWeight: '800', fill: beat ? '#7dea99' : cols.accent });
-    statusText.x = 640;
-    statusText.y = 496;
+    statusText.x = detailX + 36;
+    statusText.y = detailY + detailH - 110;
     this.pixiContainer.addChild(statusText);
 
-    PixiPremiumScene.button(this.pixiContainer, 640, 544, 250, 54, 'Fight', () => this.startFight(), { primary: true, icon: 'play' });
+    PixiPremiumScene.button(this.pixiContainer, detailX + 36, detailY + detailH - 72, 250, 54, 'Fight', () => this.startFight(), { primary: true, icon: 'play' });
   },
 
   fitWrappedText(text, maxHeight, minFontSize) {

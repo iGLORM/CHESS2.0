@@ -13,8 +13,8 @@ const PixiApp = {
     this.app = new PIXI.Application();
     this._initPromise = this.app.init({
       canvas: canvas,
-      width: 1280,
-      height: 800,
+      width: Layout.W,
+      height: Layout.H,
       backgroundAlpha: 0,
       antialias: false,
       resolution: 1,
@@ -30,7 +30,7 @@ const PixiApp = {
 
   resize() {
     if (!this.app) return;
-    this.app.renderer.resize(1280, 800);
+    this.app.renderer.resize(Layout.W, Layout.H);
   },
 
   clearStage() {

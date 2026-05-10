@@ -14,7 +14,7 @@ const PixiGameOverOverlay = {
     this.container.visible = false;
     this.container.alpha = 0;
     this.container.eventMode = 'static';
-    this.container.hitArea = new PIXI.Rectangle(0, 0, 1280, 800);
+    this.container.hitArea = new PIXI.Rectangle(0, 0, Layout.W, Layout.H);
     PixiApp.stage.addChild(this.container);
     PixiApp.stage.sortableChildren = true;
     this.initialized = true;
@@ -72,13 +72,13 @@ const PixiGameOverOverlay = {
 
     const cols = ThemeManager.getCurrentColors();
     const shade = new PIXI.Graphics();
-    shade.rect(0, 0, 1280, 800).fill({ color: 0x000000, alpha: 0.68 });
+    shade.rect(0, 0, Layout.W, Layout.H).fill({ color: 0x000000, alpha: 0.68 });
     c.addChild(shade);
 
     const panelW = 560;
     const panelH = game.currentCharacter ? 382 : 316;
-    const panelX = 640 - panelW / 2;
-    const panelY = 400 - panelH / 2;
+    const panelX = Layout.cx - panelW / 2;
+    const panelY = Layout.cy - panelH / 2;
     const panel = new PixiPanel({
       width: panelW,
       height: panelH,
@@ -98,13 +98,13 @@ const PixiGameOverOverlay = {
       .rect(24, 0, 10, 26)
       .rect(41, 8, 10, 18)
       .fill({ color: crownColor, alpha: game.gameResult === 'draw' ? 0.35 : 0.92 });
-    crown.x = 640 - 29;
+    crown.x = Layout.cx - 29;
     crown.y = panelY + 38;
     c.addChild(crown);
 
     const title = PixiPremiumUI.title(this._title(game), cols, 34);
     title.anchor.set(0.5, 0);
-    title.x = 640;
+    title.x = Layout.cx;
     title.y = panelY + 82;
     PixiPremiumUI.fitText(title, panelW - 80);
     c.addChild(title);
@@ -115,7 +115,7 @@ const PixiGameOverOverlay = {
       fill: PixiColorUtil.alpha(cols.text, 'aa'),
     });
     reason.anchor.set(0.5, 0);
-    reason.x = 640;
+    reason.x = Layout.cx;
     reason.y = panelY + 126;
     PixiPremiumUI.fitText(reason, panelW - 100);
     c.addChild(reason);
@@ -140,12 +140,12 @@ const PixiGameOverOverlay = {
     }
 
     const actions = [
-      { text: 'Play Again', action: 'rematch', x: 640 - 250, y: buttonY, width: 156 },
-      { text: 'Main Menu', action: 'menu', x: 640 - 78, y: buttonY, width: 156 },
-      { text: 'Themes', action: 'themes', x: 640 + 94, y: buttonY, width: 156 },
+      { text: 'Play Again', action: 'rematch', x: Layout.cx - 250, y: buttonY, width: 156 },
+      { text: 'Main Menu', action: 'menu', x: Layout.cx - 78, y: buttonY, width: 156 },
+      { text: 'Themes', action: 'themes', x: Layout.cx + 94, y: buttonY, width: 156 },
     ];
     if (game.mode === 'story' && game.gameResult === 'white') {
-      actions.push({ text: 'Next Level', action: 'next', x: 640 - 88, y: buttonY + 58, width: 176 });
+      actions.push({ text: 'Next Level', action: 'next', x: Layout.cx - 88, y: buttonY + 58, width: 176 });
     }
 
     for (const item of actions) {

@@ -104,7 +104,7 @@ const PixiAnimator = {
 
   flashScreen(graphics, color, duration) {
     graphics.clear();
-    graphics.rect(0, 0, 1280, 800).fill({ color, alpha: 0.3 });
+    graphics.rect(0, 0, Layout.W, Layout.H).fill({ color, alpha: 0.3 });
     graphics.alpha = 1;
     gsap.to(graphics, {
       alpha: 0,

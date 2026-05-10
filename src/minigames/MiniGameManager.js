@@ -37,11 +37,14 @@ class MiniGameManager {
     this.overlayCtx = null;
     this.animFrame = null;
 
-    // Cached overlay bounds (screen coordinates)
+    this._calcOverlayBounds();
+  }
+
+  _calcOverlayBounds() {
     this.overlayW = 700;
     this.overlayH = 460;
-    this.overlayX = Math.floor((1280 - this.overlayW) / 2);
-    this.overlayY = Math.floor((800 - this.overlayH) / 2);
+    this.overlayX = Math.floor((Layout.W - this.overlayW) / 2);
+    this.overlayY = Math.floor((Layout.H - this.overlayH) / 2);
     this.gameX = this.overlayX + 20;
     this.gameY = this.overlayY + 95;
     this.gameW = this.overlayW - 40;
@@ -127,6 +130,7 @@ class MiniGameManager {
     this.startTime = Date.now();
     this.doneTime = 0;
 
+    this._calcOverlayBounds();
     const overlay = document.getElementById('miniGameOverlay');
     overlay.classList.add('active');
     this.overlayCtx = overlay.getContext('2d');
@@ -181,6 +185,7 @@ class MiniGameManager {
     this.startTime = Date.now();
     this.doneTime = 0;
 
+    this._calcOverlayBounds();
     const overlay = document.getElementById('miniGameOverlay');
     overlay.classList.add('active');
     this.overlayCtx = overlay.getContext('2d');
@@ -220,10 +225,10 @@ class MiniGameManager {
     const ow = this.overlayW;
     const oh = this.overlayH;
 
-    const scaleX = ctx.canvas.width / 1280;
-    const scaleY = ctx.canvas.height / 800;
+    const scaleX = ctx.canvas.width / Layout.W;
+    const scaleY = ctx.canvas.height / Layout.H;
     ctx.setTransform(scaleX, 0, 0, scaleY, 0, 0);
-    ctx.clearRect(0, 0, 1280, 800);
+    ctx.clearRect(0, 0, Layout.W, Layout.H);
 
     // Fade-out when done
     let globalAlpha = 1;
@@ -245,7 +250,7 @@ class MiniGameManager {
 
     // Background dim
     ctx.fillStyle = 'rgba(0,0,0,0.70)';
-    ctx.fillRect(0, 0, 1280, 800);
+    ctx.fillRect(0, 0, Layout.W, Layout.H);
 
     // Entrance animation
     const elapsed = Date.now() - this.startTime;

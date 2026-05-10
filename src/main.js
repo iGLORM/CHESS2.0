@@ -56,21 +56,20 @@ function _doSwitchScreen() {
 }
 
 function resizeCanvas() {
-  canvas.width = 1280;
-  canvas.height = 800;
-  miniCanvas.width = 1280;
-  miniCanvas.height = 800;
-  // Don't touch pixiCanvas — PixiJS manages its own canvas buffer
+  canvas.width = Layout.W;
+  canvas.height = Layout.H;
+  miniCanvas.width = Layout.W;
+  miniCanvas.height = Layout.H;
 }
 
 function gameLoop(timestamp) {
   const dt = lastTime ? (timestamp - lastTime) / 1000 : 0.016;
   lastTime = timestamp;
 
-  const scaleX = canvas.width / 1280;
-  const scaleY = canvas.height / 800;
+  const scaleX = canvas.width / Layout.W;
+  const scaleY = canvas.height / Layout.H;
   ctx.setTransform(scaleX, 0, 0, scaleY, 0, 0);
-  ctx.clearRect(0, 0, 1280, 800);
+  ctx.clearRect(0, 0, Layout.W, Layout.H);
 
   try {
     if (currentScreen && currentScreen.isPixiScreen) {
@@ -106,13 +105,15 @@ function gameLoop(timestamp) {
       }
     }
     ctx.fillStyle = `rgba(0,0,0,${transition.alpha})`;
-    ctx.fillRect(0, 0, 1280, 800);
+    ctx.fillRect(0, 0, Layout.W, Layout.H);
   }
 
   requestAnimationFrame(gameLoop);
 }
 
 function initApp() {
+  Layout.init();
+
   const initialTheme = store.get('theme') || 'space';
   TextureManager.preloadTheme(initialTheme);
   TextureManager.preloadCharacters();
@@ -132,8 +133,8 @@ function initApp() {
 
   function getMousePos(e, el) {
     const rect = el.getBoundingClientRect();
-    const scaleX = 1280 / rect.width;
-    const scaleY = 800 / rect.height;
+    const scaleX = Layout.W / rect.width;
+    const scaleY = Layout.H / rect.height;
     return {
       x: (e.clientX - rect.left) * scaleX,
       y: (e.clientY - rect.top) * scaleY,
@@ -253,11 +254,28 @@ function initApp() {
   });
 
   window.addEventListener('resize', () => {
+    Layout.detect();
     resizeCanvas();
     if (typeof PixiApp !== 'undefined') {
       PixiApp.resize();
     }
   });
+
+  Layout.onChange(() => {
+    resizeCanvas();
+    if (typeof PixiApp !== 'undefined') PixiApp.resize();
+    if (typeof PixiScreenManager !== 'undefined') PixiScreenManager.onLayoutChange();
+    if (!currentScreen) return;
+    if (store.get('miniGameActive')) return;
+    if (currentScreen === screens['game'] && currentScreen.rebuildVisuals) {
+      currentScreen.rebuildVisuals();
+    } else if (currentScreen.destroy && currentScreen.init) {
+      const data = currentScreen._lastInitData;
+      currentScreen.destroy();
+      currentScreen.init(data);
+    }
+  });
+
   resizeCanvas();
 
   const fontsReady = document.fonts && document.fonts.ready

@@ -29,12 +29,23 @@
     }
     #gameShell {
       position: relative;
-      width: min(100vw, calc(100vh * 1.6));
-      height: min(100vh, calc(100vw / 1.6));
-      aspect-ratio: 1280 / 800;
       overflow: hidden;
       background: #000;
       flex: 0 0 auto;
+    }
+    @media (orientation: landscape) {
+      #gameShell {
+        width: min(100vw, calc(100vh * 1.6));
+        height: min(100vh, calc(100vw / 1.6));
+        aspect-ratio: 1280 / 800;
+      }
+    }
+    @media (orientation: portrait) {
+      #gameShell {
+        width: 100vw;
+        height: calc(100vh - 100px);
+        align-self: flex-end;
+      }
     }
     #gameCanvas, #pixiCanvas, #miniGameOverlay {
       position: absolute;
@@ -62,9 +73,9 @@
 </head>
 <body>
   <div id="gameShell">
-    <canvas id="pixiCanvas" width="1280" height="800"></canvas>
-    <canvas id="gameCanvas" width="1280" height="800"></canvas>
-    <canvas id="miniGameOverlay" width="1280" height="800"></canvas>
+    <canvas id="pixiCanvas"></canvas>
+    <canvas id="gameCanvas"></canvas>
+    <canvas id="miniGameOverlay"></canvas>
   </div>
 
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -74,6 +85,7 @@
   <script>gsap.registerPlugin(PixiPlugin); PixiPlugin.registerPIXI(PIXI);</script>
 
   <script src="state/Store.js"></script>
+  <script src="layout/Layout.js"></script>
   <script src="engine/Board.js"></script>
   <script src="engine/MoveGen.js"></script>
   <script src="engine/LegalFilter.js"></script>

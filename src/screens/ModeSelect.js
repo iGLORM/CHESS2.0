@@ -12,54 +12,71 @@ const ModeSelect = {
   render(ctx, dt) {
     const theme = ThemeManager.getTheme(store.get('theme'));
     const cols = theme.colors;
+    const W = Layout.W;
+    const H = Layout.H;
+    const cx = Layout.cx;
+    const portrait = Layout.isPortrait;
 
     // Background - animated theme
     const usePixiBg = typeof PixiMenuBackground !== 'undefined' && PixiMenuBackground.initialized;
     if (usePixiBg) {
-      ctx.clearRect(0, 0, 1280, 800);
+      ctx.clearRect(0, 0, W, H);
     } else if (typeof backgroundRenderer !== 'undefined') {
       backgroundRenderer.render(ctx, dt);
     } else {
       ctx.fillStyle = cols.background;
-      ctx.fillRect(0, 0, 1280, 800);
+      ctx.fillRect(0, 0, W, H);
     }
+
+    // Layout values
+    const titleY = portrait ? 240 : 200;
+    const subtitleY = titleY + 40;
+    const sepY = subtitleY + 40;
+    const bw = portrait ? 540 : 440;
+    const bh = portrait ? 64 : 55;
+    const btnGap = portrait ? 14 : 10;
+    const panelPadX = portrait ? 20 : 0;
+    const panelX = cx - bw / 2 - panelPadX - 20;
+    const panelW = bw + panelPadX * 2 + 40;
+    const firstBtnY = sepY + 40;
 
     // Title
     ctx.fillStyle = cols.text;
     ctx.font = 'bold 32px "Pixelify Sans", sans-serif';
     ctx.textAlign = 'center';
     const title = this.mode === 'story' ? 'STORY MODE' : 'LOCAL 1v1';
-    ctx.fillText(title, 640, 200);
+    ctx.fillText(title, cx, titleY);
 
     // Subtitle
     ctx.font = '14px "Pixelify Sans", sans-serif';
     ctx.fillStyle = cols.text + '88';
-    ctx.fillText('Select your side', 640, 240);
+    ctx.fillText('Select your side', cx, subtitleY);
 
     // Decorative separator below title area
-    UIHelpers.drawSeparator(ctx, 400, 280, 480, cols);
+    UIHelpers.drawSeparator(ctx, cx - 240, sepY, 480, cols);
 
     // Decorative piece sprites
-    UIHelpers.drawIcon(ctx, 300, 220, 'king', 24, cols, { color: cols.lightPiece });
-    UIHelpers.drawIcon(ctx, 940, 220, 'king', 24, cols, { color: cols.darkPiece });
+    const iconOffset = portrait ? 200 : 340;
+    UIHelpers.drawIcon(ctx, cx - iconOffset, titleY + 20, 'king', 24, cols, { color: cols.lightPiece });
+    UIHelpers.drawIcon(ctx, cx + iconOffset, titleY + 20, 'king', 24, cols, { color: cols.darkPiece });
 
     // Grouping panel behind button area
-    UIHelpers.drawPanel(ctx, 340, 300, 600, 260, cols, { accentTop: true });
+    const panelH = (bh + btnGap) * 3 + 20;
+    UIHelpers.drawPanel(ctx, panelX, firstBtnY - 20, panelW, panelH, cols, { accentTop: true });
 
     // Side selection buttons
     this.buttons = [
-      { text: 'Play as White', action: 'white', y: 320 },
-      { text: 'Play as Black', action: 'black', y: 400 },
-      { text: 'Random', action: 'random', y: 480 },
+      { text: 'Play as White', action: 'white', y: firstBtnY },
+      { text: 'Play as Black', action: 'black', y: firstBtnY + bh + btnGap },
+      { text: 'Random', action: 'random', y: firstBtnY + (bh + btnGap) * 2 },
     ];
+
+    const bx = cx - bw / 2;
 
     for (let i = 0; i < this.buttons.length; i++) {
       const btn = this.buttons[i];
       const isHover = i === this.selectedButton;
       const isSelected = i === this.selectedButton;
-      const bx = 420;
-      const bw = 440;
-      const bh = 55;
 
       UIHelpers.drawCard(ctx, bx, btn.y, bw, bh, cols, { hover: isHover, active: isSelected });
 
@@ -89,15 +106,18 @@ const ModeSelect = {
       btn._bounds = { x: bx, y: btn.y, w: bw, h: bh };
     }
 
-    UIHelpers.drawButton(ctx, 30, 740, 150, 40, '< Home', cols, { font: 'bold 14px "Pixelify Sans", sans-serif' });
+    const backY = H - 60;
+    UIHelpers.drawButton(ctx, 30, backY, 150, 40, '< Home', cols, { font: 'bold 14px "Pixelify Sans", sans-serif' });
 
     // Bottom decorative dithered floor stripe
-    UIHelpers.drawDitheredRect(ctx, 0, 700, 1280, 40, cols.accent);
+    const ditherY = backY - 40;
+    UIHelpers.drawDitheredRect(ctx, 0, ditherY, W, 40, cols.accent);
   },
 
   handleClick(x, y) {
     // Back button
-    if (x >= 30 && x <= 180 && y >= 740 && y <= 780) {
+    const backY = Layout.H - 60;
+    if (x >= 30 && x <= 180 && y >= backY && y <= backY + 40) {
       if (typeof audioManager !== 'undefined' && typeof audioManager.playButton === 'function') audioManager.playButton();
       switchScreen('home');
       return;

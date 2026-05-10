@@ -68,29 +68,36 @@ const CustomGameScreen = {
 
     this.buildConfigPanel();
     this.buildMinigameGrid();
-    PixiPremiumScene.button(this.pixiContainer, 36, 718, 160, 44, 'Back', () => switchScreen('home'), { icon: 'back' });
-    PixiPremiumScene.button(this.pixiContainer, 1020, 710, 220, 58, 'Start Game', () => this.startGame(), { primary: true, icon: 'play', fontSize: 22 });
+    const btnY = Layout.H - 82;
+    PixiPremiumScene.button(this.pixiContainer, 36, btnY, 160, 44, 'Back', () => switchScreen('home'), { icon: 'back' });
+    PixiPremiumScene.button(this.pixiContainer, Layout.W - 260, btnY - 8, 220, 58, 'Start Game', () => this.startGame(), { primary: true, icon: 'play', fontSize: 22 });
   },
 
   buildConfigPanel() {
     const cols = ThemeManager.getCurrentColors();
-    PixiPremiumScene.panel(this.pixiContainer, 78, 132, 1124, 154, { accentAlpha: 0.45 });
+    const portrait = Layout.isPortrait;
+    const panelX = portrait ? 40 : 78;
+    const panelW = portrait ? 720 : 1124;
+    const panelH = portrait ? 210 : 154;
+    PixiPremiumScene.panel(this.pixiContainer, panelX, 132, panelW, panelH, { accentAlpha: 0.45 });
 
+    const innerX = panelX + 38;
     const label = PixiPremiumScene.text('Bot Difficulty', { fontSize: 23, fontWeight: '900', fill: cols.text });
-    label.x = 116;
+    label.x = innerX;
     label.y = 164;
     this.pixiContainer.addChild(label);
     const elo = PixiPremiumScene.text(`${this.eloValue} ELO`, { fontSize: 24, fontWeight: '900', fill: cols.accent });
-    elo.x = 116;
+    elo.x = innerX;
     elo.y = 202;
     this.pixiContainer.addChild(elo);
     const name = PixiPremiumScene.text(this.eloToName(this.eloValue), { fontSize: 16, fill: PixiPremiumScene.alpha(cols.text, 'aa') });
-    name.x = 248;
+    name.x = innerX + 132;
     name.y = 208;
     this.pixiContainer.addChild(name);
 
+    const sliderW = portrait ? panelW - 100 : 560;
     const slider = new PixiSlider({
-      width: 560,
+      width: sliderW,
       height: 18,
       min: 200,
       max: 2000,
@@ -105,8 +112,8 @@ const CustomGameScreen = {
       showTicks: true,
       tickInterval: 300,
     });
-    slider.x = 400;
-    slider.y = 202;
+    slider.x = portrait ? innerX : 400;
+    slider.y = portrait ? 244 : 202;
     slider.onChange((value) => {
       this.eloValue = value;
       elo.text = `${value} ELO`;
@@ -114,14 +121,16 @@ const CustomGameScreen = {
     });
     this.pixiContainer.addChild(slider);
 
+    const btnAreaX = portrait ? (innerX + sliderW - 360) : 994;
+    const btnAreaY = portrait ? 288 : 190;
     ['white', 'black'].forEach((color, i) => {
-      PixiPremiumScene.button(this.pixiContainer, 994 + i * 94, 190, 82, 42, color === 'white' ? 'White' : 'Black', () => {
+      PixiPremiumScene.button(this.pixiContainer, btnAreaX + i * 94, btnAreaY, 82, 42, color === 'white' ? 'White' : 'Black', () => {
         this.playAs = color;
         this.build();
       }, { primary: this.playAs === color, fontSize: 16 });
     });
 
-    PixiPremiumScene.button(this.pixiContainer, 994, 236, 176, 36, this.gameplayMode ? 'Gameplay: ON' : 'Gameplay: OFF', () => {
+    PixiPremiumScene.button(this.pixiContainer, btnAreaX + 194, btnAreaY + 3, 176, 36, this.gameplayMode ? 'Gameplay: ON' : 'Gameplay: OFF', () => {
       this.gameplayMode = !this.gameplayMode;
       this.build();
     }, { primary: this.gameplayMode, fontSize: 14 });
@@ -129,28 +138,40 @@ const CustomGameScreen = {
 
   buildMinigameGrid() {
     const cols = ThemeManager.getCurrentColors();
-    PixiPremiumScene.panel(this.pixiContainer, 78, 316, 1124, 368, { accentAlpha: 0.35 });
+    const portrait = Layout.isPortrait;
+    const gridCols = portrait ? 3 : 5;
+    const gridRows = Math.ceil(this.minigameList.length / gridCols);
+    const panelX = portrait ? 40 : 78;
+    const panelW = portrait ? 720 : 1124;
+    const panelStartY = portrait ? 370 : 316;
+    const panelH = portrait ? (gridRows * 88 + 80) : 368;
+    PixiPremiumScene.panel(this.pixiContainer, panelX, panelStartY, panelW, panelH, { accentAlpha: 0.35 });
     const heading = PixiPremiumScene.text('Capture Mini-Games', { fontSize: 22, fontWeight: '900', fill: cols.text });
-    heading.x = 112;
-    heading.y = 340;
+    heading.x = panelX + 34;
+    heading.y = panelStartY + 24;
     this.pixiContainer.addChild(heading);
 
-    PixiPremiumScene.button(this.pixiContainer, 968, 336, 86, 30, 'All On', () => {
+    const allOnX = portrait ? (panelX + panelW - 210) : 968;
+    PixiPremiumScene.button(this.pixiContainer, allOnX, panelStartY + 20, 86, 30, 'All On', () => {
       this.minigameList.forEach(game => { this.minigameToggles[game.key] = true; });
       this.build();
     }, { fontSize: 13 });
-    PixiPremiumScene.button(this.pixiContainer, 1064, 336, 86, 30, 'All Off', () => {
+    PixiPremiumScene.button(this.pixiContainer, allOnX + 96, panelStartY + 20, 86, 30, 'All Off', () => {
       this.minigameList.forEach(game => { this.minigameToggles[game.key] = false; });
       this.build();
     }, { fontSize: 13 });
 
+    const cardW = portrait ? Math.floor((panelW - 80 - (gridCols - 1) * 22) / gridCols) : 192;
+    const cardGapX = portrait ? 22 : 22;
+    const gridStartX = panelX + 34;
+    const gridStartY = panelStartY + 70;
     this.minigameList.forEach((game, i) => {
-      const col = i % 5;
-      const row = Math.floor(i / 5);
-      const x = 112 + col * 214;
-      const y = 386 + row * 88;
+      const col = i % gridCols;
+      const row = Math.floor(i / gridCols);
+      const x = gridStartX + col * (cardW + cardGapX);
+      const y = gridStartY + row * 88;
       const on = this.minigameToggles[game.key] !== false;
-      PixiPremiumScene.card(this.pixiContainer, x, y, 192, 72, {
+      PixiPremiumScene.card(this.pixiContainer, x, y, cardW, 72, {
         active: on,
         activeColor: on ? cols.accent : '#ff6578',
         onClick: () => {

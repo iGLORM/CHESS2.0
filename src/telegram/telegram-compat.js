@@ -33,10 +33,10 @@
     tg.disableVerticalSwipes();
   }
 
-  // Keep PixiJS at the fixed virtual resolution after Telegram viewport changes.
   tg.onEvent('viewportChanged', function () {
+    if (typeof Layout !== 'undefined') Layout.detect();
     if (typeof PixiApp !== 'undefined' && PixiApp.app && PixiApp.app.renderer) {
-      PixiApp.app.renderer.resize(1280, 800);
+      PixiApp.app.renderer.resize(Layout.W, Layout.H);
     }
   });
 

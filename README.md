@@ -3,7 +3,8 @@
 </p>
 
 <p align="center">
-  <strong>A fully-featured pixel-art chess game built with Electron and vanilla JavaScript.</strong>
+  <strong>A fully-featured pixel-art chess game built with Electron and vanilla JavaScript.</strong><br/>
+  <strong>Play on desktop or mobile via <a href="https://t.me/iglorm_chess_bot?startapp=play">Telegram Mini App</a></strong>
 </p>
 
 <p align="center">
@@ -18,6 +19,7 @@
   <img src="https://img.shields.io/badge/Windows-0078D6?logo=windows&logoColor=white" alt="Windows" />
   <img src="https://img.shields.io/badge/macOS-000000?logo=apple&logoColor=white" alt="macOS" />
   <img src="https://img.shields.io/badge/Linux-FCC624?logo=linux&logoColor=black" alt="Linux" />
+  <img src="https://img.shields.io/badge/Telegram-Mini%20App-26A5E4?logo=telegram&logoColor=white" alt="Telegram Mini App" />
 </p>
 
 <p align="center">
@@ -57,10 +59,12 @@
 | **Dynamic Themes** | 3+ visual styles (Space, Medieval, Ocean) with unique color palettes and unlockable themes |
 | **Character System** | Each opponent has unique dialogue, colors, and AI personality |
 | **Capture Minigames** | 14 skill-based minigames trigger on piece captures for bonus rewards |
+| **Portrait & Landscape** | Responsive layout with automatic orientation detection for mobile and desktop |
 | **PixiJS v8 Rendering** | GPU-accelerated home screen, board, and UI with GSAP animations |
 | **Heavy Background FX** | Parallax fog, themed particles (bubbles, embers, blossoms, shooting stars), pulsing glows |
 | **Save System** | Persistent settings, unlocked themes, and progress tracking via localStorage |
 | **Custom Engine** | Full legal move generation, check/checkmate detection, and AI search with alpha-beta pruning |
+| **Telegram Mini App** | Play on mobile via [@iglorm_chess_bot](https://t.me/iglorm_chess_bot?startapp=play) with haptic feedback and native back button |
 | **Fullscreen** | Toggle fullscreen mode with F11 |
 
 ---
@@ -220,11 +224,13 @@ src/
   engine/         Chess engine (board, moves, rules, AI)
     ai/           Alpha-beta search, evaluation, difficulty controller
   input/          Keyboard input and keybindings
+  layout/         Orientation detection and responsive layout (portrait/landscape)
   minigames/      14 skill-based capture minigames
   pixi/           PixiJS v8 renderers (board, pieces, backgrounds, UI components)
   rendering/      Canvas 2D rendering (board, pieces, particles, UIHelpers, TextFit)
   screens/        UI screens (home, game, menus, settings)
   state/          Global reactive state store
+  telegram/       Telegram Mini App compatibility layer
   themes/         Theme definitions and manager
   main.js         Game loop and screen router
   index.html      Entry point
@@ -243,11 +249,11 @@ Textures and sprites are procedurally generated at runtime using the `SpriteGen`
 
 ## Roadmap
 
+- [x] Mobile / touch support (Telegram Mini App with portrait mode)
 - [ ] Online multiplayer
 - [ ] More themes (Forest, Lava, Ice)
 - [ ] Additional characters with unique AI strategies
 - [ ] Game replay / PGN export
-- [ ] Mobile / touch support
 - [ ] Elo rating system
 
 ---

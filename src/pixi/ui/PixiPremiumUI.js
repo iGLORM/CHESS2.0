@@ -1,8 +1,8 @@
 const PixiPremiumUI = {
-  W: 1280,
-  H: 800,
-  SAFE_X: 48,
-  SAFE_BOTTOM: 760,
+  get W() { return typeof Layout !== 'undefined' ? Layout.W : 1280; },
+  get H() { return typeof Layout !== 'undefined' ? Layout.H : 800; },
+  get SAFE_X() { return typeof Layout !== 'undefined' ? Layout.SAFE_X : 48; },
+  get SAFE_BOTTOM() { return typeof Layout !== 'undefined' ? (Layout.H - Layout.SAFE_BOTTOM) : 760; },
 
   text(text, style = {}) {
     return new PIXI.Text({

@@ -52,22 +52,40 @@ const HowToPlay = {
     });
     PixiScreenManager.setScreenContainer(this.pixiContainer);
 
-    PixiPremiumScene.panel(this.pixiContainer, 76, 132, 1128, 524, { accentAlpha: 0.42 });
+    if (Layout.isPortrait) {
+      const cardW = 700;
+      const cardH = 190;
+      const startX = (Layout.W - cardW) / 2;
+      const startY = 152;
+      const gapY = 32;
 
-    const cardW = 520;
-    const cardH = 190;
-    const startX = 100;
-    const startY = 172;
-    const gapX = 40;
-    const gapY = 42;
-    this.sections.forEach((section, i) => {
-      const col = i % 2;
-      const row = Math.floor(i / 2);
-      this.sectionCard(section, startX + col * (cardW + gapX), startY + row * (cardH + gapY), cardW, cardH);
-    });
+      PixiPremiumScene.panel(this.pixiContainer, 30, 132, Layout.W - 60, cardH * 4 + gapY * 3 + 60, { accentAlpha: 0.42 });
 
-    PixiPremiumScene.button(this.pixiContainer, 36, 718, 160, 44, 'Back', () => switchScreen('home'), { icon: 'back' });
-    PixiPremiumScene.button(this.pixiContainer, 1084, 718, 160, 44, 'Practice', () => switchScreen('miniGamePractice'), { icon: 'play' });
+      this.sections.forEach((section, i) => {
+        this.sectionCard(section, startX, startY + i * (cardH + gapY), cardW, cardH);
+      });
+
+      const btnY = Layout.H - Layout.SAFE_BOTTOM - 48;
+      PixiPremiumScene.button(this.pixiContainer, 36, btnY, 160, 44, 'Back', () => switchScreen('home'), { icon: 'back' });
+      PixiPremiumScene.button(this.pixiContainer, Layout.W - 196, btnY, 160, 44, 'Practice', () => switchScreen('miniGamePractice'), { icon: 'play' });
+    } else {
+      PixiPremiumScene.panel(this.pixiContainer, 76, 132, 1128, 524, { accentAlpha: 0.42 });
+
+      const cardW = 520;
+      const cardH = 190;
+      const startX = 100;
+      const startY = 172;
+      const gapX = 40;
+      const gapY = 42;
+      this.sections.forEach((section, i) => {
+        const col = i % 2;
+        const row = Math.floor(i / 2);
+        this.sectionCard(section, startX + col * (cardW + gapX), startY + row * (cardH + gapY), cardW, cardH);
+      });
+
+      PixiPremiumScene.button(this.pixiContainer, 36, 718, 160, 44, 'Back', () => switchScreen('home'), { icon: 'back' });
+      PixiPremiumScene.button(this.pixiContainer, 1084, 718, 160, 44, 'Practice', () => switchScreen('miniGamePractice'), { icon: 'play' });
+    }
   },
 
   sectionCard(section, x, y, w, h) {

@@ -118,8 +118,8 @@ const PixiMenuBackground = {
     sprite.rect(-size / 2, -size / 2, size, size).fill({ color: 0xffffff, alpha: 0.8 });
     return {
       sprite,
-      x: Math.random() * 1280,
-      y: Math.random() * 800,
+      x: Math.random() * Layout.W,
+      y: Math.random() * Layout.H,
       twinkle: Math.random() * Math.PI * 2,
       twinkleSpeed: 1 + Math.random() * 2,
       baseAlpha: 0.3 + Math.random() * 0.5,
@@ -137,8 +137,8 @@ const PixiMenuBackground = {
 
     return {
       sprite,
-      x: Math.random() * 1280,
-      y: Math.random() * 800,
+      x: Math.random() * Layout.W,
+      y: Math.random() * Layout.H,
       vx: (Math.random() - 0.5) * 15,
       vy: -8 - Math.random() * 25,
       baseAlpha: 0.2 + Math.random() * 0.5,
@@ -153,7 +153,7 @@ const PixiMenuBackground = {
     sprite.alpha = 0;
     return {
       sprite,
-      x: Math.random() * 1280,
+      x: Math.random() * Layout.W,
       y: Math.random() * 400,
       vx: 200 + Math.random() * 300,
       vy: 50 + Math.random() * 100,
@@ -171,7 +171,7 @@ const PixiMenuBackground = {
     sprite.ellipse(0, 0, w / 2, h / 2).fill({ color: pink, alpha: 0.7 });
     return {
       sprite,
-      x: Math.random() * 1280,
+      x: Math.random() * Layout.W,
       y: -20 - Math.random() * 100,
       vx: 10 + Math.random() * 30,
       vy: 15 + Math.random() * 25,
@@ -189,7 +189,7 @@ const PixiMenuBackground = {
       .stroke({ width: 1, color: 0xaaddff, alpha: 0.4 });
     return {
       sprite,
-      x: Math.random() * 1280,
+      x: Math.random() * Layout.W,
       y: 810 + Math.random() * 100,
       vx: (Math.random() - 0.5) * 10,
       vy: -(20 + Math.random() * 40),
@@ -205,7 +205,7 @@ const PixiMenuBackground = {
     sprite.rect(-size / 2, -size / 2, size, size).fill({ color: warm, alpha: 0.7 });
     return {
       sprite,
-      x: Math.random() * 1280,
+      x: Math.random() * Layout.W,
       y: 810 + Math.random() * 50,
       vx: (Math.random() - 0.5) * 15,
       vy: -(15 + Math.random() * 35),
@@ -221,8 +221,8 @@ const PixiMenuBackground = {
     sprite.rect(-size / 2, -size / 2, size, size).fill({ color: cyan, alpha: 0.5 });
     return {
       sprite,
-      x: Math.random() * 1280,
-      y: Math.random() * 800,
+      x: Math.random() * Layout.W,
+      y: Math.random() * Layout.H,
       vx: (Math.random() - 0.5) * 10,
       vy: (Math.random() - 0.5) * 10,
       baseAlpha: 0.3 + Math.random() * 0.5,
@@ -241,7 +241,7 @@ const PixiMenuBackground = {
       p.sprite.x = p.x;
       p.sprite.y = p.y;
       p.sprite.alpha = p.baseAlpha * (0.6 + 0.4 * Math.sin(p.pulse));
-      if (p.y < -20) { p.y = 820; p.x = Math.random() * 1280; }
+      if (p.y < -20) { p.y = 820; p.x = Math.random() * Layout.W; }
       if (p.x < -20) p.x = 1300;
       if (p.x > 1300) p.x = -20;
     }
@@ -289,7 +289,7 @@ const PixiMenuBackground = {
       p.sprite.x = p.x;
       p.sprite.y = p.y;
       p.sprite.rotation += p.rotSpeed * dt;
-      if (p.y > 820) { p.y = -20; p.x = Math.random() * 1280; }
+      if (p.y > 820) { p.y = -20; p.x = Math.random() * Layout.W; }
     }
 
     // Bubbles
@@ -299,7 +299,7 @@ const PixiMenuBackground = {
       b.y += b.vy * dt;
       b.sprite.x = b.x;
       b.sprite.y = b.y;
-      if (b.y < -20) { b.y = 820; b.x = Math.random() * 1280; }
+      if (b.y < -20) { b.y = 820; b.x = Math.random() * Layout.W; }
     }
 
     // Embers
@@ -310,7 +310,7 @@ const PixiMenuBackground = {
       e.sprite.x = e.x;
       e.sprite.y = e.y;
       e.sprite.alpha = 0.5 + 0.5 * Math.sin(e.flicker);
-      if (e.y < -20) { e.y = 820; e.x = Math.random() * 1280; }
+      if (e.y < -20) { e.y = 820; e.x = Math.random() * Layout.W; }
     }
 
     // Theme change detection

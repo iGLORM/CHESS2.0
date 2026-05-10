@@ -54,18 +54,28 @@ const MiniGamePractice = {
     this.pixiContainer = PixiPremiumScene.root('Mini-Game Practice', 'Pick a capture challenge and launch immediately', { footerHint: 'Practice runs use the same mini-game overlay and stats callbacks' });
     PixiScreenManager.setScreenContainer(this.pixiContainer);
 
-    PixiPremiumScene.panel(this.pixiContainer, 54, 126, 1172, 568, { accentAlpha: 0.36 });
+    const portrait = Layout.isPortrait;
+    const gridCols = portrait ? 3 : 5;
+    const gridRows = Math.ceil(this.games.length / gridCols);
+    const panelX = portrait ? 32 : 54;
+    const panelW = portrait ? (Layout.W - 64) : 1172;
+    const panelH = portrait ? (gridRows * 170 + 50) : 568;
+    PixiPremiumScene.panel(this.pixiContainer, panelX, 126, panelW, panelH, { accentAlpha: 0.36 });
     this.games.forEach((game, i) => this.card(game, i));
-    PixiPremiumScene.button(this.pixiContainer, 36, 718, 160, 44, 'Back', () => switchScreen('settings'), { icon: 'back' });
+    const btnY = Layout.H - 82;
+    PixiPremiumScene.button(this.pixiContainer, 36, btnY, 160, 44, 'Back', () => switchScreen('settings'), { icon: 'back' });
   },
 
   card(game, i) {
     const cols = ThemeManager.getCurrentColors();
-    const cardW = 208;
+    const portrait = Layout.isPortrait;
+    const gridCols = portrait ? 3 : 5;
+    const cardW = portrait ? Math.floor((Layout.W - 64 - 40 - (gridCols - 1) * 18) / gridCols) : 208;
     const cardH = 150;
-    const col = i % 5;
-    const row = Math.floor(i / 5);
-    const x = 86 + col * 226;
+    const gapX = portrait ? 18 : 18;
+    const col = i % gridCols;
+    const row = Math.floor(i / gridCols);
+    const x = (portrait ? 52 : 86) + col * (cardW + gapX);
     const y = 154 + row * 170;
     PixiPremiumScene.card(this.pixiContainer, x, y, cardW, cardH, {
       activeColor: cols.accent,

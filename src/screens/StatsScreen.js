@@ -30,23 +30,57 @@ const StatsScreen = {
       { label: 'Story Level Reached', value: `${storyLevel} / 10`, icon: 'progress', accent: '#8dd9ff', ratio: Math.min(1, storyLevel / 10) },
     ];
 
-    PixiPremiumScene.panel(this.pixiContainer, 76, 132, 1128, 524, { accentAlpha: 0.42 });
-
     const cols = ThemeManager.getCurrentColors();
-    const summary = this.summaryPanel(118, 174, 344, 392, stats, storyLevel, cols);
-    this.pixiContainer.addChild(summary);
 
-    const grid = new PIXI.Container();
-    grid.x = 504;
-    grid.y = 174;
-    this.pixiContainer.addChild(grid);
-    cards.forEach((card, i) => {
-      const col = i % 2;
-      const row = Math.floor(i / 2);
-      this.statCard(grid, col * 318, row * 96, 286, 76, card, cols);
-    });
+    if (Layout.isPortrait) {
+      const panelX = (Layout.W - 720) / 2;
+      const summaryW = 680;
+      const summaryH = 280;
+      const summaryX = panelX + 20;
+      const summaryY = 172;
 
-    PixiPremiumScene.button(this.pixiContainer, 36, 718, 160, 44, 'Back', () => switchScreen('home'), { icon: 'back' });
+      const gridCardW = 320;
+      const gridCardH = 76;
+      const gridGapX = 24;
+      const gridGapY = 16;
+      const gridStartY = summaryY + summaryH + 30;
+      const gridRows = 4;
+      const gridH = gridRows * gridCardH + (gridRows - 1) * gridGapY;
+      const totalH = (gridStartY - 132) + gridH + 40;
+
+      PixiPremiumScene.panel(this.pixiContainer, panelX, 132, 720, totalH, { accentAlpha: 0.42 });
+
+      const summary = this.summaryPanel(summaryX, summaryY, summaryW, summaryH, stats, storyLevel, cols);
+      this.pixiContainer.addChild(summary);
+
+      const grid = new PIXI.Container();
+      grid.x = panelX + 20;
+      grid.y = gridStartY;
+      this.pixiContainer.addChild(grid);
+      cards.forEach((card, i) => {
+        const col = i % 2;
+        const row = Math.floor(i / 2);
+        this.statCard(grid, col * (gridCardW + gridGapX), row * (gridCardH + gridGapY), gridCardW, gridCardH, card, cols);
+      });
+    } else {
+      PixiPremiumScene.panel(this.pixiContainer, 76, 132, 1128, 524, { accentAlpha: 0.42 });
+
+      const summary = this.summaryPanel(118, 174, 344, 392, stats, storyLevel, cols);
+      this.pixiContainer.addChild(summary);
+
+      const grid = new PIXI.Container();
+      grid.x = 504;
+      grid.y = 174;
+      this.pixiContainer.addChild(grid);
+      cards.forEach((card, i) => {
+        const col = i % 2;
+        const row = Math.floor(i / 2);
+        this.statCard(grid, col * 318, row * 96, 286, 76, card, cols);
+      });
+    }
+
+    const btnY = Layout.isPortrait ? Layout.H - Layout.SAFE_BOTTOM - 48 : 718;
+    PixiPremiumScene.button(this.pixiContainer, 36, btnY, 160, 44, 'Back', () => switchScreen('home'), { icon: 'back' });
   },
 
   summaryPanel(x, y, w, h, stats, storyLevel, cols) {
@@ -59,7 +93,7 @@ const StatsScreen = {
       fill: cols.text,
     });
     title.x = x + 34;
-    title.y = y + 36;
+    title.y = y + 30;
     group.addChild(title);
 
     const games = stats.gamesPlayed || 0;
@@ -69,13 +103,15 @@ const StatsScreen = {
     const miniWins = stats.miniGamesWon || 0;
     const miniRate = miniGames ? Math.round((miniWins / miniGames) * 100) : 0;
 
+    const rowGap = Math.min(72, (h - 150) / 3);
+    const rowStart = y + Math.min(112, h * 0.28);
     const rows = [
       ['Win Rate', `${winRate}%`],
       ['Mini-Game Rate', `${miniRate}%`],
       ['Story Progress', `${storyLevel}/10`],
     ];
     rows.forEach((row, i) => {
-      const yy = y + 112 + i * 72;
+      const yy = rowStart + i * rowGap;
       const label = PixiPremiumScene.text(row[0], { fontSize: 16, fontWeight: '700', fill: PixiPremiumScene.alpha(cols.text, '88') });
       label.x = x + 34;
       label.y = yy;
@@ -87,7 +123,8 @@ const StatsScreen = {
       group.addChild(value);
     });
 
-    this.bar(group, x + 34, y + 336, w - 68, 16, Math.min(1, storyLevel / 10), cols);
+    const barY = y + h - 44;
+    this.bar(group, x + 34, barY, w - 68, 16, Math.min(1, storyLevel / 10), cols);
     return group;
   },
 

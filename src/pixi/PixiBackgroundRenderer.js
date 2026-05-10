@@ -36,8 +36,8 @@ const PixiBackgroundRenderer = {
     const img = TextureManager.getBackgroundTexture(themeId);
     if (img) {
       this.bgSprite = PIXI.Sprite.from(img);
-      this.bgSprite.width = 1280;
-      this.bgSprite.height = 800;
+      this.bgSprite.width = Layout.W;
+      this.bgSprite.height = Layout.H;
       this.container.addChild(this.bgSprite);
     } else {
       this._renderGradientBg(cols);
@@ -78,20 +78,20 @@ const PixiBackgroundRenderer = {
   _renderGradientBg(cols) {
     const canvas = document.createElement('canvas');
     canvas.width = 64;
-    canvas.height = 800;
+    canvas.height = Layout.H;
     const ctx = canvas.getContext('2d');
-    const grad = ctx.createLinearGradient(0, 0, 0, 800);
+    const grad = ctx.createLinearGradient(0, 0, 0, Layout.H);
     const bg = cols.background || '#0a0a1a';
     const panel = cols.panel || '#141428';
     grad.addColorStop(0, bg);
     grad.addColorStop(0.5, panel);
     grad.addColorStop(1, PixiColorUtil.darken(bg, 20));
     ctx.fillStyle = grad;
-    ctx.fillRect(0, 0, 64, 800);
+    ctx.fillRect(0, 0, 64, Layout.H);
     const texture = PIXI.Texture.from({ resource: canvas, scaleMode: 'linear' });
     const sprite = new PIXI.Sprite(texture);
-    sprite.width = 1280;
-    sprite.height = 800;
+    sprite.width = Layout.W;
+    sprite.height = Layout.H;
     this.container.addChild(sprite);
   },
 
@@ -103,11 +103,11 @@ const PixiBackgroundRenderer = {
 
     // Back fog layer: slow, leftward scroll
     const backFog = new PIXI.Graphics();
-    backFog.rect(0, 0, 2560, 800).fill({ color: panelColor, alpha: 0.06 });
+    backFog.rect(0, 0, Layout.W * 2, Layout.H).fill({ color: panelColor, alpha: 0.06 });
     // Add noise patches for texture
     for (let i = 0; i < 40; i++) {
-      const nx = Math.random() * 2560;
-      const ny = Math.random() * 800;
+      const nx = Math.random() * (Layout.W * 2);
+      const ny = Math.random() * Layout.H;
       const nw = Math.random() * 60 + 20;
       const nh = Math.random() * 30 + 10;
       backFog.rect(nx, ny, nw, nh).fill({ color: panelColor, alpha: 0.03 });
@@ -116,15 +116,15 @@ const PixiBackgroundRenderer = {
     this._parallaxLayers.push({
       gfx: backFog,
       speed: -0.15, // leftward
-      resetAt: -1280,
+      resetAt: -Layout.W,
     });
 
     // Front mist layer: faster, rightward scroll
     const frontMist = new PIXI.Graphics();
-    frontMist.rect(-1280, 0, 2560, 800).fill({ color: panelColor, alpha: 0.04 });
+    frontMist.rect(-Layout.W, 0, Layout.W * 2, Layout.H).fill({ color: panelColor, alpha: 0.04 });
     for (let i = 0; i < 30; i++) {
-      const nx = -1280 + Math.random() * 2560;
-      const ny = Math.random() * 800;
+      const nx = -Layout.W + Math.random() * (Layout.W * 2);
+      const ny = Math.random() * Layout.H;
       const nw = Math.random() * 80 + 30;
       const nh = Math.random() * 40 + 15;
       frontMist.rect(nx, ny, nw, nh).fill({ color: panelColor, alpha: 0.02 });
@@ -133,7 +133,7 @@ const PixiBackgroundRenderer = {
     this._parallaxLayers.push({
       gfx: frontMist,
       speed: 0.35, // rightward
-      resetAt: 1280,
+      resetAt: Layout.W,
     });
   },
 
@@ -166,22 +166,22 @@ const PixiBackgroundRenderer = {
     // Top edge darkening
     for (let i = 0; i < 60; i++) {
       const a = (1 - i / 60) * 0.25;
-      g.rect(0, i, 1280, 1).fill({ color: 0x000000, alpha: a });
+      g.rect(0, i, Layout.W, 1).fill({ color: 0x000000, alpha: a });
     }
     // Bottom edge darkening
     for (let i = 0; i < 80; i++) {
       const a = (1 - i / 80) * 0.35;
-      g.rect(0, 800 - i, 1280, 1).fill({ color: 0x000000, alpha: a });
+      g.rect(0, Layout.H - i, Layout.W, 1).fill({ color: 0x000000, alpha: a });
     }
     // Left edge
     for (let i = 0; i < 40; i++) {
       const a = (1 - i / 40) * 0.15;
-      g.rect(i, 0, 1, 800).fill({ color: 0x000000, alpha: a });
+      g.rect(i, 0, 1, Layout.H).fill({ color: 0x000000, alpha: a });
     }
     // Right edge
     for (let i = 0; i < 40; i++) {
       const a = (1 - i / 40) * 0.15;
-      g.rect(1280 - i, 0, 1, 800).fill({ color: 0x000000, alpha: a });
+      g.rect(Layout.W - i, 0, 1, Layout.H).fill({ color: 0x000000, alpha: a });
     }
   },
 
@@ -190,8 +190,8 @@ const PixiBackgroundRenderer = {
       const p = new PIXI.Graphics();
       const size = Math.random() * 2 + 0.5;
       p.rect(0, 0, size, size).fill({ color: 0xffffff, alpha: 0.3 });
-      p.x = Math.random() * 1280;
-      p.y = Math.random() * 800;
+      p.x = Math.random() * Layout.W;
+      p.y = Math.random() * Layout.H;
       this._particleLayer.addChild(p);
       this._particles.push({
         gfx: p, type: 'float',
@@ -251,8 +251,8 @@ const PixiBackgroundRenderer = {
       const r = Math.random() * 4 + 1;
       p.circle(0, 0, r).fill({ color: 0xaaddff, alpha: 0.15 });
       p.circle(0, 0, r).stroke({ width: 0.5, color: 0xffffff, alpha: 0.2 });
-      p.x = Math.random() * 1280;
-      p.y = 800 + Math.random() * 200;
+      p.x = Math.random() * Layout.W;
+      p.y = Layout.H + Math.random() * 200;
       this._ambientLayer.addChild(p);
       this._ambientElements.push({
         gfx: p, type: 'bubble',
@@ -268,9 +268,9 @@ const PixiBackgroundRenderer = {
   _spawnLightRays(cols, count) {
     for (let i = 0; i < count; i++) {
       const ray = new PIXI.Graphics();
-      const x = Math.random() * 1280;
+      const x = Math.random() * Layout.W;
       const w = Math.random() * 40 + 20;
-      ray.poly([x, 0, x + w, 0, x + w * 0.6, 800, x + w * 0.4, 800])
+      ray.poly([x, 0, x + w, 0, x + w * 0.6, Layout.H, x + w * 0.4, Layout.H])
         .fill({ color: 0xffffff, alpha: 0.02 });
       this._ambientLayer.addChild(ray);
       this._ambientElements.push({
@@ -288,7 +288,7 @@ const PixiBackgroundRenderer = {
       const size = Math.random() * 3 + 2;
       p.circle(0, 0, size).fill({ color: 0xffaacc, alpha: 0.5 + Math.random() * 0.3 });
       p.circle(-size * 0.3, -size * 0.3, size * 0.6).fill({ color: 0xffccdd, alpha: 0.3 });
-      p.x = Math.random() * 1400 - 100;
+      p.x = Math.random() * (Layout.W + 120) - 100;
       p.y = -20 - Math.random() * 400;
       this._ambientLayer.addChild(p);
       this._ambientElements.push({
@@ -309,8 +309,8 @@ const PixiBackgroundRenderer = {
       const p = new PIXI.Graphics();
       const size = Math.random() * 2 + 1;
       p.star(0, 0, 4, size, size * 0.3).fill({ color: 0xffffff, alpha: 0.6 });
-      p.x = Math.random() * 1280;
-      p.y = Math.random() * 800;
+      p.x = Math.random() * Layout.W;
+      p.y = Math.random() * Layout.H;
       p.alpha = 0;
       this._ambientLayer.addChild(p);
       this._ambientElements.push({
@@ -346,8 +346,8 @@ const PixiBackgroundRenderer = {
       const brightness = Math.random();
       const color = brightness > 0.7 ? 0xaaccff : (brightness > 0.4 ? 0xffffff : 0xffddaa);
       p.rect(0, 0, size, size).fill({ color, alpha: 0.6 });
-      p.x = Math.random() * 1280;
-      p.y = Math.random() * 800;
+      p.x = Math.random() * Layout.W;
+      p.y = Math.random() * Layout.H;
       this._ambientLayer.addChild(p);
       this._ambientElements.push({
         gfx: p, type: 'star',
@@ -364,7 +364,7 @@ const PixiBackgroundRenderer = {
       const p = new PIXI.Graphics();
       const len = Math.random() * 30 + 10;
       p.rect(0, 0, 1, len).fill({ color: accentNum, alpha: 0.3 });
-      p.x = Math.random() * 1280;
+      p.x = Math.random() * Layout.W;
       p.y = -len - Math.random() * 400;
       this._ambientLayer.addChild(p);
       this._ambientElements.push({
@@ -381,8 +381,8 @@ const PixiBackgroundRenderer = {
       const p = new PIXI.Graphics();
       const size = Math.random() * 2 + 0.5;
       p.circle(0, 0, size).fill({ color: accentNum, alpha: 0.15 });
-      p.x = Math.random() * 1280;
-      p.y = Math.random() * 800;
+      p.x = Math.random() * Layout.W;
+      p.y = Math.random() * Layout.H;
       this._ambientLayer.addChild(p);
       this._ambientElements.push({
         gfx: p, type: 'ambient',
@@ -434,7 +434,7 @@ const PixiBackgroundRenderer = {
       const size = Math.random() * 1.5 + 0.5;
       const color = colors[Math.floor(Math.random() * colors.length)];
       p.circle(0, 0, size).fill({ color, alpha: 0.5 + Math.random() * 0.3 });
-      p.x = Math.random() * 1280;
+      p.x = Math.random() * Layout.W;
       p.y = 600 + Math.random() * 200;
       this._ambientLayer.addChild(p);
       this._ambientElements.push({
@@ -478,7 +478,7 @@ const PixiBackgroundRenderer = {
       const color = sandColors[Math.floor(Math.random() * sandColors.length)];
       p.rect(0, 0, size, size).fill({ color, alpha: 0.25 });
       p.x = -10 - Math.random() * 300;
-      p.y = Math.random() * 800;
+      p.y = Math.random() * Layout.H;
       this._ambientLayer.addChild(p);
       this._ambientElements.push({
         gfx: p, type: 'sand',
@@ -495,7 +495,7 @@ const PixiBackgroundRenderer = {
     for (let i = 0; i < count; i++) {
       const g = new PIXI.Graphics();
       const y = 200 + Math.random() * 400;
-      g.rect(0, y, 1280, 3).fill({ color: 0xffffff, alpha: 0.015 });
+      g.rect(0, y, Layout.W, 3).fill({ color: 0xffffff, alpha: 0.015 });
       this._ambientLayer.addChild(g);
       this._ambientElements.push({
         gfx: g, type: 'heatshimmer',
@@ -513,7 +513,7 @@ const PixiBackgroundRenderer = {
       const p = new PIXI.Graphics();
       const r = Math.random() * 4 + 2;
       p.circle(0, 0, r).fill({ color: 0xdddddd, alpha: 0.12 });
-      p.x = Math.random() * 1280;
+      p.x = Math.random() * Layout.W;
       p.y = 700 + Math.random() * 150;
       this._ambientLayer.addChild(p);
       this._ambientElements.push({
@@ -540,8 +540,8 @@ const PixiBackgroundRenderer = {
       // Cross shape for gear teeth
       p.rect(-size * 0.2, -size * 0.7, size * 0.4, size * 1.4).fill({ color: accentNum, alpha: 0.15 });
       p.rect(-size * 0.7, -size * 0.2, size * 1.4, size * 0.4).fill({ color: accentNum, alpha: 0.15 });
-      p.x = Math.random() * 1280;
-      p.y = Math.random() * 800;
+      p.x = Math.random() * Layout.W;
+      p.y = Math.random() * Layout.H;
       this._ambientLayer.addChild(p);
       this._ambientElements.push({
         gfx: p, type: 'gear',
@@ -561,8 +561,8 @@ const PixiBackgroundRenderer = {
       const r = Math.random() * 1.5 + 0.5;
       const color = sporeColors[Math.floor(Math.random() * sporeColors.length)];
       p.circle(0, 0, r).fill({ color, alpha: 0.25 + Math.random() * 0.2 });
-      p.x = Math.random() * 1280;
-      p.y = Math.random() * 800;
+      p.x = Math.random() * Layout.W;
+      p.y = Math.random() * Layout.H;
       this._ambientLayer.addChild(p);
       this._ambientElements.push({
         gfx: p, type: 'spore',
@@ -586,7 +586,7 @@ const PixiBackgroundRenderer = {
       const rx = 80 + Math.random() * 120;
       const ry = 20 + Math.random() * 30;
       g.ellipse(0, 0, rx, ry).fill({ color: 0x99bb77, alpha: 0.04 });
-      g.x = Math.random() * 1280;
+      g.x = Math.random() * Layout.W;
       g.y = 400 + Math.random() * 350;
       this._ambientLayer.addChild(g);
       this._ambientElements.push({
@@ -617,8 +617,8 @@ const PixiBackgroundRenderer = {
         p.poly([0, -size, size * 0.7, size * 0.5, -size * 0.7, size * 0.5])
           .stroke({ width: 0.5, color: goldColor, alpha: 0.15 });
       }
-      p.x = Math.random() * 1280;
-      p.y = Math.random() * 800;
+      p.x = Math.random() * Layout.W;
+      p.y = Math.random() * Layout.H;
       this._ambientLayer.addChild(p);
       this._ambientElements.push({
         gfx: p, type: 'artdeco',
@@ -659,7 +659,7 @@ const PixiBackgroundRenderer = {
       p.gfx.y += p.vy;
       p.twinkle += dt * p.twinkleSpeed;
       p.gfx.alpha = p.baseAlpha * (0.5 + 0.5 * Math.sin(p.twinkle));
-      if (p.gfx.y < -10) { p.gfx.y = 810; p.gfx.x = Math.random() * 1280; }
+      if (p.gfx.y < -10) { p.gfx.y = Layout.H + 10; p.gfx.x = Math.random() * Layout.W; }
       if (p.gfx.x < -10) p.gfx.x = 1290;
       if (p.gfx.x > 1290) p.gfx.x = -10;
     }
@@ -672,8 +672,8 @@ const PixiBackgroundRenderer = {
           e.phase += dt * e.wobbleSpeed;
           e.gfx.x = e.baseX + Math.sin(e.phase) * e.wobbleAmp;
           if (e.gfx.y < -20) {
-            e.gfx.y = 820;
-            e.baseX = Math.random() * 1280;
+            e.gfx.y = Layout.H + 20;
+            e.baseX = Math.random() * Layout.W;
             e.gfx.x = e.baseX;
           }
           break;
@@ -690,9 +690,9 @@ const PixiBackgroundRenderer = {
           e.wobblePhase += dt;
           e.gfx.x = e.baseX + Math.sin(e.wobblePhase) * e.wobbleAmp;
           e.baseX += e.vx;
-          if (e.gfx.y > 820 || e.gfx.x > 1400) {
+          if (e.gfx.y > Layout.H + 20 || e.gfx.x > Layout.W + 120) {
             e.gfx.y = -20 - Math.random() * 100;
-            e.baseX = Math.random() * 1400 - 100;
+            e.baseX = Math.random() * (Layout.W + 120) - 100;
             e.gfx.x = e.baseX;
           }
           break;
@@ -704,8 +704,8 @@ const PixiBackgroundRenderer = {
           e.gfx.rotation += dt * 0.5;
           if (e.phase > Math.PI * 2) {
             e.phase = 0;
-            e.gfx.x = Math.random() * 1280;
-            e.gfx.y = Math.random() * 800;
+            e.gfx.x = Math.random() * Layout.W;
+            e.gfx.y = Math.random() * Layout.H;
           }
           break;
 
@@ -726,9 +726,9 @@ const PixiBackgroundRenderer = {
 
         case 'streak':
           e.gfx.y += e.speed;
-          if (e.gfx.y > 820) {
+          if (e.gfx.y > Layout.H + 20) {
             e.gfx.y = -e.len - Math.random() * 200;
-            e.gfx.x = Math.random() * 1280;
+            e.gfx.x = Math.random() * Layout.W;
           }
           break;
 
@@ -738,7 +738,7 @@ const PixiBackgroundRenderer = {
           e.phase += dt;
           e.gfx.alpha = e.baseAlpha * (0.5 + 0.5 * Math.sin(e.phase));
           if (e.gfx.x < -20 || e.gfx.x > 1300) e.vx *= -1;
-          if (e.gfx.y < -20 || e.gfx.y > 820) e.vy *= -1;
+          if (e.gfx.y < -20 || e.gfx.y > Layout.H + 20) e.vy *= -1;
           break;
 
         // --- SHOOTING STARS ---
@@ -750,7 +750,7 @@ const PixiBackgroundRenderer = {
               e.active = true;
               e.timer = 0;
               e.traveled = 0;
-              e.startX = Math.random() * 800;
+              e.startX = Math.random() * Layout.H;
               e.startY = Math.random() * 300;
               e.gfx.x = e.startX;
               e.gfx.y = e.startY;
@@ -764,7 +764,7 @@ const PixiBackgroundRenderer = {
             e.traveled += e.speed;
             // Fade out as it travels
             e.gfx.alpha = Math.max(0, 0.9 * (1 - e.traveled / e.maxTravel));
-            if (e.traveled >= e.maxTravel || e.gfx.x > 1400 || e.gfx.y > 900) {
+            if (e.traveled >= e.maxTravel || e.gfx.x > Layout.W + 120 || e.gfx.y > 900) {
               e.active = false;
               e.gfx.alpha = 0;
               e.delay = 3 + Math.random() * 5; // 3-8 second delay
@@ -783,7 +783,7 @@ const PixiBackgroundRenderer = {
           e.gfx.alpha = e.baseAlpha * (0.5 + 0.5 * Math.sin(this._time * e.flickerSpeed + e.wobblePhase));
           if (e.gfx.y < -20) {
             e.gfx.y = 650 + Math.random() * 200;
-            e.baseX = Math.random() * 1280;
+            e.baseX = Math.random() * Layout.W;
             e.gfx.x = e.baseX;
           }
           if (e.baseX < -20) e.baseX = 1300;
@@ -807,7 +807,7 @@ const PixiBackgroundRenderer = {
           e.gfx.alpha = e.baseAlpha * (0.7 + 0.3 * Math.sin(e.wobblePhase));
           if (e.gfx.x > 1300) {
             e.gfx.x = -10;
-            e.gfx.y = Math.random() * 800;
+            e.gfx.y = Math.random() * Layout.H;
           }
           break;
 
@@ -832,7 +832,7 @@ const PixiBackgroundRenderer = {
           e.gfx.alpha = e.baseAlpha * (1 - lifeRatio);
           if (e.life >= e.maxLife || e.gfx.y < -50) {
             e.gfx.y = 700 + Math.random() * 150;
-            e.gfx.x = Math.random() * 1280;
+            e.gfx.x = Math.random() * Layout.W;
             e.life = 0;
             e.gfx.scale.set(e.startScale);
             e.gfx.alpha = e.baseAlpha;
@@ -845,8 +845,8 @@ const PixiBackgroundRenderer = {
           e.gfx.x += e.vx;
           e.gfx.y += e.vy;
           if (e.gfx.y < -20) {
-            e.gfx.y = 810;
-            e.gfx.x = Math.random() * 1280;
+            e.gfx.y = Layout.H + 10;
+            e.gfx.x = Math.random() * Layout.W;
           }
           if (e.gfx.x < -20 || e.gfx.x > 1300) e.vx *= -1;
           break;
@@ -871,7 +871,7 @@ const PixiBackgroundRenderer = {
           e.gfx.x += e.vx;
           e.phase += dt * e.pulseSpeed;
           e.gfx.alpha = e.baseAlpha * (0.6 + 0.4 * Math.sin(e.phase));
-          if (e.gfx.x < -200) e.gfx.x = 1400;
+          if (e.gfx.x < -200) e.gfx.x = Layout.W + 120;
           if (e.gfx.x > 1500) e.gfx.x = -200;
           break;
 
@@ -884,8 +884,8 @@ const PixiBackgroundRenderer = {
           e.gfx.alpha = e.baseAlpha * (0.6 + 0.4 * Math.sin(e.phase));
           // Wrap around
           if (e.gfx.y < -20) {
-            e.gfx.y = 810;
-            e.gfx.x = Math.random() * 1280;
+            e.gfx.y = Layout.H + 10;
+            e.gfx.x = Math.random() * Layout.W;
           }
           if (e.gfx.x < -20) e.gfx.x = 1300;
           if (e.gfx.x > 1300) e.gfx.x = -20;

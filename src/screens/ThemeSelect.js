@@ -22,22 +22,26 @@ const ThemeSelect = {
 
   build() {
     if (this.pixiContainer) this.pixiContainer.destroy({ children: true });
-    this.pixiContainer = PixiPremiumScene.root('Theme Select', 'Gallery on the left, custom editor on the right', { footerHint: 'Locked themes unlock through story progress' });
+    const subtitle = Layout.isPortrait ? 'Gallery above, custom editor below' : 'Gallery on the left, custom editor on the right';
+    this.pixiContainer = PixiPremiumScene.root('Theme Select', subtitle, { footerHint: 'Locked themes unlock through story progress' });
     PixiScreenManager.setScreenContainer(this.pixiContainer);
     this.buildGallery();
     this.buildDrawer();
-    PixiPremiumScene.button(this.pixiContainer, 36, 718, 160, 44, 'Back', () => switchScreen(this.returnScreen), { icon: 'back' });
+    const btnY = Layout.H - 82;
+    PixiPremiumScene.button(this.pixiContainer, 36, btnY, 160, 44, 'Back', () => switchScreen(this.returnScreen), { icon: 'back' });
   },
 
   buildGallery() {
-    const cardW = 246;
+    const portrait = Layout.isPortrait;
+    const galleryCols = portrait ? 2 : 3;
+    const cardW = portrait ? Math.floor((Layout.W - 80 - 18) / 2) : 246;
     const cardH = 118;
     const gap = 18;
-    const startX = 66;
+    const startX = portrait ? 40 : 66;
     const startY = 134;
     this.themes.forEach((theme, i) => {
-      const row = Math.floor(i / 3);
-      const col = i % 3;
+      const row = Math.floor(i / galleryCols);
+      const col = i % galleryCols;
       const x = startX + col * (cardW + gap);
       const y = startY + row * (cardH + gap);
       const unlocked = ThemeManager.isThemeUnlocked(theme.id);
@@ -102,33 +106,50 @@ const ThemeSelect = {
   buildDrawer() {
     const cols = ThemeManager.getCurrentColors();
     const theme = ThemeManager.getTheme(this.selectedThemeId || store.get('theme'));
-    PixiPremiumScene.panel(this.pixiContainer, 884, 134, 330, 528, { accent: theme.colors.accent, accentAlpha: 0.72 });
+    const portrait = Layout.isPortrait;
 
+    // In portrait, compute gallery bottom to position drawer below it
+    const galleryCols = portrait ? 2 : 3;
+    const galleryRows = Math.ceil(this.themes.length / galleryCols);
+    const drawerX = portrait ? Math.floor((Layout.W - 720) / 2) : 884;
+    const drawerY = portrait ? (134 + galleryRows * (118 + 18) + 10) : 134;
+    const drawerW = portrait ? 720 : 330;
+    const drawerH = portrait ? 480 : 528;
+    PixiPremiumScene.panel(this.pixiContainer, drawerX, drawerY, drawerW, drawerH, { accent: theme.colors.accent, accentAlpha: 0.72 });
+
+    const innerX = drawerX + 24;
+    const previewW = portrait ? 320 : 282;
+    const previewH = portrait ? 180 : 158;
     const preview = new PIXI.Sprite(PixiPremiumAssets.theme(theme.id));
-    preview.width = 282;
-    preview.height = 158;
-    preview.x = 908;
-    preview.y = 166;
+    preview.width = previewW;
+    preview.height = previewH;
+    preview.x = innerX;
+    preview.y = drawerY + 32;
     this.pixiContainer.addChild(preview);
 
+    const infoX = portrait ? (innerX + previewW + 24) : innerX;
+    const infoY = portrait ? (drawerY + 32) : (drawerY + 208);
+    const infoMaxW = portrait ? (drawerW - previewW - 72) : 280;
     const title = PixiPremiumScene.text(theme.name, { fontSize: 26, fontWeight: '900', fill: cols.text });
-    title.x = 908;
-    title.y = 342;
-    PixiPremiumScene.fit(title, 280);
+    title.x = infoX;
+    title.y = infoY;
+    PixiPremiumScene.fit(title, infoMaxW);
     this.pixiContainer.addChild(title);
     const desc = PixiPremiumScene.text(theme.desc, { fontSize: 16, fill: PixiPremiumScene.alpha(cols.text, 'aa') });
-    desc.x = 908;
-    desc.y = 376;
-    PixiPremiumScene.fit(desc, 280);
+    desc.x = infoX;
+    desc.y = infoY + 34;
+    PixiPremiumScene.fit(desc, infoMaxW);
     this.pixiContainer.addChild(desc);
 
+    const btnY = portrait ? (infoY + 70) : (drawerY + 294);
+    const btnW = portrait ? Math.min(infoMaxW, 282) : 282;
     if (theme.id !== 'custom') {
-      PixiPremiumScene.button(this.pixiContainer, 908, 428, 282, 46, store.get('theme') === theme.id ? 'Applied' : 'Apply Theme', () => this.selectTheme(theme.id, true), { primary: store.get('theme') !== theme.id, icon: 'spark' });
-      this.palettePreview(theme, 908, 500);
+      PixiPremiumScene.button(this.pixiContainer, infoX, btnY, btnW, 46, store.get('theme') === theme.id ? 'Applied' : 'Apply Theme', () => this.selectTheme(theme.id, true), { primary: store.get('theme') !== theme.id, icon: 'spark' });
+      this.palettePreview(theme, infoX, btnY + 72);
       return;
     }
 
-    this.customEditor(908, 418);
+    this.customEditor(innerX, drawerY + 284);
   },
 
   palettePreview(theme, x, y) {
@@ -207,7 +228,7 @@ const ThemeSelect = {
       this.build();
     });
 
-    PixiPremiumScene.button(this.pixiContainer, x, 608, 282, 42, store.get('theme') === 'custom' ? 'Custom Applied' : 'Apply Custom', () => this.selectTheme('custom', true), { primary: true });
+    PixiPremiumScene.button(this.pixiContainer, x, y + 190, 282, 42, store.get('theme') === 'custom' ? 'Custom Applied' : 'Apply Custom', () => this.selectTheme('custom', true), { primary: true });
   },
 
   themeChips(label, current, x, y, onPick) {

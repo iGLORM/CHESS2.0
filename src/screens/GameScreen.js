@@ -31,7 +31,10 @@ const GameScreen = {
   aiColor: 'black',
   gameplayMode: true,
 
+  _lastInitData: null,
+
   init(data) {
+    this._lastInitData = data;
     this.board = new Board();
     this.selectedSquare = null;
     this.legalMoves = [];
@@ -129,6 +132,31 @@ const GameScreen = {
     if (canvas) canvas.style.pointerEvents = 'auto';
   },
 
+  rebuildVisuals() {
+    // Tear down only the visual layer (PixiJS components), preserve all game state
+    if (typeof PixiGameScreen !== 'undefined') {
+      PixiGameScreen.destroy();
+    }
+    if (typeof PixiGameHud !== 'undefined') {
+      PixiGameHud.destroy();
+    }
+    if (typeof PixiGameOverOverlay !== 'undefined') {
+      PixiGameOverOverlay.destroy();
+    }
+
+    // Re-init the visual layer
+    if (typeof PixiGameScreen !== 'undefined') {
+      PixiGameScreen.init();
+      PixiGameScreen.renderBoard(this.board, store.get('theme') || 'space');
+    }
+    if (typeof PixiGameHud !== 'undefined') {
+      PixiGameHud.init();
+    }
+    if (typeof PixiGameOverOverlay !== 'undefined') {
+      PixiGameOverOverlay.init(this);
+    }
+  },
+
   saveSnapshot() {
     const snap = {
       grid: this.board.grid.map(row => row.map(cell => cell ? { type: cell.type, color: cell.color } : null)),
@@ -203,7 +231,7 @@ const GameScreen = {
       audioManager.setSuspense(this.gameStatus === 'check' && !this.gameOver);
     }
 
-    UIHelpers.drawDitheredRect(ctx, 0, 0, 1280, 3, cols.accent, '33');
+    UIHelpers.drawDitheredRect(ctx, 0, 0, Layout.W, 3, cols.accent, '33');
 
     if (this.aiCooldown > 0) {
       this.aiCooldown -= dt * 1000;
@@ -241,31 +269,31 @@ const GameScreen = {
 
     // AI thinking indicator
     if (this.aiThinking) {
-      UIHelpers.drawIcon(ctx, 580, 20, 'hourglass', 10, cols, { color: cols.text + '88' });
+      UIHelpers.drawIcon(ctx, Layout.cx - 60, 20, 'hourglass', 10, cols, { color: cols.text + '88' });
       ctx.fillStyle = cols.text + '88';
       ctx.font = '14px "Pixelify Sans", sans-serif';
       ctx.textAlign = 'center';
       const dots = '.'.repeat(Math.floor(Date.now() / 500) % 4);
-      ctx.fillText('Opponent is thinking' + dots, 640, 30);
+      ctx.fillText('Opponent is thinking' + dots, Layout.cx, 30);
     }
 
     // Promotion dialog
     if (this.promotionPending) {
       ctx.fillStyle = 'rgba(0,0,0,0.5)';
-      ctx.fillRect(0, 0, 1280, 800);
+      ctx.fillRect(0, 0, Layout.W, Layout.H);
 
       const sqSize = 80;
       const types = ['queen', 'rook', 'bishop', 'knight'];
       const totalW = types.length * sqSize + (types.length - 1) * 10;
-      const startX = 640 - totalW / 2;
-      const startY = 400 - sqSize / 2;
+      const startX = Layout.cx - totalW / 2;
+      const startY = Layout.cy - sqSize / 2;
 
       UIHelpers.drawPanel(ctx, startX - 20, startY - 40, totalW + 40, sqSize + 60, cols, { accentTop: true });
 
       ctx.fillStyle = cols.text;
       ctx.font = 'bold 18px "Pixelify Sans", sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText('PROMOTE TO:', 640, startY - 10);
+      ctx.fillText('PROMOTE TO:', Layout.cx, startY - 10);
 
       for (let i = 0; i < types.length; i++) {
         const bx = startX + i * (sqSize + 10);
@@ -289,19 +317,22 @@ const GameScreen = {
         ctx.fillStyle = `rgba(255,200,50,${alpha})`;
         ctx.font = 'bold 24px "Pixelify Sans", sans-serif';
         ctx.textAlign = 'center';
-        ctx.fillText(this.captureCombo + 'x COMBO!', 640, 80 + bounce);
+        ctx.fillText(this.captureCombo + 'x COMBO!', Layout.cx, 80 + bounce);
       }
     }
   },
 
   getGameOverButtons() {
+    const cx = Layout.cx;
+    const panelY = Layout.cy - 155;
+    const btnRow1Y = panelY + 160;
     const buttons = [
-      { text: 'Play Again', action: 'rematch', x: 390, y: 405, w: 150, h: 42 },
-      { text: 'Main Menu', action: 'menu', x: 565, y: 405, w: 150, h: 42 },
-      { text: 'Themes', action: 'themes', x: 740, y: 405, w: 150, h: 42 },
+      { text: 'Play Again', action: 'rematch', x: cx - 250, y: btnRow1Y, w: 150, h: 42 },
+      { text: 'Main Menu', action: 'menu', x: cx - 75, y: btnRow1Y, w: 150, h: 42 },
+      { text: 'Themes', action: 'themes', x: cx + 100, y: btnRow1Y, w: 150, h: 42 },
     ];
     if (this.mode === 'story' && this.gameResult === 'white') {
-      buttons.push({ text: 'Next Level', action: 'next', x: 565, y: 465, w: 150, h: 42 });
+      buttons.push({ text: 'Next Level', action: 'next', x: cx - 75, y: btnRow1Y + 60, w: 150, h: 42 });
     }
     return buttons;
   },
@@ -311,16 +342,16 @@ const GameScreen = {
     ctx.save();
     ctx.globalAlpha = this.gameOverTimer;
     ctx.fillStyle = 'rgba(0,0,0,0.64)';
-    ctx.fillRect(0, 0, 1280, 800);
+    ctx.fillRect(0, 0, Layout.W, Layout.H);
 
-    const panelX = 320;
-    const panelY = 245;
     const panelW = 640;
+    const panelX = Layout.cx - panelW / 2;
+    const panelY = Layout.cy - 155;
     const panelH = (this.mode === 'story' && this.gameResult === 'white') ? 300 : 245;
     UIHelpers.drawPanel(ctx, panelX, panelY, panelW, panelH, cols, { accentTop: true });
 
     if (this.gameResult && this.gameResult !== 'draw') {
-      UIHelpers.drawIcon(ctx, 628, panelY + 54, 'crown', 14, cols, {
+      UIHelpers.drawIcon(ctx, Layout.cx - 12, panelY + 54, 'crown', 14, cols, {
         color: this.gameResult === 'white' ? cols.lightPiece : cols.darkPiece,
       });
     }
@@ -333,7 +364,7 @@ const GameScreen = {
     ctx.font = 'bold 34px "Pixelify Sans", sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'alphabetic';
-    ctx.fillText(msg, 640, panelY + 112);
+    ctx.fillText(msg, Layout.cx, panelY + 112);
 
     let reason = 'Game Over';
     if (this.gameStatus === 'checkmate') reason = 'by Checkmate';
@@ -342,7 +373,7 @@ const GameScreen = {
     else if (this.gameStatus === 'resigned') reason = 'by Resignation';
     ctx.fillStyle = cols.text + 'aa';
     ctx.font = '15px "Pixelify Sans", sans-serif';
-    ctx.fillText(reason, 640, panelY + 140);
+    ctx.fillText(reason, Layout.cx, panelY + 140);
 
     if (this.gameResult && this.currentCharacter) {
       ctx.fillStyle = cols.text + 'bb';
@@ -365,7 +396,7 @@ const GameScreen = {
 
   renderSidePanel(ctx, cols, side, color) {
     const isLeft = side === 'left';
-    const x = isLeft ? 16 : 1280 - 210;
+    const x = isLeft ? 16 : Layout.W - 210;
     const y = 80;
     const w = 194;
     const h = 640;
@@ -536,10 +567,12 @@ const GameScreen = {
   },
 
   renderStatusBar(ctx, cols) {
-    const y = 745;
+    const barX = 210;
+    const barW = Layout.W - 420;
+    const y = Layout.H - 55;
     // Rounded status bar
     ctx.save();
-    this._roundRect(ctx, 210, y, 860, 38, 6);
+    this._roundRect(ctx, barX, y, barW, 38, 6);
     ctx.fillStyle = cols.panel + 'dd';
     ctx.fill();
     ctx.strokeStyle = cols.text + '22';
@@ -554,12 +587,12 @@ const GameScreen = {
     if (this.gameStatus === 'check') {
       ctx.fillStyle = cols.checkHighlight || cols.accent;
       ctx.font = 'bold 12px "Silkscreen", monospace';
-      ctx.fillText('CHECK!', 640, y + 18);
+      ctx.fillText('CHECK!', Layout.cx, y + 18);
       ctx.fillStyle = cols.text + '88';
       ctx.font = '14px "Pixelify Sans", sans-serif';
-      ctx.fillText(turnText, 640, y + 32);
+      ctx.fillText(turnText, Layout.cx, y + 32);
     } else {
-      ctx.fillText(turnText, 640, y + 22);
+      ctx.fillText(turnText, Layout.cx, y + 22);
     }
 
     // Move navigation buttons
@@ -571,33 +604,33 @@ const GameScreen = {
     ctx.fillStyle = navEnabled && this.reviewingAt !== 0 ? cols.text : cols.text + '22';
     ctx.font = 'bold 16px "Pixelify Sans", sans-serif';
     ctx.textAlign = 'left';
-    ctx.fillText('◀', 210, navY + 18);
+    ctx.fillText('◀', barX, navY + 18);
 
     // Forward button
     ctx.fillStyle = navEnabled && isReviewing && this.reviewingAt < this.boardSnapshots.length - 1 ? cols.text : cols.text + '22';
-    ctx.fillText('▶', 228, navY + 18);
+    ctx.fillText('▶', barX + 18, navY + 18);
 
     // Live button
     ctx.fillStyle = isReviewing ? cols.accent : cols.text + '22';
     ctx.font = '9px "Pixelify Sans", sans-serif';
-    ctx.fillText('LIVE', 248, navY + 18);
+    ctx.fillText('LIVE', barX + 38, navY + 18);
 
     ctx.fillStyle = cols.text + '66';
     ctx.font = '10px "Pixelify Sans", sans-serif';
     ctx.textAlign = 'right';
     const snapIdx = isReviewing ? (this.reviewingAt + 1) : this.boardSnapshots.length;
-    ctx.fillText('Move #' + snapIdx, 1060, y + 22);
+    ctx.fillText('Move #' + snapIdx, barX + barW - 10, y + 22);
 
     if (this.lockedTiles.length > 0) {
       ctx.fillStyle = cols.checkHighlight || cols.accent;
       ctx.font = '10px "Pixelify Sans", sans-serif';
       ctx.textAlign = 'left';
-      ctx.fillText('Locked: ' + this.lockedTiles.length, 320, y + 22);
+      ctx.fillText('Locked: ' + this.lockedTiles.length, barX + 110, y + 22);
     }
     ctx.fillStyle = cols.text + '44';
     ctx.font = '10px "Pixelify Sans", sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText('ESC: Pause', 640, y + 32);
+    ctx.fillText('ESC: Pause', Layout.cx, y + 32);
   },
 
   handleClick(x, y) {
@@ -606,8 +639,8 @@ const GameScreen = {
       const sqSize = 80;
       const types = ['queen', 'rook', 'bishop', 'knight'];
       const totalW = types.length * sqSize + (types.length - 1) * 10;
-      const startX = 640 - totalW / 2;
-      const startY = 400 - sqSize / 2;
+      const startX = Layout.cx - totalW / 2;
+      const startY = Layout.cy - sqSize / 2;
 
       for (let i = 0; i < types.length; i++) {
         const bx = startX + i * (sqSize + 10);
@@ -638,9 +671,11 @@ const GameScreen = {
     }
 
     // Move navigation buttons in status bar
-    const navY = 724 + 16;
-    if (y >= navY && y <= navY + 28) {
-      if (x >= 390 && x <= 418) {
+    const barX = 210;
+    const statusY = Layout.H - 55;
+    const navHitY = statusY;
+    if (y >= navHitY && y <= navHitY + 38) {
+      if (x >= barX && x <= barX + 18) {
         // Back
         if (this.reviewingAt !== 0 && this.boardSnapshots.length > 1) {
           const idx = this.reviewingAt === null ? this.boardSnapshots.length - 2 : this.reviewingAt - 1;
@@ -648,14 +683,14 @@ const GameScreen = {
         }
         return;
       }
-      if (x >= 426 && x <= 454) {
+      if (x >= barX + 18 && x <= barX + 36) {
         // Forward
         if (this.reviewingAt !== null && this.reviewingAt < this.boardSnapshots.length - 1) {
           this.goToMove(this.reviewingAt + 1);
         }
         return;
       }
-      if (x >= 472 && x <= 520) {
+      if (x >= barX + 38 && x <= barX + 80) {
         // Live
         this.goToLive();
         return;
@@ -724,8 +759,8 @@ const GameScreen = {
       const sqSize = 80;
       const types = ['queen', 'rook', 'bishop', 'knight'];
       const totalW = types.length * sqSize + (types.length - 1) * 10;
-      const startX = 640 - totalW / 2;
-      const startY = 400 - sqSize / 2;
+      const startX = Layout.cx - totalW / 2;
+      const startY = Layout.cy - sqSize / 2;
       let hovered = null;
       for (let i = 0; i < types.length; i++) {
         const bx = startX + i * (sqSize + 10);
@@ -997,7 +1032,7 @@ const GameScreen = {
           const colors = this.gameResult === 'white'
             ? [0xffd700, 0xff4444, 0xffffff, 0xffaa00]
             : [0x8844ff, 0x4444ff, 0x44aaff, 0xaa44ff];
-          PixiGameScreen.spawnFireworks(640, 400, colors);
+          PixiGameScreen.spawnFireworks(Layout.cx, Layout.cy, colors);
         }
       } else {
         audioManager.playGameOver();

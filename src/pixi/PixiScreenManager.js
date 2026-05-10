@@ -11,13 +11,23 @@ const PixiScreenManager = {
     PixiApp.stage.addChild(this.screenContainer);
 
     this.transitionOverlay = new PIXI.Graphics();
-    this.transitionOverlay.rect(0, 0, 1280, 800).fill(0x000000);
-    this.transitionOverlay.alpha = 0;
+    this._drawTransitionOverlay();
     this.transitionOverlay.zIndex = 9000;
     PixiApp.stage.addChild(this.transitionOverlay);
     PixiApp.stage.sortableChildren = true;
 
     this.initialized = true;
+  },
+
+  _drawTransitionOverlay() {
+    if (!this.transitionOverlay) return;
+    this.transitionOverlay.clear();
+    this.transitionOverlay.rect(0, 0, Layout.W, Layout.H).fill(0x000000);
+    this.transitionOverlay.alpha = 0;
+  },
+
+  onLayoutChange() {
+    this._drawTransitionOverlay();
   },
 
   _ensureOnStage() {

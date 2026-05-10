@@ -7,20 +7,39 @@ const HomeScreen = {
   _btnContainers: [],
   _selectedIndex: 0,
 
-  LAYOUT: {
-    W: 1280, H: 800,
-    LOGO_Y: 176,
-    LOGO_MAX_W: 610,
-    HERO_Y: 220,
-    MAIN_START_Y: 388,
-    MAIN_BTN_W: 500,
-    MAIN_BTN_H: 58,
-    MAIN_BTN_GAP: 7,
-    UTIL_Y: 674,
-    UTIL_BTN_W: 190,
-    UTIL_BTN_H: 44,
-    UTIL_GAP: 14,
-    FOOTER_Y: 760,
+  get LAYOUT() {
+    if (Layout.isPortrait) {
+      return {
+        W: Layout.W, H: Layout.H,
+        LOGO_Y: 200,
+        LOGO_MAX_W: 540,
+        HERO_Y: 240,
+        MAIN_START_Y: 440,
+        MAIN_BTN_W: 620,
+        MAIN_BTN_H: 72,
+        MAIN_BTN_GAP: 10,
+        UTIL_Y: 820,
+        UTIL_BTN_W: 190,
+        UTIL_BTN_H: 56,
+        UTIL_GAP: 14,
+        FOOTER_Y: 1240,
+      };
+    }
+    return {
+      W: Layout.W, H: Layout.H,
+      LOGO_Y: 176,
+      LOGO_MAX_W: 610,
+      HERO_Y: 220,
+      MAIN_START_Y: 388,
+      MAIN_BTN_W: 500,
+      MAIN_BTN_H: 58,
+      MAIN_BTN_GAP: 7,
+      UTIL_Y: 674,
+      UTIL_BTN_W: 190,
+      UTIL_BTN_H: 44,
+      UTIL_GAP: 14,
+      FOOTER_Y: 760,
+    };
   },
 
   BUTTONS: [
