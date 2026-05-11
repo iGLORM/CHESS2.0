@@ -5,6 +5,11 @@ const SettingsScreen = {
   editingOption: null,
   editText: '',
   confirmReset: false,
+  feedbackOpen: false,
+  feedbackCategory: 'feature',
+  feedbackSending: false,
+  feedbackDone: false,
+  _feedbackTextarea: null,
 
   init() {
     this.settings = { ...store.get('settings') };
@@ -14,10 +19,16 @@ const SettingsScreen = {
     this.editingOption = null;
     this.editText = '';
     this.confirmReset = false;
+    this.feedbackOpen = false;
+    this.feedbackSending = false;
+    this.feedbackDone = false;
+    this._removeTextarea();
     this.build();
   },
 
   destroy() {
+    this._removeTextarea();
+    this._removeNameInput();
     PixiPremiumScene.destroy(this);
   },
 
@@ -47,6 +58,7 @@ const SettingsScreen = {
     const btnY = Layout.isPortrait ? Layout.H - Layout.SAFE_BOTTOM - 48 : 718;
     PixiPremiumScene.button(this.pixiContainer, 36, btnY, 160, 44, 'Back', () => switchScreen('home'), { icon: 'back' });
     PixiPremiumScene.button(this.pixiContainer, Layout.W - 196, btnY, 160, 44, 'Themes', () => switchScreen('themeSelect', { returnTo: 'settings' }), { icon: 'spark' });
+    if (this.feedbackOpen) this.buildFeedbackModal();
     if (this.confirmReset) this.buildResetModal();
   },
 
@@ -188,12 +200,13 @@ const SettingsScreen = {
       const cardW = 660;
       const cardH = 82;
       const cardGap = 14;
-      const panelH = 80 + (cardH + cardGap) * 3;
+      const panelH = 80 + (cardH + cardGap) * 4;
       PixiPremiumScene.panel(this.pixiContainer, panelX, panelY, 720, panelH, { accentAlpha: 0.42 });
       this.sectionTitle(panelX + 32, panelY + 28, 'Game Tools', 'Practice, controls, and save maintenance');
       const actions = [
         { label: 'Practice Mini-Games', sub: 'Try every capture challenge', icon: 'play', action: () => switchScreen('miniGamePractice') },
         { label: 'Controls', sub: 'Tune mini-game sensitivity', icon: 'settings', action: () => switchScreen('controls') },
+        { label: 'Send Feedback', sub: 'Suggest a feature or report a problem', icon: 'spark', action: () => { this.feedbackOpen = true; this.feedbackCategory = 'feature'; this.feedbackSending = false; this.feedbackDone = false; this.build(); this._createTextarea(); } },
         { label: 'Reset Progress', sub: 'Clear story slots and stats', icon: 'lock', action: () => { this.confirmReset = true; this.build(); } },
       ];
       actions.forEach((action, i) => {
@@ -227,12 +240,13 @@ const SettingsScreen = {
       PixiPremiumScene.panel(this.pixiContainer, 76, 492, 1128, 230, { accentAlpha: 0.42 });
       this.sectionTitle(108, 520, 'Game Tools', 'Practice, controls, and save maintenance');
       const actions = [
-        { x: 174, label: 'Practice Mini-Games', sub: 'Try every capture challenge', icon: 'play', action: () => switchScreen('miniGamePractice') },
-        { x: 498, label: 'Controls', sub: 'Tune mini-game sensitivity', icon: 'settings', action: () => switchScreen('controls') },
-        { x: 822, label: 'Reset Progress', sub: 'Clear story slots and stats', icon: 'lock', action: () => { this.confirmReset = true; this.build(); } },
+        { x: 120, label: 'Practice Mini-Games', sub: 'Try every capture challenge', icon: 'play', action: () => switchScreen('miniGamePractice') },
+        { x: 380, label: 'Controls', sub: 'Tune mini-game sensitivity', icon: 'settings', action: () => switchScreen('controls') },
+        { x: 640, label: 'Send Feedback', sub: 'Suggest or report', icon: 'spark', action: () => { this.feedbackOpen = true; this.feedbackCategory = 'feature'; this.feedbackSending = false; this.feedbackDone = false; this.build(); this._createTextarea(); } },
+        { x: 900, label: 'Reset Progress', sub: 'Clear story slots and stats', icon: 'lock', action: () => { this.confirmReset = true; this.build(); } },
       ];
       actions.forEach(action => {
-        PixiPremiumScene.card(this.pixiContainer, action.x, 582, 284, 92, {
+        PixiPremiumScene.card(this.pixiContainer, action.x, 582, 244, 92, {
           onClick: action.action,
           activeColor: action.label === 'Reset Progress' ? '#ff6578' : ThemeManager.getCurrentColors().accent,
           draw: (card) => {
@@ -246,12 +260,12 @@ const SettingsScreen = {
             const label = PixiPremiumScene.text(action.label, { fontSize: 20, fontWeight: '900', fill: cols.text });
             label.x = 84;
             label.y = 20;
-            PixiPremiumScene.fit(label, 174);
+            PixiPremiumScene.fit(label, 140);
             card.addChild(label);
             const sub = PixiPremiumScene.text(action.sub, { fontSize: 14, fill: PixiPremiumScene.alpha(cols.text, '88') });
             sub.x = 84;
             sub.y = 50;
-            PixiPremiumScene.fit(sub, 174, 0.55);
+            PixiPremiumScene.fit(sub, 140, 0.55);
             card.addChild(sub);
           },
         });
@@ -308,9 +322,7 @@ const SettingsScreen = {
     const w = cardWidth || 440;
     PixiPremiumScene.card(this.pixiContainer, x, y, w, 54, {
       onClick: () => {
-        this.editingOption = key;
-        this.editText = store.get(key) || value;
-        this.build();
+        this._openNameInput(key, store.get(key) || value);
       },
       draw: (card) => {
         const cols = ThemeManager.getCurrentColors();
@@ -329,6 +341,62 @@ const SettingsScreen = {
         card.addChild(v);
       },
     });
+  },
+
+  _openNameInput(key, currentValue) {
+    if (this._nameInput && this.editingOption === key) return;
+    this._removeNameInput();
+    this.editingOption = key;
+    this.editText = currentValue;
+    this.build();
+
+    const shell = document.getElementById('gameShell');
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.id = 'nameInput';
+    input.value = currentValue;
+    input.maxLength = 18;
+    input.style.cssText = 'position:absolute;left:-9999px;top:0;opacity:0;width:1px;height:1px;';
+    input.addEventListener('input', () => {
+      this.editText = input.value.slice(0, 18);
+      this.build();
+    });
+    input.addEventListener('keydown', (e) => {
+      e.stopPropagation();
+      if (e.key === 'Enter') { this._commitNameInput(); }
+      if (e.key === 'Escape') { this._cancelNameInput(); }
+    });
+    input.addEventListener('blur', () => {
+      setTimeout(() => { if (this.editingOption === key) this._commitNameInput(); }, 200);
+    });
+    shell.appendChild(input);
+    this._nameInput = input;
+    setTimeout(() => input.focus(), 50);
+  },
+
+  _commitNameInput() {
+    if (!this.editingOption) return;
+    const clean = this.editText.trim() || (this.editingOption === 'whitePlayer' ? 'Player 1' : 'Player 2');
+    store.set(this.editingOption, clean.slice(0, 18));
+    store.saveProgress();
+    this.editingOption = null;
+    this.editText = '';
+    this._removeNameInput();
+    this.build();
+  },
+
+  _cancelNameInput() {
+    this.editingOption = null;
+    this.editText = '';
+    this._removeNameInput();
+    this.build();
+  },
+
+  _removeNameInput() {
+    if (this._nameInput) {
+      this._nameInput.remove();
+      this._nameInput = null;
+    }
   },
 
   buildResetModal() {
@@ -367,37 +435,198 @@ const SettingsScreen = {
     });
   },
 
-  commitEdit() {
-    if (!this.editingOption) return;
-    const clean = this.editText.trim() || (this.editingOption === 'whitePlayer' ? 'Player 1' : 'Player 2');
-    store.set(this.editingOption, clean.slice(0, 18));
-    store.saveProgress();
-    this.editingOption = null;
-    this.editText = '';
+  buildFeedbackModal() {
+    const cols = ThemeManager.getCurrentColors();
+    const modalW = 520;
+    const modalH = 420;
+    const modalX = (Layout.W - modalW) / 2;
+    const modalY = (Layout.H - modalH) / 2;
+
+    const dim = new PIXI.Graphics().rect(0, 0, Layout.W, Layout.H).fill({ color: 0x000000, alpha: 0.82 });
+    dim.eventMode = 'static';
+    this.pixiContainer.addChild(dim);
+
+    PixiPremiumScene.panel(this.pixiContainer, modalX, modalY, modalW, modalH, { accent: cols.accent, accentAlpha: 0.86, alpha: 0.96 });
+
+    const title = PixiPremiumScene.text('Send Feedback', { fontSize: 26, fontWeight: '900', fill: cols.text });
+    title.anchor.set(0.5, 0);
+    title.x = Layout.cx;
+    title.y = modalY + 20;
+    this.pixiContainer.addChild(title);
+
+    const sub = PixiPremiumScene.text('Suggest a feature, report a bug, or share ideas', { fontSize: 15, fill: PixiPremiumScene.alpha(cols.text, 'aa') });
+    sub.anchor.set(0.5, 0);
+    sub.x = Layout.cx;
+    sub.y = modalY + 52;
+    this.pixiContainer.addChild(sub);
+
+    const categories = [
+      { key: 'feature', label: 'Feature' },
+      { key: 'bug', label: 'Bug' },
+      { key: 'other', label: 'Other' },
+    ];
+    const catY = modalY + 82;
+    const catW = 120;
+    const catGap = 12;
+    const catStartX = Layout.cx - (catW * 3 + catGap * 2) / 2;
+    categories.forEach((cat, i) => {
+      const isActive = this.feedbackCategory === cat.key;
+      const bx = catStartX + i * (catW + catGap);
+      PixiPremiumScene.button(this.pixiContainer, bx, catY, catW, 34, cat.label, () => {
+        this.feedbackCategory = cat.key;
+        this.build();
+        this._createTextarea();
+      }, { primary: isActive });
+    });
+
+    const textBg = new PIXI.Graphics()
+      .roundRect(modalX + 24, modalY + 130, modalW - 48, 180, 8)
+      .fill({ color: 0x000000, alpha: 0.35 })
+      .roundRect(modalX + 24, modalY + 130, modalW - 48, 180, 8)
+      .stroke({ color: PixiPremiumScene.color(cols.accent), width: 1, alpha: 0.4 });
+    this.pixiContainer.addChild(textBg);
+
+    const charCount = PixiPremiumScene.text('0 / 2000', { fontSize: 13, fill: PixiPremiumScene.alpha(cols.text, '55') });
+    charCount.anchor.set(1, 0);
+    charCount.x = modalX + modalW - 28;
+    charCount.y = modalY + 314;
+    this.pixiContainer.addChild(charCount);
+    this._feedbackCharCount = charCount;
+
+    if (this.feedbackDone) {
+      const doneText = PixiPremiumScene.text('Feedback sent! Thank you.', { fontSize: 20, fontWeight: '900', fill: '#7dea99' });
+      doneText.anchor.set(0.5, 0);
+      doneText.x = Layout.cx;
+      doneText.y = modalY + 330;
+      this.pixiContainer.addChild(doneText);
+      PixiPremiumScene.button(this.pixiContainer, Layout.cx - 75, modalY + 368, 150, 40, 'Done', () => {
+        this.feedbackOpen = false;
+        this._removeTextarea();
+        this.build();
+      });
+    } else {
+      const sendLabel = this.feedbackSending ? 'Sending...' : 'Submit';
+      PixiPremiumScene.button(this.pixiContainer, Layout.cx - 178, modalY + 368, 150, 40, sendLabel, () => {
+        if (this.feedbackSending) return;
+        this._submitFeedback();
+      }, { primary: true });
+      PixiPremiumScene.button(this.pixiContainer, Layout.cx + 28, modalY + 368, 150, 40, 'Cancel', () => {
+        this.feedbackOpen = false;
+        this._removeTextarea();
+        this.build();
+      });
+    }
+  },
+
+  _createTextarea() {
+    this._removeTextarea();
+    const shell = document.getElementById('gameShell');
+    const rect = shell.getBoundingClientRect();
+    const modalW = 520;
+    const modalH = 420;
+    const modalX = (Layout.W - modalW) / 2;
+    const modalY = (Layout.H - modalH) / 2;
+    const txX = modalX + 24;
+    const txY = modalY + 130;
+    const txW = modalW - 48;
+    const txH = 180;
+
+    const scaleX = rect.width / Layout.W;
+    const scaleY = rect.height / Layout.H;
+
+    const ta = document.createElement('textarea');
+    ta.id = 'feedbackTextarea';
+    ta.placeholder = 'Describe your idea, suggestion, or issue...';
+    ta.maxLength = 2000;
+    ta.style.cssText = [
+      'position:absolute',
+      'left:' + (txX * scaleX) + 'px',
+      'top:' + (txY * scaleY) + 'px',
+      'width:' + (txW * scaleX) + 'px',
+      'height:' + (txH * scaleY) + 'px',
+      'background:transparent',
+      'border:none',
+      'outline:none',
+      'resize:none',
+      'color:white',
+      'font-family:"Pixelify Sans",sans-serif',
+      'font-size:' + Math.max(12, 15 * scaleY) + 'px',
+      'padding:10px',
+      'z-index:200',
+      'caret-color:white',
+      '-webkit-user-select:auto',
+      'user-select:auto',
+    ].join(';');
+    ta.addEventListener('input', () => {
+      if (this._feedbackCharCount) {
+        this._feedbackCharCount.text = ta.value.length + ' / 2000';
+      }
+    });
+    ta.addEventListener('keydown', (e) => { e.stopPropagation(); });
+    shell.appendChild(ta);
+    this._feedbackTextarea = ta;
+    setTimeout(() => ta.focus(), 100);
+  },
+
+  _removeTextarea() {
+    if (this._feedbackTextarea) {
+      this._feedbackTextarea.remove();
+      this._feedbackTextarea = null;
+    }
+  },
+
+  _submitFeedback() {
+    const ta = this._feedbackTextarea;
+    const text = ta ? ta.value.trim() : '';
+    if (text.length < 10) {
+      if (ta) { ta.placeholder = 'Please write at least 10 characters...'; ta.focus(); }
+      return;
+    }
+    this.feedbackSending = true;
     this.build();
+    this._createTextarea();
+    if (this._feedbackTextarea) this._feedbackTextarea.value = text;
+
+    const apiUrl = window.location.hostname === 'game.altobolt.com'
+      ? 'https://game.altobolt.com/api/feedback'
+      : 'https://game.altobolt.com/api/feedback';
+
+    fetch(apiUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text, category: this.feedbackCategory }),
+    })
+      .then(r => r.json())
+      .then(data => {
+        if (data.success || data.issue_url) {
+          this.feedbackDone = true;
+        }
+        this.feedbackSending = false;
+        this.build();
+        if (this.feedbackDone) this._removeTextarea();
+      })
+      .catch(() => {
+        this.feedbackSending = false;
+        this.build();
+        this._createTextarea();
+        if (this._feedbackTextarea) {
+          this._feedbackTextarea.value = text;
+          this._feedbackTextarea.placeholder = 'Network error. Please try again.';
+        }
+      });
   },
 
   handleKeyDown(e) {
-    if (this.editingOption) {
-      if (e.key === 'Enter') {
-        this.commitEdit();
-        return;
-      }
+    if (this.feedbackOpen) {
       if (e.key === 'Escape') {
-        this.editingOption = null;
-        this.editText = '';
-        this.build();
-        return;
-      }
-      if (e.key === 'Backspace') {
-        this.editText = this.editText.slice(0, -1);
-        this.build();
-        return;
-      }
-      if (e.key.length === 1 && this.editText.length < 18) {
-        this.editText += e.key;
+        this.feedbackOpen = false;
+        this._removeTextarea();
         this.build();
       }
+      return;
+    }
+    if (this.editingOption) {
+      if (e.key === 'Escape') this._cancelNameInput();
       return;
     }
     if (e.key === 'Escape') switchScreen('home');
