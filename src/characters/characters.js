@@ -13,46 +13,54 @@ const CHARACTERS = [
       gameStart: [
         "O-okay, here we go! Don't be too mean...",
         "I'll try my best! Promise!",
-        "The elder pawns believe in me... I think..."
+        "The elder pawns believe in me... I think...",
+        "M-my first real match! I'm so nervous!"
       ],
       bossCapture: [
-        "I... I got one! Did you see that?!",
-        "W-was that okay? I didn't mean to be rude!",
-        "Oh! I actually captured something!"
+        "I... I got your {piece}! Did you see that?!",
+        "W-was that okay? I took your {piece}!",
+        "Oh! I actually captured your {piece}! I have {myPieces} pieces on my side!",
+        "The elder pawns would be so proud... I got a {piece}!"
       ],
       playerCapture: [
-        "Ouch! That was my friend!",
-        "N-no! I wasn't ready for that...",
-        "Please be gentle..."
+        "Ouch! That was my {piece}!",
+        "N-no! My {piece}! I only have {myPieces} pieces left...",
+        "Please be gentle with my pieces...",
+        "You took my {piece}... that's not very nice..."
       ],
       bossCheck: [
-        "Is that... check? Did I do a check?!",
-        "W-wait, your king is in danger! Sorry!"
+        "Is that... check? Did I really just check your king?!",
+        "W-wait, your king is in danger! I did that!",
+        "Oh my gosh, check! The elder pawns would be so proud!"
       ],
       playerCheck: [
-        "Eek! My king! Help!",
-        "Oh no oh no oh no...",
-        "The elder pawns didn't prepare me for this!"
+        "Eek! My king! Someone help!",
+        "Oh no oh no oh no... my king is in trouble!",
+        "The elder pawns didn't prepare me for checks!"
       ],
       bossTaunt: [
-        "I'm thinking really hard...",
+        "I'm thinking really hard about this...",
+        "Give me a moment... {moveNum} moves in and it's getting complex!",
         "The elder pawns said patience is key...",
-        "Um... give me a moment..."
+        "Um... so many squares to think about..."
       ],
       milestone: [
-        "We've been playing a while, huh?",
-        "I haven't lost yet... right?",
-        "This is the longest game I've ever played!"
+        "We're at move {moveNum} already? Wow!",
+        "{moveNum} moves in and I haven't lost yet... right?",
+        "This is the longest game I've ever played! Move {moveNum}!",
+        "The elder pawns never played {moveNum} moves! I think..."
       ],
       lowHealth: [
-        "I'm running out of friends here...",
-        "This isn't going well for me...",
-        "M-maybe I should have stayed home today..."
+        "I only have {myPieces} pieces left...",
+        "This isn't going well... {myPieces} pieces is not many...",
+        "M-maybe I should have stayed home today...",
+        "The elder pawns are going to be so disappointed..."
       ],
       playerLowHealth: [
-        "Am... am I actually winning?!",
-        "The board is looking good for me!",
-        "Wait until the other pawns hear about this!"
+        "Am... am I actually winning?! You only have {theirPieces} pieces!",
+        "The board is looking good for me! {theirPieces} pieces left for you!",
+        "Wait until the other pawns hear about this!",
+        "I have {myPieces} pieces and you only have {theirPieces}!"
       ],
     },
     personality: 'nervous',
@@ -73,45 +81,50 @@ const CHARACTERS = [
       gameStart: [
         "Let's see those diagonals fly!",
         "Ready for the slash and the slash-back?",
-        "The diagonal is calling!"
+        "The diagonal is calling!",
+        "Heh heh... I've been sharpening my angles all day!"
       ],
       bossCapture: [
-        "Heh heh! Right through the diagonal!",
-        "Did you see that angle? Beautiful!",
-        "The slash strikes again!"
+        "Heh heh! Slashed your {piece} right off the board!",
+        "Did you see that angle? Your {piece} didn't!",
+        "The slash strikes again! One {piece}, gone!",
+        "Your {piece} wandered onto my diagonal. Big mistake!"
       ],
       playerCapture: [
-        "Hey! That was my favorite diagonal piece!",
-        "You dare cross MY diagonal?",
-        "Okay okay, lucky shot..."
+        "Hey! That was my {piece}! My favorite diagonal piece!",
+        "You dare take my {piece}? You crossed MY diagonal!",
+        "Okay okay, you got my {piece}... lucky shot...",
+        "Down to {myPieces} pieces but my angles are still sharp!"
       ],
       bossCheck: [
         "Check! The diagonal delivers!",
-        "Your king can't escape the slash!"
+        "Your king can't escape the slash!",
+        "Heh heh, your king is caught on my angle!"
       ],
       playerCheck: [
         "Whoa! My king needs a diagonal escape!",
-        "That's not supposed to happen!"
+        "That's not supposed to happen! Not to me!"
       ],
       bossTaunt: [
         "I see angles you can't even imagine...",
-        "The diagonals whisper to me...",
-        "Calculating the perfect slash..."
+        "The diagonals whisper to me... move {moveNum} is crucial...",
+        "Calculating the perfect slash...",
+        "So many diagonals, so little time!"
       ],
       milestone: [
-        "The diagonals are heating up!",
-        "This game is getting interesting!",
-        "You're better than I expected!"
+        "Move {moveNum}! The diagonals are heating up!",
+        "{moveNum} moves in and every angle is alive!",
+        "You're better than I expected at move {moveNum}!"
       ],
       lowHealth: [
-        "My diagonal army is thinning out...",
-        "The cross-pattern is breaking...",
-        "I need to rethink my angles..."
+        "Down to {myPieces} pieces... my diagonal army is thinning!",
+        "The cross-pattern is breaking with only {myPieces} pieces...",
+        "I need to rethink my angles... {myPieces} pieces left..."
       ],
       playerLowHealth: [
-        "The diagonal dominates!",
-        "See? Straight lines are overrated!",
-        "My bishop pair is unstoppable!"
+        "The diagonal dominates! Only {theirPieces} pieces left for you!",
+        "See? Straight lines are overrated! You're down to {theirPieces}!",
+        "My bishop pair is unstoppable! {myPieces} vs your {theirPieces}!"
       ],
     },
     personality: 'enthusiastic',
@@ -132,45 +145,49 @@ const CHARACTERS = [
       gameStart: [
         "Straight lines. Let us begin.",
         "The rank and file await.",
-        "Discipline wins battles."
+        "Discipline wins battles.",
+        "No tricks. No angles. Only lines."
       ],
       bossCapture: [
-        "Removed. Efficiently.",
-        "The tower claims another.",
-        "Straight through. No deviation."
+        "Your {piece}. Removed. Efficiently.",
+        "The tower claims your {piece}.",
+        "Straight through your {piece}. No deviation.",
+        "One {piece} fewer in your ranks."
       ],
       playerCapture: [
-        "A minor breach. The wall holds.",
-        "You took one stone. The fortress remains.",
-        "Acceptable losses."
+        "You took my {piece}. A minor breach. The wall holds.",
+        "One {piece} lost. The fortress remains with {myPieces} standing.",
+        "Acceptable losses. My {piece} served its purpose."
       ],
       bossCheck: [
         "Your king stands exposed on the file.",
-        "Check. The tower sees all straight lines."
+        "Check. The tower sees all straight lines.",
+        "Nowhere to run along the rank or file."
       ],
       playerCheck: [
         "The wall bends but does not break.",
-        "A direct assault. Noted."
+        "A direct assault. Noted. I will adapt."
       ],
       bossTaunt: [
         "Patience. The tower considers all lines.",
-        "I do not rush. I endure.",
-        "Every rank. Every file. Calculated."
+        "I do not rush. I endure. Move {moveNum}. Steady.",
+        "Every rank. Every file. Calculated.",
+        "The position demands precision, not speed."
       ],
       milestone: [
-        "You have discipline. I respect that.",
-        "The siege continues.",
-        "Neither of us yields."
+        "Move {moveNum}. You have discipline. I respect that.",
+        "The siege continues at move {moveNum}.",
+        "Neither of us yields. {moveNum} moves of discipline."
       ],
       lowHealth: [
-        "The fortress is crumbling...",
-        "My defenses grow thin.",
-        "Even iron towers can fall..."
+        "The fortress is crumbling... {myPieces} stones remain.",
+        "My defenses grow thin. Only {myPieces} pieces hold the line.",
+        "Even iron towers can fall... but not without a fight."
       ],
       playerLowHealth: [
-        "The wall advances. You retreat.",
-        "Discipline always wins.",
-        "Your army scatters before the tower."
+        "The wall advances. You retreat to {theirPieces} pieces.",
+        "Discipline always wins. You have only {theirPieces} left.",
+        "Your army scatters before the tower. {theirPieces} remain."
       ],
     },
     personality: 'stoic',
@@ -191,45 +208,50 @@ const CHARACTERS = [
       gameStart: [
         "*silence* ... The shadows are watching.",
         "You will not see me coming.",
-        "*whisper* ... Let the game begin."
+        "*whisper* ... Let the game begin.",
+        "The darkness stirs. It senses your fear."
       ],
       bossCapture: [
-        "*vanishes* ... One less piece for you.",
-        "The shadow strikes and disappears.",
-        "You never saw it coming."
+        "*vanishes* ... Your {piece} dissolves into shadow.",
+        "The shadow strikes your {piece} and disappears.",
+        "You never saw it coming. Your {piece} is gone.",
+        "Your {piece} wandered into the dark. It will not return."
       ],
       playerCapture: [
-        "*hiss* ... A shadow was caught in the light.",
-        "Clever. But shadows regenerate.",
-        "You found one. There are more."
+        "*hiss* ... My {piece} was caught in the light.",
+        "Clever. You found my {piece}. But shadows regenerate.",
+        "You found one. {myPieces} shadows remain.",
+        "My {piece} falls... but the darkness only deepens."
       ],
       bossCheck: [
         "Your king hides from shadows in vain.",
-        "*chuckle* ... Check from the darkness."
+        "*chuckle* ... Check from the darkness.",
+        "The shadow lances through to your king."
       ],
       playerCheck: [
         "*startled* ... The light reaches my king.",
-        "An unexpected move. Interesting."
+        "An unexpected move. The shadows shift."
       ],
       bossTaunt: [
         "The shadows are deliberating...",
-        "*silence* ...",
-        "I see paths you cannot imagine."
+        "*silence* ... Move {moveNum}. The darkness deepens.",
+        "I see paths you cannot imagine.",
+        "The shadows whisper your next three moves to me."
       ],
       milestone: [
-        "You last longer than most. Interesting.",
-        "The shadows grow restless.",
-        "Few survive this deep into my domain."
+        "Move {moveNum}. You last longer than most. Interesting.",
+        "The shadows grow restless after {moveNum} moves.",
+        "Few survive this deep into my domain. Move {moveNum}..."
       ],
       lowHealth: [
-        "The shadows thin... but never vanish.",
-        "You push the darkness back...",
-        "*grudging respect* ... Well played."
+        "The shadows thin to {myPieces}... but never vanish.",
+        "You push the darkness back... only {myPieces} remain...",
+        "*grudging respect* ... Well played. But shadow endures."
       ],
       playerLowHealth: [
-        "The shadows consume your army.",
-        "Darkness swallows all eventually.",
-        "Your pieces fall like whispers."
+        "The shadows consume your army. Only {theirPieces} remain.",
+        "Darkness swallows all eventually. {theirPieces} pieces left.",
+        "Your pieces fall like whispers into the void."
       ],
     },
     personality: 'mysterious',
@@ -250,45 +272,50 @@ const CHARACTERS = [
       gameStart: [
         "The queen graces you with her presence!",
         "Bow, darling. The game begins.",
-        "This will be over quickly, sweetie."
+        "This will be over quickly, sweetie.",
+        "You may kiss the board before I destroy you on it."
       ],
       bossCapture: [
-        "Another subject removed from the board!",
-        "The queen takes what she wants, darling!",
-        "Off with their head!"
+        "Your {piece}? Mine now. The queen takes what she wants!",
+        "Off with your {piece}'s head!",
+        "Another {piece} removed from the board. How satisfying!",
+        "The queen claims your {piece}. As is her right!"
       ],
       playerCapture: [
-        "How DARE you touch my pieces!",
-        "That was one of my favorites!",
-        "You will pay for that insolence!"
+        "How DARE you take my {piece}! That was one of my favorites!",
+        "You took my {piece}?! You will pay for that insolence!",
+        "My {piece}! I only have {myPieces} loyal subjects left!",
+        "Seizing a queen's {piece} is an act of war, darling!"
       ],
       bossCheck: [
-        "Your king kneels before the queen!",
-        "Check! Bow before royalty!"
+        "Your king kneels before the queen! Check!",
+        "Check! Bow before royalty, darling!",
+        "The queen commands your king to surrender!"
       ],
       playerCheck: [
         "You threaten MY king? The audacity!",
-        "This is treason, darling!"
+        "This is treason, darling! Guards!"
       ],
       bossTaunt: [
         "A queen considers all her options...",
-        "Do not rush royalty.",
-        "Every direction. Any distance. My choice."
+        "Do not rush royalty. Move {moveNum} demands elegance.",
+        "Every direction. Any distance. My choice.",
+        "The crown weighs heavy with decisions..."
       ],
       milestone: [
-        "Still here? How persistent of you.",
-        "You amuse the queen. Continue.",
-        "I expected this to be over by now!"
+        "Move {moveNum}? Still here? How persistent of you.",
+        "You amuse the queen at move {moveNum}. Continue.",
+        "I expected this to be over by move {moveNum}!"
       ],
       lowHealth: [
-        "My court is diminishing!",
-        "This is NOT how a queen should be treated!",
-        "Where are my loyal subjects?!"
+        "My court is down to {myPieces}! This is unacceptable!",
+        "Only {myPieces} loyal subjects?! This is NOT how a queen should be treated!",
+        "Where are my loyal subjects?! Only {myPieces} remain!"
       ],
       playerLowHealth: [
-        "The monarchy prevails!",
-        "Your army bows to the queen!",
-        "This is the natural order, darling."
+        "The monarchy prevails! You cling to {theirPieces} pitiful pieces!",
+        "Your army of {theirPieces} bows to the queen!",
+        "This is the natural order, darling. {myPieces} royals vs your {theirPieces}."
       ],
     },
     personality: 'dramatic',
@@ -309,21 +336,25 @@ const CHARACTERS = [
       gameStart: [
         "The wall stands ready. Come.",
         "You may begin your siege.",
-        "I have all the time in the world."
+        "I have all the time in the world.",
+        "The fortress has never fallen. You will not change that."
       ],
       bossCapture: [
-        "The fortress claims a prisoner.",
-        "One more piece absorbed into the wall.",
-        "My defense is my offense."
+        "Your {piece}. Absorbed into the wall.",
+        "The fortress claims your {piece}. One more prisoner.",
+        "Your {piece} broke against my defenses.",
+        "My defense claimed your {piece}. That is my offense."
       ],
       playerCapture: [
-        "A brick falls. The wall remains.",
-        "You chip away. But slowly.",
-        "Every fortress loses a stone or two."
+        "You took my {piece}. A brick falls. The wall remains.",
+        "My {piece} is gone. {myPieces} stones still stand.",
+        "Every fortress loses a stone or two. I have {myPieces}.",
+        "One {piece}. The siege continues."
       ],
       bossCheck: [
         "The fortress presses forward. Check.",
-        "Even walls can attack."
+        "Even walls can attack. Your king learns this now.",
+        "Check. The wall advances."
       ],
       playerCheck: [
         "A crack in the wall. I will repair it.",
@@ -331,23 +362,24 @@ const CHARACTERS = [
       ],
       bossTaunt: [
         "I can wait forever.",
-        "The wall does not hurry.",
-        "Patience outlasts aggression."
+        "The wall does not hurry. Move {moveNum}. Still standing.",
+        "Patience outlasts aggression.",
+        "You siege. I endure. That is all."
       ],
       milestone: [
-        "The siege drags on. I am comfortable.",
-        "You cannot outlast the fortress.",
-        "Time is my ally."
+        "Move {moveNum}. The siege drags on. I am comfortable.",
+        "You cannot outlast the fortress. {moveNum} moves prove nothing.",
+        "Time is my ally. {moveNum} moves is nothing to a wall."
       ],
       lowHealth: [
-        "The wall is breached in places...",
-        "My fortress shows cracks...",
-        "I must shore up the defenses..."
+        "The wall is breached... {myPieces} stones hold.",
+        "My fortress shows cracks... only {myPieces} remain...",
+        "I must shore up the defenses with {myPieces} pieces..."
       ],
       playerLowHealth: [
-        "Your siege has failed.",
-        "The fortress stands. Your army does not.",
-        "Impenetrable. As always."
+        "Your siege has failed. {theirPieces} pieces left standing.",
+        "The fortress stands with {myPieces}. Your army of {theirPieces} does not.",
+        "Impenetrable. As always. You have {theirPieces} left."
       ],
     },
     personality: 'patient',
@@ -368,45 +400,50 @@ const CHARACTERS = [
       gameStart: [
         "The opening means nothing. Let us proceed.",
         "I am waiting for the endgame.",
-        "Play your opening. I will play the ending."
+        "Play your opening. I will play the ending.",
+        "Every move brings us closer to where I thrive."
       ],
       bossCapture: [
-        "One less piece for the endgame. Good.",
-        "Simplification favors the prepared.",
-        "Fewer pieces. Closer to my domain."
+        "Your {piece}. One less piece for the endgame. Good.",
+        "Simplification favors the prepared. Your {piece} agrees.",
+        "Fewer pieces. Your {piece} exits. Closer to my domain.",
+        "Your {piece} traded for position. The scholar approves."
       ],
       playerCapture: [
-        "Material is temporary. Knowledge is permanent.",
-        "Take my pieces. The endgame still favors me.",
-        "You trade pieces. I trade for position."
+        "You took my {piece}. Material is temporary. Knowledge is permanent.",
+        "Take my {piece}. The endgame still favors me with {myPieces} pieces.",
+        "You trade pieces. I trade for position. My {piece} served its purpose.",
+        "One {piece} less. {myPieces} remain. The theory still applies."
       ],
       bossCheck: [
         "Check. The endgame approaches.",
-        "Your king wanders into familiar territory."
+        "Your king wanders into familiar territory for me.",
+        "Check. I have studied this pattern extensively."
       ],
       playerCheck: [
         "A check. But the endgame has not begun.",
-        "Premature aggression. I can wait."
+        "Premature aggression. The scholar can wait."
       ],
       bossTaunt: [
-        "Studying the position. Every detail matters.",
-        "Lucena, Philidor... which one applies here?",
-        "The endgame tables tell me everything."
+        "Studying the position at move {moveNum}. Every detail matters.",
+        "Lucena, Philidor... which one applies at move {moveNum}?",
+        "The endgame tables tell me everything.",
+        "Patience. The position will simplify in time."
       ],
       milestone: [
-        "We approach the middlegame. Almost there.",
-        "Soon the pieces will simplify.",
-        "The real game is about to begin."
+        "Move {moveNum}. We approach the middlegame. Almost there.",
+        "Move {moveNum}. Soon the pieces will simplify.",
+        "Move {moveNum}. The real game is about to begin."
       ],
       lowHealth: [
-        "Fewer pieces... but this is my strength.",
-        "The endgame is here. Finally.",
-        "With less on the board, I see more clearly."
+        "Only {myPieces} pieces... but this is my strength.",
+        "The endgame is here with {myPieces} pieces. Finally.",
+        "With {myPieces} on the board, I see more clearly."
       ],
       playerLowHealth: [
-        "The position simplifies in my favor.",
-        "Your army shrinks. My knowledge grows.",
-        "The endgame belongs to the scholar."
+        "You have {theirPieces} pieces. The position simplifies in my favor.",
+        "Your army shrinks to {theirPieces}. My knowledge grows.",
+        "The endgame belongs to the scholar. {theirPieces} pieces cannot save you."
       ],
     },
     personality: 'calm',
@@ -427,45 +464,50 @@ const CHARACTERS = [
       gameStart: [
         "I already see three forks. Do you?",
         "Every piece you place is a target.",
-        "Tactics. Pure tactics. Let's go."
+        "Tactics. Pure tactics. Let's go.",
+        "The board is a puzzle. I already have the answer."
       ],
       bossCapture: [
-        "Forked! Classic.",
-        "Did you see that pin? Of course not.",
-        "Tactical superiority. As expected."
+        "Forked your {piece}! Classic.",
+        "Did you see that pin on your {piece}? Of course not.",
+        "Your {piece}? Tactical roadkill. As expected.",
+        "One {piece} down. I see two more tactics already."
       ],
       playerCapture: [
-        "Hmm. You spotted that one.",
-        "Lucky. That won't happen again.",
-        "One piece. I'll take three of yours."
+        "You spotted my {piece}. Lucky shot.",
+        "You got my {piece}? That won't happen again.",
+        "One {piece}. I'll take three of yours. Just watch.",
+        "You took my {piece} but missed the real trap."
       ],
       bossCheck: [
         "Check! With a fork attached, naturally.",
-        "Your king AND your rook. Pick one."
+        "Your king AND your rook. Pick one.",
+        "Check! See the skewer behind it? You will."
       ],
       playerCheck: [
         "A check? That's not a tactic, that's desperation.",
-        "Checking without purpose. Amateur."
+        "Checking without purpose. Amateur move."
       ],
       bossTaunt: [
         "Calculating... so many forks, so little time.",
-        "The pins and skewers are lining up perfectly.",
-        "I see a tactic in every position."
+        "Move {moveNum}. The pins and skewers are lining up perfectly.",
+        "I see a tactic in every position.",
+        "Your pieces are practically forking themselves."
       ],
       milestone: [
-        "Surviving this long? Impressive. Slightly.",
-        "Most opponents are done by now.",
-        "You must have trained specifically for me."
+        "Move {moveNum} and you're surviving? Impressive. Slightly.",
+        "Most opponents are done by move {moveNum}.",
+        "You must have trained specifically for me. {moveNum} moves in!"
       ],
       lowHealth: [
-        "Fewer pieces means fewer forks... wait.",
-        "You're dismantling my tactical playground!",
-        "I need more pieces to fork!"
+        "Down to {myPieces}... fewer pieces means fewer forks... wait, no.",
+        "You're dismantling my tactical playground! {myPieces} pieces left!",
+        "I need more pieces to fork! Only {myPieces} left!"
       ],
       playerLowHealth: [
-        "Fork after fork after fork!",
-        "Your army is my tactical buffet.",
-        "See? Tactics always win."
+        "Fork after fork! You're down to {theirPieces} pieces!",
+        "Your army of {theirPieces} is my tactical buffet.",
+        "See? Tactics always win. {myPieces} vs {theirPieces}. Game over."
       ],
     },
     personality: 'smug',
@@ -486,21 +528,25 @@ const CHARACTERS = [
       gameStart: [
         "The countdown begins now.",
         "Every move brings the end closer.",
-        "Your king is already marked."
+        "Your king is already marked.",
+        "I do not play chess. I orchestrate endings."
       ],
       bossCapture: [
-        "One less defender for your king.",
-        "The net tightens.",
-        "Another piece falls. The end approaches."
+        "Your {piece}. One less defender for your king.",
+        "The net tightens around your {piece}'s absence.",
+        "Your {piece} falls. The end approaches.",
+        "Your {piece} was in the way of the checkmate. It is not anymore."
       ],
       playerCapture: [
-        "You delay the inevitable.",
-        "A sacrifice? How touching. And futile.",
-        "Take my pieces. The checkmate still comes."
+        "You took my {piece}. You delay the inevitable.",
+        "My {piece}? A sacrifice. How touching. And futile.",
+        "Take my pieces. I have {myPieces}. The checkmate still comes.",
+        "One {piece} lost. The executioner needs only a king to finish."
       ],
       bossCheck: [
         "Check. The execution draws near.",
-        "Your king runs. But there is nowhere to hide."
+        "Your king runs. But there is nowhere to hide.",
+        "Check. Feel the noose tightening?"
       ],
       playerCheck: [
         "A temporary reprieve. Nothing more.",
@@ -508,23 +554,24 @@ const CHARACTERS = [
       ],
       bossTaunt: [
         "I am orchestrating your demise...",
-        "The mating net is taking shape...",
-        "Can you feel it? The walls closing in?"
+        "Move {moveNum}. The mating net is taking shape...",
+        "Can you feel it? The walls closing in?",
+        "Every move you make writes your own ending."
       ],
       milestone: [
-        "You survive. For now.",
-        "The execution has been delayed. Not cancelled.",
-        "Most fall before this point."
+        "Move {moveNum}. You survive. For now.",
+        "The execution has been delayed {moveNum} moves. Not cancelled.",
+        "Most fall before move {moveNum}. You are stubborn."
       ],
       lowHealth: [
-        "You dismantle my army... but not my purpose.",
-        "The executioner needs only one piece.",
-        "Fewer pieces. But the checkmate remains."
+        "You dismantle my army to {myPieces}... but not my purpose.",
+        "The executioner needs only one piece. I have {myPieces}.",
+        "{myPieces} pieces. The checkmate remains inevitable."
       ],
       playerLowHealth: [
-        "Your king stands alone. As foreseen.",
-        "The execution proceeds on schedule.",
-        "There is no escape from the executioner."
+        "Your king stands with only {theirPieces} defenders. As foreseen.",
+        "The execution proceeds on schedule. {theirPieces} pieces left.",
+        "There is no escape from the executioner. {theirPieces} cannot save you."
       ],
     },
     personality: 'ominous',
@@ -545,21 +592,25 @@ const CHARACTERS = [
       gameStart: [
         "Make your first move. It will define you.",
         "The summit awaits. Begin.",
-        "I am chess itself. Show me what you are."
+        "I am chess itself. Show me what you are.",
+        "Thirty years. A thousand victories. Let us see if you change that."
       ],
       bossCapture: [
-        "Perfection requires sacrifice. Yours.",
-        "Removed. As calculated thirty moves ago.",
-        "The Absolute does not err."
+        "Your {piece}. Perfection requires sacrifice. Yours.",
+        "Your {piece} removed. As calculated thirty moves ago.",
+        "The Absolute does not err. Your {piece} confirms it.",
+        "Your {piece} served your plan. My plan was better."
       ],
       playerCapture: [
-        "Interesting. You found a real move.",
-        "That changes nothing in the grand position.",
-        "A strong choice. I have seen stronger."
+        "You took my {piece}. Interesting. You found a real move.",
+        "My {piece} falls. That changes nothing in the grand position.",
+        "A strong choice taking my {piece}. I have seen stronger.",
+        "My {piece}. {myPieces} remain. The Absolute adapts."
       ],
       bossCheck: [
         "Check. The truth is inescapable.",
-        "Your king faces the Absolute."
+        "Your king faces the Absolute.",
+        "Check. This is not aggression. It is inevitability."
       ],
       playerCheck: [
         "A check. I expected it four moves ago.",
@@ -567,23 +618,24 @@ const CHARACTERS = [
       ],
       bossTaunt: [
         "I am considering every possibility.",
-        "The position reveals its secrets to me.",
-        "Perfection takes time."
+        "Move {moveNum}. The position reveals its secrets to me.",
+        "Perfection takes time. Even at move {moveNum}.",
+        "The Absolute sees all lines to their conclusion."
       ],
       milestone: [
-        "You have earned your place at this board.",
-        "Few reach this point against me.",
-        "The game deepens. As does my respect."
+        "Move {moveNum}. You have earned your place at this board.",
+        "Few reach move {moveNum} against me.",
+        "Move {moveNum}. The game deepens. As does my respect."
       ],
       lowHealth: [
-        "You challenge the Absolute... and you succeed?",
-        "This has not happened in thirty years.",
-        "Perhaps... you ARE chess."
+        "{myPieces} pieces. You challenge the Absolute... and you succeed?",
+        "Down to {myPieces}. This has not happened in thirty years.",
+        "Perhaps with {myPieces} pieces left... you ARE chess."
       ],
       playerLowHealth: [
-        "The summit is mine. As always.",
-        "Potential without perfection is wasted.",
-        "The Absolute remains absolute."
+        "The summit is mine. You cling to {theirPieces} pieces.",
+        "{theirPieces} pieces. Potential without perfection is wasted.",
+        "The Absolute remains absolute. {myPieces} vs {theirPieces}."
       ],
     },
     personality: 'serious',

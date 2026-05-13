@@ -1040,7 +1040,7 @@ const GameScreen = {
       audioManager.playScreenShake();
 
       if (this.mode === 'story' && typeof DialogueManager !== 'undefined') {
-        DialogueManager.onCapture(this.turn, captured, this.aiColor);
+        DialogueManager.onCapture(this.turn, captured, this.aiColor, this.board);
       }
     } else {
       audioManager.playMove(piece ? piece.type : null);
@@ -1131,7 +1131,7 @@ const GameScreen = {
     if (this.gameStatus === 'check') {
       audioManager.playCheck();
       if (this.mode === 'story' && typeof DialogueManager !== 'undefined') {
-        DialogueManager.onCheck(this.turn, this.aiColor);
+        DialogueManager.onCheck(this.turn, this.aiColor, this.board);
       }
     }
     if (typeof audioManager.setSuspense === 'function') {
@@ -1169,7 +1169,7 @@ const GameScreen = {
     this.aiThinking = true;
 
     if (this.mode === 'story' && typeof DialogueManager !== 'undefined') {
-      DialogueManager.onAIThinkStart();
+      DialogueManager.onAIThinkStart(this.board, this.aiColor);
     }
 
     // Safety timeout: if AI takes longer than 10 seconds, force-reset

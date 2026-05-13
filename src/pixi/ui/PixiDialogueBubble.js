@@ -25,7 +25,7 @@ class PixiDialogueBubble extends PIXI.Container {
     portrait.height = portraitSize;
 
     if (characterId) {
-      const imgPath = `assets/textures/characters/${characterId}.png`;
+      const imgPath = `../assets/textures/characters/${characterId}.png`;
       PIXI.Assets.load(imgPath).then(tex => {
         if (!this.destroyed) {
           portrait.texture = tex;

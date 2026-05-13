@@ -42,44 +42,65 @@ const DialogueManager = {
     this._tryShow('gameStart');
   },
 
-  onCapture(capturingColor, capturedPiece, aiColor) {
+  onCapture(capturingColor, capturedPiece, aiColor, board) {
     if (!this._active) return;
+    const pieceName = capturedPiece ? (capturedPiece.type || 'piece') : 'piece';
+    const ctx = { piece: pieceName };
+    if (board) {
+      ctx.myPieces = this._countPieces(board, aiColor);
+      ctx.theirPieces = this._countPieces(board, aiColor === 'white' ? 'black' : 'white');
+    }
     if (capturingColor === aiColor) {
-      this._tryShow('bossCapture');
+      this._tryShow('bossCapture', ctx);
     } else {
-      this._tryShow('playerCapture');
+      this._tryShow('playerCapture', ctx);
     }
   },
 
-  onCheck(checkedColor, aiColor) {
+  onCheck(checkedColor, aiColor, board) {
     if (!this._active) return;
+    const ctx = {};
+    if (board) {
+      ctx.myPieces = this._countPieces(board, aiColor);
+      ctx.theirPieces = this._countPieces(board, aiColor === 'white' ? 'black' : 'white');
+    }
     if (checkedColor !== aiColor) {
-      this._tryShow('bossCheck');
+      this._tryShow('bossCheck', ctx);
     } else {
-      this._tryShow('playerCheck');
+      this._tryShow('playerCheck', ctx);
     }
   },
 
   onMoveComplete(moveNumber, board, aiColor) {
     if (!this._active) return;
+    const ctx = { moveNum: moveNumber };
+    if (board) {
+      ctx.myPieces = this._countPieces(board, aiColor);
+      ctx.theirPieces = this._countPieces(board, aiColor === 'white' ? 'black' : 'white');
+    }
     if (moveNumber === 10 && !this._triggeredMilestones.has(10)) {
       this._triggeredMilestones.add(10);
-      this._tryShow('milestone');
+      this._tryShow('milestone', ctx);
       return;
     }
     if (moveNumber === 20 && !this._triggeredMilestones.has(20)) {
       this._triggeredMilestones.add(20);
-      this._tryShow('milestone');
+      this._tryShow('milestone', ctx);
       return;
     }
     if (board) this._checkMaterial(board, aiColor);
   },
 
-  onAIThinkStart() {
+  onAIThinkStart(board, aiColor) {
     if (!this._active) return;
     if (this._thinkTimer) clearTimeout(this._thinkTimer);
+    const ctx = {};
+    if (board) {
+      ctx.myPieces = this._countPieces(board, aiColor);
+      ctx.theirPieces = this._countPieces(board, aiColor === 'white' ? 'black' : 'white');
+    }
     this._thinkTimer = setTimeout(() => {
-      this._tryShow('bossTaunt');
+      this._tryShow('bossTaunt', ctx);
       this._thinkTimer = null;
     }, 3000);
   },
@@ -105,16 +126,32 @@ const DialogueManager = {
       }
     }
 
+    const ctx = {
+      myPieces: this._countPieces(board, aiColor),
+      theirPieces: this._countPieces(board, playerColor),
+      advantage: bossMat - playerMat,
+    };
+
     if (!this._lowHealthTriggered && bossMat < this.STARTING_MATERIAL * this.LOW_HEALTH_THRESHOLD) {
       this._lowHealthTriggered = true;
-      this._tryShow('lowHealth');
+      this._tryShow('lowHealth', ctx);
     } else if (!this._playerLowHealthTriggered && playerMat < this.STARTING_MATERIAL * this.LOW_HEALTH_THRESHOLD) {
       this._playerLowHealthTriggered = true;
-      this._tryShow('playerLowHealth');
+      this._tryShow('playerLowHealth', ctx);
     }
   },
 
-  _tryShow(category) {
+  _countPieces(board, color) {
+    let count = 0;
+    for (let r = 0; r < 8; r++)
+      for (let c = 0; c < 8; c++) {
+        const p = board.grid[r][c];
+        if (p && p.color === color) count++;
+      }
+    return count;
+  },
+
+  _tryShow(category, context) {
     if (!this._active || !this._character || !this._onShow) return;
     const gd = this._character.gameDialogue;
     if (!gd || !gd[category]) return;
@@ -122,8 +159,16 @@ const DialogueManager = {
     const now = Date.now();
     if (now - this._lastShownTime < this._cooldownMs) return;
 
-    const line = this._pickLine(gd[category], category);
+    let line = this._pickLine(gd[category], category);
     if (!line) return;
+
+    if (context) {
+      line = line.replace(/\{piece\}/g, context.piece || 'piece');
+      line = line.replace(/\{myPieces\}/g, String(context.myPieces || '?'));
+      line = line.replace(/\{theirPieces\}/g, String(context.theirPieces || '?'));
+      line = line.replace(/\{moveNum\}/g, String(context.moveNum || '?'));
+      line = line.replace(/\{advantage\}/g, String(context.advantage || 0));
+    }
 
     this._lastShownTime = now;
     this._onShow(line, this._character);
