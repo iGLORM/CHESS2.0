@@ -13,6 +13,7 @@ const StatsScreen = {
     });
     PixiScreenManager.setScreenContainer(this.pixiContainer);
 
+    const s = Layout.uiScale || (Layout.isPortrait ? 0.82 : 1);
     const stats = store.get('stats') || {};
     const save = store.getActiveSave && store.getActiveSave();
     const games = stats.gamesPlayed || 0;
@@ -33,39 +34,41 @@ const StatsScreen = {
     const cols = ThemeManager.getCurrentColors();
 
     if (Layout.isPortrait) {
-      const panelX = (Layout.W - 720) / 2;
-      const summaryW = 680;
-      const summaryH = 280;
-      const summaryX = panelX + 20;
+      const panelW = Math.min(720, Layout.W - 80);
+      const panelX = (Layout.W - panelW) / 2;
+      const pad = 20;
+      const summaryW = panelW - pad * 2;
+      const summaryH = Math.round(280 * s);
+      const summaryX = panelX + pad;
       const summaryY = 172;
 
-      const gridCardW = 320;
-      const gridCardH = 76;
-      const gridGapX = 24;
-      const gridGapY = 16;
-      const gridStartY = summaryY + summaryH + 30;
+      const gridGapX = Math.round(16 * s);
+      const gridGapY = Math.round(14 * s);
+      const gridCardW = Math.floor((panelW - pad * 2 - gridGapX) / 2);
+      const gridCardH = Math.round(76 * s);
+      const gridStartY = summaryY + summaryH + Math.round(24 * s);
       const gridRows = 4;
       const gridH = gridRows * gridCardH + (gridRows - 1) * gridGapY;
       const totalH = (gridStartY - 132) + gridH + 40;
 
-      PixiPremiumScene.panel(this.pixiContainer, panelX, 132, 720, totalH, { accentAlpha: 0.42 });
+      PixiPremiumScene.panel(this.pixiContainer, panelX, 132, panelW, totalH, { accentAlpha: 0.42 });
 
-      const summary = this.summaryPanel(summaryX, summaryY, summaryW, summaryH, stats, storyLevel, cols);
+      const summary = this.summaryPanel(summaryX, summaryY, summaryW, summaryH, stats, storyLevel, cols, s);
       this.pixiContainer.addChild(summary);
 
       const grid = new PIXI.Container();
-      grid.x = panelX + 20;
+      grid.x = panelX + pad;
       grid.y = gridStartY;
       this.pixiContainer.addChild(grid);
       cards.forEach((card, i) => {
         const col = i % 2;
         const row = Math.floor(i / 2);
-        this.statCard(grid, col * (gridCardW + gridGapX), row * (gridCardH + gridGapY), gridCardW, gridCardH, card, cols);
+        this.statCard(grid, col * (gridCardW + gridGapX), row * (gridCardH + gridGapY), gridCardW, gridCardH, card, cols, s);
       });
     } else {
       PixiPremiumScene.panel(this.pixiContainer, 76, 132, 1128, 524, { accentAlpha: 0.42 });
 
-      const summary = this.summaryPanel(118, 174, 344, 392, stats, storyLevel, cols);
+      const summary = this.summaryPanel(118, 174, 344, 392, stats, storyLevel, cols, s);
       this.pixiContainer.addChild(summary);
 
       const grid = new PIXI.Container();
@@ -75,7 +78,7 @@ const StatsScreen = {
       cards.forEach((card, i) => {
         const col = i % 2;
         const row = Math.floor(i / 2);
-        this.statCard(grid, col * 318, row * 96, 286, 76, card, cols);
+        this.statCard(grid, col * 318, row * 96, 286, 76, card, cols, s);
       });
     }
 
@@ -83,17 +86,17 @@ const StatsScreen = {
     PixiPremiumScene.button(this.pixiContainer, 36, btnY, 160, 44, 'Back', () => switchScreen('home'), { icon: 'back' });
   },
 
-  summaryPanel(x, y, w, h, stats, storyLevel, cols) {
+  summaryPanel(x, y, w, h, stats, storyLevel, cols, s) {
     const group = new PIXI.Container();
     PixiPremiumScene.panel(group, x, y, w, h, { accentAlpha: 0.58, alpha: 0.70 });
 
     const title = PixiPremiumScene.text('Career Snapshot', {
-      fontSize: 25,
+      fontSize: Math.round(25 * s),
       fontWeight: '900',
       fill: cols.text,
     });
     title.x = x + 34;
-    title.y = y + 30;
+    title.y = y + Math.round(30 * s);
     group.addChild(title);
 
     const games = stats.gamesPlayed || 0;
@@ -103,73 +106,69 @@ const StatsScreen = {
     const miniWins = stats.miniGamesWon || 0;
     const miniRate = miniGames ? Math.round((miniWins / miniGames) * 100) : 0;
 
-    const gamesLabel = PixiPremiumScene.text('Games Played', { fontSize: 14, fontWeight: '700', fill: PixiPremiumScene.alpha(cols.text, '88') });
-    gamesLabel.x = x + 34;
-    gamesLabel.y = y + 72;
-    group.addChild(gamesLabel);
-    const gamesValue = PixiPremiumScene.text(String(games), { fontSize: 42, fontWeight: '900', fill: cols.accent });
-    gamesValue.x = x + 34;
-    gamesValue.y = y + 92;
-    group.addChild(gamesValue);
-
-    const rowGap = Math.min(72, (h - 150) / 2);
-    const rowStart = y + Math.min(170, h * 0.50);
+    const rowGap = Math.min(Math.round(72 * s), (h - Math.round(150 * s)) / 3);
+    const rowStart = y + Math.min(Math.round(112 * s), h * 0.28);
     const rows = [
       ['Win Rate', `${winRate}%`],
       ['Mini-Game Rate', `${miniRate}%`],
+      ['Story Progress', `${storyLevel}/10`],
     ];
     rows.forEach((row, i) => {
       const yy = rowStart + i * rowGap;
-      const label = PixiPremiumScene.text(row[0], { fontSize: 16, fontWeight: '700', fill: PixiPremiumScene.alpha(cols.text, '88') });
+      const label = PixiPremiumScene.text(row[0], { fontSize: Math.round(16 * s), fontWeight: '700', fill: PixiPremiumScene.alpha(cols.text, '88') });
       label.x = x + 34;
       label.y = yy;
       group.addChild(label);
-      const value = PixiPremiumScene.text(row[1], { fontSize: 28, fontWeight: '900', fill: cols.accent });
+      const value = PixiPremiumScene.text(row[1], { fontSize: Math.round(28 * s), fontWeight: '900', fill: cols.accent });
       value.anchor.set(1, 0);
       value.x = x + w - 34;
-      value.y = yy - 6;
+      value.y = yy - Math.round(6 * s);
       group.addChild(value);
     });
+
+    const barY = y + h - Math.round(44 * s);
+    this.bar(group, x + 34, barY, w - 68, Math.round(16 * s), Math.min(1, storyLevel / 10), cols);
     return group;
   },
 
-  statCard(parent, x, y, w, h, item, cols) {
+  statCard(parent, x, y, w, h, item, cols, s) {
     PixiPremiumScene.card(parent, x, y, w, h, {
       interactive: false,
       activeColor: item.accent,
       alpha: 0.68,
       draw: (card) => {
+        const iconSize = Math.round(40 * s);
         const icon = new PIXI.Sprite(PixiPremiumAssets.icon(item.icon));
-        icon.width = 40;
-        icon.height = 40;
-        icon.x = 18;
-        icon.y = 18;
+        icon.width = iconSize;
+        icon.height = iconSize;
+        icon.x = Math.round(18 * s);
+        icon.y = Math.round(18 * s);
         card.addChild(icon);
 
+        const labelX = Math.round(74 * s);
         const label = PixiPremiumScene.text(item.label, {
-          fontSize: 15,
+          fontSize: Math.round(15 * s),
           fontWeight: '700',
           fill: PixiPremiumScene.alpha(cols.text, '88'),
         });
-        label.x = 74;
-        label.y = 17;
-        PixiPremiumScene.fit(label, 126, 0.65);
+        label.x = labelX;
+        label.y = Math.round(17 * s);
+        PixiPremiumScene.fit(label, Math.round(126 * s), 0.65);
         card.addChild(label);
 
-        const isZero = item.value === 0 || item.value === '0';
-        const value = PixiPremiumScene.text(isZero ? '—' : String(item.value), {
-          fontSize: 25,
+        const value = PixiPremiumScene.text(String(item.value), {
+          fontSize: Math.round(25 * s),
           fontWeight: '900',
-          fill: isZero ? PixiPremiumScene.alpha(cols.text, '44') : item.accent,
+          fill: item.accent,
         });
         value.anchor.set(1, 0);
-        value.x = w - 22;
-        value.y = 24;
-        PixiPremiumScene.fit(value, 66, 0.58);
+        value.x = w - Math.round(22 * s);
+        value.y = Math.round(24 * s);
+        PixiPremiumScene.fit(value, Math.round(66 * s), 0.58);
         card.addChild(value);
 
-        if (item.ratio !== undefined && item.ratio > 0) {
-          this.bar(card, 74, 52, w - 100, 8, item.ratio, cols, item.accent);
+        if (item.ratio !== undefined) {
+          this.bar(card, labelX, Math.round(52 * s), w - labelX - Math.round(26 * s), Math.round(8 * s), item.ratio, cols, item.accent);
         }
       },
     });
