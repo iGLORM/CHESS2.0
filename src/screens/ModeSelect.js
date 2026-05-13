@@ -1,167 +1,103 @@
 const ModeSelect = {
+  isPixiScreen: true,
+  pixiContainer: null,
+  mode: 'story',
   selectedButton: 0,
-  buttons: [],
+  _cards: [],
 
   init(data) {
     this.mode = data || 'story';
     this.selectedButton = 0;
+    this._cards = [];
+    this.build();
   },
 
-  destroy() {},
+  destroy() {
+    PixiPremiumScene.destroy(this);
+  },
 
-  render(ctx, dt) {
-    const theme = ThemeManager.getTheme(store.get('theme'));
-    const cols = theme.colors;
-    const W = Layout.W;
-    const H = Layout.H;
-    const cx = Layout.cx;
-    const portrait = Layout.isPortrait;
+  pixiUpdate(dt) {
+    PixiPremiumScene.update(this.pixiContainer, dt);
+  },
 
-    // Background - animated theme
-    const usePixiBg = typeof PixiMenuBackground !== 'undefined' && PixiMenuBackground.initialized;
-    if (usePixiBg) {
-      ctx.clearRect(0, 0, W, H);
-    } else if (typeof backgroundRenderer !== 'undefined') {
-      backgroundRenderer.render(ctx, dt);
-    } else {
-      ctx.fillStyle = cols.background;
-      ctx.fillRect(0, 0, W, H);
-    }
+  build() {
+    if (this.pixiContainer) this.pixiContainer.destroy({ children: true });
+    const title = this.mode === 'story' ? 'Story Mode' : 'Local 1v1';
+    this.pixiContainer = PixiPremiumScene.root(title, 'Select your side', {
+      footerHint: 'Choose a side to begin',
+    });
+    PixiScreenManager.setScreenContainer(this.pixiContainer);
+    this._cards = [];
+    this.buildSideCards();
 
-    // Layout values
-    const titleY = portrait ? 240 : 200;
-    const subtitleY = titleY + 40;
-    const sepY = subtitleY + 40;
-    const bw = portrait ? 540 : 440;
-    const bh = portrait ? 64 : 55;
-    const btnGap = portrait ? 14 : 10;
-    const panelPadX = portrait ? 20 : 0;
-    const panelX = cx - bw / 2 - panelPadX - 20;
-    const panelW = bw + panelPadX * 2 + 40;
-    const firstBtnY = sepY + 40;
+    const btnY = Layout.isPortrait ? Layout.H - Layout.SAFE_BOTTOM - 48 : 718;
+    PixiPremiumScene.button(this.pixiContainer, 36, btnY, 160, 44, 'Home', () => {
+      if (typeof audioManager !== 'undefined' && audioManager.playButton) audioManager.playButton();
+      switchScreen('home');
+    }, { icon: 'back' });
+  },
 
-    // Title
-    ctx.fillStyle = cols.text;
-    ctx.font = 'bold 32px "Pixelify Sans", sans-serif';
-    ctx.textAlign = 'center';
-    const title = this.mode === 'story' ? 'STORY MODE' : 'LOCAL 1v1';
-    ctx.fillText(title, cx, titleY);
-
-    // Subtitle
-    ctx.font = '14px "Pixelify Sans", sans-serif';
-    ctx.fillStyle = cols.text + '88';
-    ctx.fillText('Select your side', cx, subtitleY);
-
-    // Decorative separator below title area
-    UIHelpers.drawSeparator(ctx, cx - 240, sepY, 480, cols);
-
-    // Decorative piece sprites
-    const iconOffset = portrait ? 200 : 340;
-    UIHelpers.drawIcon(ctx, cx - iconOffset, titleY + 20, 'king', 24, cols, { color: cols.lightPiece });
-    UIHelpers.drawIcon(ctx, cx + iconOffset, titleY + 20, 'king', 24, cols, { color: cols.darkPiece });
-
-    // Grouping panel behind button area
-    const panelH = (bh + btnGap) * 3 + 20;
-    UIHelpers.drawPanel(ctx, panelX, firstBtnY - 20, panelW, panelH, cols, { accentTop: true });
-
-    // Side selection buttons
-    this.buttons = [
-      { text: 'Play as White', action: 'white', y: firstBtnY },
-      { text: 'Play as Black', action: 'black', y: firstBtnY + bh + btnGap },
-      { text: 'Random', action: 'random', y: firstBtnY + (bh + btnGap) * 2 },
+  buildSideCards() {
+    const sides = [
+      { action: 'white', title: 'Play as White', subtitle: 'First move advantage', icon: 'king', iconColor: 'light' },
+      { action: 'black', title: 'Play as Black', subtitle: 'Defensive strategy', icon: 'queen', iconColor: 'dark' },
+      { action: 'random', title: 'Random', subtitle: 'Leave it to fate', icon: 'dice', iconColor: 'accent' },
     ];
 
-    const bx = cx - bw / 2;
+    const portrait = Layout.isPortrait;
+    const cardW = portrait ? 620 : 500;
+    const cardH = portrait ? 80 : 72;
+    const gap = portrait ? 16 : 12;
+    const totalH = sides.length * cardH + (sides.length - 1) * gap;
+    const panelPad = 24;
+    const panelW = cardW + panelPad * 2;
+    const panelH = totalH + panelPad * 2;
+    const panelX = (Layout.W - panelW) / 2;
+    const panelY = portrait ? 180 : 200;
 
-    for (let i = 0; i < this.buttons.length; i++) {
-      const btn = this.buttons[i];
-      const isHover = i === this.selectedButton;
-      const isSelected = i === this.selectedButton;
+    PixiPremiumScene.panel(this.pixiContainer, panelX, panelY, panelW, panelH, { accentAlpha: 0.45 });
 
-      UIHelpers.drawCard(ctx, bx, btn.y, bw, bh, cols, { hover: isHover, active: isSelected });
+    const cardX = (Layout.W - cardW) / 2;
+    const startY = panelY + panelPad;
 
-      // Button icon
-      if (btn.action === 'white') {
-        UIHelpers.drawIcon(ctx, bx + 20, btn.y + 15, 'king', 12, cols, { color: cols.lightPiece });
-      } else if (btn.action === 'black') {
-        UIHelpers.drawIcon(ctx, bx + 20, btn.y + 15, 'queen', 12, cols, { color: cols.darkPiece });
-      } else if (btn.action === 'random') {
-        UIHelpers.drawIcon(ctx, bx + 20, btn.y + 15, 'dice', 12, cols, { color: cols.accent });
-      }
+    sides.forEach((side, i) => {
+      const cardY = startY + i * (cardH + gap);
+      const card = PixiPremiumScene.card(this.pixiContainer, cardX, cardY, cardW, cardH, {
+        active: i === this.selectedButton,
+        alpha: 0.82,
+        onClick: () => this.startGame(side.action),
+        draw: (c) => {
+          const cols = ThemeManager.getCurrentColors();
+          const iconColor = side.iconColor === 'light' ? cols.lightPiece
+            : side.iconColor === 'dark' ? cols.darkPiece
+            : cols.accent;
+          const iconSprite = PixiIconCache.createSprite(side.icon, 40, cols, { color: iconColor });
+          iconSprite.x = 20;
+          iconSprite.y = (cardH - 40) / 2;
+          c.addChild(iconSprite);
 
-      ctx.fillStyle = isHover ? cols.accent : cols.text;
-      ctx.font = isHover ? 'bold 20px "Pixelify Sans", sans-serif' : '20px "Pixelify Sans", sans-serif';
-      ctx.textAlign = 'left';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(btn.text, bx + 45, btn.y + bh / 2);
-      ctx.textBaseline = 'alphabetic';
+          const t = PixiPremiumScene.text(side.title, {
+            fontSize: 22,
+            fontWeight: '900',
+            fill: cols.text,
+          });
+          t.x = 76;
+          t.y = cardH / 2 - 14;
+          PixiPremiumScene.fit(t, cardW - 100);
+          c.addChild(t);
 
-      // Subtitle description
-      const subtitles = { white: 'First move advantage', black: 'Defensive strategy', random: 'Leave it to fate' };
-      ctx.fillStyle = cols.text + '66';
-      ctx.font = '10px "Pixelify Sans", sans-serif';
-      ctx.textAlign = 'left';
-      ctx.fillText(subtitles[btn.action], bx + 45, btn.y + bh / 2 + 14);
-
-      btn._bounds = { x: bx, y: btn.y, w: bw, h: bh };
-    }
-
-    const backY = H - 60;
-    UIHelpers.drawButton(ctx, 30, backY, 150, 40, '< Home', cols, { font: 'bold 14px "Pixelify Sans", sans-serif' });
-
-    // Bottom decorative dithered floor stripe
-    const ditherY = backY - 40;
-    UIHelpers.drawDitheredRect(ctx, 0, ditherY, W, 40, cols.accent);
-  },
-
-  handleClick(x, y) {
-    // Back button
-    const backY = Layout.H - 60;
-    if (x >= 30 && x <= 180 && y >= backY && y <= backY + 40) {
-      if (typeof audioManager !== 'undefined' && typeof audioManager.playButton === 'function') audioManager.playButton();
-      switchScreen('home');
-      return;
-    }
-
-    // Side buttons
-    for (let i = 0; i < this.buttons.length; i++) {
-      const btn = this.buttons[i];
-      if (btn._bounds && x >= btn._bounds.x && x <= btn._bounds.x + btn._bounds.w &&
-          y >= btn._bounds.y && y <= btn._bounds.y + btn._bounds.h) {
-        if (typeof audioManager !== 'undefined' && typeof audioManager.playButton === 'function') audioManager.playButton();
-        this.startGame(btn.action);
-        return;
-      }
-    }
-  },
-
-  handleMouseMove(x, y) {
-    this.selectedButton = -1;
-    for (let i = 0; i < this.buttons.length; i++) {
-      const btn = this.buttons[i];
-      if (btn._bounds && x >= btn._bounds.x && x <= btn._bounds.x + btn._bounds.w &&
-          y >= btn._bounds.y && y <= btn._bounds.y + btn._bounds.h) {
-        this.selectedButton = i;
-        return;
-      }
-    }
-  },
-
-  handleKeyDown(e) {
-    if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
-      e.preventDefault();
-      const dir = e.key === 'ArrowUp' ? -1 : 1;
-      this.selectedButton = (this.selectedButton + dir + this.buttons.length) % this.buttons.length;
-    }
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      if (this.selectedButton >= 0) {
-        this.startGame(this.buttons[this.selectedButton].action);
-      }
-    }
-    if (e.key === 'Escape') {
-      switchScreen('home');
-    }
+          const sub = PixiPremiumScene.text(side.subtitle, {
+            fontSize: 14,
+            fontWeight: '600',
+            fill: PixiPremiumScene.alpha(cols.text, '77'),
+          });
+          sub.x = 76;
+          sub.y = cardH / 2 + 10;
+          c.addChild(sub);
+        },
+      });
+      this._cards.push(card);
+    });
   },
 
   startGame(sideAction) {
@@ -176,5 +112,24 @@ const ModeSelect = {
       store.set('blackPlayer', p1IsWhite ? 'Player 2' : 'Player 1');
     }
     switchScreen('game');
+  },
+
+  handleKeyDown(e) {
+    const sideActions = ['white', 'black', 'random'];
+    if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+      e.preventDefault();
+      const dir = e.key === 'ArrowUp' ? -1 : 1;
+      this.selectedButton = (this.selectedButton + dir + sideActions.length) % sideActions.length;
+      this.build();
+    }
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      if (this.selectedButton >= 0) {
+        this.startGame(sideActions[this.selectedButton]);
+      }
+    }
+    if (e.key === 'Escape') {
+      switchScreen('home');
+    }
   },
 };
