@@ -142,6 +142,18 @@ const PixiPremiumAssets = {
   },
 
   minigame(key) {
+    var cacheKey = `_procedural_minigame_${key}`;
+    if (this.cache.has(cacheKey)) return this.cache.get(cacheKey);
+    if (typeof MiniGameThumbnails !== 'undefined') {
+      try {
+        var canvas = MiniGameThumbnails.generate(key, 180, 100);
+        if (canvas) {
+          var tex = PIXI.Texture.from({ resource: canvas, scaleMode: 'nearest' });
+          this.cache.set(cacheKey, tex);
+          return tex;
+        }
+      } catch (_) {}
+    }
     return this.texture(`premium_minigame_${key}.png`);
   },
 
