@@ -53,16 +53,17 @@ const HowToPlay = {
     PixiScreenManager.setScreenContainer(this.pixiContainer);
 
     if (Layout.isPortrait) {
-      const cardW = 700;
-      const cardH = 190;
+      const s = Layout.W / 1280;
+      const cardW = Math.min(700, Layout.W - 80);
+      const cardH = Math.round(190 * s);
       const startX = (Layout.W - cardW) / 2;
       const startY = 152;
-      const gapY = 32;
+      const gapY = Math.round(32 * s);
 
       PixiPremiumScene.panel(this.pixiContainer, 30, 132, Layout.W - 60, cardH * 4 + gapY * 3 + 60, { accentAlpha: 0.42 });
 
       this.sections.forEach((section, i) => {
-        this.sectionCard(section, startX, startY + i * (cardH + gapY), cardW, cardH);
+        this.sectionCard(section, startX, startY + i * (cardH + gapY), cardW, cardH, s);
       });
 
       const btnY = Layout.H - Layout.SAFE_BOTTOM - 48;
@@ -88,54 +89,63 @@ const HowToPlay = {
     }
   },
 
-  sectionCard(section, x, y, w, h) {
+  sectionCard(section, x, y, w, h, scale) {
+    const s = scale || 1;
     PixiPremiumScene.card(this.pixiContainer, x, y, w, h, {
       interactive: false,
       alpha: 0.72,
       draw: (card) => {
         const cols = ThemeManager.getCurrentColors();
+        const iconSize = Math.round(66 * s);
+        const iconSpriteSize = Math.round(46 * s);
+        const iconX = Math.round(28 * s);
+        const iconY = Math.round(34 * s);
         const iconBox = new PIXI.Graphics();
-        iconBox.roundRect(28, 34, 66, 66, 8).fill({ color: PixiColorUtil.hexToNum(cols.buttonBg), alpha: 0.74 });
-        iconBox.roundRect(28, 34, 66, 66, 8).stroke({ color: PixiColorUtil.hexToNum(cols.accent), alpha: 0.62, width: 2 });
+        iconBox.roundRect(iconX, iconY, iconSize, iconSize, Math.round(8 * s)).fill({ color: PixiColorUtil.hexToNum(cols.buttonBg), alpha: 0.74 });
+        iconBox.roundRect(iconX, iconY, iconSize, iconSize, Math.round(8 * s)).stroke({ color: PixiColorUtil.hexToNum(cols.accent), alpha: 0.62, width: 2 });
         card.addChild(iconBox);
 
         const icon = new PIXI.Sprite(PixiPremiumAssets.icon(section.icon));
-        icon.width = 46;
-        icon.height = 46;
-        icon.x = 38;
-        icon.y = 44;
+        icon.width = iconSpriteSize;
+        icon.height = iconSpriteSize;
+        icon.x = iconX + Math.round(10 * s);
+        icon.y = iconY + Math.round(10 * s);
         card.addChild(icon);
 
+        const textLeft = iconX + iconSize + Math.round(22 * s);
         const title = PixiPremiumScene.text(section.title, {
-          fontSize: 24,
+          fontSize: Math.round(24 * s),
           fontWeight: '900',
           fill: cols.text,
         });
-        title.x = 116;
-        title.y = 30;
-        PixiPremiumScene.fit(title, w - 150, 0.7);
+        title.x = textLeft;
+        title.y = Math.round(30 * s);
+        PixiPremiumScene.fit(title, w - textLeft - Math.round(20 * s), 0.7);
         card.addChild(title);
 
-        let lineY = 76;
-        section.lines.forEach((line, idx) => {
+        let lineY = Math.round(76 * s);
+        const dotSize = Math.round(7 * s);
+        const dotX = textLeft + 2;
+        const lineX = dotX + Math.round(18 * s);
+        section.lines.forEach((line) => {
           const dot = new PIXI.Graphics();
-          dot.rect(0, 0, 7, 7).fill({ color: PixiColorUtil.hexToNum(cols.accent), alpha: 0.88 });
-          dot.x = 118;
-          dot.y = lineY + 8;
+          dot.rect(0, 0, dotSize, dotSize).fill({ color: PixiColorUtil.hexToNum(cols.accent), alpha: 0.88 });
+          dot.x = dotX;
+          dot.y = lineY + Math.round(8 * s);
           card.addChild(dot);
 
           const text = PixiPremiumScene.text(line, {
-            fontSize: 15,
+            fontSize: Math.max(11, Math.round(15 * s)),
             fontWeight: '600',
             fill: PixiPremiumScene.alpha(cols.text, 'bb'),
             wordWrap: true,
-            wordWrapWidth: w - 160,
-            lineHeight: 19,
+            wordWrapWidth: w - lineX - Math.round(20 * s),
+            lineHeight: Math.max(14, Math.round(19 * s)),
           });
-          text.x = 136;
+          text.x = lineX;
           text.y = lineY;
           card.addChild(text);
-          lineY += Math.max(29, text.height + 8);
+          lineY += Math.max(Math.round(29 * s), text.height + Math.round(8 * s));
         });
       },
     });
