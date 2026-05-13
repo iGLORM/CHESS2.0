@@ -277,25 +277,6 @@ const GameScreen = {
       this.renderStatusBar(ctx, cols);
     }
 
-    if (!this.gameOver) {
-      const pauseX = 16;
-      const pauseY = Layout.isPortrait ? 16 : 30;
-      const pauseW = 44;
-      const pauseH = 44;
-      ctx.save();
-      this._roundRect(ctx, pauseX, pauseY, pauseW, pauseH, 8);
-      ctx.fillStyle = cols.panel + 'cc';
-      ctx.fill();
-      ctx.strokeStyle = cols.text + '44';
-      ctx.lineWidth = 1;
-      ctx.stroke();
-      ctx.fillStyle = cols.text;
-      ctx.fillRect(pauseX + 14, pauseY + 12, 5, 20);
-      ctx.fillRect(pauseX + 25, pauseY + 12, 5, 20);
-      ctx.restore();
-      this._pauseBtnBounds = { x: pauseX, y: pauseY, w: pauseW, h: pauseH };
-    }
-
     if (this.gameOver) {
       if (typeof PixiGameOverOverlay !== 'undefined' && PixiGameOverOverlay.initialized) {
         PixiGameOverOverlay.update(this);
@@ -435,23 +416,18 @@ const GameScreen = {
 
   renderSidePanel(ctx, cols, side, color) {
     const isLeft = side === 'left';
-    const x = isLeft ? 16 : Layout.W - 210;
+    const portrait = Layout.isPortrait;
+    const w = portrait ? 140 : 194;
+    const x = isLeft ? 8 : Layout.W - w - 8;
     const y = 80;
-    const w = 194;
     const h = 640;
-    const pad = 14;
+    const pad = portrait ? 10 : 14;
     const isPlayerTurn = this.turn === color;
     const playerName = color === 'white' ? store.get('whitePlayer') : store.get('blackPlayer');
 
     ctx.save();
-    this._roundRect(ctx, x, y, w, h, 10);
-    ctx.fillStyle = cols.panel + 'ee';
-    ctx.fill();
-    const grad = ctx.createLinearGradient(x, y, x, y + h);
-    grad.addColorStop(0, 'rgba(0,0,0,0.12)');
-    grad.addColorStop(0.5, 'rgba(0,0,0,0)');
-    grad.addColorStop(1, 'rgba(255,255,255,0.04)');
-    ctx.fillStyle = grad;
+    this._roundRect(ctx, x, y, w, h, 8);
+    ctx.fillStyle = cols.panel + 'dd';
     ctx.fill();
     ctx.strokeStyle = isPlayerTurn && !this.gameOver ? cols.accent + '88' : cols.text + '22';
     ctx.lineWidth = isPlayerTurn ? 2 : 1;
@@ -459,60 +435,35 @@ const GameScreen = {
     ctx.restore();
 
     if (isPlayerTurn && !this.gameOver) {
-      ctx.save();
-      this._roundRect(ctx, x, y, w, h, 10);
-      ctx.clip();
       ctx.fillStyle = cols.accent + '44';
       if (isLeft) {
-        ctx.fillRect(x, y, 3, h);
+        ctx.fillRect(x, y + 4, 3, h - 8);
       } else {
-        ctx.fillRect(x + w - 3, y, 3, h);
+        ctx.fillRect(x + w - 3, y + 4, 3, h - 8);
       }
-      ctx.restore();
     }
 
     let cy = y + pad + 4;
     ctx.fillStyle = isPlayerTurn && !this.gameOver ? cols.accent : cols.text;
-    ctx.font = 'bold 18px "Pixelify Sans", sans-serif';
+    ctx.font = portrait ? 'bold 14px "Pixelify Sans", sans-serif' : 'bold 16px "Pixelify Sans", sans-serif';
     ctx.textAlign = 'left';
     ctx.fillText(UIHelpers.truncateText(ctx, playerName, w - pad * 2), x + pad, cy);
-    cy += 8;
+    cy += 6;
 
+    const indicatorSize = portrait ? 14 : 18;
     ctx.fillStyle = color === 'white' ? '#e8e0d0' : '#3a3530';
-    this._roundRect(ctx, x + pad, cy, 18, 18, 3);
+    this._roundRect(ctx, x + pad, cy, indicatorSize, indicatorSize, 3);
     ctx.fill();
     ctx.strokeStyle = cols.text + '44';
     ctx.lineWidth = 1;
     ctx.stroke();
 
-    const badgeX = x + pad + 24;
-    const badgeY = cy;
-    const badgeW = w - pad * 2 - 24;
-    const badgeH = 18;
-    ctx.save();
     if (isPlayerTurn && !this.gameOver) {
-      this._roundRect(ctx, badgeX, badgeY, badgeW, badgeH, 9);
-      ctx.fillStyle = cols.accent;
-      ctx.fill();
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 11px "Pixelify Sans", sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText('YOUR TURN', badgeX + badgeW / 2, badgeY + 13);
-    } else {
-      this._roundRect(ctx, badgeX, badgeY, badgeW, badgeH, 9);
-      ctx.fillStyle = cols.text + '11';
-      ctx.fill();
-      ctx.strokeStyle = cols.text + '22';
-      ctx.lineWidth = 1;
-      ctx.stroke();
-      ctx.fillStyle = cols.text + '44';
-      ctx.font = 'bold 11px "Pixelify Sans", sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText('WAITING', badgeX + badgeW / 2, badgeY + 13);
+      ctx.fillStyle = cols.accent + 'cc';
+      ctx.font = portrait ? '12px "Pixelify Sans", sans-serif' : '14px "Pixelify Sans", sans-serif';
+      ctx.fillText('YOUR TURN', x + pad + indicatorSize + 6, cy + indicatorSize - 2);
     }
-    ctx.restore();
-    ctx.textAlign = 'left';
-    cy += 28;
+    cy += indicatorSize + 10;
 
     ctx.fillStyle = cols.text + '22';
     ctx.fillRect(x + pad, cy, w - pad * 2, 1);
@@ -521,7 +472,7 @@ const GameScreen = {
     if (this.gameplayMode) {
       const charges = this.defensiveMiniGames[color] || 0;
       ctx.fillStyle = charges > 0 ? cols.accent : cols.text + '44';
-      ctx.font = 'bold 15px "Pixelify Sans", sans-serif';
+      ctx.font = portrait ? 'bold 12px "Pixelify Sans", sans-serif' : 'bold 13px "Pixelify Sans", sans-serif';
       ctx.fillText('DEFENSES: ' + charges, x + pad, cy);
       cy += 22;
     }
@@ -530,31 +481,31 @@ const GameScreen = {
     const pieceValues = { pawn: 1, knight: 3, bishop: 3, rook: 5, queen: 9, king: 0 };
     const pieceSymbols = { pawn: '♟', knight: '♞', bishop: '♝', rook: '♜', queen: '♛', king: '♚' };
 
-    ctx.fillStyle = cols.text + '22';
-    ctx.fillRect(x + pad, cy - 4, w - pad * 2, 1);
-
     ctx.fillStyle = cols.text + '88';
-    ctx.font = 'bold 15px "Pixelify Sans", sans-serif';
-    ctx.fillText('CAPTURED', x + pad, cy + 10);
-    cy += 18;
+    ctx.font = portrait ? '12px "Pixelify Sans", sans-serif' : '14px "Pixelify Sans", sans-serif';
+    ctx.fillText('CAPTURED', x + pad, cy);
+    cy += 8;
 
+    const pieceSpacing = portrait ? 12 : 16;
+    const pieceFontSize = portrait ? 14 : 18;
     if (captured.length === 0) {
       ctx.fillStyle = cols.text + '33';
-      ctx.font = 'italic 14px "Pixelify Sans", sans-serif';
-      ctx.fillText('No captures yet', x + pad, cy + 8);
+      ctx.font = pieceFontSize + 'px "Pixelify Sans", sans-serif';
+      ctx.fillText('None yet', x + pad, cy + 8);
       cy += 20;
     } else {
       let px = x + pad;
-      ctx.font = '18px "Pixelify Sans", sans-serif';
+      ctx.font = pieceFontSize + 'px "Pixelify Sans", sans-serif';
       for (const p of captured.slice(0, 20)) {
         ctx.fillStyle = p.color === 'white' ? '#e8e0d0' : '#888';
         ctx.fillText(pieceSymbols[p.type] || '?', px, cy + 10);
-        px += 16;
-        if (px > x + w - pad) { px = x + pad; cy += 18; }
+        px += pieceSpacing;
+        if (px > x + w - pad) { px = x + pad; cy += pieceFontSize; }
       }
       cy += 22;
     }
 
+    // Material advantage
     const whiteCaptures = this.capturedPieces.white;
     const blackCaptures = this.capturedPieces.black;
     const whiteMatCaptured = whiteCaptures.reduce((s, p) => s + (pieceValues[p.type] || 0), 0);
@@ -564,14 +515,15 @@ const GameScreen = {
     if (whiteAdvantage !== 0) {
       const isWhiteSide = color === 'white';
       const advantage = isWhiteSide ? whiteAdvantage : -whiteAdvantage;
+      const matFont = portrait ? 'bold 13px "Pixelify Sans", sans-serif' : 'bold 16px "Pixelify Sans", sans-serif';
       if (advantage > 0) {
-        ctx.fillStyle = cols.accent;
-        ctx.font = 'bold 18px "Pixelify Sans", sans-serif';
-        ctx.fillText('+' + advantage + ' material', x + pad, cy);
+        ctx.fillStyle = '#44dd44';
+        ctx.font = matFont;
+        ctx.fillText('+' + advantage, x + pad, cy);
       } else if (advantage < 0) {
         ctx.fillStyle = '#dd4444';
-        ctx.font = 'bold 16px "Pixelify Sans", sans-serif';
-        ctx.fillText(advantage + ' material', x + pad, cy);
+        ctx.font = matFont;
+        ctx.fillText(advantage, x + pad, cy);
       }
       cy += 18;
     }
@@ -581,29 +533,27 @@ const GameScreen = {
     ctx.fillRect(x + pad, cy, w - pad * 2, 1);
     cy += 12;
 
-    // Story mode character info
     if (this.mode === 'story' && color === 'black' && this.currentCharacter) {
       ctx.fillStyle = this.currentCharacter.colors.primary;
-      ctx.font = 'bold 16px "Pixelify Sans", sans-serif';
+      ctx.font = portrait ? 'bold 14px "Pixelify Sans", sans-serif' : 'bold 16px "Pixelify Sans", sans-serif';
       ctx.fillText(UIHelpers.truncateText(ctx, this.currentCharacter.name, w - pad * 2), x + pad, cy);
       cy += 4;
       ctx.fillStyle = cols.text + '66';
-      ctx.font = '14px "Pixelify Sans", sans-serif';
+      ctx.font = portrait ? '12px "Pixelify Sans", sans-serif' : '14px "Pixelify Sans", sans-serif';
       ctx.fillText('Level ' + this.currentCharacter.level, x + pad, cy + 8);
       cy += 20;
     }
 
-    // Move history (left panel only)
     if (isLeft && this.moveHistory.length > 0) {
       ctx.fillStyle = cols.text + '66';
-      ctx.font = '14px "Pixelify Sans", sans-serif';
+      ctx.font = portrait ? '12px "Pixelify Sans", sans-serif' : '14px "Pixelify Sans", sans-serif';
       ctx.fillText('MOVE HISTORY', x + pad, cy);
       cy += 8;
 
       ctx.fillStyle = cols.text + '88';
-      ctx.font = '16px "Pixelify Sans", sans-serif';
+      ctx.font = portrait ? '13px "Pixelify Sans", sans-serif' : '16px "Pixelify Sans", sans-serif';
       const files = 'abcdefgh';
-      const recentMoves = this.moveHistory.slice(-10);
+      const recentMoves = this.moveHistory.slice(portrait ? -6 : -10);
       for (let i = 0; i < recentMoves.length; i++) {
         const m = recentMoves[i];
         const moveNum = this.moveHistory.length - recentMoves.length + i + 1;
@@ -612,7 +562,7 @@ const GameScreen = {
         const isLast = i === recentMoves.length - 1;
         ctx.fillStyle = isLast ? cols.accent : cols.text + '77';
         ctx.fillText(moveNum + '. ' + pieceChar + to, x + pad, cy + 10);
-        cy += 16;
+        cy += portrait ? 14 : 16;
       }
     }
   },
@@ -632,83 +582,74 @@ const GameScreen = {
   },
 
   renderStatusBar(ctx, cols) {
-    const barX = 210;
-    const barW = Layout.W - 420;
-    const barH = 44;
-    const y = Layout.H - 58;
+    const portrait = Layout.isPortrait;
+    const panelW = portrait ? 140 : 194;
+    const panelMargin = 8;
+    const barX = portrait ? (panelMargin + panelW + 4) : 210;
+    const barW = portrait ? (Layout.W - 2 * (panelMargin + panelW + 4)) : (Layout.W - 420);
+    const y = Layout.H - 55;
     ctx.save();
-    this._roundRect(ctx, barX, y, barW, barH, 10);
-    ctx.fillStyle = cols.panel + 'ee';
-    ctx.fill();
-    const grad = ctx.createLinearGradient(barX, y, barX, y + barH);
-    grad.addColorStop(0, 'rgba(0,0,0,0.06)');
-    grad.addColorStop(1, 'rgba(255,255,255,0.03)');
-    ctx.fillStyle = grad;
+    this._roundRect(ctx, barX, y, barW, 38, 6);
+    ctx.fillStyle = cols.panel + 'dd';
     ctx.fill();
     ctx.strokeStyle = cols.text + '22';
     ctx.lineWidth = 1;
     ctx.stroke();
     ctx.restore();
 
+    const mainFont = portrait ? 14 : 18;
+    const subFont = portrait ? 12 : 14;
     ctx.fillStyle = cols.text;
-    ctx.font = '18px "Pixelify Sans", sans-serif';
+    ctx.font = mainFont + 'px "Pixelify Sans", sans-serif';
     ctx.textAlign = 'center';
     const turnText = this.turn === 'white' ? "White's Turn" : "Black's Turn";
     if (this.gameStatus === 'check') {
       ctx.fillStyle = cols.checkHighlight || cols.accent;
-      ctx.font = 'bold 12px "Silkscreen", monospace';
-      ctx.fillText('CHECK!', Layout.cx, y + 20);
+      ctx.font = (portrait ? 'bold 10px' : 'bold 12px') + ' "Silkscreen", monospace';
+      ctx.fillText('CHECK!', Layout.cx, y + 18);
       ctx.fillStyle = cols.text + '88';
-      ctx.font = '14px "Pixelify Sans", sans-serif';
-      ctx.fillText(turnText, Layout.cx, y + 36);
+      ctx.font = subFont + 'px "Pixelify Sans", sans-serif';
+      ctx.fillText(turnText, Layout.cx, y + 32);
     } else {
-      ctx.fillText(turnText, Layout.cx, y + 26);
+      ctx.fillText(turnText, Layout.cx, y + 22);
     }
 
     const isReviewing = this.reviewingAt !== null;
-    const navY = y + 7;
+    const navY = y + 5;
     const navEnabled = this.boardSnapshots.length > 1;
 
     ctx.fillStyle = navEnabled && this.reviewingAt !== 0 ? cols.text : cols.text + '22';
     ctx.font = 'bold 16px "Pixelify Sans", sans-serif';
     ctx.textAlign = 'left';
-    ctx.fillText('◀', barX + 6, navY + 18);
+    ctx.fillText('◀', barX, navY + 18);
 
     ctx.fillStyle = navEnabled && isReviewing && this.reviewingAt < this.boardSnapshots.length - 1 ? cols.text : cols.text + '22';
-    ctx.fillText('▶', barX + 24, navY + 18);
+    ctx.fillText('▶', barX + 18, navY + 18);
 
     ctx.fillStyle = isReviewing ? cols.accent : cols.text + '22';
     ctx.font = '9px "Pixelify Sans", sans-serif';
-    ctx.fillText('LIVE', barX + 44, navY + 18);
+    ctx.fillText('LIVE', barX + 38, navY + 18);
 
     ctx.fillStyle = cols.text + '66';
     ctx.font = '10px "Pixelify Sans", sans-serif';
     ctx.textAlign = 'right';
     const snapIdx = isReviewing ? (this.reviewingAt + 1) : this.boardSnapshots.length;
-    ctx.fillText('Move #' + snapIdx, barX + barW - 12, y + 26);
+    ctx.fillText('Move #' + snapIdx, barX + barW - 10, y + 22);
 
     if (this.lockedTiles.length > 0) {
       ctx.fillStyle = cols.checkHighlight || cols.accent;
       ctx.font = '10px "Pixelify Sans", sans-serif';
       ctx.textAlign = 'left';
-      ctx.fillText('Locked: ' + this.lockedTiles.length, barX + 116, y + 26);
+      ctx.fillText('Locked: ' + this.lockedTiles.length, barX + 110, y + 22);
     }
     ctx.fillStyle = cols.text + '44';
     ctx.font = '10px "Pixelify Sans", sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText('ESC: Pause', Layout.cx, y + 38);
+    ctx.fillText('ESC: Pause', Layout.cx, y + 32);
   },
 
   handleClick(x, y) {
-    if (!this.gameOver && !this.promotionPending && this._pauseBtnBounds) {
-      const b = this._pauseBtnBounds;
-      if (x >= b.x && x <= b.x + b.w && y >= b.y && y <= b.y + b.h) {
-        if (typeof audioManager !== 'undefined' && typeof audioManager.playButton === 'function') audioManager.playButton();
-        PauseMenu.show();
-        return;
-      }
-    }
-
+    // Promotion dialog
     if (this.promotionPending) {
       const sqSize = 80;
       const types = ['queen', 'rook', 'bishop', 'knight'];
@@ -744,25 +685,29 @@ const GameScreen = {
       return;
     }
 
-    // Move navigation buttons in status bar
-    const barX = 210;
-    const statusY = Layout.H - 58;
+    const portrait = Layout.isPortrait;
+    const _panelW = portrait ? 140 : 194;
+    const barX = portrait ? (8 + _panelW + 4) : 210;
+    const statusY = Layout.H - 55;
     const navHitY = statusY;
-    if (y >= navHitY && y <= navHitY + 44) {
-      if (x >= barX && x <= barX + 24) {
+    if (y >= navHitY && y <= navHitY + 38) {
+      if (x >= barX && x <= barX + 18) {
+        // Back
         if (this.reviewingAt !== 0 && this.boardSnapshots.length > 1) {
           const idx = this.reviewingAt === null ? this.boardSnapshots.length - 2 : this.reviewingAt - 1;
           this.goToMove(Math.max(0, idx));
         }
         return;
       }
-      if (x >= barX + 24 && x <= barX + 42) {
+      if (x >= barX + 18 && x <= barX + 36) {
+        // Forward
         if (this.reviewingAt !== null && this.reviewingAt < this.boardSnapshots.length - 1) {
           this.goToMove(this.reviewingAt + 1);
         }
         return;
       }
-      if (x >= barX + 44 && x <= barX + 86) {
+      if (x >= barX + 38 && x <= barX + 80) {
+        // Live
         this.goToLive();
         return;
       }
@@ -859,14 +804,6 @@ const GameScreen = {
       }
       canvas.style.cursor = 'default';
       return;
-    }
-
-    if (this._pauseBtnBounds) {
-      const b = this._pauseBtnBounds;
-      if (x >= b.x && x <= b.x + b.w && y >= b.y && y <= b.y + b.h) {
-        canvas.style.cursor = 'pointer';
-        return;
-      }
     }
 
     let boardPos = null;
@@ -1040,7 +977,7 @@ const GameScreen = {
       audioManager.playScreenShake();
 
       if (this.mode === 'story' && typeof DialogueManager !== 'undefined') {
-        DialogueManager.onCapture(this.turn, captured, this.aiColor, this.board);
+        DialogueManager.onCapture(this.turn, captured, this.aiColor);
       }
     } else {
       audioManager.playMove(piece ? piece.type : null);
@@ -1131,7 +1068,7 @@ const GameScreen = {
     if (this.gameStatus === 'check') {
       audioManager.playCheck();
       if (this.mode === 'story' && typeof DialogueManager !== 'undefined') {
-        DialogueManager.onCheck(this.turn, this.aiColor, this.board);
+        DialogueManager.onCheck(this.turn, this.aiColor);
       }
     }
     if (typeof audioManager.setSuspense === 'function') {
@@ -1169,7 +1106,7 @@ const GameScreen = {
     this.aiThinking = true;
 
     if (this.mode === 'story' && typeof DialogueManager !== 'undefined') {
-      DialogueManager.onAIThinkStart(this.board, this.aiColor);
+      DialogueManager.onAIThinkStart();
     }
 
     // Safety timeout: if AI takes longer than 10 seconds, force-reset
