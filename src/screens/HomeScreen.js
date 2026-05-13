@@ -16,11 +16,12 @@ const HomeScreen = {
         HERO_Y: 240,
         MAIN_START_Y: 440,
         MAIN_BTN_W: 620,
+        HERO_BTN_H: 86,
         MAIN_BTN_H: 72,
         MAIN_BTN_GAP: 10,
-        UTIL_Y: 820,
+        UTIL_Y: 850,
         UTIL_BTN_W: 190,
-        UTIL_BTN_H: 56,
+        UTIL_BTN_H: 42,
         UTIL_GAP: 14,
         FOOTER_Y: 1240,
       };
@@ -32,11 +33,12 @@ const HomeScreen = {
       HERO_Y: 220,
       MAIN_START_Y: 388,
       MAIN_BTN_W: 500,
+      HERO_BTN_H: 70,
       MAIN_BTN_H: 58,
       MAIN_BTN_GAP: 7,
-      UTIL_Y: 674,
+      UTIL_Y: 690,
       UTIL_BTN_W: 190,
-      UTIL_BTN_H: 44,
+      UTIL_BTN_H: 33,
       UTIL_GAP: 14,
       FOOTER_Y: 760,
     };
@@ -168,13 +170,17 @@ const HomeScreen = {
     this.pixiContainer.addChild(sep1);
 
     // --- Main buttons ---
+    let mainCursorY = L.MAIN_START_Y;
     for (let i = 0; i < 4; i++) {
       const btn = this.BUTTONS[i];
+      const isHero = i === 0;
+      const btnH = isHero ? L.HERO_BTN_H : L.MAIN_BTN_H;
       const bx = (L.W - L.MAIN_BTN_W) / 2;
-      const by = L.MAIN_START_Y + i * (L.MAIN_BTN_H + L.MAIN_BTN_GAP);
-      const container = this._createMainButton(btn, bx, by, L.MAIN_BTN_W, L.MAIN_BTN_H, cols, i);
+      const by = mainCursorY;
+      const container = this._createMainButton(btn, bx, by, L.MAIN_BTN_W, btnH, cols, i);
       this.pixiContainer.addChild(container);
-      this._btnContainers.push({ container, index: i, bounds: { x: bx, y: by, w: L.MAIN_BTN_W, h: L.MAIN_BTN_H } });
+      this._btnContainers.push({ container, index: i, bounds: { x: bx, y: by, w: L.MAIN_BTN_W, h: btnH } });
+      mainCursorY += btnH + L.MAIN_BTN_GAP;
     }
 
     // Separator before utility buttons
@@ -195,9 +201,11 @@ const HomeScreen = {
       this._btnContainers.push({ container, index: 4 + i, bounds: { x: bx, y: by, w: L.UTIL_BTN_W, h: L.UTIL_BTN_H } });
     }
 
-    // --- Footer ---
+    const footerHint = (window.Telegram && window.Telegram.WebApp)
+      ? 'Tap to navigate'
+      : 'Use mouse or arrow keys to navigate';
     const footer = new PIXI.Text({
-      text: 'Use mouse or arrow keys to navigate',
+      text: footerHint,
       style: { fontFamily: PixiTextStyles.FONT_BODY, fontSize: 16, fill: PixiColorUtil.alpha(cols.text, '44') },
     });
     footer.anchor.set(0.5);
@@ -274,6 +282,7 @@ const HomeScreen = {
   },
 
   _createMainButton(btn, x, y, w, h, cols, index) {
+    const isHero = index === 0;
     const pad = 24;
     const container = new PIXI.Container();
     container.x = x;
@@ -286,14 +295,13 @@ const HomeScreen = {
     bg.label = 'bg';
     container.addChild(bg);
 
-    // Centered title
     const titleText = new PIXI.Text({
       text: btn.text,
       style: {
         fontFamily: PixiTextStyles.FONT_TITLE,
-        fontSize: 20,
+        fontSize: isHero ? 26 : 20,
         fontWeight: 'bold',
-        fill: cols.text,
+        fill: isHero ? cols.accent : cols.text,
         letterSpacing: 0,
       },
     });
@@ -304,14 +312,13 @@ const HomeScreen = {
     this._fitText(titleText, w - pad);
     container.addChild(titleText);
 
-    // Centered subtitle
     if (btn.sub) {
       const subText = new PIXI.Text({
         text: btn.sub,
         style: {
           fontFamily: PixiTextStyles.FONT_BODY,
-          fontSize: 14,
-          fill: PixiColorUtil.alpha(cols.text, '77'),
+          fontSize: isHero ? 14 : 12,
+          fill: PixiColorUtil.alpha(cols.text, '88'),
           letterSpacing: 0,
         },
       });
@@ -330,7 +337,7 @@ const HomeScreen = {
     flash.label = 'flash';
     container.addChild(flash);
 
-    this._drawMainBtnBg(bg, w, h, cols, false);
+    this._drawMainBtnBg(bg, w, h, cols, false, isHero);
 
     container.on('pointerover', () => {
       this._selectedIndex = index;
@@ -346,47 +353,41 @@ const HomeScreen = {
       this.handleAction(btn.action);
     });
 
-    container._btnData = { btn, w, h, cols, bg, pad };
+    container._btnData = { btn, w, h, cols, bg, pad, isHero };
     return container;
   },
 
-  _drawMainBtnBg(g, w, h, cols, hover) {
+  _drawMainBtnBg(g, w, h, cols, hover, isHero) {
     g.clear();
     const S = 3;
     const accentNum = PixiColorUtil.hexToNum(cols.accent);
     const panelNum = PixiColorUtil.hexToNum(cols.panel);
 
-    // Drop shadow
     g.rect(S, S, w, h).fill({ color: 0x000000, alpha: 0.4 });
-
-    // Outer frame
     g.rect(0, 0, w, h).fill(0x080810);
 
-    // Border
-    const borderCol = hover ? accentNum : PixiColorUtil.hexToNum(PixiColorUtil.alpha(cols.text, '44'));
+    const borderCol = (hover || isHero) ? accentNum : PixiColorUtil.hexToNum(PixiColorUtil.alpha(cols.text, '44'));
     g.rect(2, 2, w - 4, h - 4).fill(borderCol);
-
-    // Inner edge
     g.rect(3, 3, w - 6, h - 6).fill(0x0a0a14);
 
-    // Content fill
     const bgColor = hover
       ? PixiColorUtil.hexToNum(PixiColorUtil.lighten(cols.panel, 12))
       : panelNum;
     g.rect(4, 4, w - 8, h - 8).fill({ color: bgColor, alpha: 0.95 });
 
-    // Top bevel
+    if (isHero) {
+      g.rect(4, 4, w - 8, h - 8).fill({ color: accentNum, alpha: 0.12 });
+    }
+
     g.rect(4, 4, w - 8, 1).fill({ color: 0xffffff, alpha: 0.06 });
 
-    // Corner ornaments
-    const cornerCol = hover ? accentNum : PixiColorUtil.hexToNum(PixiColorUtil.alpha(cols.text, '44'));
+    const cornerCol = (hover || isHero) ? accentNum : PixiColorUtil.hexToNum(PixiColorUtil.alpha(cols.text, '44'));
     g.rect(0, 0, 4, 1).rect(0, 1, 1, 3)
       .rect(w - 4, 0, 4, 1).rect(w - 1, 1, 1, 3)
       .rect(0, h - 1, 4, 1).rect(0, h - 4, 1, 3)
       .rect(w - 4, h - 1, 4, 1).rect(w - 1, h - 4, 1, 3)
       .fill(cornerCol);
 
-    // Accent rails on hover
     if (hover) {
       g.rect(5, 5, w - 10, 2)
         .rect(5, h - 7, w - 10, 2)
@@ -409,14 +410,13 @@ const HomeScreen = {
     bg.label = 'bg';
     container.addChild(bg);
 
-    // Centered text (scaled to fit)
     const label = new PIXI.Text({
       text: btn.text,
       style: {
         fontFamily: PixiTextStyles.FONT_TITLE,
-        fontSize: 16,
+        fontSize: 13,
         fontWeight: 'bold',
-        fill: cols.text,
+        fill: PixiColorUtil.alpha(cols.text, 'cc'),
         letterSpacing: 0,
       },
     });
@@ -496,10 +496,10 @@ const HomeScreen = {
       const d = entry.container._btnData;
 
       if (d.btn.group === 'main') {
-        this._drawMainBtnBg(d.bg, d.w, d.h, d.cols, isSelected);
+        this._drawMainBtnBg(d.bg, d.w, d.h, d.cols, isSelected, d.isHero);
         const titleNode = entry.container.getChildByLabel('title');
         if (titleNode) {
-          titleNode.style.fill = isSelected ? cols.accent : cols.text;
+          titleNode.style.fill = (isSelected || d.isHero) ? cols.accent : cols.text;
           this._fitText(titleNode, d.w - d.pad);
         }
         const subNode = entry.container.getChildByLabel('sub');
@@ -513,7 +513,7 @@ const HomeScreen = {
         this._drawUtilBtnBg(d.bg, d.w, d.h, d.cols, isSelected);
         const titleNode = entry.container.getChildByLabel('title');
         if (titleNode) {
-          titleNode.style.fill = isSelected ? cols.accent : cols.text;
+          titleNode.style.fill = isSelected ? cols.accent : PixiColorUtil.alpha(cols.text, 'cc');
           this._fitText(titleNode, d.w - d.pad);
         }
       }
