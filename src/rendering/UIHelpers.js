@@ -91,59 +91,46 @@ class UIHelpers {
     ctx.fillRect(x + w - 1, y + h - s, 1, s - 1);
   }
 
-  // --- PIXEL FRAME (upgraded with corners + inner highlight) ---
+  // --- PIXEL FRAME (rounded style matching PixiJS design system) ---
   static drawPixelFrame(ctx, x, y, w, h, cols, opts = {}) {
     const active = !!opts.active;
     const hover = !!opts.hover;
     const disabled = !!opts.disabled;
+    const r = opts.radius || 10;
     const fill = opts.fill || (hover ? cols.buttonHover : cols.buttonBg);
-    const outer = opts.outer || '#050508';
-    const border = disabled
-      ? this.alpha(cols.text, '33')
-      : (active || hover ? cols.accent : this.alpha(cols.text, '55'));
-    const inner = disabled
-      ? this.alpha(cols.text, '18')
-      : (active || hover ? this.alpha(cols.text, 'cc') : this.alpha(cols.text, '22'));
 
-    // Shadow
-    ctx.fillStyle = this.alpha('#000000', '66');
-    ctx.fillRect(x + 3, y + 3, w, h);
+    ctx.save();
 
-    // Outer
-    ctx.fillStyle = outer;
-    ctx.fillRect(x, y, w, h);
+    ctx.beginPath();
+    ctx.roundRect(x + 4, y + 6, w, h, r);
+    ctx.fillStyle = 'rgba(0,0,0,0.25)';
+    ctx.fill();
 
-    // Border
-    ctx.fillStyle = border;
-    ctx.fillRect(x + 2, y + 2, w - 4, h - 4);
-
-    // Inner edge
-    ctx.fillStyle = inner;
-    ctx.fillRect(x + 4, y + 4, w - 8, h - 8);
-
-    // Fill
+    ctx.beginPath();
+    ctx.roundRect(x, y, w, h, r);
     ctx.fillStyle = fill;
-    ctx.fillRect(x + 5, y + 5, w - 10, h - 10);
+    ctx.globalAlpha = disabled ? 0.4 : (active ? 0.92 : (hover ? 0.78 : 0.68));
+    ctx.fill();
+    ctx.globalAlpha = 1;
 
-    // Top bevel highlight (subtle)
-    ctx.fillStyle = 'rgba(255,255,255,0.06)';
-    ctx.fillRect(x + 5, y + 5, w - 10, 1);
-
-    // Corner ornaments
-    if (!disabled) {
-      const cornerColor = active || hover ? cols.accent : this.alpha(cols.text, '66');
-      this._drawCorners(ctx, x, y, w, h, cornerColor, 3);
-    }
-
-    // Top rail decoration (thin accent line under top border)
-    if (active || hover) {
+    if (active) {
+      ctx.beginPath();
+      ctx.roundRect(x, y, w, h, r);
       ctx.fillStyle = cols.accent;
-      ctx.fillRect(x + 5, y + 5, w - 10, 2);
-      ctx.fillRect(x + 5, y + h - 7, w - 10, 2);
-      // Side accents
-      ctx.fillRect(x + 5, y + 5, 2, h - 10);
-      ctx.fillRect(x + w - 7, y + 5, 2, h - 10);
+      ctx.globalAlpha = 0.14;
+      ctx.fill();
+      ctx.globalAlpha = 1;
     }
+
+    ctx.beginPath();
+    ctx.roundRect(x, y, w, h, r);
+    ctx.strokeStyle = disabled ? this.alpha(cols.text, '33') : ((active || hover) ? cols.accent : this.alpha(cols.text, '44'));
+    ctx.lineWidth = active ? 3 : 2;
+    ctx.globalAlpha = disabled ? 0.3 : ((active || hover) ? 0.8 : 0.45);
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+
+    ctx.restore();
   }
 
   static drawButton(ctx, x, y, w, h, text, cols, opts = {}) {
@@ -159,53 +146,43 @@ class UIHelpers {
     ctx.textBaseline = 'alphabetic';
   }
 
-  // --- PANEL (large content panel with thick border + dithered inner shadow) ---
+  // --- PANEL (rounded style matching PixiJS design system) ---
   static drawPanel(ctx, x, y, w, h, cols, opts = {}) {
-    const hover = !!opts.hover;
-    const active = !!opts.active;
-    const borderW = opts.borderWidth || 4;
+    const r = opts.radius || 10;
     const fillColor = opts.fill || cols.panel;
 
-    // Drop shadow
-    ctx.fillStyle = this.alpha('#000000', '55');
-    ctx.fillRect(x + 4, y + 4, w, h);
+    ctx.save();
 
-    // Outer border (dark)
-    ctx.fillStyle = this.darken(cols.panel, 60);
-    ctx.fillRect(x, y, w, h);
+    ctx.beginPath();
+    ctx.roundRect(x + 6, y + 6, w, h, r);
+    ctx.fillStyle = 'rgba(0,0,0,0.25)';
+    ctx.fill();
 
-    // Border accent
-    const borderCol = (hover || active) ? cols.accent : this.alpha(cols.text, '66');
-    ctx.fillStyle = borderCol;
-    ctx.fillRect(x + 1, y + 1, w - 2, h - 2);
-
-    // Inner border (dark)
-    ctx.fillStyle = this.darken(cols.panel, 40);
-    ctx.fillRect(x + 2, y + 2, w - 4, h - 4);
-
-    // Fill
+    ctx.beginPath();
+    ctx.roundRect(x, y, w, h, r);
     ctx.fillStyle = fillColor;
-    ctx.fillRect(x + borderW, y + borderW, w - borderW * 2, h - borderW * 2);
+    ctx.globalAlpha = 0.68;
+    ctx.fill();
+    ctx.globalAlpha = 1;
 
-    // Inner shadow (dithered top + left edges)
-    const shadowColor = this.alpha('#000000', '33');
-    for (let dx = 0; dx < w - borderW * 2; dx += 2) {
-      ctx.fillStyle = shadowColor;
-      ctx.fillRect(x + borderW + dx, y + borderW, 1, 3);
-    }
-    for (let dy = 0; dy < 12; dy += 2) {
-      ctx.fillStyle = shadowColor;
-      ctx.fillRect(x + borderW, y + borderW + dy, 3, 1);
-    }
+    ctx.beginPath();
+    ctx.roundRect(x, y, w, h, r);
+    ctx.strokeStyle = this.alpha(cols.text, '44');
+    ctx.lineWidth = 2;
+    ctx.globalAlpha = 0.35;
+    ctx.stroke();
+    ctx.globalAlpha = 1;
 
-    // Corner ornaments
-    this._drawCorners(ctx, x, y, w, h, (hover || active) ? cols.accent : this.alpha(cols.text, '88'), 4);
-
-    // Accent top rail
     if (opts.accentTop) {
+      ctx.beginPath();
+      ctx.roundRect(x + 14, y + 12, Math.max(20, w - 28), 4, 2);
       ctx.fillStyle = cols.accent;
-      ctx.fillRect(x + borderW, y + borderW, w - borderW * 2, 2);
+      ctx.globalAlpha = 0.72;
+      ctx.fill();
+      ctx.globalAlpha = 1;
     }
+
+    ctx.restore();
   }
 
   // --- CARD (card-style element with beveled edges + optional accent stripe) ---

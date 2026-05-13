@@ -64,43 +64,48 @@ const BotSelect = {
       ctx.fillRect(0, 0, W, H);
     }
 
+    const titleY = Math.round(60 * s);
+    const subY = Math.round(90 * s);
+    const sepY = Math.round(108 * s);
+
     ctx.fillStyle = cols.text;
-    ctx.font = 'bold ' + Math.round(28 * s) + 'px "Pixelify Sans", sans-serif';
+    ctx.font = 'bold ' + Math.round(32 * s) + 'px "Pixelify Sans", sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText('SELECT OPPONENT', cx, 55);
+    ctx.fillText('SELECT OPPONENT', cx, titleY);
     ctx.fillStyle = cols.text + '77';
-    ctx.font = Math.round(12 * s) + 'px "Pixelify Sans", sans-serif';
-    ctx.fillText('Choose your AI opponent strength', cx, 80);
-    UIHelpers.drawSeparator(ctx, cx - 340 * s, 95, 680 * s, cols);
+    ctx.font = Math.round(18 * s) + 'px "Pixelify Sans", sans-serif';
+    ctx.fillText('Choose your AI opponent strength', cx, subY);
+    UIHelpers.drawSeparator(ctx, cx - 340 * s, sepY, 680 * s, cols);
 
     const rawPanelW = portrait ? 700 : 800;
     const panelW = Math.min(rawPanelW, W - 80);
     const panelX = Math.round((W - panelW) / 2);
-    const panelH = portrait ? 600 : 440;
-    UIHelpers.drawPanel(ctx, panelX, 130, panelW, panelH, cols, { accentTop: true });
+    const panelTop = Math.round(130 * s);
+    const panelH = Math.round(320 * s);
+    UIHelpers.drawPanel(ctx, panelX, panelTop, panelW, panelH, cols, { accentTop: true });
 
     ctx.fillStyle = cols.accent;
     ctx.font = 'bold ' + Math.round(64 * s) + 'px "Pixelify Sans", sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText(this.eloValue, cx, 220);
+    ctx.fillText(this.eloValue, cx, panelTop + Math.round(80 * s));
 
     ctx.fillStyle = cols.text + '88';
-    ctx.font = Math.round(16 * s) + 'px "Pixelify Sans", sans-serif';
-    ctx.fillText('ELO', cx, 240);
+    ctx.font = Math.round(18 * s) + 'px "Pixelify Sans", sans-serif';
+    ctx.fillText('ELO', cx, panelTop + Math.round(104 * s));
 
     const name = this.eloToName(this.eloValue);
     ctx.fillStyle = cols.accent;
-    ctx.font = 'bold ' + Math.round(22 * s) + 'px "Pixelify Sans", sans-serif';
-    ctx.fillText(name, cx, 280);
+    ctx.font = 'bold ' + Math.round(26 * s) + 'px "Pixelify Sans", sans-serif';
+    ctx.fillText(name, cx, panelTop + Math.round(146 * s));
 
     ctx.fillStyle = cols.text + '88';
-    ctx.font = Math.round(14 * s) + 'px "Pixelify Sans", sans-serif';
-    ctx.fillText(this.eloToDescription(this.eloValue), cx, 305);
+    ctx.font = Math.round(20 * s) + 'px "Pixelify Sans", sans-serif';
+    ctx.fillText(this.eloToDescription(this.eloValue), cx, panelTop + Math.round(178 * s));
 
-    const sliderW = Math.min(portrait ? 640 : 680, panelW - 40);
+    const sliderW = Math.min(portrait ? 640 : 680, panelW - 60);
     const sliderX = Math.round(cx - sliderW / 2);
-    const sliderY = 350;
-    const sliderH = 16;
+    const sliderY = panelTop + Math.round(220 * s);
+    const sliderH = Math.round(18 * s);
 
     this._sliderBounds = { x: sliderX, y: sliderY, w: sliderW, h: sliderH };
 
@@ -126,14 +131,13 @@ const BotSelect = {
     ctx.fillRect(knobX - 4, sliderY - 2, 8, sliderH + 4);
 
     ctx.fillStyle = cols.text + '66';
-    ctx.font = Math.round(10 * s) + 'px "Pixelify Sans", sans-serif';
+    ctx.font = Math.round(16 * s) + 'px "Pixelify Sans", sans-serif';
     ctx.textAlign = 'left';
-    ctx.fillText('200', sliderX, sliderY + sliderH + 18);
+    ctx.fillText('200', sliderX, sliderY + sliderH + Math.round(22 * s));
     ctx.textAlign = 'right';
-    ctx.fillText('2000', sliderX + sliderW, sliderY + sliderH + 18);
+    ctx.fillText('2000', sliderX + sliderW, sliderY + sliderH + Math.round(22 * s));
 
     ctx.fillStyle = cols.text + '33';
-    ctx.font = Math.round(9 * s) + 'px "Pixelify Sans", sans-serif';
     ctx.textAlign = 'center';
     for (let e = 400; e <= 1800; e += 200) {
       const tx = sliderX + ((e - 200) / 1800) * sliderW;
@@ -144,30 +148,32 @@ const BotSelect = {
     const config = AIController.LEVEL_CONFIG[diff];
     if (config) {
       ctx.fillStyle = cols.text + '66';
-      ctx.font = Math.round(12 * s) + 'px "Pixelify Sans", sans-serif';
+      ctx.font = Math.round(18 * s) + 'px "Pixelify Sans", sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText('Depth: ' + config.depth + '  |  AI Level: ' + diff, cx, 420);
+      ctx.fillText('Depth: ' + config.depth + '  |  AI Level: ' + diff, cx, panelTop + Math.round(290 * s));
     }
 
-    const sideY = portrait ? 460 : 470;
+    const sideY = panelTop + panelH + Math.round(30 * s);
     ctx.fillStyle = cols.text + '88';
-    ctx.font = Math.round(14 * s) + 'px "Pixelify Sans", sans-serif';
+    ctx.font = Math.round(20 * s) + 'px "Pixelify Sans", sans-serif';
     ctx.textAlign = 'center';
     ctx.fillText('Play as:', cx, sideY);
 
     const p1IsWhite = store.get('p1IsWhite') !== false;
     const btnW = Math.round(160 * s);
-    const btnH = Math.round(40 * s);
+    const btnH = Math.round(48 * s);
     const btnGap = Math.round(20 * s);
-    const sideBtnY = sideY + 15;
+    const sideBtnY = sideY + Math.round(16 * s);
 
     UIHelpers.drawButton(ctx, cx - btnW - btnGap / 2, sideBtnY, btnW, btnH, 'White', cols, {
-      font: 'bold ' + Math.round(14 * s) + 'px "Pixelify Sans", sans-serif',
+      font: 'bold ' + Math.round(20 * s) + 'px "Pixelify Sans", sans-serif',
       active: p1IsWhite,
+      radius: 10,
     });
     UIHelpers.drawButton(ctx, cx + btnGap / 2, sideBtnY, btnW, btnH, 'Black', cols, {
-      font: 'bold ' + Math.round(14 * s) + 'px "Pixelify Sans", sans-serif',
+      font: 'bold ' + Math.round(20 * s) + 'px "Pixelify Sans", sans-serif',
       active: !p1IsWhite,
+      radius: 10,
     });
 
     this._sideBtnY = sideBtnY;
@@ -176,29 +182,32 @@ const BotSelect = {
     this._sideBtnGap = btnGap;
 
     ctx.fillStyle = cols.text + '44';
-    ctx.font = Math.round(11 * s) + 'px "Pixelify Sans", sans-serif';
+    ctx.font = Math.round(16 * s) + 'px "Pixelify Sans", sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText('Drag slider or use arrow keys. Click to start.', cx, sideBtnY + btnH + 30);
+    ctx.fillText('Drag slider or use arrow keys.', cx, sideBtnY + btnH + Math.round(30 * s));
 
-    const backY = H - 60;
-    const ditherY = backY - 10;
-    UIHelpers.drawDitheredRect(ctx, 0, ditherY, W, 30, cols.accent, '11');
-    UIHelpers.drawButton(ctx, 30, backY - 10, 160, 40, '< Back', cols, { font: 'bold 14px "Pixelify Sans", sans-serif' });
-
-    const startW = Math.round((portrait ? 300 : 190) * s);
-    const startH = Math.round(50 * s);
+    const startW = Math.round((portrait ? 340 : 220) * s);
+    const startH = Math.round(56 * s);
     const startX = Math.round(cx - startW / 2);
-    const startY = H - 120;
+    const startY = portrait ? sideBtnY + btnH + Math.round(60 * s) : H - Math.round(120 * s);
     ctx.fillStyle = cols.accent + '22';
     ctx.fillRect(startX + 2, startY + 2, startW - 4, startH + 4);
     ctx.fillRect(startX + 4, startY + 4, startW, startH + 8);
     UIHelpers.drawButton(ctx, startX, startY, startW, startH, 'START GAME', cols, {
-      font: 'bold ' + Math.round(16 * s) + 'px "Pixelify Sans", sans-serif',
+      font: 'bold ' + Math.round(22 * s) + 'px "Pixelify Sans", sans-serif',
       active: true,
+      radius: 10,
     });
 
+    const backY = portrait ? startY + startH + Math.round(24 * s) : H - Math.round(60 * s);
+    const ditherY = backY - 10;
+    UIHelpers.drawDitheredRect(ctx, 0, ditherY, W, 30, cols.accent, '11');
+    const backW = Math.max(160, Math.round(160 * s));
+    const backH = Math.max(44, Math.round(44 * s));
+    UIHelpers.drawButton(ctx, 30, backY - 10, backW, backH, '< Back', cols, { font: 'bold ' + Math.round(18 * s) + 'px "Pixelify Sans", sans-serif', radius: 10 });
+
     this._startBounds = { x: startX, y: startY, w: startW, h: startH };
-    this._backBounds = { x: 30, y: backY - 10, w: 160, h: 40 };
+    this._backBounds = { x: 30, y: backY - 10, w: backW, h: backH };
   },
 
   _sliderToElo(x) {

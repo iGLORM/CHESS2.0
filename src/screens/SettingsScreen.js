@@ -203,13 +203,13 @@ const SettingsScreen = {
     if (Layout.isPortrait) {
       const panelW = Math.min(720, Layout.W - 80);
       const panelX = (Layout.W - panelW) / 2;
-      const panelY = 792;
+      const panelY = 780;
       const cardW = panelW - 60;
-      const cardH = 82;
-      const cardGap = 14;
-      const panelH = 80 + (cardH + cardGap) * 4;
+      const cardH = 64;
+      const cardGap = 10;
+      const panelH = 70 + (cardH + cardGap) * 4;
       PixiPremiumScene.panel(this.pixiContainer, panelX, panelY, panelW, panelH, { accentAlpha: 0.42 });
-      this.sectionTitle(panelX + 32, panelY + 28, 'Game Tools', 'Practice, controls, and save maintenance');
+      this.sectionTitle(panelX + 32, panelY + 22, 'Game Tools', 'Practice, controls, and save maintenance');
       const actions = [
         { label: 'Practice Mini-Games', sub: 'Try every capture challenge', icon: 'play', action: () => switchScreen('miniGamePractice') },
         { label: 'Controls', sub: 'Tune mini-game sensitivity', icon: 'settings', action: () => switchScreen('controls') },
@@ -218,26 +218,26 @@ const SettingsScreen = {
       ];
       actions.forEach((action, i) => {
         const cardX = panelX + 30;
-        const cardY = panelY + 80 + i * (cardH + cardGap);
+        const cardY = panelY + 66 + i * (cardH + cardGap);
         PixiPremiumScene.card(this.pixiContainer, cardX, cardY, cardW, cardH, {
           onClick: action.action,
           activeColor: action.label === 'Reset Progress' ? '#ff6578' : ThemeManager.getCurrentColors().accent,
           draw: (card) => {
             const cols = ThemeManager.getCurrentColors();
             const icon = new PIXI.Sprite(PixiPremiumAssets.icon(action.icon));
-            icon.width = 52;
-            icon.height = 52;
-            icon.x = 18;
-            icon.y = 14;
+            icon.width = 40;
+            icon.height = 40;
+            icon.x = 14;
+            icon.y = 12;
             card.addChild(icon);
-            const label = PixiPremiumScene.text(action.label, { fontSize: Math.round(20 * s), fontWeight: '900', fill: cols.text });
-            label.x = 84;
-            label.y = 16;
-            PixiPremiumScene.fit(label, cardW - 120);
+            const label = PixiPremiumScene.text(action.label, { fontSize: Math.round(18 * s), fontWeight: '900', fill: cols.text });
+            label.x = 66;
+            label.y = 10;
+            PixiPremiumScene.fit(label, cardW - 100);
             card.addChild(label);
-            const sub = PixiPremiumScene.text(action.sub, { fontSize: Math.round(14 * s), fill: PixiPremiumScene.alpha(cols.text, '88') });
-            sub.x = 84;
-            sub.y = 46;
+            const sub = PixiPremiumScene.text(action.sub, { fontSize: Math.round(12 * s), fill: PixiPremiumScene.alpha(cols.text, '88') });
+            sub.x = 66;
+            sub.y = 36;
             PixiPremiumScene.fit(sub, cardW - 120, 0.55);
             card.addChild(sub);
           },

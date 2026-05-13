@@ -50,11 +50,11 @@ const PauseMenu = {
 
       const cDialogW = Math.min(Math.round((portrait ? 500 : 400) * s), W - 40);
       const cBtnW = Math.min(Math.round((portrait ? 180 : 140) * s), cDialogW - 60);
-      const cBtnH = Math.round((portrait ? 48 : 40) * s);
-      const cBtnGap = Math.round((portrait ? 40 : 20) * s);
+      const cBtnH = Math.round(48 * s);
+      const cBtnGap = Math.round(12 * s);
       const cTitleFs = Math.round(22 * s);
       const cSubFs = Math.round(14 * s);
-      const cBtnFs = Math.round(13 * s);
+      const cBtnFs = Math.round(18 * s);
 
       const cTitleAreaH = Math.round(90 * s);
       const cBtnAreaH = cBtnH + Math.round(30 * s);
@@ -79,8 +79,8 @@ const PauseMenu = {
 
       const isHoverYes = this.hoveredBtn === 'surrender-yes';
       const isHoverNo = this.hoveredBtn === 'surrender-no';
-      UIHelpers.drawButton(ctx, yesX, cBtnY, cBtnW, cBtnH, 'Yes', cols, { font: 'bold ' + cBtnFs + 'px "Pixelify Sans", sans-serif', hover: isHoverYes });
-      UIHelpers.drawButton(ctx, noX, cBtnY, cBtnW, cBtnH, 'Cancel', cols, { font: 'bold ' + cBtnFs + 'px "Pixelify Sans", sans-serif', hover: isHoverNo });
+      UIHelpers.drawButton(ctx, yesX, cBtnY, cBtnW, cBtnH, 'Yes', cols, { font: 'bold ' + cBtnFs + 'px "Pixelify Sans", sans-serif', hover: isHoverYes, radius: 8 });
+      UIHelpers.drawButton(ctx, noX, cBtnY, cBtnW, cBtnH, 'Cancel', cols, { font: 'bold ' + cBtnFs + 'px "Pixelify Sans", sans-serif', hover: isHoverNo, radius: 8 });
 
       this._confirmYesBounds = { x: yesX, y: cBtnY, w: cBtnW, h: cBtnH };
       this._confirmNoBounds = { x: noX, y: cBtnY, w: cBtnW, h: cBtnH };
@@ -93,11 +93,11 @@ const PauseMenu = {
     ctx.fillRect(0, 0, W, H);
 
     const titleFs = Math.round(28 * s);
-    const btnFs = Math.round(16 * s);
-    const moveFs = Math.round(12 * s);
+    const btnFs = Math.round(18 * s);
+    const moveFs = Math.round(14 * s);
     const btnW = Math.min(Math.round((portrait ? 280 : 200) * s), W - 40 - 40);
-    const btnH = Math.round((portrait ? 48 : 40) * s);
-    const btnGap = Math.round((portrait ? 18 : 10) * s);
+    const btnH = Math.round(50 * s);
+    const btnGap = Math.round(12 * s);
 
     const titleAreaH = Math.round(120 * s);
     const modalW = Math.min(Math.round((portrait ? 520 : 400) * s), W - 40);
@@ -133,7 +133,7 @@ const PauseMenu = {
 
     for (const btn of buttons) {
       const isHover = this.hoveredBtn === btn.action;
-      UIHelpers.drawButton(ctx, btnX, btn.y, btnW, btnH, btn.text, cols, { font: 'bold ' + btnFs + 'px "Pixelify Sans", sans-serif', hover: isHover });
+      UIHelpers.drawButton(ctx, btnX, btn.y, btnW, btnH, btn.text, cols, { font: 'bold ' + btnFs + 'px "Pixelify Sans", sans-serif', hover: isHover, radius: 10 });
       btn._bounds = { x: btnX, y: btn.y, w: btnW, h: btnH };
     }
 

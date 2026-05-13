@@ -36,9 +36,9 @@ const CharacterSelect = {
     if (this.phase === 'slots') this.buildSlots();
     if (this.phase === 'difficulty') this.buildDifficulty();
     if (this.phase === 'characters') this.buildCharacters();
-    const btnY = Layout.H - Math.round(82 * s);
+    const btnY = Layout.H - Math.round(100 * s);
     const btnW = Math.round(160 * s);
-    const btnH = Math.round(44 * s);
+    const btnH = 44;
     PixiPremiumScene.button(this.pixiContainer, Math.round(36 * s), btnY, btnW, btnH, this.phase === 'slots' ? 'Home' : 'Back', () => this.back(), { icon: 'back' });
   },
 
@@ -48,11 +48,11 @@ const CharacterSelect = {
     const portrait = Layout.isPortrait;
     const baseW = portrait ? 700 : 344;
     const w = Math.min(Math.round(baseW * s), Layout.W - 80);
-    const baseH = portrait ? Math.round(300 * s) : 446;
-    const h = baseH;
-    const gap = portrait ? Math.round(20 * s) : 30;
+    const gap = portrait ? 16 : 30;
     const startX = portrait ? Math.floor((Layout.W - w) / 2) : 92;
-    const startY = Math.round(156 * s);
+    const startY = portrait ? 156 : Math.round(156 * s);
+    const availH = portrait ? Layout.H - startY - 100 : 446;
+    const h = portrait ? Math.min(300, Math.floor((availH - 2 * gap) / 3)) : 446;
     saves.forEach((save, index) => {
       const isEmpty = !save.difficultyTier;
       const cardX = portrait ? startX : startX + index * (w + gap);
@@ -64,6 +64,7 @@ const CharacterSelect = {
         onClick: () => this.chooseSlot(index),
         draw: (card, state) => {
           const cols = ThemeManager.getCurrentColors();
+          const p = h / 446;
           this.drawSaveSlotArt(card, save, index, w, h, isEmpty, state && state.hover, cols);
 
           const title = PixiPremiumScene.text(`SAVE ${index + 1}`, {
@@ -76,7 +77,7 @@ const CharacterSelect = {
           });
           title.anchor.set(0.5);
           title.x = w / 2;
-          title.y = Math.round(36 * s);
+          title.y = Math.round(36 * p);
           card.addChild(title);
 
           if (isEmpty) {
@@ -89,13 +90,13 @@ const CharacterSelect = {
             });
             newGame.anchor.set(0.5);
             newGame.x = w / 2;
-            newGame.y = Math.round(284 * s);
+            newGame.y = h * 0.68;
             card.addChild(newGame);
 
             const hint = PixiPremiumScene.text('Begin at Level 1', { fontSize: Math.round(17 * s), fontWeight: '700', fill: PixiPremiumScene.alpha(cols.text, 'bb') });
             hint.anchor.set(0.5);
             hint.x = w / 2;
-            hint.y = Math.round(322 * s);
+            hint.y = h * 0.78;
             card.addChild(hint);
             return;
           }
@@ -104,34 +105,34 @@ const CharacterSelect = {
           const tierText = PixiPremiumScene.text(tier, { fontSize: Math.round(26 * s), fontWeight: '800', fill: cols.text });
           tierText.anchor.set(0.5);
           tierText.x = w / 2;
-          tierText.y = Math.round(286 * s);
-          PixiPremiumScene.fit(tierText, w - Math.round(56 * s));
+          tierText.y = h * 0.58;
+          PixiPremiumScene.fit(tierText, w - 56);
           card.addChild(tierText);
 
           const elo = PixiPremiumScene.text(DifficultyScaler.getTierElo(save.difficultyTier), { fontSize: Math.round(16 * s), fill: PixiPremiumScene.alpha(cols.text, '88') });
           elo.anchor.set(0.5);
           elo.x = w / 2;
-          elo.y = Math.round(318 * s);
+          elo.y = h * 0.66;
           card.addChild(elo);
 
-          const progW = w - Math.round(84 * s);
-          const progH = Math.round(18 * s);
-          const progX = Math.round(42 * s);
-          const progY = Math.round(372 * s);
+          const progW = w - 84;
+          const progH = 18;
+          const progX = 42;
+          const progY = h * 0.74;
           this.progress(card, progX, progY, progW, progH, Math.min(1, (save.storyLevel || 1) / 10), cols);
           const level = PixiPremiumScene.text(`Level ${save.storyLevel || 1} / 10`, { fontSize: Math.round(18 * s), fontWeight: '800', fill: cols.text });
           level.anchor.set(0.5);
           level.x = w / 2;
-          level.y = Math.round(354 * s);
+          level.y = h * 0.85;
           card.addChild(level);
 
           const status = PixiPremiumScene.text(save.completed ? 'Completed' : 'Click to continue', {
-            fontSize: Math.round(16 * s),
+            fontSize: Math.round(14 * s),
             fill: save.completed ? '#7dea99' : PixiPremiumScene.alpha(cols.text, '88'),
           });
           status.anchor.set(0.5);
           status.x = w / 2;
-          status.y = Math.round(420 * s);
+          status.y = h * 0.94;
           card.addChild(status);
         },
       });
@@ -140,10 +141,11 @@ const CharacterSelect = {
 
   drawSaveSlotArt(card, save, index, w, h, isEmpty, hover, cols) {
     const s = Layout.uiScale || 1;
+    const p = h / 446;
     const themeId = this.getAssetThemeId();
-    const bgH = Math.round(166 * s);
-    const bgY = Math.round(62 * s);
-    const pad = Math.round(14 * s);
+    const bgH = Math.round(166 * p);
+    const bgY = Math.round(62 * p);
+    const pad = Math.round(14 * p);
     const bg = new PIXI.Sprite(PixiPremiumAssets.background(themeId));
     bg.width = w - pad * 2;
     bg.height = bgH;
@@ -154,13 +156,13 @@ const CharacterSelect = {
 
     const shade = new PIXI.Graphics()
       .rect(pad, bgY, w - pad * 2, bgH).fill({ color: 0x02040b, alpha: isEmpty ? 0.34 : 0.18 })
-      .rect(pad, bgY + bgH - Math.round(18 * s), w - pad * 2, Math.round(18 * s)).fill({ color: 0x02040b, alpha: 0.45 })
-      .rect(pad + Math.round(10 * s), bgY + Math.round(12 * s), w - pad * 2 - Math.round(20 * s), 2).fill({ color: PixiPremiumScene.color(cols.accent), alpha: 0.38 });
+      .rect(pad, bgY + bgH - Math.round(18 * p), w - pad * 2, Math.round(18 * p)).fill({ color: 0x02040b, alpha: 0.45 })
+      .rect(pad + Math.round(10 * p), bgY + Math.round(12 * p), w - pad * 2 - Math.round(20 * p), 2).fill({ color: PixiPremiumScene.color(cols.accent), alpha: 0.38 });
     card.addChild(shade);
 
     if (isEmpty) {
-      this.drawEmptySlotPieces(card, w, themeId, cols);
-      this.drawSlotBadge(card, w / 2, Math.round(235 * s), 'START', cols.accent, cols);
+      this.drawEmptySlotPieces(card, w, h, themeId, cols);
+      this.drawSlotBadge(card, w / 2, Math.round(235 * p), 'START', cols.accent, cols, w);
       return;
     }
 
@@ -168,25 +170,27 @@ const CharacterSelect = {
       ? save.selectedCharacter.id
       : (save.selectedCharacter || (this.characters.find(ch => ch.level === (save.storyLevel || 1)) || this.characters[0]).id);
     const character = this.characters.find(ch => ch.id === charId) || this.characters[0];
-    const portraitSize = Math.round(140 * s);
+    const portraitSize = Math.round(140 * p);
     const portrait = new PIXI.Sprite(PixiPremiumAssets.character(character.id));
     portrait.width = portraitSize;
     portrait.height = portraitSize;
-    portrait.x = Math.round(34 * s);
-    portrait.y = Math.round(92 * s);
+    portrait.x = Math.round(34 * p);
+    portrait.y = Math.round(92 * p);
     card.addChild(portrait);
 
-    const pieceSize = Math.round(92 * s);
+    const pieceSize = Math.round(92 * p);
     const piece = this.pieceSprite(themeId, 'white', this.pieceForLevel(save.storyLevel || 1));
     piece.width = pieceSize;
     piece.height = pieceSize;
-    piece.x = w - pieceSize - Math.round(32 * s);
-    piece.y = Math.round(106 * s);
+    piece.x = w - pieceSize - Math.round(32 * p);
+    piece.y = Math.round(106 * p);
     piece.alpha = 0.96;
     card.addChild(piece);
 
-    this.drawSlotBadge(card, w - Math.round(74 * s), Math.round(235 * s), save.completed ? 'CLEAR' : `LV ${save.storyLevel || 1}`, save.completed ? '#7dea99' : cols.accent, cols);
+    this.drawSlotBadge(card, w - Math.round(74 * p), Math.round(235 * p), save.completed ? 'CLEAR' : `LV ${save.storyLevel || 1}`, save.completed ? '#7dea99' : cols.accent, cols, w);
 
+    const nameX = Math.round(34 * p) + portraitSize + Math.round(12 * p);
+    const nameMaxW = w - nameX - pieceSize - Math.round(20 * p);
     const name = PixiPremiumScene.text(character.name, {
       fontSize: Math.round(18 * s),
       fontWeight: '900',
@@ -194,9 +198,9 @@ const CharacterSelect = {
       stroke: { color: 0x05020d, width: 3 },
       padding: 5,
     });
-    name.x = Math.round(184 * s);
-    name.y = Math.round(134 * s);
-    PixiPremiumScene.fit(name, Math.round(118 * s));
+    name.x = nameX;
+    name.y = Math.round(134 * p);
+    PixiPremiumScene.fit(name, nameMaxW);
     card.addChild(name);
 
     const title = PixiPremiumScene.text(character.title, {
@@ -204,66 +208,66 @@ const CharacterSelect = {
       fontWeight: '700',
       fill: PixiPremiumScene.alpha(character.colors.primary || cols.accent, 'dd'),
       wordWrap: true,
-      wordWrapWidth: Math.round(116 * s),
+      wordWrapWidth: nameMaxW,
     });
-    title.x = Math.round(184 * s);
-    title.y = Math.round(164 * s);
-    PixiPremiumScene.fit(title, Math.round(116 * s), 0.72);
+    title.x = nameX;
+    title.y = Math.round(164 * p);
+    PixiPremiumScene.fit(title, nameMaxW, 0.72);
     card.addChild(title);
   },
 
-  drawEmptySlotPieces(card, w, themeId, cols) {
-    const s = Layout.uiScale || 1;
-    const leftSize = Math.round(118 * s);
+  drawEmptySlotPieces(card, w, h, themeId, cols) {
+    const p = h / 446;
+    const leftSize = Math.round(118 * p);
     const left = this.pieceSprite(themeId, 'white', 'king');
     left.width = leftSize;
     left.height = leftSize;
-    left.x = Math.round(76 * s);
-    left.y = Math.round(100 * s);
+    left.x = Math.round(76 * p);
+    left.y = Math.round(100 * p);
     card.addChild(left);
 
-    const rightSize = Math.round(104 * s);
+    const rightSize = Math.round(104 * p);
     const right = this.pieceSprite(themeId, 'white', 'queen');
     right.width = rightSize;
     right.height = rightSize;
-    right.x = Math.round(170 * s);
-    right.y = Math.round(110 * s);
+    right.x = Math.round(170 * p);
+    right.y = Math.round(110 * p);
     right.alpha = 0.78;
     right.tint = PixiPremiumScene.color(cols.accent);
     card.addChild(right);
 
-    const boxSize = Math.round(72 * s);
+    const boxSize = Math.round(72 * p);
     const boxX = w / 2 - boxSize / 2;
-    const boxY = Math.round(127 * s);
-    const barW = Math.round(10 * s);
-    const barH = Math.round(40 * s);
-    const crossW = Math.round(40 * s);
-    const crossH = Math.round(10 * s);
+    const boxY = Math.round(127 * p);
+    const barW = Math.round(10 * p);
+    const barH = Math.round(40 * p);
+    const crossW = Math.round(40 * p);
+    const crossH = Math.round(10 * p);
     const plus = new PIXI.Graphics()
-      .roundRect(boxX, boxY, boxSize, boxSize, Math.round(10 * s)).fill({ color: 0x071724, alpha: 0.78 })
-      .roundRect(boxX, boxY, boxSize, boxSize, Math.round(10 * s)).stroke({ color: PixiPremiumScene.color(cols.accent), alpha: 0.7, width: 2 })
+      .roundRect(boxX, boxY, boxSize, boxSize, Math.round(10 * p)).fill({ color: 0x071724, alpha: 0.78 })
+      .roundRect(boxX, boxY, boxSize, boxSize, Math.round(10 * p)).stroke({ color: PixiPremiumScene.color(cols.accent), alpha: 0.7, width: 2 })
       .rect(w / 2 - barW / 2, boxY + (boxSize - barH) / 2, barW, barH).fill({ color: PixiPremiumScene.color(cols.accent), alpha: 0.95 })
       .rect(w / 2 - crossW / 2, boxY + (boxSize - crossH) / 2, crossW, crossH).fill({ color: PixiPremiumScene.color(cols.accent), alpha: 0.95 });
     card.addChild(plus);
   },
 
-  drawSlotBadge(card, x, y, label, color, cols) {
-    const s = Layout.uiScale || 1;
-    const bw = Math.round(88 * s);
-    const bh = Math.round(32 * s);
+  drawSlotBadge(card, x, y, label, color, cols, cardW) {
+    const bw = Math.min(Math.round(72 * (Layout.uiScale || 1)), cardW ? cardW * 0.18 : 88);
+    const bh = Math.round(bw * 0.36);
+    x = cardW ? Math.min(x, cardW - bw / 2 - 8) : x;
     const badge = new PIXI.Graphics()
-      .roundRect(x - bw / 2, y - bh / 2, bw, bh, Math.round(6 * s)).fill({ color: 0x071724, alpha: 0.82 })
-      .roundRect(x - bw / 2, y - bh / 2, bw, bh, Math.round(6 * s)).stroke({ color: PixiPremiumScene.color(color), alpha: 0.72, width: 2 });
+      .roundRect(x - bw / 2, y - bh / 2, bw, bh, 6).fill({ color: 0x071724, alpha: 0.82 })
+      .roundRect(x - bw / 2, y - bh / 2, bw, bh, 6).stroke({ color: PixiPremiumScene.color(color), alpha: 0.72, width: 2 });
     card.addChild(badge);
     const text = PixiPremiumScene.text(label, {
-      fontSize: Math.round(13 * s),
+      fontSize: Math.round(12 * (Layout.uiScale || 1)),
       fontWeight: '900',
       fill: color,
     });
     text.anchor.set(0.5);
     text.x = x;
     text.y = y - 1;
-    PixiPremiumScene.fit(text, Math.round(72 * s), 0.68);
+    PixiPremiumScene.fit(text, bw - 12, 0.68);
     card.addChild(text);
   },
 
@@ -350,23 +354,27 @@ const CharacterSelect = {
     }
 
     const portrait = Layout.isPortrait;
-    const cols_per_row = portrait ? 3 : 2;
+    const cols_per_row = portrait ? 2 : 2;
     const baseListW = portrait ? (Layout.W - 80) : 492;
     const listPanelW = Math.min(baseListW, Layout.W - 80);
     const listPanelX = portrait ? Math.floor((Layout.W - listPanelW) / 2) : Math.round(72 * s);
-    const listPanelH = portrait ? Math.round(420 * s) : 560;
+    const numRows = Math.ceil(this.characters.length / cols_per_row);
+    const cardH = Math.round(58 * s);
+    const cardGap = Math.round(10 * s);
+    const rowH = cardH + cardGap;
+    const listContentH = Math.round(40 * s) + numRows * rowH;
+    const listPanelH = portrait ? listContentH : 560;
 
-    PixiPremiumScene.panel(this.pixiContainer, listPanelX, Math.round(132 * s), listPanelW, listPanelH, { accentAlpha: 0.42 });
+    const listPanelY = Math.round(132 * s);
+    PixiPremiumScene.panel(this.pixiContainer, listPanelX, listPanelY, listPanelW, listPanelH, { accentAlpha: 0.42 });
+    this._listPanelBottom = listPanelY + listPanelH;
     const listTitle = PixiPremiumScene.text(`Story ${storyLevel} / 10`, { fontSize: Math.round(19 * s), fontWeight: '800', fill: ThemeManager.getCurrentColors().text });
     listTitle.x = listPanelX + Math.round(28 * s);
     listTitle.y = Math.round(154 * s);
     this.pixiContainer.addChild(listTitle);
 
-    const cardGap = Math.round(18 * s);
-    const cardW = portrait ? Math.floor((listPanelW - Math.round(60 * s) - (cols_per_row - 1) * cardGap) / cols_per_row) : 216;
+    const cardW = portrait ? Math.floor((listPanelW - Math.round(50 * s) - (cols_per_row - 1) * cardGap) / cols_per_row) : 216;
     const cardStartX = listPanelX + Math.round(20 * s);
-    const cardH = Math.round(74 * s);
-    const rowH = Math.round(92 * s);
     this.characters.forEach((ch, i) => {
       const col = i % cols_per_row;
       const row = Math.floor(i / cols_per_row);
@@ -384,26 +392,27 @@ const CharacterSelect = {
         },
         draw: (card) => {
           const cols = ThemeManager.getCurrentColors();
-          const thumbSize = Math.round(52 * s);
+          const thumbSize = Math.round(40 * s);
           const thumb = new PIXI.Sprite(unlocked ? PixiPremiumAssets.character(ch.id) : PixiPremiumAssets.icon('lock'));
           thumb.width = thumbSize;
           thumb.height = thumbSize;
-          thumb.x = Math.round(12 * s);
-          thumb.y = Math.round(11 * s);
+          thumb.x = Math.round(10 * s);
+          thumb.y = (cardH - thumbSize) / 2;
           thumb.alpha = unlocked ? 1 : 0.75;
           card.addChild(thumb);
 
-          const textX = Math.round(76 * s);
-          const name = PixiPremiumScene.text(unlocked ? ch.name : `Level ${ch.level} Locked`, { fontSize: Math.round(18 * s), fontWeight: '800', fill: unlocked ? cols.text : PixiPremiumScene.alpha(cols.text, '77') });
+          const textX = Math.round(10 * s) + thumbSize + Math.round(8 * s);
+          const textMaxW = cardW - textX - Math.round(10 * s);
+          const name = PixiPremiumScene.text(unlocked ? ch.name : `Lv ${ch.level} Locked`, { fontSize: Math.round(16 * s), fontWeight: '800', fill: unlocked ? cols.text : PixiPremiumScene.alpha(cols.text, '77') });
           name.x = textX;
-          name.y = Math.round(16 * s);
-          PixiPremiumScene.fit(name, cardW - textX - Math.round(16 * s));
+          name.y = cardH * 0.22;
+          PixiPremiumScene.fit(name, textMaxW);
           card.addChild(name);
 
-          const title = PixiPremiumScene.text(unlocked ? ch.title : `Beat level ${ch.level - 1}`, { fontSize: Math.round(12.5 * s), fill: unlocked ? ch.colors.primary : PixiPremiumScene.alpha(cols.text, '55') });
+          const title = PixiPremiumScene.text(unlocked ? ch.title : `Beat lv ${ch.level - 1}`, { fontSize: Math.round(11 * s), fill: unlocked ? ch.colors.primary : PixiPremiumScene.alpha(cols.text, '55') });
           title.x = textX;
-          title.y = Math.round(42 * s);
-          PixiPremiumScene.fit(title, cardW - textX - Math.round(18 * s), 0.62);
+          title.y = cardH * 0.56;
+          PixiPremiumScene.fit(title, textMaxW, 0.55);
           card.addChild(title);
         },
       });
@@ -422,12 +431,14 @@ const CharacterSelect = {
     const baseDetailW = portrait ? 720 : 604;
     const detailW = Math.min(Math.round(baseDetailW * s), Layout.W - 80);
     const detailX = portrait ? Math.floor((Layout.W - detailW) / 2) : Math.round(604 * s);
-    const detailY = portrait ? Math.round(580 * s) : Math.round(132 * s);
-    const detailH = portrait ? Math.round(500 * s) : 560;
+    const btnArea = Math.round(100 * s);
+    const detailGap = Math.round(20 * s);
+    const detailY = portrait ? (this._listPanelBottom || Math.round(580 * s)) + detailGap : Math.round(132 * s);
+    const detailH = portrait ? Math.min(Math.round(360 * s), Layout.H - detailY - btnArea) : 560;
     PixiPremiumScene.panel(this.pixiContainer, detailX, detailY, detailW, detailH, { accent: ch.colors.primary, accentAlpha: 0.9 });
 
-    const portraitW = Math.round((portrait ? 200 : 238) * s);
-    const portraitH = Math.round((portrait ? 246 : 292) * s);
+    const portraitW = Math.round((portrait ? 140 : 238) * s);
+    const portraitH = Math.min(Math.round((portrait ? 180 : 292) * s), detailH - Math.round(80 * s));
     const portraitSprite = new PIXI.Sprite(PixiPremiumAssets.characterCard(ch.id));
     portraitSprite.width = portraitW;
     portraitSprite.height = portraitH;
@@ -435,8 +446,8 @@ const CharacterSelect = {
     portraitSprite.y = detailY + Math.round(38 * s);
     this.pixiContainer.addChild(portraitSprite);
 
-    const infoX = detailX + Math.round((portrait ? 260 : 310) * s);
-    const infoMaxW = detailW - Math.round((portrait ? 300 : 350) * s);
+    const infoX = detailX + portraitW + Math.round(50 * s);
+    const infoMaxW = detailW - portraitW - Math.round(90 * s);
 
     const name = PixiPremiumScene.text(ch.name, { fontSize: Math.round(34 * s), fontWeight: '900', fill: cols.text });
     name.x = infoX;
@@ -464,7 +475,7 @@ const CharacterSelect = {
     const quoteX = infoX - Math.round(10 * s);
     const quoteY = detailY + Math.round(154 * s);
     const quoteW = Math.min(infoMaxW + Math.round(10 * s), Math.round(300 * s));
-    const quoteH = Math.round((portrait ? 140 : 190) * s);
+    const quoteH = Math.min(Math.round((portrait ? 100 : 190) * s), detailH - Math.round(200 * s));
     PixiPremiumScene.panel(quotePanel, quoteX, quoteY, quoteW, quoteH, { accent: ch.colors.primary, accentAlpha: 0.35, alpha: 0.52 });
     const quote = PixiPremiumScene.text(ch.dialogue.before, {
       fontSize: Math.round(16 * s),
@@ -481,14 +492,14 @@ const CharacterSelect = {
     const beat = ch.level < ((store.getActiveSave() || {}).storyLevel || 1);
     const next = ch.level === ((store.getActiveSave() || {}).storyLevel || 1);
     const status = beat ? 'Defeated' : next ? 'Next Battle' : 'Unlocked';
-    const statusText = PixiPremiumScene.text(status, { fontSize: Math.round(18 * s), fontWeight: '800', fill: beat ? '#7dea99' : cols.accent });
+    const statusText = PixiPremiumScene.text(status, { fontSize: Math.round(16 * s), fontWeight: '800', fill: beat ? '#7dea99' : cols.accent });
     statusText.x = detailX + Math.round(36 * s);
-    statusText.y = detailY + detailH - Math.round(110 * s);
+    statusText.y = detailY + detailH - Math.round(76 * s);
     this.pixiContainer.addChild(statusText);
 
-    const fightBtnW = Math.round(250 * s);
-    const fightBtnH = Math.round(54 * s);
-    PixiPremiumScene.button(this.pixiContainer, detailX + Math.round(36 * s), detailY + detailH - Math.round(72 * s), fightBtnW, fightBtnH, 'Fight', () => this.startFight(), { primary: true, icon: 'play' });
+    const fightBtnW = Math.round(200 * s);
+    const fightBtnH = 44;
+    PixiPremiumScene.button(this.pixiContainer, detailX + Math.round(36 * s), detailY + detailH - Math.round(56 * s), fightBtnW, fightBtnH, 'Fight', () => this.startFight(), { primary: true, icon: 'play' });
   },
 
   fitWrappedText(text, maxHeight, minFontSize) {

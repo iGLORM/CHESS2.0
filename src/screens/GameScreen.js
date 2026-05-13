@@ -417,11 +417,12 @@ const GameScreen = {
   renderSidePanel(ctx, cols, side, color) {
     const isLeft = side === 'left';
     const portrait = Layout.isPortrait;
-    const w = portrait ? 140 : 194;
+    const s = portrait ? 2.0 : (Layout.uiScale || 1);
+    const w = portrait ? 280 : 194;
     const x = isLeft ? 8 : Layout.W - w - 8;
     const y = 80;
     const h = 640;
-    const pad = portrait ? 10 : 14;
+    const pad = portrait ? Math.round(10 * s) : 14;
     const isPlayerTurn = this.turn === color;
     const playerName = color === 'white' ? store.get('whitePlayer') : store.get('blackPlayer');
 
@@ -445,12 +446,12 @@ const GameScreen = {
 
     let cy = y + pad + 4;
     ctx.fillStyle = isPlayerTurn && !this.gameOver ? cols.accent : cols.text;
-    ctx.font = portrait ? 'bold 14px "Pixelify Sans", sans-serif' : 'bold 16px "Pixelify Sans", sans-serif';
+    ctx.font = 'bold ' + Math.round(16 * s) + 'px "Pixelify Sans", sans-serif';
     ctx.textAlign = 'left';
     ctx.fillText(UIHelpers.truncateText(ctx, playerName, w - pad * 2), x + pad, cy);
     cy += 6;
 
-    const indicatorSize = portrait ? 14 : 18;
+    const indicatorSize = Math.round(18 * s);
     ctx.fillStyle = color === 'white' ? '#e8e0d0' : '#3a3530';
     this._roundRect(ctx, x + pad, cy, indicatorSize, indicatorSize, 3);
     ctx.fill();
@@ -460,7 +461,7 @@ const GameScreen = {
 
     if (isPlayerTurn && !this.gameOver) {
       ctx.fillStyle = cols.accent + 'cc';
-      ctx.font = portrait ? '12px "Pixelify Sans", sans-serif' : '14px "Pixelify Sans", sans-serif';
+      ctx.font = Math.round(14 * s) + 'px "Pixelify Sans", sans-serif';
       ctx.fillText('YOUR TURN', x + pad + indicatorSize + 6, cy + indicatorSize - 2);
     }
     cy += indicatorSize + 10;
@@ -472,7 +473,7 @@ const GameScreen = {
     if (this.gameplayMode) {
       const charges = this.defensiveMiniGames[color] || 0;
       ctx.fillStyle = charges > 0 ? cols.accent : cols.text + '44';
-      ctx.font = portrait ? 'bold 12px "Pixelify Sans", sans-serif' : 'bold 13px "Pixelify Sans", sans-serif';
+      ctx.font = 'bold ' + Math.round(13 * s) + 'px "Pixelify Sans", sans-serif';
       ctx.fillText('DEFENSES: ' + charges, x + pad, cy);
       cy += 22;
     }
@@ -482,12 +483,12 @@ const GameScreen = {
     const pieceSymbols = { pawn: '♟', knight: '♞', bishop: '♝', rook: '♜', queen: '♛', king: '♚' };
 
     ctx.fillStyle = cols.text + '88';
-    ctx.font = portrait ? '12px "Pixelify Sans", sans-serif' : '14px "Pixelify Sans", sans-serif';
+    ctx.font = Math.round(14 * s) + 'px "Pixelify Sans", sans-serif';
     ctx.fillText('CAPTURED', x + pad, cy);
     cy += 8;
 
-    const pieceSpacing = portrait ? 12 : 16;
-    const pieceFontSize = portrait ? 14 : 18;
+    const pieceSpacing = Math.round(16 * s);
+    const pieceFontSize = Math.round(18 * s);
     if (captured.length === 0) {
       ctx.fillStyle = cols.text + '33';
       ctx.font = pieceFontSize + 'px "Pixelify Sans", sans-serif';
@@ -515,7 +516,7 @@ const GameScreen = {
     if (whiteAdvantage !== 0) {
       const isWhiteSide = color === 'white';
       const advantage = isWhiteSide ? whiteAdvantage : -whiteAdvantage;
-      const matFont = portrait ? 'bold 13px "Pixelify Sans", sans-serif' : 'bold 16px "Pixelify Sans", sans-serif';
+      const matFont = 'bold ' + Math.round(16 * s) + 'px "Pixelify Sans", sans-serif';
       if (advantage > 0) {
         ctx.fillStyle = '#44dd44';
         ctx.font = matFont;
@@ -535,23 +536,23 @@ const GameScreen = {
 
     if (this.mode === 'story' && color === 'black' && this.currentCharacter) {
       ctx.fillStyle = this.currentCharacter.colors.primary;
-      ctx.font = portrait ? 'bold 14px "Pixelify Sans", sans-serif' : 'bold 16px "Pixelify Sans", sans-serif';
+      ctx.font = 'bold ' + Math.round(16 * s) + 'px "Pixelify Sans", sans-serif';
       ctx.fillText(UIHelpers.truncateText(ctx, this.currentCharacter.name, w - pad * 2), x + pad, cy);
       cy += 4;
       ctx.fillStyle = cols.text + '66';
-      ctx.font = portrait ? '12px "Pixelify Sans", sans-serif' : '14px "Pixelify Sans", sans-serif';
+      ctx.font = Math.round(14 * s) + 'px "Pixelify Sans", sans-serif';
       ctx.fillText('Level ' + this.currentCharacter.level, x + pad, cy + 8);
       cy += 20;
     }
 
     if (isLeft && this.moveHistory.length > 0) {
       ctx.fillStyle = cols.text + '66';
-      ctx.font = portrait ? '12px "Pixelify Sans", sans-serif' : '14px "Pixelify Sans", sans-serif';
+      ctx.font = Math.round(14 * s) + 'px "Pixelify Sans", sans-serif';
       ctx.fillText('MOVE HISTORY', x + pad, cy);
       cy += 8;
 
       ctx.fillStyle = cols.text + '88';
-      ctx.font = portrait ? '13px "Pixelify Sans", sans-serif' : '16px "Pixelify Sans", sans-serif';
+      ctx.font = Math.round(16 * s) + 'px "Pixelify Sans", sans-serif';
       const files = 'abcdefgh';
       const recentMoves = this.moveHistory.slice(portrait ? -6 : -10);
       for (let i = 0; i < recentMoves.length; i++) {
@@ -597,15 +598,16 @@ const GameScreen = {
     ctx.stroke();
     ctx.restore();
 
-    const mainFont = portrait ? 14 : 18;
-    const subFont = portrait ? 12 : 14;
+    const sBar = portrait ? 2.0 : (Layout.uiScale || 1);
+    const mainFont = Math.round(18 * sBar);
+    const subFont = Math.round(14 * sBar);
     ctx.fillStyle = cols.text;
     ctx.font = mainFont + 'px "Pixelify Sans", sans-serif';
     ctx.textAlign = 'center';
     const turnText = this.turn === 'white' ? "White's Turn" : "Black's Turn";
     if (this.gameStatus === 'check') {
       ctx.fillStyle = cols.checkHighlight || cols.accent;
-      ctx.font = (portrait ? 'bold 10px' : 'bold 12px') + ' "Silkscreen", monospace';
+      ctx.font = 'bold ' + Math.round(12 * sBar) + 'px "Silkscreen", monospace';
       ctx.fillText('CHECK!', Layout.cx, y + 18);
       ctx.fillStyle = cols.text + '88';
       ctx.font = subFont + 'px "Pixelify Sans", sans-serif';

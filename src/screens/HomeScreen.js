@@ -10,28 +10,35 @@ const HomeScreen = {
   get LAYOUT() {
     const s = Layout.uiScale || 1;
     if (Layout.isPortrait) {
-      const heroH = Math.round(76 * s);
-      const mainH = Math.round(62 * s);
-      const mainBlockEnd = 440 + heroH + 3 * (mainH + 10);
-      const utilBtnH = Math.round(42 * s);
+      const grid = Math.round(12 * s);
+      const edgeM = grid * 2;
+      const contentW = Layout.W - edgeM * 2;
+      const heroH = Math.round(97 * s);
+      const mainH = Math.round(85 * s);
+      const mainGap = grid;
+      const mainStartY = Math.round(291 * s);
+      const mainBlockEnd = mainStartY + heroH + 3 * (mainH + mainGap);
+      const utilGap = Math.round(13 * s);
+      const utilBtnW = Math.floor((contentW - utilGap * 2) / 3);
+      const utilBtnH = Math.round(73 * s);
       return {
         W: Layout.W, H: Layout.H,
-        LOGO_Y: 200,
-        LOGO_MAX_W: 540,
-        HERO_Y: 240,
-        MAIN_START_Y: 440,
-        MAIN_BTN_W: Math.min(Math.round(620 * s), Layout.W - 40),
+        LOGO_Y: Math.round(110 * s),
+        LOGO_MAX_W: 560,
+        HERO_Y: Math.round(150 * s),
+        MAIN_START_Y: mainStartY,
+        MAIN_BTN_W: contentW,
         HERO_BTN_H: heroH,
         MAIN_BTN_H: mainH,
-        MAIN_BTN_GAP: 10,
-        UTIL_Y: mainBlockEnd + 24,
-        UTIL_BTN_W: Math.min(Math.round(190 * s), (Layout.W - 40 - 28) / 3),
+        MAIN_BTN_GAP: mainGap,
+        UTIL_Y: mainBlockEnd + Math.round(36 * s),
+        UTIL_BTN_W: utilBtnW,
         UTIL_BTN_H: utilBtnH,
-        UTIL_GAP: 14,
-        FOOTER_Y: mainBlockEnd + 24 + utilBtnH + 20,
-        MAIN_FONT: Math.round(20 * s),
-        SUB_FONT: Math.round(14 * s),
-        UTIL_FONT: Math.round(13 * s),
+        UTIL_GAP: utilGap,
+        FOOTER_Y: mainBlockEnd + Math.round(36 * s) + utilBtnH + grid,
+        MAIN_FONT: Math.round(26 * s),
+        SUB_FONT: Math.round(19 * s),
+        UTIL_FONT: Math.round(21 * s),
       };
     }
     const heroH = Math.round(70 * s);
@@ -310,11 +317,12 @@ const HomeScreen = {
     bg.label = 'bg';
     container.addChild(bg);
 
+    const fs = Layout.uiScale || 1;
     const titleText = new PIXI.Text({
       text: btn.text,
       style: {
         fontFamily: PixiTextStyles.FONT_TITLE,
-        fontSize: isHero ? 26 : 20,
+        fontSize: Math.round((isHero ? 30 : 26) * fs),
         fontWeight: 'bold',
         fill: isHero ? cols.accent : cols.text,
         letterSpacing: 0,
@@ -322,7 +330,7 @@ const HomeScreen = {
     });
     titleText.anchor.set(0.5);
     titleText.x = w / 2;
-    titleText.y = btn.sub ? h * 0.36 : h / 2;
+    titleText.y = btn.sub ? h * 0.38 : h / 2;
     titleText.label = 'title';
     this._fitText(titleText, w - pad);
     container.addChild(titleText);
@@ -332,14 +340,14 @@ const HomeScreen = {
         text: btn.sub,
         style: {
           fontFamily: PixiTextStyles.FONT_BODY,
-          fontSize: isHero ? 14 : 12,
-          fill: PixiColorUtil.alpha(cols.text, '88'),
+          fontSize: Math.round((isHero ? 20 : 19) * fs),
+          fill: PixiColorUtil.alpha(cols.text, '99'),
           letterSpacing: 0,
         },
       });
       subText.anchor.set(0.5);
       subText.x = w / 2;
-      subText.y = h * 0.67;
+      subText.y = h * 0.66;
       subText.label = 'sub';
       this._fitText(subText, w - pad);
       container.addChild(subText);
@@ -374,41 +382,33 @@ const HomeScreen = {
 
   _drawMainBtnBg(g, w, h, cols, hover, isHero) {
     g.clear();
-    const S = 3;
+    const r = 10;
     const accentNum = PixiColorUtil.hexToNum(cols.accent);
     const panelNum = PixiColorUtil.hexToNum(cols.panel);
 
-    g.rect(S, S, w, h).fill({ color: 0x000000, alpha: 0.4 });
-    g.rect(0, 0, w, h).fill(0x080810);
+    g.roundRect(4, isHero ? 8 : 6, w, h, r).fill({ color: 0x000000, alpha: isHero ? 0.32 : 0.25 });
 
-    const borderCol = (hover || isHero) ? accentNum : PixiColorUtil.hexToNum(PixiColorUtil.alpha(cols.text, '44'));
-    g.rect(2, 2, w - 4, h - 4).fill(borderCol);
-    g.rect(3, 3, w - 6, h - 6).fill(0x0a0a14);
-
+    const fillAlpha = isHero ? 0.92 : (hover ? 0.78 : 0.68);
     const bgColor = hover
       ? PixiColorUtil.hexToNum(PixiColorUtil.lighten(cols.panel, 12))
       : panelNum;
-    g.rect(4, 4, w - 8, h - 8).fill({ color: bgColor, alpha: 0.95 });
+    g.roundRect(0, 0, w, h, r).fill({ color: bgColor, alpha: fillAlpha });
 
     if (isHero) {
-      g.rect(4, 4, w - 8, h - 8).fill({ color: accentNum, alpha: 0.12 });
+      g.roundRect(0, 0, w, h, r).fill({ color: accentNum, alpha: 0.14 });
     }
 
-    g.rect(4, 4, w - 8, 1).fill({ color: 0xffffff, alpha: 0.06 });
+    const borderW = isHero ? 4 : (hover ? 3 : 2);
+    g.roundRect(0, 0, w, h, r).stroke({
+      color: (hover || isHero) ? accentNum : PixiColorUtil.hexToNum(PixiColorUtil.alpha(cols.text, '44')),
+      alpha: isHero ? 1.0 : (hover ? 0.75 : 0.45),
+      width: borderW,
+    });
 
-    const cornerCol = (hover || isHero) ? accentNum : PixiColorUtil.hexToNum(PixiColorUtil.alpha(cols.text, '44'));
-    g.rect(0, 0, 4, 1).rect(0, 1, 1, 3)
-      .rect(w - 4, 0, 4, 1).rect(w - 1, 1, 1, 3)
-      .rect(0, h - 1, 4, 1).rect(0, h - 4, 1, 3)
-      .rect(w - 4, h - 1, 4, 1).rect(w - 1, h - 4, 1, 3)
-      .fill(cornerCol);
+    g.roundRect(8, 3, w - 16, 2, 1).fill({ color: 0xffffff, alpha: isHero ? 0.09 : 0.06 });
 
-    if (hover) {
-      g.rect(5, 5, w - 10, 2)
-        .rect(5, h - 7, w - 10, 2)
-        .rect(5, 5, 2, h - 10)
-        .rect(w - 7, 5, 2, h - 10)
-        .fill({ color: accentNum, alpha: 0.7 });
+    if (hover && !isHero) {
+      g.roundRect(4, 4, w - 8, h - 8, r - 3).stroke({ color: accentNum, alpha: 0.5, width: 2 });
     }
   },
 
@@ -425,13 +425,14 @@ const HomeScreen = {
     bg.label = 'bg';
     container.addChild(bg);
 
+    const ufs = Layout.uiScale || 1;
     const label = new PIXI.Text({
       text: btn.text,
       style: {
         fontFamily: PixiTextStyles.FONT_TITLE,
-        fontSize: 13,
+        fontSize: Math.round(21 * ufs),
         fontWeight: 'bold',
-        fill: PixiColorUtil.alpha(cols.text, 'cc'),
+        fill: PixiColorUtil.alpha(cols.text, 'dd'),
         letterSpacing: 0,
       },
     });
@@ -471,36 +472,26 @@ const HomeScreen = {
 
   _drawUtilBtnBg(g, w, h, cols, hover) {
     g.clear();
-    const S = 2;
+    const r = 8;
     const accentNum = PixiColorUtil.hexToNum(cols.accent);
     const panelNum = PixiColorUtil.hexToNum(cols.panel);
 
-    g.rect(S, S, w, h).fill({ color: 0x000000, alpha: 0.35 });
-    g.rect(0, 0, w, h).fill(0x080810);
-
-    const borderCol = hover ? accentNum : PixiColorUtil.hexToNum(PixiColorUtil.alpha(cols.text, '44'));
-    g.rect(2, 2, w - 4, h - 4).fill(borderCol);
-    g.rect(3, 3, w - 6, h - 6).fill(0x0a0a14);
+    g.roundRect(3, 5, w, h, r).fill({ color: 0x000000, alpha: 0.22 });
 
     const bgColor = hover
       ? PixiColorUtil.hexToNum(PixiColorUtil.lighten(cols.panel, 10))
       : panelNum;
-    g.rect(4, 4, w - 8, h - 8).fill({ color: bgColor, alpha: 0.92 });
-    g.rect(4, 4, w - 8, 1).fill({ color: 0xffffff, alpha: 0.05 });
+    g.roundRect(0, 0, w, h, r).fill({ color: bgColor, alpha: hover ? 0.72 : 0.52 });
+    g.roundRect(0, 0, w, h, r).stroke({
+      color: hover ? accentNum : PixiColorUtil.hexToNum(PixiColorUtil.alpha(cols.text, '44')),
+      alpha: hover ? 0.65 : 0.35,
+      width: 2,
+    });
 
-    const cornerCol = hover ? accentNum : PixiColorUtil.hexToNum(PixiColorUtil.alpha(cols.text, '44'));
-    g.rect(0, 0, 3, 1).rect(0, 1, 1, 2)
-      .rect(w - 3, 0, 3, 1).rect(w - 1, 1, 1, 2)
-      .rect(0, h - 1, 3, 1).rect(0, h - 3, 1, 2)
-      .rect(w - 3, h - 1, 3, 1).rect(w - 1, h - 3, 1, 2)
-      .fill(cornerCol);
+    g.roundRect(6, 2, w - 12, 1, 1).fill({ color: 0xffffff, alpha: 0.05 });
 
     if (hover) {
-      g.rect(5, 5, w - 10, 1)
-        .rect(5, h - 6, w - 10, 1)
-        .rect(5, 5, 1, h - 10)
-        .rect(w - 6, 5, 1, h - 10)
-        .fill({ color: accentNum, alpha: 0.5 });
+      g.roundRect(3, 3, w - 6, h - 6, r - 2).stroke({ color: accentNum, alpha: 0.4, width: 1 });
     }
   },
 

@@ -48,8 +48,8 @@ const ModeSelect = {
     const s = Layout.uiScale || 1;
     const portrait = Layout.isPortrait;
     const cardW = portrait ? Math.round(620 * s) : 500;
-    const cardH = portrait ? Math.round(80 * s) : 72;
-    const gap = portrait ? Math.round(16 * s) : 12;
+    const cardH = Math.round(76 * s);
+    const gap = Math.round(14 * s);
     const iconSize = Math.round(40 * s);
     const totalH = sides.length * cardH + (sides.length - 1) * gap;
     const panelPad = 24;
@@ -68,7 +68,7 @@ const ModeSelect = {
       const cardY = startY + i * (cardH + gap);
       const card = PixiPremiumScene.card(this.pixiContainer, cardX, cardY, effectiveCardW, cardH, {
         active: i === this.selectedButton,
-        alpha: 0.82,
+        alpha: 0.68,
         onClick: () => this.startGame(side.action),
         draw: (c) => {
           const cols = ThemeManager.getCurrentColors();
@@ -87,17 +87,17 @@ const ModeSelect = {
             fill: cols.text,
           });
           t.x = textX;
-          t.y = cardH / 2 - Math.round(14 * s);
+          t.y = cardH * 0.28;
           PixiPremiumScene.fit(t, effectiveCardW - textX - 20);
           c.addChild(t);
 
           const sub = PixiPremiumScene.text(side.subtitle, {
-            fontSize: Math.round(14 * s),
+            fontSize: Math.round(16 * s),
             fontWeight: '600',
             fill: PixiPremiumScene.alpha(cols.text, '77'),
           });
           sub.x = textX;
-          sub.y = cardH / 2 + Math.round(10 * s);
+          sub.y = cardH * 0.60;
           c.addChild(sub);
         },
       });

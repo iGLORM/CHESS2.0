@@ -77,14 +77,13 @@ const PixiPremiumScene = {
   header(root, title, subtitle, options = {}) {
     if (!title) return null;
     const cols = this.cols();
-    const scale = (typeof Layout !== 'undefined' && Layout.uiScale) || 1;
     const group = new PIXI.Container();
     group.label = 'premiumHeader';
     root.addChild(group);
 
     const titleText = this.text(title.toUpperCase(), {
       fontFamily: PixiTextStyles.FONT_TITLE,
-      fontSize: Math.round((options.titleSize || 36) * scale),
+      fontSize: options.titleSize || 42,
       fontWeight: 'bold',
       fill: cols.text,
       stroke: { color: 0x000000, width: 4 },
@@ -92,19 +91,19 @@ const PixiPremiumScene = {
     });
     titleText.anchor.set(0.5);
     titleText.x = this.W / 2;
-    titleText.y = 46;
+    titleText.y = 55;
     this.fit(titleText, 780);
     group.addChild(titleText);
 
     if (subtitle) {
       const sub = this.text(subtitle, {
-        fontSize: Math.round(18 * scale),
+        fontSize: 26,
         fontWeight: '700',
         fill: this.alpha(cols.text, 'aa'),
       });
       sub.anchor.set(0.5);
       sub.x = this.W / 2;
-      sub.y = 82;
+      sub.y = 106;
       this.fit(sub, 760);
       group.addChild(sub);
     }
@@ -112,30 +111,29 @@ const PixiPremiumScene = {
     const sep = new PIXI.Graphics();
     const sepW = 570;
     const sepX = Math.floor((this.W - sepW) / 2);
-    sep.rect(sepX, 106, sepW, 2).fill({ color: this.color(cols.text), alpha: 0.18 });
-    sep.rect(sepX + sepW / 2 - 5, 101, 10, 10).fill({ color: this.color(cols.accent), alpha: 0.92 });
-    sep.rect(sepX + sepW / 2 - 1, 97, 2, 18).fill({ color: this.color(cols.accent), alpha: 0.55 });
+    sep.rect(sepX, 130, sepW, 2).fill({ color: this.color(cols.text), alpha: 0.18 });
+    sep.rect(sepX + sepW / 2 - 5, 125, 10, 10).fill({ color: this.color(cols.accent), alpha: 0.92 });
+    sep.rect(sepX + sepW / 2 - 1, 121, 2, 18).fill({ color: this.color(cols.accent), alpha: 0.55 });
     group.addChild(sep);
     return group;
   },
 
   footer(root, cols, hint) {
-    const scale = (typeof Layout !== 'undefined' && Layout.uiScale) || 1;
     const footer = new PIXI.Container();
     footer.label = 'premiumFooter';
     root.addChild(footer);
-    const footerY = this.H - 34;
+    const footerY = this.H - 58;
     const line = new PIXI.Graphics()
-      .rect(0, footerY, this.W, 34)
+      .rect(0, footerY, this.W, 58)
       .fill({ color: 0x020712, alpha: 0.42 })
       .rect(0, footerY, this.W, 2)
       .fill({ color: this.color(cols.accent), alpha: 0.22 });
     footer.addChild(line);
     if (hint) {
-      const text = this.text(hint, { fontSize: Math.round(14 * scale), fill: this.alpha(cols.text, '77') });
+      const text = this.text(hint, { fontSize: 24, fill: this.alpha(cols.text, '77') });
       text.anchor.set(0.5);
       text.x = this.W / 2;
-      text.y = footerY + 18;
+      text.y = footerY + 29;
       footer.addChild(text);
     }
     return footer;
@@ -168,10 +166,10 @@ const PixiPremiumScene = {
     const fill = options.fill || cols.panel;
     const border = options.border || cols.text;
     const accent = options.accent || cols.accent;
-    const alpha = options.alpha ?? 0.78;
-    g.roundRect(x + 8, y + 10, w, h, options.radius || 8).fill({ color: 0x000000, alpha: 0.30 });
-    g.roundRect(x, y, w, h, options.radius || 8).fill({ color: this.color(fill), alpha });
-    g.roundRect(x, y, w, h, options.radius || 8).stroke({ color: this.color(border), alpha: options.borderAlpha ?? 0.28, width: 2 });
+    const alpha = options.alpha ?? 0.68;
+    g.roundRect(x + 6, y + 6, w, h, options.radius || 10).fill({ color: 0x000000, alpha: 0.30 });
+    g.roundRect(x, y, w, h, options.radius || 10).fill({ color: this.color(fill), alpha });
+    g.roundRect(x, y, w, h, options.radius || 10).stroke({ color: this.color(border), alpha: options.borderAlpha ?? 0.35, width: 2 });
     if (options.accent !== false) {
       g.roundRect(x + 14, y + 12, Math.max(20, w - 28), 4, 2).fill({ color: this.color(accent), alpha: options.accentAlpha ?? 0.72 });
     }
@@ -201,10 +199,10 @@ const PixiPremiumScene = {
         fill: options.fill,
         border: options.active || hover ? (options.activeColor || this.cols().accent) : this.cols().text,
         accent: options.active || hover ? (options.activeColor || this.cols().accent) : this.cols().accent,
-        borderAlpha: options.active || hover ? 0.72 : 0.25,
-        accentAlpha: options.active || hover ? 0.88 : 0.36,
-        alpha: options.disabled ? 0.43 : (options.alpha ?? 0.76),
-        radius: options.radius || 8,
+        borderAlpha: options.active || hover ? 0.80 : 0.30,
+        accentAlpha: options.active || hover ? 0.80 : 0.40,
+        alpha: options.disabled ? 0.43 : (options.alpha ?? 0.68),
+        radius: options.radius || 10,
       });
       if (options.draw) options.draw(local, { hover });
     };
@@ -225,15 +223,15 @@ const PixiPremiumScene = {
   button(parent, x, y, w, h, label, onClick, options = {}) {
     const cols = this.cols();
     const scale = (typeof Layout !== 'undefined' && Layout.uiScale) || 1;
-    const scaledH = Math.round(h * scale);
+    const scaledH = Math.max(Math.round(h * scale), 68);
     const scaledFontSize = Math.round((options.fontSize || 18) * scale);
     const btn = this.card(parent, x, y, w, scaledH, {
       active: options.primary,
       disabled: options.disabled,
       fill: options.fill || cols.buttonBg,
       activeColor: options.color || cols.accent,
-      alpha: options.primary ? 0.88 : 0.66,
-      radius: 7,
+      alpha: options.primary ? 0.92 : 0.68,
+      radius: 10,
       onClick: options.disabled ? null : onClick,
       draw: (c) => {
         let icon = null;
