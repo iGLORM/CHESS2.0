@@ -22,9 +22,10 @@ const ThemeSelect = {
     this.pixiContainer = PixiPremiumScene.root('Theme Select', 'Theme is controlled by boss world', {});
     PixiScreenManager.setScreenContainer(this.pixiContainer);
 
+    const s = Layout.uiScale || 1;
     const cols = ThemeManager.getCurrentColors();
-    const panelW = Layout.isPortrait ? 620 : 500;
-    const panelH = 300;
+    const panelW = Math.min(Layout.isPortrait ? 620 : 500, Layout.W - 80);
+    const panelH = Math.round(300 * s);
     const px = Layout.cx - panelW / 2;
     const py = Layout.cy - panelH / 2 - 20;
     PixiPremiumScene.panel(this.pixiContainer, px, py, panelW, panelH, { accentAlpha: 0.5 });
@@ -36,13 +37,13 @@ const ThemeSelect = {
     icon.y = py + 28;
     this.pixiContainer.addChild(icon);
 
-    const title = PixiPremiumScene.text('Boss World Theme Active', { fontSize: 24, fontWeight: '900', fill: cols.text });
+    const title = PixiPremiumScene.text('Boss World Theme Active', { fontSize: Math.round(24 * s), fontWeight: '900', fill: cols.text });
     title.anchor.set(0.5, 0);
     title.x = Layout.cx;
     title.y = py + 72;
     this.pixiContainer.addChild(title);
 
-    const desc = PixiPremiumScene.text('The theme changes automatically\nbased on the boss you fight.\n\nDisable "Boss World Theme" in Settings\nto pick themes manually.', { fontSize: 16, fill: PixiPremiumScene.alpha(cols.text, 'aa'), lineHeight: 24 });
+    const desc = PixiPremiumScene.text('The theme changes automatically\nbased on the boss you fight.\n\nDisable "Boss World Theme" in Settings\nto pick themes manually.', { fontSize: Math.round(16 * s), fill: PixiPremiumScene.alpha(cols.text, 'aa'), lineHeight: Math.round(24 * s) });
     desc.anchor.set(0.5, 0);
     desc.x = Layout.cx;
     desc.y = py + 110;
@@ -63,7 +64,7 @@ const ThemeSelect = {
 
   build() {
     if (this.pixiContainer) this.pixiContainer.destroy({ children: true });
-    const subtitle = Layout.isPortrait ? 'Gallery above, custom editor below' : 'Gallery on the left, custom editor on the right';
+    const subtitle = Layout.isPortrait ? 'Gallery above, preview below' : 'Gallery on the left, custom editor on the right';
     this.pixiContainer = PixiPremiumScene.root('Theme Select', subtitle, { footerHint: 'Locked themes unlock through story progress' });
     PixiScreenManager.setScreenContainer(this.pixiContainer);
     this.buildGallery();
@@ -73,297 +74,219 @@ const ThemeSelect = {
   },
 
   buildGallery() {
+    const s = Layout.uiScale || 1;
     const portrait = Layout.isPortrait;
     const galleryCols = portrait ? 2 : 3;
-    const cardW = portrait ? Math.floor((Layout.W - 80 - 18) / 2) : 246;
-    const cardH = 118;
-    const lockedCardH = 72;
-    const gap = 18;
-    const lockedGap = 12;
+    const gap = Math.round(18 * s);
+    const cardW = portrait ? Math.floor((Layout.W - 80 - gap) / galleryCols) : 246;
+    const cardH = Math.round(118 * s);
     const startX = portrait ? 40 : 66;
     const startY = 134;
-    const cols = ThemeManager.getCurrentColors();
-
-    const unlockedThemes = this.themes.filter(t => ThemeManager.isThemeUnlocked(t.id));
-    const lockedThemes = this.themes.filter(t => !ThemeManager.isThemeUnlocked(t.id));
-
-    unlockedThemes.forEach((theme, i) => {
+    const nameFontSize = Math.round(18 * s);
+    const descFontSize = Math.round(13 * s);
+    const tagFontSize = Math.round(12 * s);
+    const nameMaxW = Math.round(cardW * 0.72);
+    const descMaxW = Math.round(cardW * 0.75);
+    this.themes.forEach((theme, i) => {
       const row = Math.floor(i / galleryCols);
       const col = i % galleryCols;
       const x = startX + col * (cardW + gap);
       const y = startY + row * (cardH + gap);
+      const unlocked = ThemeManager.isThemeUnlocked(theme.id);
       const active = store.get('theme') === theme.id;
-      const selected = this.selectedThemeId === theme.id;
       PixiPremiumScene.card(this.pixiContainer, x, y, cardW, cardH, {
-        active: active || selected,
+        active,
+        disabled: !unlocked,
         activeColor: theme.colors.accent,
-        onClick: () => this.selectTheme(theme.id, true),
+        onClick: () => this.selectTheme(theme.id, unlocked),
         draw: (card) => {
+          const padInner = Math.round(9 * s);
           const preview = new PIXI.Sprite(PixiPremiumAssets.theme(theme.id));
-          preview.width = cardW - 18;
-          preview.height = cardH - 18;
-          preview.x = 9;
-          preview.y = 9;
-          preview.alpha = 0.86;
+          preview.width = cardW - padInner * 2;
+          preview.height = cardH - padInner * 2;
+          preview.x = padInner;
+          preview.y = padInner;
+          preview.alpha = unlocked ? 0.86 : 0.28;
           card.addChild(preview);
 
-          const shade = new PIXI.Graphics().roundRect(9, 62, cardW - 18, 47, 6).fill({ color: 0x020812, alpha: 0.68 });
+          const shadeTop = Math.round(cardH * 0.525);
+          const shade = new PIXI.Graphics().roundRect(padInner, shadeTop, cardW - padInner * 2, cardH - shadeTop - padInner, 6).fill({ color: 0x020812, alpha: 0.68 });
           card.addChild(shade);
 
-          const name = PixiPremiumScene.text(theme.name, {
-            fontSize: 18,
+          if (!unlocked) {
+            const lockSize = Math.round(42 * s);
+            const lock = new PIXI.Sprite(PixiPremiumAssets.icon('lock'));
+            lock.width = lockSize;
+            lock.height = lockSize;
+            lock.x = cardW / 2 - lockSize / 2;
+            lock.y = Math.round(30 * s);
+            card.addChild(lock);
+          }
+
+          const nameY = shadeTop + Math.round(6 * s);
+          const name = PixiPremiumScene.text(unlocked ? theme.name : 'Locked Theme', {
+            fontSize: nameFontSize,
             fontWeight: '900',
-            fill: theme.colors.text,
+            fill: unlocked ? theme.colors.text : PixiPremiumScene.alpha(ThemeManager.getCurrentColors().text, '88'),
           });
-          name.x = 20;
-          name.y = 68;
-          PixiPremiumScene.fit(name, active ? 150 : 190, 0.56);
+          name.x = Math.round(20 * s);
+          name.y = nameY;
+          PixiPremiumScene.fit(name, nameMaxW, 0.56);
           card.addChild(name);
 
-          const desc = PixiPremiumScene.text(theme.desc, {
-            fontSize: 13,
-            fill: PixiColorUtil.alpha(theme.colors.text, 'aa'),
+          const desc = PixiPremiumScene.text(unlocked ? theme.desc : this.unlockLabel(theme.id), {
+            fontSize: descFontSize,
+            fill: unlocked ? PixiColorUtil.alpha(theme.colors.text, 'aa') : PixiPremiumScene.alpha(ThemeManager.getCurrentColors().text, '66'),
           });
-          desc.x = 20;
-          desc.y = 92;
-          PixiPremiumScene.fit(desc, 196, 0.5);
+          desc.x = Math.round(20 * s);
+          desc.y = nameY + Math.round(24 * s);
+          PixiPremiumScene.fit(desc, descMaxW, 0.5);
           card.addChild(desc);
 
           if (active) {
-            const badge = new PIXI.Graphics()
-              .roundRect(cardW - 78, 65, 62, 22, 4)
-              .fill({ color: PixiColorUtil.hexToNum(theme.colors.accent), alpha: 0.88 });
-            card.addChild(badge);
-            const tag = PixiPremiumScene.text('ACTIVE', { fontSize: 12, fontWeight: '900', fill: '#000000' });
-            tag.anchor.set(0.5);
-            tag.x = cardW - 47;
-            tag.y = 76;
+            const tag = PixiPremiumScene.text('ACTIVE', { fontSize: tagFontSize, fontWeight: '900', fill: theme.colors.accent });
+            tag.anchor.set(1, 0);
+            tag.x = cardW - Math.round(18 * s);
+            tag.y = nameY;
             card.addChild(tag);
-
-            const check = new PIXI.Graphics()
-              .moveTo(cardW - 24, 14)
-              .lineTo(cardW - 18, 22)
-              .lineTo(cardW - 8, 8)
-              .stroke({ color: PixiColorUtil.hexToNum(theme.colors.accent), width: 3, alpha: 0.9 });
-            card.addChild(check);
           }
-        },
-      });
-    });
-
-    const unlockedRows = Math.ceil(unlockedThemes.length / galleryCols);
-    const separatorY = startY + unlockedRows * (cardH + gap) + 2;
-
-    if (lockedThemes.length > 0) {
-      const sepW = portrait ? (Layout.W - 80) : (galleryCols * (cardW + gap) - gap);
-      const sepLine = new PIXI.Graphics()
-        .rect(startX, separatorY, sepW, 1)
-        .fill({ color: PixiColorUtil.hexToNum(cols.text), alpha: 0.12 });
-      this.pixiContainer.addChild(sepLine);
-
-      const sepLabel = PixiPremiumScene.text('LOCKED', {
-        fontSize: 11,
-        fontWeight: '900',
-        fill: PixiPremiumScene.alpha(cols.text, '55'),
-        letterSpacing: 2,
-      });
-      sepLabel.anchor.set(0.5);
-      sepLabel.x = startX + sepW / 2;
-      sepLabel.y = separatorY;
-      const labelBg = new PIXI.Graphics()
-        .rect(sepLabel.x - 36, separatorY - 8, 72, 16)
-        .fill({ color: 0x030711, alpha: 0.7 });
-      this.pixiContainer.addChild(labelBg);
-      this.pixiContainer.addChild(sepLabel);
-    }
-
-    const lockedStartY = separatorY + 18;
-    lockedThemes.forEach((theme, i) => {
-      const row = Math.floor(i / galleryCols);
-      const col = i % galleryCols;
-      const x = startX + col * (cardW + lockedGap);
-      const y = lockedStartY + row * (lockedCardH + lockedGap);
-      const lockedSelected = this.selectedThemeId === theme.id;
-      PixiPremiumScene.card(this.pixiContainer, x, y, cardW, lockedCardH, {
-        active: lockedSelected,
-        activeColor: theme.colors.accent,
-        alpha: 0.43,
-        onClick: () => this.selectTheme(theme.id, false),
-        draw: (card) => {
-          card.alpha = 0.45;
-
-          const preview = new PIXI.Sprite(PixiPremiumAssets.theme(theme.id));
-          preview.width = cardW - 18;
-          preview.height = lockedCardH - 18;
-          preview.x = 9;
-          preview.y = 9;
-          preview.alpha = 0.3;
-          card.addChild(preview);
-
-          const shade = new PIXI.Graphics().roundRect(9, 28, cardW - 18, 35, 4).fill({ color: 0x020812, alpha: 0.72 });
-          card.addChild(shade);
-
-          const lock = new PIXI.Sprite(PixiPremiumAssets.icon('lock'));
-          lock.width = 20;
-          lock.height = 20;
-          lock.x = 14;
-          lock.y = 32;
-          card.addChild(lock);
-
-          const name = PixiPremiumScene.text(theme.name, {
-            fontSize: 15,
-            fontWeight: '900',
-            fill: PixiPremiumScene.alpha(cols.text, 'aa'),
-          });
-          name.x = 40;
-          name.y = 32;
-          PixiPremiumScene.fit(name, cardW - 70, 0.56);
-          card.addChild(name);
-
-          const hint = PixiPremiumScene.text(this.unlockLabel(theme.id), {
-            fontSize: 11,
-            fill: PixiPremiumScene.alpha(cols.text, '66'),
-          });
-          hint.x = 40;
-          hint.y = 50;
-          PixiPremiumScene.fit(hint, cardW - 70, 0.5);
-          card.addChild(hint);
         },
       });
     });
   },
 
   buildDrawer() {
+    const s = Layout.uiScale || 1;
     const cols = ThemeManager.getCurrentColors();
     const theme = ThemeManager.getTheme(this.selectedThemeId || store.get('theme'));
-    const unlocked = ThemeManager.isThemeUnlocked(theme.id);
     const portrait = Layout.isPortrait;
 
     const galleryCols = portrait ? 2 : 3;
     const galleryRows = Math.ceil(this.themes.length / galleryCols);
-    const drawerX = portrait ? Math.floor((Layout.W - 720) / 2) : 854;
-    const drawerY = portrait ? (134 + galleryRows * (118 + 18) + 10) : 120;
-    const drawerW = portrait ? 720 : 370;
-    const drawerH = portrait ? 520 : 600;
-    PixiPremiumScene.panel(this.pixiContainer, drawerX, drawerY, drawerW, drawerH, { accent: theme.colors.accent, accentAlpha: 0.72 });
+    const galleryGap = Math.round(18 * s);
+    const galleryCardH = Math.round(118 * s);
 
-    const innerX = drawerX + 24;
-    const previewW = portrait ? 320 : 322;
-    const previewH = portrait ? 180 : 190;
-    const preview = new PIXI.Sprite(PixiPremiumAssets.theme(theme.id));
-    preview.width = previewW;
-    preview.height = previewH;
-    preview.x = innerX;
-    preview.y = drawerY + 32;
-    this.pixiContainer.addChild(preview);
+    if (portrait) {
+      const drawerW = Math.min(720, Layout.W - 80);
+      const drawerX = Math.floor((Layout.W - drawerW) / 2);
+      const drawerY = 134 + galleryRows * (galleryCardH + galleryGap) + 10;
+      const drawerH = 380;
+      PixiPremiumScene.panel(this.pixiContainer, drawerX, drawerY, drawerW, drawerH, { accent: theme.colors.accent, accentAlpha: 0.72 });
 
-    const previewBorder = new PIXI.Graphics()
-      .roundRect(innerX - 2, drawerY + 30, previewW + 4, previewH + 4, 6)
-      .stroke({ color: PixiColorUtil.hexToNum(theme.colors.accent), alpha: 0.4, width: 2 });
-    this.pixiContainer.addChild(previewBorder);
+      const innerX = drawerX + 24;
+      const previewW = Math.min(Math.round(drawerW * 0.42), 280);
+      const previewH = Math.round(previewW * 0.56);
+      const preview = new PIXI.Sprite(PixiPremiumAssets.theme(theme.id));
+      preview.width = previewW;
+      preview.height = previewH;
+      preview.x = innerX;
+      preview.y = drawerY + 32;
+      this.pixiContainer.addChild(preview);
 
-    const infoX = portrait ? (innerX + previewW + 24) : innerX;
-    const infoY = portrait ? (drawerY + 32) : (drawerY + 238);
-    const infoMaxW = portrait ? (drawerW - previewW - 72) : 320;
-    const title = PixiPremiumScene.text(theme.name, { fontSize: 30, fontWeight: '900', fill: cols.text });
-    title.x = infoX;
-    title.y = infoY;
-    PixiPremiumScene.fit(title, infoMaxW);
-    this.pixiContainer.addChild(title);
-    const desc = PixiPremiumScene.text(theme.desc, { fontSize: 16, fill: PixiPremiumScene.alpha(cols.text, 'aa') });
-    desc.x = infoX;
-    desc.y = infoY + 38;
-    PixiPremiumScene.fit(desc, infoMaxW);
-    this.pixiContainer.addChild(desc);
+      const infoX = innerX + previewW + 20;
+      const infoY = drawerY + 32;
+      const infoMaxW = drawerW - previewW - 68;
+      const title = PixiPremiumScene.text(theme.name, { fontSize: Math.round(22 * s), fontWeight: '900', fill: cols.text });
+      title.x = infoX;
+      title.y = infoY;
+      PixiPremiumScene.fit(title, infoMaxW);
+      this.pixiContainer.addChild(title);
+      const desc = PixiPremiumScene.text(theme.desc, { fontSize: Math.round(14 * s), fill: PixiPremiumScene.alpha(cols.text, 'aa') });
+      desc.x = infoX;
+      desc.y = infoY + Math.round(30 * s);
+      PixiPremiumScene.fit(desc, infoMaxW);
+      this.pixiContainer.addChild(desc);
 
-    const boardY = portrait ? (infoY + 66) : (infoY + 66);
-    const sqSize = 32;
-    for (let r = 0; r < 2; r++) {
-      for (let c = 0; c < 3; c++) {
-        const isLight = (r + c) % 2 === 0;
-        const sqColor = isLight ? theme.colors.lightSquare : theme.colors.darkSquare;
-        const sq = new PIXI.Graphics()
-          .rect(infoX + c * sqSize, boardY + r * sqSize, sqSize, sqSize)
-          .fill(PixiColorUtil.hexToNum(sqColor));
-        this.pixiContainer.addChild(sq);
+      const btnY = infoY + Math.round(60 * s);
+      const btnW = Math.min(infoMaxW, 220);
+      if (theme.id !== 'custom') {
+        PixiPremiumScene.button(this.pixiContainer, infoX, btnY, btnW, 42, store.get('theme') === theme.id ? 'Applied' : 'Apply Theme', () => this.selectTheme(theme.id, true), { primary: store.get('theme') !== theme.id, icon: 'spark' });
+        this.palettePreview(theme, innerX, drawerY + 32 + previewH + 16, s);
+        return;
       }
-    }
-    const boardBorder = new PIXI.Graphics()
-      .rect(infoX - 1, boardY - 1, 3 * sqSize + 2, 2 * sqSize + 2)
-      .stroke({ color: PixiColorUtil.hexToNum(cols.text), alpha: 0.2, width: 1 });
-    this.pixiContainer.addChild(boardBorder);
+      this.customEditor(innerX, drawerY + 32 + previewH + 16);
+    } else {
+      const drawerX = 884;
+      const drawerY = 134;
+      const drawerW = 330;
+      const drawerH = 528;
+      PixiPremiumScene.panel(this.pixiContainer, drawerX, drawerY, drawerW, drawerH, { accent: theme.colors.accent, accentAlpha: 0.72 });
 
-    const boardLabel = PixiPremiumScene.text('Board', { fontSize: 11, fill: PixiPremiumScene.alpha(cols.text, '77') });
-    boardLabel.x = infoX + 3 * sqSize + 8;
-    boardLabel.y = boardY + 8;
-    this.pixiContainer.addChild(boardLabel);
+      const innerX = drawerX + 24;
+      const previewW = 282;
+      const previewH = 158;
+      const preview = new PIXI.Sprite(PixiPremiumAssets.theme(theme.id));
+      preview.width = previewW;
+      preview.height = previewH;
+      preview.x = innerX;
+      preview.y = drawerY + 32;
+      this.pixiContainer.addChild(preview);
 
-    const btnY = portrait ? (boardY + 2 * sqSize + 16) : (boardY + 2 * sqSize + 16);
-    const btnW = portrait ? Math.min(infoMaxW, 322) : 322;
-    if (theme.id !== 'custom') {
-      const isActive = store.get('theme') === theme.id;
-      const btnLabel = !unlocked ? 'Locked' : (isActive ? 'Applied' : 'Apply Theme');
-      PixiPremiumScene.button(this.pixiContainer, infoX, btnY, btnW, 46, btnLabel, () => {
-        if (unlocked) this.selectTheme(theme.id, true);
-      }, { primary: unlocked && !isActive, icon: unlocked ? 'spark' : 'lock', disabled: !unlocked });
+      const infoX = innerX;
+      const infoY = drawerY + 208;
+      const infoMaxW = 280;
+      const title = PixiPremiumScene.text(theme.name, { fontSize: 26, fontWeight: '900', fill: cols.text });
+      title.x = infoX;
+      title.y = infoY;
+      PixiPremiumScene.fit(title, infoMaxW);
+      this.pixiContainer.addChild(title);
+      const desc = PixiPremiumScene.text(theme.desc, { fontSize: 16, fill: PixiPremiumScene.alpha(cols.text, 'aa') });
+      desc.x = infoX;
+      desc.y = infoY + 34;
+      PixiPremiumScene.fit(desc, infoMaxW);
+      this.pixiContainer.addChild(desc);
 
-      if (!unlocked) {
-        const lockHint = PixiPremiumScene.text(this.unlockLabel(theme.id), { fontSize: 13, fill: PixiPremiumScene.alpha(cols.text, '77') });
-        lockHint.x = infoX;
-        lockHint.y = btnY + 54;
-        this.pixiContainer.addChild(lockHint);
+      const btnY = drawerY + 294;
+      const btnW = 282;
+      if (theme.id !== 'custom') {
+        PixiPremiumScene.button(this.pixiContainer, infoX, btnY, btnW, 46, store.get('theme') === theme.id ? 'Applied' : 'Apply Theme', () => this.selectTheme(theme.id, true), { primary: store.get('theme') !== theme.id, icon: 'spark' });
+        this.palettePreview(theme, infoX, btnY + 72, 1);
+        return;
       }
-
-      this.palettePreview(theme, infoX, btnY + (unlocked ? 64 : 78));
-      return;
+      this.customEditor(innerX, drawerY + 284);
     }
-
-    this.customEditor(innerX, drawerY + 284);
   },
 
-  palettePreview(theme, x, y) {
-    const cols = ThemeManager.getCurrentColors();
+  palettePreview(theme, x, y, s) {
+    const chipSize = Math.round(36 * s);
+    const chipGap = Math.round(48 * s);
     const colors = ['lightSquare', 'darkSquare', 'lightPiece', 'darkPiece', 'accent', 'background'];
-    const labels = ['Light Sq', 'Dark Sq', 'Light Pc', 'Dark Pc', 'Accent', 'Bg'];
-    const chipSize = 44;
-    const chipGap = 54;
     colors.forEach((key, i) => {
       const cx = x + (i % 3) * chipGap;
-      const cy = y + Math.floor(i / 3) * (chipSize + 22);
+      const cy = y + Math.floor(i / 3) * chipGap;
       const chip = new PIXI.Graphics()
         .roundRect(cx, cy, chipSize, chipSize, 6)
         .fill(PixiPremiumScene.color(theme.colors[key]))
         .roundRect(cx, cy, chipSize, chipSize, 6)
         .stroke({ color: 0xffffff, alpha: 0.25, width: 2 });
       this.pixiContainer.addChild(chip);
-      const label = PixiPremiumScene.text(labels[i], { fontSize: 10, fill: PixiPremiumScene.alpha(cols.text, '77') });
-      label.anchor.set(0.5, 0);
-      label.x = cx + chipSize / 2;
-      label.y = cy + chipSize + 3;
-      this.pixiContainer.addChild(label);
     });
   },
 
   customEditor(x, y) {
+    const s = Layout.uiScale || 1;
     const cols = ThemeManager.getCurrentColors();
     const custom = ThemeManager.getTheme('custom');
     const colorKeys = ['lightSquare', 'darkSquare', 'lightPiece', 'darkPiece', 'highlight', 'background', 'panel', 'text', 'accent', 'buttonBg'];
     const presets = ['#ff6578', '#7dea99', '#6aa7ff', '#ffe17a', '#d24dff', '#4dd7d0', '#ffffff', '#101423', '#8b9dc3', '#ff9a4d', '#905cff', '#21a9ff', '#7a4b2a', '#2e8b57', '#59172a'];
 
-    const heading = PixiPremiumScene.text('Custom Palette', { fontSize: 18, fontWeight: '900', fill: cols.text });
+    const heading = PixiPremiumScene.text('Custom Palette', { fontSize: Math.round(18 * s), fontWeight: '900', fill: cols.text });
     heading.x = x;
     heading.y = y;
     this.pixiContainer.addChild(heading);
 
+    const chipW = Math.round(38 * s);
+    const chipGap = Math.round(54 * s);
+    const chipRowH = Math.round(66 * s);
     colorKeys.forEach((key, i) => {
-      const sx = x + (i % 5) * 54;
-      const sy = y + 38 + Math.floor(i / 5) * 66;
+      const sx = x + (i % 5) * chipGap;
+      const sy = y + Math.round(38 * s) + Math.floor(i / 5) * chipRowH;
       const group = new PIXI.Container();
       group.x = sx;
       group.y = sy;
       group.eventMode = 'static';
       group.cursor = 'pointer';
-      group.hitArea = new PIXI.Rectangle(0, 0, 42, 56);
+      group.hitArea = new PIXI.Rectangle(0, 0, chipW + 4, chipRowH - 10);
       group.on('pointerdown', () => {
         if (typeof audioManager !== 'undefined' && typeof audioManager.playButton === 'function') {
           audioManager.playButton();
@@ -376,21 +299,23 @@ const ThemeSelect = {
         this.build();
       });
       const chip = new PIXI.Graphics()
-        .roundRect(0, 0, 38, 38, 6)
+        .roundRect(0, 0, chipW, chipW, 6)
         .fill(PixiPremiumScene.color(custom.colors[key]))
-        .roundRect(0, 0, 38, 38, 6)
+        .roundRect(0, 0, chipW, chipW, 6)
         .stroke({ color: PixiPremiumScene.color(cols.text), alpha: 0.35, width: 2 });
       group.addChild(chip);
-      const label = PixiPremiumScene.text(key.replace('Square', ''), { fontSize: 10, fill: PixiPremiumScene.alpha(cols.text, '99') });
+      const label = PixiPremiumScene.text(key.replace('Square', ''), { fontSize: Math.round(10 * s), fill: PixiPremiumScene.alpha(cols.text, '99') });
       label.anchor.set(0.5, 0);
-      label.x = 19;
-      label.y = 43;
-      PixiPremiumScene.fit(label, 52, 0.48);
+      label.x = chipW / 2;
+      label.y = chipW + 5;
+      PixiPremiumScene.fit(label, chipGap - 2, 0.48);
       group.addChild(label);
       this.pixiContainer.addChild(group);
     });
 
-    this.themeChips('Music', store.get('customMusicTheme') || 'space', x, y + 190, (id) => {
+    PixiPremiumScene.button(this.pixiContainer, x, y + Math.round(190 * s), Math.round(282 * s), 42, store.get('theme') === 'custom' ? 'Custom Applied' : 'Apply Custom', () => this.selectTheme('custom', true), { primary: true });
+
+    this.themeChips('Music', store.get('customMusicTheme') || 'space', x, y + Math.round(250 * s), (id) => {
       store.set('customMusicTheme', id);
       store.saveProgress();
       if (typeof audioManager !== 'undefined') {
@@ -402,26 +327,28 @@ const ThemeSelect = {
       }
       this.build();
     });
-    this.themeChips('Backdrop', store.get('customBgTheme') || 'space', x, y + 266, (id) => {
+    this.themeChips('Backdrop', store.get('customBgTheme') || 'space', x, y + Math.round(326 * s), (id) => {
       store.set('customBgTheme', id);
       store.saveProgress();
       this.build();
     });
-
-    PixiPremiumScene.button(this.pixiContainer, x, y + 190, 282, 42, store.get('theme') === 'custom' ? 'Custom Applied' : 'Apply Custom', () => this.selectTheme('custom', true), { primary: true });
   },
 
   themeChips(label, current, x, y, onPick) {
+    const s = Layout.uiScale || 1;
     const cols = ThemeManager.getCurrentColors();
-    const t = PixiPremiumScene.text(label, { fontSize: 15, fontWeight: '900', fill: cols.text });
+    const t = PixiPremiumScene.text(label, { fontSize: Math.round(15 * s), fontWeight: '900', fill: cols.text });
     t.x = x;
     t.y = y;
     this.pixiContainer.addChild(t);
+    const chipW = Math.round(48 * s);
+    const chipGap = Math.round(56 * s);
+    const chipRowH = Math.round(30 * s);
     const baseThemes = this.themes.filter(theme => theme.id !== 'custom').slice(0, 10);
     baseThemes.forEach((theme, i) => {
-      const chip = PixiPremiumScene.button(this.pixiContainer, x + (i % 5) * 56, y + 28 + Math.floor(i / 5) * 30, 48, 22, theme.name.split(' ')[0], () => onPick(theme.id), {
+      const chip = PixiPremiumScene.button(this.pixiContainer, x + (i % 5) * chipGap, y + Math.round(28 * s) + Math.floor(i / 5) * chipRowH, chipW, Math.round(22 * s), theme.name.split(' ')[0], () => onPick(theme.id), {
         primary: theme.id === current,
-        fontSize: 10,
+        fontSize: Math.round(10 * s),
         color: theme.colors.accent,
       });
       chip.scale.set(1);
@@ -437,17 +364,8 @@ const ThemeSelect = {
   },
 
   unlockLabel(id) {
-    const reqs = {
-      egypt: { lv: 2, hint: 'Beat Pawnie' },
-      cyberpunk: { lv: 4, hint: 'Beat Rook-E' },
-      japanese: { lv: 5, hint: 'Beat KnightShade' },
-      artdeco: { lv: 6, hint: 'Beat Queenie' },
-      wildwest: { lv: 7, hint: 'Beat CastlE' },
-      prehistoric: { lv: 8, hint: 'Beat EndGamer' },
-      steampunk: { lv: 9, hint: 'Beat ForkMaster' },
-    };
-    const req = reqs[id];
-    return req ? `Lv ${req.lv} — ${req.hint}` : 'Story locked';
+    const reqs = { egypt: 2, cyberpunk: 4, japanese: 5, artdeco: 6, wildwest: 7, prehistoric: 8, steampunk: 9 };
+    return reqs[id] ? `Story Lv ${reqs[id]}` : 'Story locked';
   },
 
   handleKeyDown(e) {
