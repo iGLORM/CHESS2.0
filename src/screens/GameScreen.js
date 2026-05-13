@@ -424,35 +424,41 @@ const GameScreen = {
     const isPlayerTurn = this.turn === color;
     const playerName = color === 'white' ? store.get('whitePlayer') : store.get('blackPlayer');
 
-    // Panel background — rounded with transparency
     ctx.save();
-    this._roundRect(ctx, x, y, w, h, 8);
-    ctx.fillStyle = cols.panel + 'dd';
+    this._roundRect(ctx, x, y, w, h, 10);
+    ctx.fillStyle = cols.panel + 'ee';
+    ctx.fill();
+    const grad = ctx.createLinearGradient(x, y, x, y + h);
+    grad.addColorStop(0, 'rgba(0,0,0,0.12)');
+    grad.addColorStop(0.5, 'rgba(0,0,0,0)');
+    grad.addColorStop(1, 'rgba(255,255,255,0.04)');
+    ctx.fillStyle = grad;
     ctx.fill();
     ctx.strokeStyle = isPlayerTurn && !this.gameOver ? cols.accent + '88' : cols.text + '22';
     ctx.lineWidth = isPlayerTurn ? 2 : 1;
     ctx.stroke();
     ctx.restore();
 
-    // Active turn indicator — glowing left/right stripe
     if (isPlayerTurn && !this.gameOver) {
+      ctx.save();
+      this._roundRect(ctx, x, y, w, h, 10);
+      ctx.clip();
       ctx.fillStyle = cols.accent + '44';
       if (isLeft) {
-        ctx.fillRect(x, y + 4, 3, h - 8);
+        ctx.fillRect(x, y, 3, h);
       } else {
-        ctx.fillRect(x + w - 3, y + 4, 3, h - 8);
+        ctx.fillRect(x + w - 3, y, 3, h);
       }
+      ctx.restore();
     }
 
-    // Player name
     let cy = y + pad + 4;
     ctx.fillStyle = isPlayerTurn && !this.gameOver ? cols.accent : cols.text;
-    ctx.font = 'bold 16px "Pixelify Sans", sans-serif';
+    ctx.font = 'bold 18px "Pixelify Sans", sans-serif';
     ctx.textAlign = 'left';
     ctx.fillText(UIHelpers.truncateText(ctx, playerName, w - pad * 2), x + pad, cy);
-    cy += 6;
+    cy += 8;
 
-    // Color indicator
     ctx.fillStyle = color === 'white' ? '#e8e0d0' : '#3a3530';
     this._roundRect(ctx, x + pad, cy, 18, 18, 3);
     ctx.fill();
@@ -460,15 +466,35 @@ const GameScreen = {
     ctx.lineWidth = 1;
     ctx.stroke();
 
-    // Turn label next to indicator
+    const badgeX = x + pad + 24;
+    const badgeY = cy;
+    const badgeW = w - pad * 2 - 24;
+    const badgeH = 18;
+    ctx.save();
     if (isPlayerTurn && !this.gameOver) {
-      ctx.fillStyle = cols.accent + 'cc';
-      ctx.font = '14px "Pixelify Sans", sans-serif';
-      ctx.fillText('YOUR TURN', x + pad + 24, cy + 14);
+      this._roundRect(ctx, badgeX, badgeY, badgeW, badgeH, 9);
+      ctx.fillStyle = cols.accent;
+      ctx.fill();
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 11px "Pixelify Sans", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('YOUR TURN', badgeX + badgeW / 2, badgeY + 13);
+    } else {
+      this._roundRect(ctx, badgeX, badgeY, badgeW, badgeH, 9);
+      ctx.fillStyle = cols.text + '11';
+      ctx.fill();
+      ctx.strokeStyle = cols.text + '22';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+      ctx.fillStyle = cols.text + '44';
+      ctx.font = 'bold 11px "Pixelify Sans", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('WAITING', badgeX + badgeW / 2, badgeY + 13);
     }
+    ctx.restore();
+    ctx.textAlign = 'left';
     cy += 28;
 
-    // Separator
     ctx.fillStyle = cols.text + '22';
     ctx.fillRect(x + pad, cy, w - pad * 2, 1);
     cy += 12;
@@ -476,25 +502,27 @@ const GameScreen = {
     if (this.gameplayMode) {
       const charges = this.defensiveMiniGames[color] || 0;
       ctx.fillStyle = charges > 0 ? cols.accent : cols.text + '44';
-      ctx.font = 'bold 13px "Pixelify Sans", sans-serif';
+      ctx.font = 'bold 15px "Pixelify Sans", sans-serif';
       ctx.fillText('DEFENSES: ' + charges, x + pad, cy);
       cy += 22;
     }
 
-    // Captured pieces section
     const captured = this.capturedPieces[color];
     const pieceValues = { pawn: 1, knight: 3, bishop: 3, rook: 5, queen: 9, king: 0 };
     const pieceSymbols = { pawn: '♟', knight: '♞', bishop: '♝', rook: '♜', queen: '♛', king: '♚' };
 
+    ctx.fillStyle = cols.text + '22';
+    ctx.fillRect(x + pad, cy - 4, w - pad * 2, 1);
+
     ctx.fillStyle = cols.text + '88';
-    ctx.font = '14px "Pixelify Sans", sans-serif';
-    ctx.fillText('CAPTURED', x + pad, cy);
-    cy += 8;
+    ctx.font = 'bold 15px "Pixelify Sans", sans-serif';
+    ctx.fillText('CAPTURED', x + pad, cy + 10);
+    cy += 18;
 
     if (captured.length === 0) {
       ctx.fillStyle = cols.text + '33';
-      ctx.font = '14px "Pixelify Sans", sans-serif';
-      ctx.fillText('None yet', x + pad, cy + 8);
+      ctx.font = 'italic 14px "Pixelify Sans", sans-serif';
+      ctx.fillText('No captures yet', x + pad, cy + 8);
       cy += 20;
     } else {
       let px = x + pad;
@@ -508,7 +536,6 @@ const GameScreen = {
       cy += 22;
     }
 
-    // Material advantage
     const whiteCaptures = this.capturedPieces.white;
     const blackCaptures = this.capturedPieces.black;
     const whiteMatCaptured = whiteCaptures.reduce((s, p) => s + (pieceValues[p.type] || 0), 0);
@@ -519,8 +546,8 @@ const GameScreen = {
       const isWhiteSide = color === 'white';
       const advantage = isWhiteSide ? whiteAdvantage : -whiteAdvantage;
       if (advantage > 0) {
-        ctx.fillStyle = '#44dd44';
-        ctx.font = 'bold 16px "Pixelify Sans", sans-serif';
+        ctx.fillStyle = cols.accent;
+        ctx.font = 'bold 18px "Pixelify Sans", sans-serif';
         ctx.fillText('+' + advantage + ' material', x + pad, cy);
       } else if (advantage < 0) {
         ctx.fillStyle = '#dd4444';
@@ -530,7 +557,6 @@ const GameScreen = {
       cy += 18;
     }
 
-    // Separator
     cy += 4;
     ctx.fillStyle = cols.text + '22';
     ctx.fillRect(x + pad, cy, w - pad * 2, 1);
@@ -589,11 +615,16 @@ const GameScreen = {
   renderStatusBar(ctx, cols) {
     const barX = 210;
     const barW = Layout.W - 420;
-    const y = Layout.H - 55;
-    // Rounded status bar
+    const barH = 44;
+    const y = Layout.H - 58;
     ctx.save();
-    this._roundRect(ctx, barX, y, barW, 38, 6);
-    ctx.fillStyle = cols.panel + 'dd';
+    this._roundRect(ctx, barX, y, barW, barH, 10);
+    ctx.fillStyle = cols.panel + 'ee';
+    ctx.fill();
+    const grad = ctx.createLinearGradient(barX, y, barX, y + barH);
+    grad.addColorStop(0, 'rgba(0,0,0,0.06)');
+    grad.addColorStop(1, 'rgba(255,255,255,0.03)');
+    ctx.fillStyle = grad;
     ctx.fill();
     ctx.strokeStyle = cols.text + '22';
     ctx.lineWidth = 1;
@@ -607,50 +638,46 @@ const GameScreen = {
     if (this.gameStatus === 'check') {
       ctx.fillStyle = cols.checkHighlight || cols.accent;
       ctx.font = 'bold 12px "Silkscreen", monospace';
-      ctx.fillText('CHECK!', Layout.cx, y + 18);
+      ctx.fillText('CHECK!', Layout.cx, y + 20);
       ctx.fillStyle = cols.text + '88';
       ctx.font = '14px "Pixelify Sans", sans-serif';
-      ctx.fillText(turnText, Layout.cx, y + 32);
+      ctx.fillText(turnText, Layout.cx, y + 36);
     } else {
-      ctx.fillText(turnText, Layout.cx, y + 22);
+      ctx.fillText(turnText, Layout.cx, y + 26);
     }
 
-    // Move navigation buttons
     const isReviewing = this.reviewingAt !== null;
-    const navY = y + 5;
+    const navY = y + 7;
     const navEnabled = this.boardSnapshots.length > 1;
 
-    // Back button
     ctx.fillStyle = navEnabled && this.reviewingAt !== 0 ? cols.text : cols.text + '22';
     ctx.font = 'bold 16px "Pixelify Sans", sans-serif';
     ctx.textAlign = 'left';
-    ctx.fillText('◀', barX, navY + 18);
+    ctx.fillText('◀', barX + 6, navY + 18);
 
-    // Forward button
     ctx.fillStyle = navEnabled && isReviewing && this.reviewingAt < this.boardSnapshots.length - 1 ? cols.text : cols.text + '22';
-    ctx.fillText('▶', barX + 18, navY + 18);
+    ctx.fillText('▶', barX + 24, navY + 18);
 
-    // Live button
     ctx.fillStyle = isReviewing ? cols.accent : cols.text + '22';
     ctx.font = '9px "Pixelify Sans", sans-serif';
-    ctx.fillText('LIVE', barX + 38, navY + 18);
+    ctx.fillText('LIVE', barX + 44, navY + 18);
 
     ctx.fillStyle = cols.text + '66';
     ctx.font = '10px "Pixelify Sans", sans-serif';
     ctx.textAlign = 'right';
     const snapIdx = isReviewing ? (this.reviewingAt + 1) : this.boardSnapshots.length;
-    ctx.fillText('Move #' + snapIdx, barX + barW - 10, y + 22);
+    ctx.fillText('Move #' + snapIdx, barX + barW - 12, y + 26);
 
     if (this.lockedTiles.length > 0) {
       ctx.fillStyle = cols.checkHighlight || cols.accent;
       ctx.font = '10px "Pixelify Sans", sans-serif';
       ctx.textAlign = 'left';
-      ctx.fillText('Locked: ' + this.lockedTiles.length, barX + 110, y + 22);
+      ctx.fillText('Locked: ' + this.lockedTiles.length, barX + 116, y + 26);
     }
     ctx.fillStyle = cols.text + '44';
     ctx.font = '10px "Pixelify Sans", sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText('ESC: Pause', Layout.cx, y + 32);
+    ctx.fillText('ESC: Pause', Layout.cx, y + 38);
   },
 
   handleClick(x, y) {
@@ -692,26 +719,23 @@ const GameScreen = {
 
     // Move navigation buttons in status bar
     const barX = 210;
-    const statusY = Layout.H - 55;
+    const statusY = Layout.H - 58;
     const navHitY = statusY;
-    if (y >= navHitY && y <= navHitY + 38) {
-      if (x >= barX && x <= barX + 18) {
-        // Back
+    if (y >= navHitY && y <= navHitY + 44) {
+      if (x >= barX && x <= barX + 24) {
         if (this.reviewingAt !== 0 && this.boardSnapshots.length > 1) {
           const idx = this.reviewingAt === null ? this.boardSnapshots.length - 2 : this.reviewingAt - 1;
           this.goToMove(Math.max(0, idx));
         }
         return;
       }
-      if (x >= barX + 18 && x <= barX + 36) {
-        // Forward
+      if (x >= barX + 24 && x <= barX + 42) {
         if (this.reviewingAt !== null && this.reviewingAt < this.boardSnapshots.length - 1) {
           this.goToMove(this.reviewingAt + 1);
         }
         return;
       }
-      if (x >= barX + 38 && x <= barX + 80) {
-        // Live
+      if (x >= barX + 44 && x <= barX + 86) {
         this.goToLive();
         return;
       }
