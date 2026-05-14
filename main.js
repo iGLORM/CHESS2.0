@@ -14,6 +14,7 @@ function createWindow() {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
       nodeIntegration: false,
+      sandbox: true,
     },
     icon: path.join(__dirname, process.platform === 'win32' ? 'icon.ico' : 'icon.png'),
   });
@@ -34,26 +35,53 @@ ipcMain.on('toggle-fullscreen', (event) => {
 });
 
 ipcMain.on('save-screenshot', (event, { name, dataUrl }) => {
+  // Validate inputs are strings
+  if (typeof name !== 'string' || typeof dataUrl !== 'string') {
+    console.warn('save-screenshot: invalid input types');
+    return;
+  }
+  // Validate dataUrl format
+  if (!dataUrl.startsWith('data:image/png;base64,')) {
+    console.warn('save-screenshot: invalid dataUrl format');
+    return;
+  }
+  // Sanitize name to only allow safe characters
+  const sanitized = name.replace(/[^a-zA-Z0-9_-]/g, '');
+  if (!sanitized) {
+    console.warn('save-screenshot: name contains no valid characters');
+    return;
+  }
+
   const screenshotsDir = path.join(__dirname, 'assets', 'screenshots');
   if (!fs.existsSync(screenshotsDir)) {
     fs.mkdirSync(screenshotsDir, { recursive: true });
   }
+  const filePath = path.join(screenshotsDir, `${sanitized}.png`);
+
+  // Guard against path traversal
+  const resolvedDir = path.resolve(screenshotsDir) + path.sep;
+  if (!path.resolve(filePath).startsWith(resolvedDir)) {
+    console.warn('save-screenshot: path traversal detected');
+    return;
+  }
+
   const base64 = dataUrl.replace(/^data:image\/png;base64,/, '');
-  const filePath = path.join(screenshotsDir, `${name}.png`);
   fs.writeFileSync(filePath, Buffer.from(base64, 'base64'));
-  event.reply('screenshot-saved', { name, path: filePath });
+  event.reply('screenshot-saved', { name: sanitized, path: filePath });
 });
 
 // --- Dev screenshot system ---
 // Create .screenshot-trigger file to capture the game window as dev-screenshot.png
 let mainWin = null;
+let devScreenshotIntervalId = null;
+let allScreenshotIntervalId = null;
 
 function setupDevScreenshot(win) {
   mainWin = win;
   const triggerPath = path.join(__dirname, '.screenshot-trigger');
   const outputPath = path.join(__dirname, 'dev-screenshot.png');
 
-  setInterval(() => {
+  devScreenshotIntervalId = setInterval(() => {
     if (fs.existsSync(triggerPath)) {
       try { fs.unlinkSync(triggerPath); } catch (_) {}
       if (mainWin && !mainWin.isDestroyed()) {
@@ -66,13 +94,15 @@ function setupDevScreenshot(win) {
 
   // Also capture on F5 key
   const { globalShortcut } = require('electron');
-  globalShortcut.register('F5', () => {
-    if (mainWin && !mainWin.isDestroyed()) {
-      mainWin.webContents.capturePage().then(image => {
-        fs.writeFileSync(outputPath, image.toPNG());
-      }).catch(() => {});
-    }
-  });
+  if (!globalShortcut.isRegistered('F5')) {
+    globalShortcut.register('F5', () => {
+      if (mainWin && !mainWin.isDestroyed()) {
+        mainWin.webContents.capturePage().then(image => {
+          fs.writeFileSync(outputPath, image.toPNG());
+        }).catch(() => {});
+      }
+    });
+  }
 }
 
 app.whenReady().then(() => {
@@ -82,7 +112,7 @@ app.whenReady().then(() => {
   // Auto-screenshot mode: create .screenshot-all-trigger to capture all screens
   const allTrigger = path.join(__dirname, '.screenshot-all-trigger');
   const screenshotsDir = path.join(__dirname, 'assets', 'screenshots');
-  setInterval(() => {
+  allScreenshotIntervalId = setInterval(() => {
     if (fs.existsSync(allTrigger)) {
       try { fs.unlinkSync(allTrigger); } catch (_) {}
       if (!win || win.isDestroyed()) return;
@@ -131,4 +161,11 @@ app.on('activate', () => {
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit();
+});
+
+app.on('will-quit', () => {
+  const { globalShortcut } = require('electron');
+  globalShortcut.unregisterAll();
+  if (devScreenshotIntervalId) clearInterval(devScreenshotIntervalId);
+  if (allScreenshotIntervalId) clearInterval(allScreenshotIntervalId);
 });

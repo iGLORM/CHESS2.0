@@ -113,7 +113,7 @@ class Store {
         customBgTheme: this.state.customBgTheme,
         stats: this.state.stats,
       }));
-    } catch (e) {}
+    } catch (e) { console.warn('Store: failed to save progress', e.message); }
   }
 
   loadProgress() {
@@ -151,7 +151,7 @@ class Store {
         this.state.customBgTheme = data.customBgTheme || 'space';
         this.state.stats = { ...this.state.stats, ...data.stats };
       }
-    } catch (e) {}
+    } catch (e) { console.warn('Store: failed to load progress', e.message); }
   }
 
   resetProgress() {

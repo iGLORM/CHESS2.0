@@ -1,3 +1,8 @@
+window.addEventListener('unhandledrejection', (event) => {
+  console.error('Unhandled promise rejection:', event.reason);
+  event.preventDefault();
+});
+
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 ctx.imageSmoothingEnabled = false;
@@ -7,6 +12,8 @@ miniCtx.imageSmoothingEnabled = false;
 
 let currentScreen = null;
 let lastTime = 0;
+let rafId = null;
+let resizeTimer = null;
 let transition = { active: false, alpha: 0, fadeOut: true, nextScreen: null, nextData: null, speed: 4 };
 
 const screens = {};
@@ -77,12 +84,16 @@ function gameLoop(timestamp) {
     } else if (currentScreen && currentScreen.render) {
       currentScreen.render(ctx, dt);
     }
+  } catch (e) {
+    console.error('Screen render error:', e);
+  }
 
+  try {
     if (PauseMenu.visible) {
       PauseMenu.render(ctx, dt);
     }
   } catch (e) {
-    console.error('Game loop error:', e);
+    console.error('PauseMenu render error:', e);
   }
 
   // Screen transition fade
@@ -108,7 +119,7 @@ function gameLoop(timestamp) {
     ctx.fillRect(0, 0, Layout.W, Layout.H);
   }
 
-  requestAnimationFrame(gameLoop);
+  rafId = requestAnimationFrame(gameLoop);
 }
 
 function initApp() {
@@ -254,11 +265,14 @@ function initApp() {
   });
 
   window.addEventListener('resize', () => {
-    Layout.detect();
-    resizeCanvas();
-    if (typeof PixiApp !== 'undefined') {
-      PixiApp.resize();
-    }
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      Layout.detect();
+      resizeCanvas();
+      if (typeof PixiApp !== 'undefined') {
+        PixiApp.resize();
+      }
+    }, 150);
   });
 
   Layout.onChange(() => {
@@ -308,7 +322,11 @@ function initApp() {
   document.addEventListener('click', initAudio, { once: true });
   document.addEventListener('keydown', initAudio, { once: true });
 
-  requestAnimationFrame(gameLoop);
+  window.addEventListener('beforeunload', () => {
+    if (rafId) cancelAnimationFrame(rafId);
+  });
+
+  rafId = requestAnimationFrame(gameLoop);
 }
 
 document.addEventListener('DOMContentLoaded', initApp);
