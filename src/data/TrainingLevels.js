@@ -74,7 +74,7 @@ const TRAINING_LEVELS = [
   {
     id: 6, band: 2, title: 'Knight Fork',
     type: 'fork', concept: 'A fork attacks two pieces at once with a single move.',
-    fen: '8/8/1q3k2/8/8/2N5/8/6K1 w - - 0 1', sideToMove: 'white',
+    fen: '8/8/1q3k2/8/8/2N5/8/7K w - - 0 1', sideToMove: 'white',
     solution: { primary: 'c3d5', san: 'Nd5+', alternatives: [], continuation: [] },
     hints: [
       'Look for a move that attacks two pieces at once.',
