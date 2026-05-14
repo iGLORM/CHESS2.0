@@ -209,8 +209,20 @@ class MiniGameManager {
     const dt = 1 / 60;
     this.currentGame.update(dt);
 
-    // CPU opponent logic — runs inside the minigame itself (e.g., QuickClick CPU clicks)
-    // The human player ALWAYS controls the minigame; bot auto-play is disabled.
+    // Bot AI plays the minigame when the challenge owner is AI-controlled.
+    if ((this.challengePlayerIsAI || this.isAIAttacking) && !this.currentGame.done) {
+      this.botTimer += dt;
+      const lvl = this.botSkillLevel || 5;
+      const baseDelay = lvl <= 2 ? 0.8 : lvl <= 4 ? 0.5 : lvl <= 6 ? 0.3 : 0.15;
+      const variance = lvl <= 2 ? 0.6 : lvl <= 4 ? 0.4 : lvl <= 6 ? 0.2 : 0.15;
+      if (!this.nextBotAction || this.botTimer >= this.nextBotAction) {
+        this.nextBotAction = this.botTimer + baseDelay + Math.random() * variance;
+        const missChance = lvl <= 1 ? 0.5 : lvl <= 3 ? 0.3 : lvl <= 5 ? 0.1 : 0;
+        if (this.currentGame.botPlay && Math.random() >= missChance) {
+          this.currentGame.botPlay(dt, this.botTimer);
+        }
+      }
+    }
 
     const ctx = this.overlayCtx;
     const ox = this.overlayX;
@@ -306,7 +318,7 @@ class MiniGameManager {
     ctx.fillStyle = cols.text;
     ctx.font = 'bold 18px "Pixelify Sans", sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText('WIN THE CHALLENGE!', 640, oy + 55);
+    ctx.fillText('SURVIVE', 640, oy + 55);
 
     // Difficulty stars
     const diff = this.challengeDifficulty || 1;
@@ -350,6 +362,25 @@ class MiniGameManager {
 
     ctx.restore();
 
+    if (this.challengePlayerIsAI && !this.currentGame.done) {
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+      ctx.fillRect(0, 0, Layout.W, 50);
+
+      const blink = Math.floor(Date.now() / 500) % 2 === 0;
+      if (blink) {
+        ctx.fillStyle = '#ffaa44';
+        ctx.font = 'bold 18px "Pixelify Sans", sans-serif';
+        ctx.textAlign = 'center';
+        const bossName = (typeof GameScreen !== 'undefined' && GameScreen.currentCharacter && typeof GameScreen.currentCharacter === 'object')
+          ? GameScreen.currentCharacter.name : 'Opponent';
+        ctx.fillText(bossName + ' is trying to save their piece!', Layout.W / 2, 32);
+      }
+
+      const pulse = 0.3 + 0.3 * Math.sin(Date.now() / 300);
+      ctx.strokeStyle = `rgba(255, 170, 68, ${pulse})`;
+      ctx.lineWidth = 3;
+      ctx.strokeRect(ox, oy, ow, oh);
+    }
 
     ctx.restore();
 
@@ -401,6 +432,7 @@ class MiniGameManager {
 
   handleClick(x, y) {
     if (!this.active || !this.currentGame) return;
+    if (this.challengePlayerIsAI && this.currentGame && !this.currentGame.done) return;
     if (this.currentGame.done && this.doneTime) return;
 
     if (this.currentGame.handleClick) {
@@ -410,6 +442,7 @@ class MiniGameManager {
 
   handleKey(key) {
     if (!this.active || !this.currentGame) return;
+    if (this.challengePlayerIsAI && this.currentGame && !this.currentGame.done) return;
     if (this.currentGame.handleKey) {
       this.currentGame.handleKey(key);
     }
