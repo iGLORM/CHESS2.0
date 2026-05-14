@@ -366,6 +366,12 @@ const HomeScreen = {
       this._selectedIndex = index;
       this._updateSelection();
     });
+    container.on('pointerout', () => {
+      if (this._selectedIndex === index) {
+        this._selectedIndex = 0;
+        this._updateSelection();
+      }
+    });
     container.on('pointerdown', () => {
       const tl = gsap.timeline();
       tl.to(container.scale, { x: 0.93, y: 0.93, duration: 0.06, ease: 'power2.in' })
@@ -455,6 +461,12 @@ const HomeScreen = {
     container.on('pointerover', () => {
       this._selectedIndex = index;
       this._updateSelection();
+    });
+    container.on('pointerout', () => {
+      if (this._selectedIndex === index) {
+        this._selectedIndex = 0;
+        this._updateSelection();
+      }
     });
     container.on('pointerdown', () => {
       const tl = gsap.timeline();

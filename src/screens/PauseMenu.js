@@ -42,6 +42,7 @@ const PauseMenu = {
       this.fadeTimer = Math.min(1, this.fadeTimer + dt * 4);
     }
 
+    ctx.save();
     ctx.globalAlpha = this.fadeTimer;
 
     if (this.confirmSurrender) {
@@ -85,7 +86,7 @@ const PauseMenu = {
       this._confirmYesBounds = { x: yesX, y: cBtnY, w: cBtnW, h: cBtnH };
       this._confirmNoBounds = { x: noX, y: cBtnY, w: cBtnW, h: cBtnH };
 
-      ctx.globalAlpha = 1;
+      ctx.restore();
       return;
     }
 
@@ -139,7 +140,7 @@ const PauseMenu = {
 
     this._btnLayout = { x: btnX, w: btnW, h: btnH, gap: btnGap, firstY: firstBtnY };
 
-    ctx.globalAlpha = 1;
+    ctx.restore();
   },
 
   _inBounds(x, y, b) {

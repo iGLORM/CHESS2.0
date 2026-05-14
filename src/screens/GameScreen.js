@@ -125,6 +125,10 @@ const GameScreen = {
   },
 
   destroy() {
+    if (this._aiTimeout) {
+      clearTimeout(this._aiTimeout);
+      this._aiTimeout = null;
+    }
     audioManager.stopMusic();
     if (typeof audioManager.setSuspense === 'function') {
       audioManager.setSuspense(false);
@@ -262,10 +266,13 @@ const GameScreen = {
 
     // Pixi handles board, pieces, backgrounds, particles
     if (typeof PixiGameScreen !== 'undefined' && PixiGameScreen.initialized) {
+      const filteredMoves = this.legalMoves.filter(m =>
+        !this.lockedTiles.some(t => t.row === m.to.row && t.col === m.to.col)
+      );
       PixiGameScreen.update(dt, {
         board: this.board,
         selectedSquare: this.selectedSquare,
-        legalMoves: this.legalMoves,
+        legalMoves: filteredMoves,
       });
     }
 
@@ -979,7 +986,7 @@ const GameScreen = {
       audioManager.playScreenShake();
 
       if (this.mode === 'story' && typeof DialogueManager !== 'undefined') {
-        DialogueManager.onCapture(this.turn, captured, this.aiColor);
+        DialogueManager.onCapture(this.turn, captured, this.aiColor, this.board);
       }
     } else {
       audioManager.playMove(piece ? piece.type : null);
@@ -1070,7 +1077,7 @@ const GameScreen = {
     if (this.gameStatus === 'check') {
       audioManager.playCheck();
       if (this.mode === 'story' && typeof DialogueManager !== 'undefined') {
-        DialogueManager.onCheck(this.turn, this.aiColor);
+        DialogueManager.onCheck(this.turn, this.aiColor, this.board);
       }
     }
     if (typeof audioManager.setSuspense === 'function') {
@@ -1108,7 +1115,7 @@ const GameScreen = {
     this.aiThinking = true;
 
     if (this.mode === 'story' && typeof DialogueManager !== 'undefined') {
-      DialogueManager.onAIThinkStart();
+      DialogueManager.onAIThinkStart(this.board, this.aiColor);
     }
 
     // Safety timeout: if AI takes longer than 10 seconds, force-reset
@@ -1118,7 +1125,7 @@ const GameScreen = {
       this.aiCooldown = 500;
     }, 10000);
 
-    setTimeout(async () => {
+    this._aiTimeout = setTimeout(async () => {
       try {
         if (this.gameOver) { this.aiThinking = false; clearTimeout(safetyTimer); return; }
 
