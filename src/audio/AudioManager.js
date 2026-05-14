@@ -86,10 +86,14 @@ class AudioManager {
       clearTimeout(this.currentLoop);
       this.currentLoop = null;
     }
-    // Disconnect old music gain to silence all scheduled music notes
-    if (this.musicGain) {
-      this.musicGain.gain.setValueAtTime(0, this.ctx.currentTime);
-      try { this.musicGain.disconnect(); } catch (e) {}
+    if (this.musicGain && this.ctx) {
+      const now = this.ctx.currentTime;
+      this.musicGain.gain.cancelScheduledValues(now);
+      this.musicGain.gain.setValueAtTime(this.musicGain.gain.value, now);
+      this.musicGain.gain.linearRampToValueAtTime(0.0001, now + 0.3);
+      setTimeout(() => {
+        try { this.musicGain.disconnect(); } catch (e) {}
+      }, 350);
     }
   }
 
@@ -683,6 +687,14 @@ class AudioManager {
     notes.forEach((f, i) => {
       setTimeout(() => this._playNote(f, 0.12, profile.wave, 0.055), i * 95);
     });
+  }
+
+  destroy() {
+    this.stopMusic();
+    if (this.ctx && this.ctx.state !== 'closed') {
+      this.ctx.close().catch(() => {});
+    }
+    this.initialized = false;
   }
 
   setEnabled(val) {

@@ -1,6 +1,7 @@
 const DialogueManager = {
   _cooldownMs: 8000,
   _lastShownTime: 0,
+  _lastShownTimes: {},
   _usedLines: new Set(),
   _character: null,
   _active: false,
@@ -19,6 +20,7 @@ const DialogueManager = {
     this._onShow = onShowCallback;
     this._active = true;
     this._lastShownTime = 0;
+    this._lastShownTimes = {};
     this._usedLines = new Set();
     this._thinkTimer = null;
     this._triggeredMilestones = new Set();
@@ -36,6 +38,8 @@ const DialogueManager = {
     }
     this._usedLines.clear();
     this._triggeredMilestones.clear();
+    this._lowHealthTriggered = false;
+    this._playerLowHealthTriggered = false;
   },
 
   onGameStart() {
@@ -156,8 +160,19 @@ const DialogueManager = {
     const gd = this._character.gameDialogue;
     if (!gd || !gd[category]) return;
 
+    const cooldowns = {
+      gameStart: 0,
+      bossCapture: 5000,
+      playerCapture: 5000,
+      bossCheck: 3000,
+      playerCheck: 3000,
+      bossTaunt: 8000,
+      milestone: 0,
+      lowHealth: 0,
+    };
     const now = Date.now();
-    if (now - this._lastShownTime < this._cooldownMs) return;
+    const cooldownMs = cooldowns[category] != null ? cooldowns[category] : this._cooldownMs;
+    if (now - (this._lastShownTimes[category] || 0) < cooldownMs) return;
 
     let line = this._pickLine(gd[category], category);
     if (!line) return;
@@ -170,6 +185,7 @@ const DialogueManager = {
       line = line.replace(/\{advantage\}/g, String(context.advantage || 0));
     }
 
+    this._lastShownTimes[category] = now;
     this._lastShownTime = now;
     this._onShow(line, this._character);
   },

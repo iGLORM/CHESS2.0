@@ -17,7 +17,7 @@ const HomeScreen = {
       const mainH = Math.round(85 * s);
       const mainGap = grid;
       const mainStartY = Math.round(291 * s);
-      const mainBlockEnd = mainStartY + heroH + 3 * (mainH + mainGap);
+      const mainBlockEnd = mainStartY + heroH + 4 * (mainH + mainGap);
       const utilGap = Math.round(13 * s);
       const utilBtnW = Math.floor((contentW - utilGap * 2) / 3);
       const utilBtnH = Math.round(73 * s);
@@ -41,25 +41,27 @@ const HomeScreen = {
         UTIL_FONT: Math.round(21 * s),
       };
     }
-    const heroH = Math.round(70 * s);
-    const mainH = Math.round(58 * s);
-    const mainBlockEnd = 388 + heroH + 3 * (mainH + 7);
+    const btnRenderedH = 68;
+    const mainGap = Math.round(4 * s);
+    const mainStartY = 340;
+    const heroH = Math.round(74 * s);
+    const mainBlockEnd = mainStartY + heroH + mainGap + 4 * (btnRenderedH + mainGap);
     const utilBtnH = Math.round(33 * s);
     return {
       W: Layout.W, H: Layout.H,
-      LOGO_Y: 176,
+      LOGO_Y: 160,
       LOGO_MAX_W: 610,
-      HERO_Y: 220,
-      MAIN_START_Y: 388,
+      HERO_Y: 200,
+      MAIN_START_Y: mainStartY,
       MAIN_BTN_W: Math.min(Math.round(500 * s), Layout.W - 40),
       HERO_BTN_H: heroH,
-      MAIN_BTN_H: mainH,
-      MAIN_BTN_GAP: 7,
-      UTIL_Y: mainBlockEnd + 20,
+      MAIN_BTN_H: btnRenderedH,
+      MAIN_BTN_GAP: mainGap,
+      UTIL_Y: mainBlockEnd + 16,
       UTIL_BTN_W: Math.min(Math.round(190 * s), (Layout.W - 40 - 28) / 3),
       UTIL_BTN_H: utilBtnH,
       UTIL_GAP: 14,
-      FOOTER_Y: mainBlockEnd + 20 + utilBtnH + 16,
+      FOOTER_Y: mainBlockEnd + 16 + utilBtnH + 16,
       MAIN_FONT: Math.round(20 * s),
       SUB_FONT: Math.round(14 * s),
       UTIL_FONT: Math.round(13 * s),
@@ -70,6 +72,7 @@ const HomeScreen = {
     { text: 'Story Mode',    sub: 'Battle unique characters', action: 'story',    group: 'main' },
     { text: 'Local 1v1',     sub: 'Play with a friend',       action: '1v1',      group: 'main' },
     { text: 'Classic Chess', sub: 'Challenge the AI engine',  action: 'classic',  group: 'main' },
+    { text: 'Training',      sub: 'Puzzles & coaching',       action: 'training', group: 'main' },
     { text: 'Custom Game',   sub: 'Configure your own rules', action: 'custom',   group: 'main' },
     { text: 'Settings',      action: 'settings', group: 'util', idx: 0 },
     { text: 'How to Play',   action: 'help',     group: 'util', idx: 1 },
@@ -193,7 +196,7 @@ const HomeScreen = {
 
     // --- Main buttons ---
     let mainCursorY = L.MAIN_START_Y;
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < 5; i++) {
       const btn = this.BUTTONS[i];
       const isHero = i === 0;
       const btnH = isHero ? L.HERO_BTN_H : L.MAIN_BTN_H;
@@ -215,10 +218,10 @@ const HomeScreen = {
     const utilTotalW = 3 * L.UTIL_BTN_W + 2 * L.UTIL_GAP;
     const utilStartX = (L.W - utilTotalW) / 2;
     for (let i = 0; i < 3; i++) {
-      const btn = this.BUTTONS[4 + i];
+      const btn = this.BUTTONS[5 + i];
       const bx = utilStartX + i * (L.UTIL_BTN_W + L.UTIL_GAP);
       const by = L.UTIL_Y;
-      const container = this._createUtilButton(btn, bx, by, L.UTIL_BTN_W, L.UTIL_BTN_H, cols, 4 + i);
+      const container = this._createUtilButton(btn, bx, by, L.UTIL_BTN_W, L.UTIL_BTN_H, cols, 5 + i);
       this.pixiContainer.addChild(container);
       this._btnContainers.push({ container, index: 4 + i, bounds: { x: bx, y: by, w: L.UTIL_BTN_W, h: L.UTIL_BTN_H } });
     }
@@ -569,13 +572,13 @@ const HomeScreen = {
     const btn = this.BUTTONS[this._selectedIndex];
     if (e.key === 'ArrowUp') {
       e.preventDefault();
-      if (btn.group === 'util') { this._selectedIndex = 3; }
+      if (btn.group === 'util') { this._selectedIndex = 4; }
       else if (this._selectedIndex > 0) { this._selectedIndex--; }
       this._updateSelection();
     } else if (e.key === 'ArrowDown') {
       e.preventDefault();
-      if (btn.group === 'main' && this._selectedIndex < 3) { this._selectedIndex++; }
-      else if (this._selectedIndex === 3) { this._selectedIndex = 4; }
+      if (btn.group === 'main' && this._selectedIndex < 4) { this._selectedIndex++; }
+      else if (this._selectedIndex === 4) { this._selectedIndex = 5; }
       this._updateSelection();
     } else if (e.key === 'ArrowLeft') {
       e.preventDefault();
@@ -597,6 +600,7 @@ const HomeScreen = {
       case 'story':  store.set('mode', 'story'); switchScreen('characterSelect'); break;
       case '1v1':    store.set('mode', '1v1'); store.set('miniGamesEnabled', true); switchScreen('game', { mode: '1v1' }); break;
       case 'classic': switchScreen('botSelect'); break;
+      case 'training': switchScreen('trainingHub'); break;
       case 'custom': switchScreen('customGame'); break;
       case 'settings': switchScreen('settings'); break;
       case 'help':   switchScreen('howToPlay'); break;

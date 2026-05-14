@@ -33,6 +33,8 @@ class Store {
         miniGamesEnabled: true,
         animationSpeed: 1,
         bossThemeEnabled: true,
+        musicVolume: 0.5,
+        sfxVolume: 0.5,
       },
       selectedCharacter: null,
       customDifficulty: 5,
@@ -57,6 +59,17 @@ class Store {
         captures: 0,
         miniGamesPlayed: 0,
         miniGamesWon: 0,
+      },
+      trainingProgress: {
+        unlockedBand: 1,
+        unlockedLevel: 1,
+        totalStars: 0,
+        currentStreak: 0,
+        bestStreak: 0,
+        lastPlayedDate: null,
+        levels: {},
+        coachMemory: { missedTags: {} },
+        customPuzzles: [],
       },
     };
     this.listeners = {};
@@ -112,6 +125,7 @@ class Store {
         customMusicTheme: this.state.customMusicTheme,
         customBgTheme: this.state.customBgTheme,
         stats: this.state.stats,
+        trainingProgress: this.state.trainingProgress,
       }));
     } catch (e) { console.warn('Store: failed to save progress', e.message); }
   }
@@ -150,6 +164,9 @@ class Store {
         this.state.customMusicTheme = data.customMusicTheme || 'space';
         this.state.customBgTheme = data.customBgTheme || 'space';
         this.state.stats = { ...this.state.stats, ...data.stats };
+        if (data.trainingProgress) {
+          this.state.trainingProgress = { ...this.state.trainingProgress, ...data.trainingProgress };
+        }
       }
     } catch (e) { console.warn('Store: failed to load progress', e.message); }
   }

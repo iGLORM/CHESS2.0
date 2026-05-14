@@ -103,7 +103,11 @@ function gameLoop(timestamp) {
       if (transition.alpha >= 1) {
         transition.alpha = 1;
         transition.fadeOut = false;
-        _doSwitchScreen();
+        try {
+          _doSwitchScreen();
+        } catch (e) {
+          console.error('Screen switch error:', e);
+        }
       }
     } else {
       transition.alpha -= dt * transition.speed;
@@ -141,6 +145,10 @@ function initApp() {
   registerScreen('customGame', CustomGameScreen);
   registerScreen('stats', StatsScreen);
   registerScreen('controls', ControlsScreen);
+  registerScreen('trainingHub', TrainingHubScreen);
+  registerScreen('levelSelect', LevelSelectScreen);
+  registerScreen('puzzle', PuzzleScreen);
+  registerScreen('boardEditor', BoardEditorScreen);
 
   function getMousePos(e, el) {
     const rect = el.getBoundingClientRect();
