@@ -143,32 +143,6 @@ class PowerMeter {
     }
   }
 
-  _roundRect(ctx, rx, ry, rw, rh, r) {
-    r = Math.min(r, rw / 2, rh / 2);
-    ctx.beginPath();
-    ctx.moveTo(rx + r, ry);
-    ctx.arcTo(rx + rw, ry, rx + rw, ry + rh, r);
-    ctx.arcTo(rx + rw, ry + rh, rx, ry + rh, r);
-    ctx.arcTo(rx, ry + rh, rx, ry, r);
-    ctx.arcTo(rx, ry, rx + rw, ry, r);
-    ctx.closePath();
-  }
-
-  _resultOverlay(ctx, x, y, w, h, cols) {
-    if (!this.done) return;
-    const win = this.winner === 'attacker';
-    ctx.save();
-    ctx.fillStyle = win ? 'rgba(80, 220, 130, 0.30)' : 'rgba(220, 70, 80, 0.30)';
-    ctx.fillRect(x, y, w, h);
-    ctx.shadowColor = win ? (cols.accent || cols.highlight) : (cols.highlight || cols.accent);
-    ctx.shadowBlur = 14;
-    ctx.fillStyle = cols.text;
-    ctx.font = 'bold 18px "Pixelify Sans", sans-serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(win ? 'You Win!' : 'You Lose!', x + w / 2, y + h / 2);
-    ctx.restore();
-  }
 
   render(ctx, x, y, w, h) {
     const cols = ThemeManager.getTheme(store.get('theme')).colors;
@@ -258,7 +232,7 @@ class PowerMeter {
     const panelW = Math.min(360, w - 80);
     const panelX = x + (w - panelW) / 2;
     const panelY = by + bh + 20;
-    this._roundRect(ctx, panelX, panelY, panelW, 54, 8);
+    MiniGameUtils.roundRect(ctx, panelX, panelY, panelW, 54, 8);
     ctx.fillStyle = cols.panel + 'dd';
     ctx.fill();
     ctx.strokeStyle = cols.text + '22';
@@ -279,7 +253,9 @@ class PowerMeter {
     }
 
     ctx.restore();
-    this._resultOverlay(ctx, x, y, w, h, cols);
+    if (this.done) {
+      MiniGameUtils.drawResultOverlay(ctx, x, y, w, h, this.winner === 'attacker', cols);
+    }
   }
 
   cleanup() {}

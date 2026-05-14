@@ -224,10 +224,11 @@ class ShieldBlock {
     const arenaH = h - 20;
 
     if (this.flashTimer > 0) {
+      ctx.save();
       ctx.globalAlpha = this.flashTimer * 3;
       ctx.fillStyle = this.flashColor === 'block' ? cols.accent : (cols.highlight || cols.accent);
       ctx.fillRect(arenaX, arenaY, arenaW, arenaH);
-      ctx.globalAlpha = 1;
+      ctx.restore();
     }
 
     ctx.fillStyle = cols.panel + 'dd';
@@ -284,20 +285,21 @@ class ShieldBlock {
     }
 
     for (const spark of this.sparks) {
+      ctx.save();
       ctx.globalAlpha = spark.life / 0.8;
       ctx.fillStyle = cols.highlight || cols.accent;
       ctx.shadowColor = cols.highlight || cols.accent;
       ctx.shadowBlur = 6;
       ctx.fillRect(arenaX + spark.x * arenaW - 2, arenaY + spark.y * arenaH - 2, 4, 4);
+      ctx.restore();
     }
-    ctx.shadowBlur = 0;
-    ctx.globalAlpha = 1;
 
     const shieldPx = arenaX + this.shieldX * arenaW;
     const shieldY = arenaY + arenaH * 0.88;
     const sw = this.shieldW;
     const sh = 18;
 
+    ctx.save();
     ctx.fillStyle = cols.accent;
     ctx.shadowColor = cols.accent;
     ctx.shadowBlur = 14;
@@ -309,11 +311,11 @@ class ShieldBlock {
     ctx.lineTo(shieldPx + sw / 2, shieldY);
     ctx.closePath();
     ctx.fill();
+    ctx.restore();
 
     ctx.fillStyle = cols.accent + '88';
     ctx.fillRect(shieldPx - sw / 2 + 4, shieldY + 2, 6, sh - 2);
     ctx.fillRect(shieldPx + sw / 2 - 10, shieldY + 2, 6, sh - 2);
-    ctx.shadowBlur = 0;
 
     ctx.fillStyle = cols.text;
     ctx.font = 'bold 12px "Pixelify Sans", sans-serif';
@@ -350,36 +352,29 @@ class ShieldBlock {
     ctx.fillText('Blocks: ' + this.blockCount, arenaX + 8, hpY + 9);
 
     if (this.comboCount > 1) {
+      ctx.save();
       ctx.fillStyle = cols.highlight || cols.accent;
       ctx.font = 'bold 14px "Pixelify Sans", sans-serif';
       ctx.textAlign = 'center';
       ctx.shadowColor = cols.highlight || cols.accent;
       ctx.shadowBlur = 8;
       ctx.fillText(this.comboCount + 'x COMBO', arenaX + arenaW / 2, arenaY + arenaH - 12);
-      ctx.shadowBlur = 0;
+      ctx.restore();
     }
 
     if (!this.done && ('ontouchstart' in window || navigator.maxTouchPoints > 0)) {
+      ctx.save();
       ctx.globalAlpha = 0.25;
       ctx.fillStyle = cols.text;
       ctx.font = 'bold 28px "Pixelify Sans", sans-serif';
       ctx.textAlign = 'center';
       ctx.fillText('◀', x + 40, y + h / 2 + 10);
       ctx.fillText('▶', x + w - 40, y + h / 2 + 10);
-      ctx.globalAlpha = 1;
+      ctx.restore();
     }
 
     if (this.done) {
-      const win = this.winner === 'attacker';
-      ctx.fillStyle = win ? 'rgba(80, 220, 130, 0.30)' : 'rgba(220, 70, 80, 0.30)';
-      ctx.fillRect(x, y, w, h);
-      ctx.fillStyle = cols.text;
-      ctx.shadowColor = win ? cols.accent : (cols.highlight || cols.accent);
-      ctx.shadowBlur = 14;
-      ctx.font = 'bold 18px "Pixelify Sans", sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText(win ? 'You Win!' : 'You Lose!', x + w / 2, y + h / 2);
-      ctx.shadowBlur = 0;
+      MiniGameUtils.drawResultOverlay(ctx, x, y, w, h, this.winner === 'attacker', cols);
     }
 
     ctx.restore();

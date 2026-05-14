@@ -191,12 +191,13 @@ class BarBalance {
     ctx.restore();
 
     // Panel background
+    ctx.save();
     ctx.fillStyle = cols.panel;
     ctx.globalAlpha = 0.4;
     const panelPad = 12;
-    this._roundRect(ctx, x + panelPad, y + panelPad, w - panelPad * 2, h - panelPad * 2, 10);
+    MiniGameUtils.roundRect(ctx, x + panelPad, y + panelPad, w - panelPad * 2, h - panelPad * 2, 10);
     ctx.fill();
-    ctx.globalAlpha = 1;
+    ctx.restore();
 
     // Apply shake offset
     ctx.save();
@@ -207,11 +208,12 @@ class BarBalance {
     ctx.font = 'bold 18px "Pixelify Sans", sans-serif';
     ctx.textAlign = 'center';
     ctx.fillText('BAR BALANCE', x + w / 2, y + 24);
+    ctx.save();
     ctx.font = 'bold 12px "Pixelify Sans", sans-serif';
     ctx.globalAlpha = 0.55;
     ctx.fillStyle = cols.text;
     ctx.fillText('Click LEFT side to push left, RIGHT side to push right', x + w / 2, y + 42);
-    ctx.globalAlpha = 1;
+    ctx.restore();
 
     const cx = x + w / 2;
     const cy = y + 100;
@@ -257,30 +259,30 @@ class BarBalance {
 
     // Bar shadow
     ctx.fillStyle = 'rgba(0,0,0,0.25)';
-    this._roundRect(ctx, -barW / 2, 2, barW, barH, 5);
+    MiniGameUtils.roundRect(ctx, -barW / 2, 2, barW, barH, 5);
     ctx.fill();
 
     // 3D gradient bar
     const isBalanced = Math.abs(this.angle) < 0.3;
     const barGrad = ctx.createLinearGradient(0, -barH / 2, 0, barH / 2);
     if (isBalanced) {
-      barGrad.addColorStop(0, this._lightenColor(cols.accent, 40));
+      barGrad.addColorStop(0, MiniGameUtils.lightenColor(cols.accent, 40));
       barGrad.addColorStop(0.4, cols.accent);
-      barGrad.addColorStop(1, this._darkenColor(cols.accent, 50));
+      barGrad.addColorStop(1, MiniGameUtils.darkenColor(cols.accent, 50));
     } else {
       barGrad.addColorStop(0, cols.highlight || cols.accent);
       barGrad.addColorStop(0.4, cols.highlight || cols.text);
       barGrad.addColorStop(1, cols.panel);
     }
     ctx.fillStyle = barGrad;
-    this._roundRect(ctx, -barW / 2, -barH / 2, barW, barH, 5);
+    MiniGameUtils.roundRect(ctx, -barW / 2, -barH / 2, barW, barH, 5);
     ctx.fill();
 
     // Top highlight stripe
     ctx.save();
     ctx.globalAlpha = 0.35;
     ctx.fillStyle = cols.text;
-    this._roundRect(ctx, -barW / 2 + 4, -barH / 2 + 1, barW - 8, 3, 2);
+    MiniGameUtils.roundRect(ctx, -barW / 2 + 4, -barH / 2 + 1, barW - 8, 3, 2);
     ctx.fill();
     ctx.restore();
 
@@ -307,7 +309,7 @@ class BarBalance {
     );
     ballGrad.addColorStop(0, cols.text);
     ballGrad.addColorStop(0.6, isBalanced ? cols.accent : (cols.highlight || cols.accent));
-    ballGrad.addColorStop(1, this._darkenColor(isBalanced ? cols.accent : (cols.highlight || cols.accent), 60));
+    ballGrad.addColorStop(1, MiniGameUtils.darkenColor(isBalanced ? cols.accent : (cols.highlight || cols.accent), 60));
     ctx.fillStyle = ballGrad;
     ctx.beginPath();
     ctx.arc(ballOffset, -barH / 2 - ballRadius, ballRadius, 0, Math.PI * 2);
@@ -325,7 +327,7 @@ class BarBalance {
 
     // End caps / weights on bar ends
     const capSize = 14;
-    ctx.fillStyle = this._darkenColor(isBalanced ? cols.accent : (cols.highlight || cols.accent), 30);
+    ctx.fillStyle = MiniGameUtils.darkenColor(isBalanced ? cols.accent : (cols.highlight || cols.accent), 30);
     ctx.beginPath();
     ctx.arc(-barW / 2, 0, capSize / 2, 0, Math.PI * 2);
     ctx.fill();
@@ -346,12 +348,13 @@ class BarBalance {
 
     // Particles (rendered in bar-local space)
     for (const p of this.particles) {
+      ctx.save();
       const alpha = Math.max(0, p.life / p.maxLife);
       ctx.globalAlpha = alpha;
       ctx.fillStyle = p.color;
       ctx.fillRect(p.x - p.size / 2, p.y - p.size / 2, p.size, p.size);
+      ctx.restore();
     }
-    ctx.globalAlpha = 1;
 
     ctx.restore(); // un-rotate
 
@@ -375,15 +378,7 @@ class BarBalance {
     }
 
     if (this.done) {
-      const win = this.winner === 'attacker';
-      ctx.fillStyle = win ? 'rgba(80, 220, 130, 0.30)' : 'rgba(220, 70, 80, 0.30)';
-      ctx.fillRect(x - this.shakeX, y - this.shakeY, w, h);
-      ctx.fillStyle = cols.text;
-      ctx.shadowColor = win ? cols.accent : (cols.highlight || cols.accent);
-      ctx.shadowBlur = 14;
-      ctx.font = 'bold 18px "Pixelify Sans", sans-serif';
-      ctx.fillText(win ? 'You Win!' : 'You Lose!', x + w / 2, y + h / 2);
-      ctx.shadowBlur = 0;
+      MiniGameUtils.drawResultOverlay(ctx, x, y, w, h, this.winner === 'attacker', cols);
     }
 
     ctx.restore(); // un-shake
@@ -398,50 +393,6 @@ class BarBalance {
     }
   }
 
-  // Helper: draw a rounded rectangle path using arcTo
-  _roundRect(ctx, rx, ry, rw, rh, radius) {
-    const r = Math.min(radius, rw / 2, rh / 2);
-    ctx.beginPath();
-    ctx.moveTo(rx + r, ry);
-    ctx.lineTo(rx + rw - r, ry);
-    ctx.arcTo(rx + rw, ry, rx + rw, ry + r, r);
-    ctx.lineTo(rx + rw, ry + rh - r);
-    ctx.arcTo(rx + rw, ry + rh, rx + rw - r, ry + rh, r);
-    ctx.lineTo(rx + r, ry + rh);
-    ctx.arcTo(rx, ry + rh, rx, ry + rh - r, r);
-    ctx.lineTo(rx, ry + r);
-    ctx.arcTo(rx, ry, rx + r, ry, r);
-    ctx.closePath();
-  }
-
-  // Helper: lighten a hex color
-  _lightenColor(hex, amount) {
-    const rgb = this._hexToRgb(hex);
-    if (!rgb) return hex;
-    return 'rgb(' +
-      Math.min(255, rgb.r + amount) + ',' +
-      Math.min(255, rgb.g + amount) + ',' +
-      Math.min(255, rgb.b + amount) + ')';
-  }
-
-  // Helper: darken a hex color
-  _darkenColor(hex, amount) {
-    const rgb = this._hexToRgb(hex);
-    if (!rgb) return hex;
-    return 'rgb(' +
-      Math.max(0, rgb.r - amount) + ',' +
-      Math.max(0, rgb.g - amount) + ',' +
-      Math.max(0, rgb.b - amount) + ')';
-  }
-
-  // Helper: parse hex to rgb
-  _hexToRgb(hex) {
-    if (!hex || hex[0] !== '#') return null;
-    hex = hex.replace('#', '');
-    if (hex.length === 3) hex = hex[0]+hex[0]+hex[1]+hex[1]+hex[2]+hex[2];
-    const num = parseInt(hex, 16);
-    return { r: (num >> 16) & 255, g: (num >> 8) & 255, b: num & 255 };
-  }
 
   cleanup() {}
 }

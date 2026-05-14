@@ -422,6 +422,7 @@ class ReactionTest {
 
     // Draw particles
     for (const p of this.particles) {
+      ctx.save();
       ctx.globalAlpha = Math.max(0, p.life);
       ctx.fillStyle = p.color === 'green' ? cols.accent
                      : p.color === 'yellow' ? (cols.highlight || cols.accent)
@@ -431,9 +432,8 @@ class ReactionTest {
       ctx.beginPath();
       ctx.arc(p.x + x, p.y + y, p.size * p.life, 0, Math.PI * 2);
       ctx.fill();
+      ctx.restore();
     }
-    ctx.globalAlpha = 1;
-    ctx.shadowBlur = 0;
 
     // Screen flash overlay
     if (this.flashTimer > 0 && this.flashColor) {
@@ -460,16 +460,7 @@ class ReactionTest {
     ctx.fillText('Target: <' + this.targetTime + 'ms to win', x + w / 2, areaY + areaH + 65);
 
     if (this.done) {
-      const win = this.winner === 'attacker';
-      ctx.fillStyle = win ? 'rgba(80, 220, 130, 0.30)' : 'rgba(220, 70, 80, 0.30)';
-      ctx.fillRect(x, y, w, h);
-      ctx.fillStyle = cols.text;
-      ctx.shadowColor = win ? cols.accent : (cols.highlight || cols.accent);
-      ctx.shadowBlur = 14;
-      ctx.font = 'bold 18px "Pixelify Sans", sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText(win ? 'You Win!' : 'You Lose!', x + w / 2, y + h / 2);
-      ctx.shadowBlur = 0;
+      MiniGameUtils.drawResultOverlay(ctx, x, y, w, h, this.winner === 'attacker', cols);
     }
   }
 

@@ -15,9 +15,10 @@ class MemoryMatch {
     this.lastRect = { x: 0, y: 0, w: 1, h: 1 };
   }
 
-  init(attacker, defender) {
+  init(attacker, defender, difficulty) {
     this.done = false;
     this.winner = null;
+    this.difficulty = difficulty || 1;
     this.flipped = [];
     this.matched = [];
     this.canFlip = true;
@@ -44,7 +45,8 @@ class MemoryMatch {
     }
     if (this.matched.length === this.totalPairs * 2) {
       this.done = true;
-      this.winner = this.attempts <= this.totalPairs + 2 ? 'attacker' : 'defender';
+      const maxAttempts = this.totalPairs + 4 - Math.floor((this.difficulty || 1) / 3);
+      this.winner = this.attempts <= maxAttempts ? 'attacker' : 'defender';
     }
     if (this.attempts >= this.maxAttempts && this.pairs < this.totalPairs) {
       this.done = true;
@@ -152,7 +154,8 @@ class MemoryMatch {
         audioManager.playTone(800, 0.1, 'square', 0.08);
         if (this.pairs === this.totalPairs) {
           this.done = true;
-          this.winner = this.attempts <= this.totalPairs + 2 ? 'attacker' : 'defender';
+          const maxAttempts = this.totalPairs + 4 - Math.floor((this.difficulty || 1) / 3);
+          this.winner = this.attempts <= maxAttempts ? 'attacker' : 'defender';
         }
       } else {
         setTimeout(() => {
@@ -269,15 +272,7 @@ class MemoryMatch {
     ctx.fillText('Pairs: ' + this.pairs + '/' + this.totalPairs, x + w / 2, y + 230);
 
     if (this.done) {
-      const win = this.winner === 'attacker';
-      ctx.fillStyle = win ? 'rgba(80, 220, 130, 0.30)' : 'rgba(220, 70, 80, 0.30)';
-      ctx.fillRect(x, y, w, h);
-      ctx.fillStyle = cols.text;
-      ctx.shadowColor = win ? cols.accent : (cols.highlight || cols.accent);
-      ctx.shadowBlur = 14;
-      ctx.font = 'bold 18px "Pixelify Sans", sans-serif';
-      ctx.fillText(win ? 'You Win!' : 'You Lose!', x + w / 2, y + h / 2);
-      ctx.shadowBlur = 0;
+      MiniGameUtils.drawResultOverlay(ctx, x, y, w, h, this.winner === 'attacker', cols);
     }
   }
 

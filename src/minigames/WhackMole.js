@@ -170,16 +170,18 @@ class WhackMole {
     this._arenaH = arenaH;
 
     if (this.flashTimer > 0) {
+      ctx.save();
       ctx.globalAlpha = this.flashTimer * 2;
       ctx.fillStyle = 'rgba(80,220,130,0.13)';
       ctx.fillRect(arenaX, arenaY, arenaW, arenaH);
-      ctx.globalAlpha = 1;
+      ctx.restore();
     }
     if (this.missFlash > 0) {
+      ctx.save();
       ctx.globalAlpha = this.missFlash;
       ctx.fillStyle = 'rgba(220,70,80,0.13)';
       ctx.fillRect(arenaX, arenaY, arenaW, arenaH);
-      ctx.globalAlpha = 1;
+      ctx.restore();
     }
 
     const cellW = arenaW / this.cols;
@@ -298,6 +300,7 @@ class WhackMole {
     }
 
     for (const spark of this.sparks) {
+      ctx.save();
       ctx.globalAlpha = spark.life / 0.6;
       ctx.fillStyle = spark.color === 'gold' ? (cols.highlight || cols.accent) : cols.accent;
       ctx.shadowColor = ctx.fillStyle;
@@ -305,9 +308,8 @@ class WhackMole {
       const sx = arenaX + spark.x * arenaW;
       const sy = arenaY + spark.y * arenaH;
       ctx.fillRect(sx - 2, sy - 2, 4, 4);
+      ctx.restore();
     }
-    ctx.shadowBlur = 0;
-    ctx.globalAlpha = 1;
 
     const barY = y - 2;
     const barH = 18;
@@ -339,16 +341,7 @@ class WhackMole {
     ctx.fillRect(progX, progY + barH - 5, progW * Math.min(1, this.score / this.target), 3);
 
     if (this.done) {
-      const win = this.winner === 'attacker';
-      ctx.fillStyle = win ? 'rgba(80, 220, 130, 0.30)' : 'rgba(220, 70, 80, 0.30)';
-      ctx.fillRect(x, y, w, h);
-      ctx.fillStyle = cols.text;
-      ctx.shadowColor = win ? cols.accent : (cols.highlight || cols.accent);
-      ctx.shadowBlur = 14;
-      ctx.font = 'bold 18px "Pixelify Sans", sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText(win ? 'You Win!' : 'You Lose!', x + w / 2, y + h / 2);
-      ctx.shadowBlur = 0;
+      MiniGameUtils.drawResultOverlay(ctx, x, y, w, h, this.winner === 'attacker', cols);
     }
   }
 

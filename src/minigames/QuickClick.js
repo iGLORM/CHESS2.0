@@ -21,9 +21,10 @@ class QuickClick {
     this.lastRect = { x: 0, y: 0, w: 1, h: 1 };
   }
 
-  init(attacker, defender) {
+  init(attacker, defender, difficulty) {
     this.attacker = attacker;
     this.defender = defender;
+    this.difficulty = difficulty || 1;
     this.done = false;
     this.winner = null;
     this.p1Clicks = 0;
@@ -49,13 +50,9 @@ class QuickClick {
     if (!this.running || this.done) return;
     this.timeLeft = 5 - (Date.now() - this.startTime) / 1000;
 
-    // CPU auto-clicks for defender (slower than human)
-    if (Math.random() < dt * 3) {
-      this.p2Clicks++;
-      this.p2ShakeTimer = 0.15;
-      this.p2FlashTimer = 0.1;
-    }
-    if (Math.random() < dt * 2) {
+    // CPU auto-clicks for defender (scales with difficulty)
+    const cpuRate = dt * (1.5 + (this.difficulty || 1) * 0.8);
+    if (Math.random() < cpuRate) {
       this.p2Clicks++;
       this.p2ShakeTimer = 0.15;
       this.p2FlashTimer = 0.1;
@@ -216,10 +213,11 @@ class QuickClick {
 
     // Subtitle
     ctx.font = 'bold 12px "Pixelify Sans", sans-serif';
+    ctx.save();
     ctx.fillStyle = cols.text;
     ctx.globalAlpha = 0.5;
     ctx.fillText('Click as fast as you can!', x + w / 2, y + 60);
-    ctx.globalAlpha = 1;
+    ctx.restore();
 
     // Timer
     const timerColor = this.timeLeft < 2 ? (cols.highlight || cols.accent) : cols.text;
@@ -364,11 +362,12 @@ class QuickClick {
     }
 
     // Instructions
+    ctx.save();
     ctx.fillStyle = cols.text;
     ctx.font = '11px "Pixelify Sans", sans-serif';
     ctx.globalAlpha = 0.4;
     ctx.fillText('Click anywhere to mash!', x + w / 2, y + 220);
-    ctx.globalAlpha = 1;
+    ctx.restore();
 
     // Result
     if (this.done) {

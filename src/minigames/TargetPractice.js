@@ -162,32 +162,6 @@ class TargetPractice {
     }
   }
 
-  _roundRect(ctx, rx, ry, rw, rh, r) {
-    r = Math.min(r, rw / 2, rh / 2);
-    ctx.beginPath();
-    ctx.moveTo(rx + r, ry);
-    ctx.arcTo(rx + rw, ry, rx + rw, ry + rh, r);
-    ctx.arcTo(rx + rw, ry + rh, rx, ry + rh, r);
-    ctx.arcTo(rx, ry + rh, rx, ry, r);
-    ctx.arcTo(rx, ry, rx + rw, ry, r);
-    ctx.closePath();
-  }
-
-  _resultOverlay(ctx, x, y, w, h, cols) {
-    if (!this.done) return;
-    const win = this.winner === 'attacker';
-    ctx.save();
-    ctx.fillStyle = win ? 'rgba(80, 220, 130, 0.30)' : 'rgba(220, 70, 80, 0.30)';
-    ctx.fillRect(x, y, w, h);
-    ctx.shadowColor = win ? cols.accent : (cols.highlight || cols.accent);
-    ctx.shadowBlur = 14;
-    ctx.fillStyle = cols.text;
-    ctx.font = 'bold 18px "Pixelify Sans", sans-serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(win ? 'You Win!' : 'You Lose!', x + w / 2, y + h / 2);
-    ctx.restore();
-  }
 
   render(ctx, x, y, w, h) {
     const cols = ThemeManager.getTheme(store.get('theme')).colors;
@@ -209,7 +183,7 @@ class TargetPractice {
     ctx.fillStyle = cols.text + '88';
     ctx.fillText('Click the targets before they disappear!', x + w / 2, y + 50);
 
-    this._roundRect(ctx, x + w / 2 - 125, y + 58, 250, 26, 7);
+    MiniGameUtils.roundRect(ctx, x + w / 2 - 125, y + 58, 250, 26, 7);
     ctx.fillStyle = cols.panel + 'dd';
     ctx.fill();
     ctx.fillStyle = cols.accent;
@@ -229,6 +203,7 @@ class TargetPractice {
     }
 
     for (const t of this.targets) {
+      ctx.save();
       const alpha = t.life / t.maxLife;
       const spawnScale = Math.min(1, (t.age || 0) / 0.22);
       const tx = x + 20 + t.x;
@@ -251,8 +226,7 @@ class TargetPractice {
       ctx.beginPath();
       ctx.arc(tx, ty, ts * 0.25, 0, Math.PI * 2);
       ctx.fill();
-      ctx.globalAlpha = 1;
-      ctx.shadowBlur = 0;
+      ctx.restore();
     }
 
     for (const p of this.particles) {
@@ -292,7 +266,9 @@ class TargetPractice {
       ctx.stroke();
     }
 
-    this._resultOverlay(ctx, x, y, w, h, cols);
+    if (this.done) {
+      MiniGameUtils.drawResultOverlay(ctx, x, y, w, h, this.winner === 'attacker', cols);
+    }
   }
 
   cleanup() {}

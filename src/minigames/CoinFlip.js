@@ -91,7 +91,10 @@ class CoinFlip {
     audioManager.playTone(400, 0.05, 'square', 0.05);
 
     setTimeout(() => {
-      this.pendingResult = Math.random() > 0.5 ? 'heads' : 'tails';
+      // Subtle bias based on difficulty (43-57% win chance range)
+      const winChance = 0.5 + (5 - (this.difficulty || 5)) * 0.015;
+      const playerWins = Math.random() < winChance;
+      this.pendingResult = playerWins ? this.playerChoice : (this.playerChoice === 'heads' ? 'tails' : 'heads');
 
       setTimeout(() => {
         this.flipping = false;
@@ -251,15 +254,7 @@ class CoinFlip {
     }
 
     if (this.done) {
-      const win = this.winner === 'attacker';
-      ctx.fillStyle = win ? 'rgba(80, 220, 130, 0.30)' : 'rgba(220, 70, 80, 0.30)';
-      ctx.fillRect(x, y, w, h);
-      ctx.fillStyle = cols.text;
-      ctx.shadowColor = win ? cols.accent : (cols.highlight || cols.accent);
-      ctx.shadowBlur = 14;
-      ctx.font = 'bold 18px "Pixelify Sans", sans-serif';
-      ctx.fillText(win ? 'You Win!' : 'You Lose!', x + w / 2, y + h / 2);
-      ctx.shadowBlur = 0;
+      MiniGameUtils.drawResultOverlay(ctx, x, y, w, h, this.winner === 'attacker', cols);
     }
   }
 

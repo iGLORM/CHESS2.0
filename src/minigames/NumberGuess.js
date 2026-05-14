@@ -81,10 +81,14 @@ class NumberGuess {
     if (!this.botMax) this.botMax = this.maxNum;
 
     if (timer > 0.5 && this.guesses.length < this.maxGuesses) {
-      // Binary search
-      const guess = Math.floor((this.botMin + this.botMax) / 2);
-      if (guess >= this.botMin && guess <= this.botMax) {
-        this.makeGuess(guess);
+      // Binary search with intentional imperfection
+      let botGuess = Math.floor((this.botMin + this.botMax) / 2);
+      const offset = Math.floor(Math.random() * (1 - (this.difficulty || 1) / 10) * 15);
+      const direction = Math.random() < 0.5 ? 1 : -1;
+      botGuess = botGuess + offset * direction;
+      botGuess = Math.max(this.botMin, Math.min(this.botMax, botGuess));
+      if (botGuess >= this.botMin && botGuess <= this.botMax) {
+        this.makeGuess(botGuess);
       }
     }
   }
@@ -117,17 +121,6 @@ class NumberGuess {
     }
   }
 
-  _roundRect(ctx, rx, ry, rw, rh, r) {
-    r = Math.min(r, rw / 2, rh / 2);
-    ctx.beginPath();
-    ctx.moveTo(rx + r, ry);
-    ctx.arcTo(rx + rw, ry, rx + rw, ry + rh, r);
-    ctx.arcTo(rx + rw, ry + rh, rx, ry + rh, r);
-    ctx.arcTo(rx, ry + rh, rx, ry, r);
-    ctx.arcTo(rx, ry, rx + rw, ry, r);
-    ctx.closePath();
-  }
-
   _rangeBounds() {
     let low = 1;
     let high = this.maxNum;
@@ -137,22 +130,6 @@ class NumberGuess {
       if (g.result === 'correct') low = high = g.num;
     }
     return { low, high };
-  }
-
-  _resultOverlay(ctx, x, y, w, h, cols) {
-    if (!this.done) return;
-    const win = this.winner === 'attacker';
-    ctx.save();
-    ctx.fillStyle = win ? 'rgba(80, 220, 130, 0.30)' : 'rgba(220, 70, 80, 0.30)';
-    ctx.fillRect(x, y, w, h);
-    ctx.shadowColor = win ? cols.accent : (cols.highlight || cols.accent);
-    ctx.shadowBlur = 14;
-    ctx.fillStyle = cols.text;
-    ctx.font = 'bold 18px "Pixelify Sans", sans-serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(win ? 'You Win!' : 'You Lose!', x + w / 2, y + h / 2);
-    ctx.restore();
   }
 
   render(ctx, x, y, w, h) {
@@ -174,7 +151,7 @@ class NumberGuess {
 
     const panelX = x + Math.max(28, w * 0.08);
     const panelW = w - (panelX - x) * 2;
-    this._roundRect(ctx, panelX, y + 62, panelW, 88, 8);
+    MiniGameUtils.roundRect(ctx, panelX, y + 62, panelW, 88, 8);
     ctx.fillStyle = cols.panel + 'dd';
     ctx.fill();
     ctx.strokeStyle = cols.text + '22';
@@ -261,7 +238,9 @@ class NumberGuess {
       ctx.fillText('' + num, bx + btnSize / 2, by + btnSize / 2 + 4);
     }
 
-    this._resultOverlay(ctx, x, y, w, h, cols);
+    if (this.done) {
+      MiniGameUtils.drawResultOverlay(ctx, x, y, w, h, this.winner === 'attacker', cols);
+    }
   }
 
   cleanup() {}
