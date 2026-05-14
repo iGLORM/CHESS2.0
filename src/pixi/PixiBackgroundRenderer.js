@@ -8,8 +8,6 @@ const PixiBackgroundRenderer = {
   _glowLayer: null,
   _themeId: null,
   _tickerFn: null,
-  _ticker: null,
-  _gradientCanvases: [],
   _particles: [],
   _ambientElements: [],
   _parallaxLayers: [],
@@ -72,9 +70,8 @@ const PixiBackgroundRenderer = {
 
     // --- Animation ticker ---
     if (PixiApp.app) {
-      this._ticker = PixiApp.app.ticker;
       this._tickerFn = (ticker) => this._animate(ticker.deltaTime / 60);
-      this._ticker.add(this._tickerFn);
+      PixiApp.app.ticker.add(this._tickerFn);
     }
   },
 
@@ -91,7 +88,6 @@ const PixiBackgroundRenderer = {
     grad.addColorStop(1, PixiColorUtil.darken(bg, 20));
     ctx.fillStyle = grad;
     ctx.fillRect(0, 0, 64, Layout.H);
-    this._gradientCanvases.push(canvas);
     const texture = PIXI.Texture.from({ resource: canvas, scaleMode: 'linear' });
     const sprite = new PIXI.Sprite(texture);
     sprite.width = Layout.W;
@@ -827,11 +823,12 @@ const PixiBackgroundRenderer = {
           e.gfx.y += e.vy;
           e.gfx.x += e.vx;
           e.life++;
-          // Expand linearly as it rises (avoid exponential compound)
-          const lifeRatio = e.life / e.maxLife;
-          const currentScale = e.startScale + (e.expandRate - 1) * e.life;
-          e.gfx.scale.set(currentScale);
+          // Expand as it rises
+          const scaleInc = e.expandRate;
+          e.gfx.scale.x *= scaleInc;
+          e.gfx.scale.y *= scaleInc;
           // Fade out as it rises
+          const lifeRatio = e.life / e.maxLife;
           e.gfx.alpha = e.baseAlpha * (1 - lifeRatio);
           if (e.life >= e.maxLife || e.gfx.y < -50) {
             e.gfx.y = 700 + Math.random() * 150;
@@ -898,21 +895,14 @@ const PixiBackgroundRenderer = {
   },
 
   _cleanup() {
-    if (this._tickerFn && this._ticker) {
-      this._ticker.remove(this._tickerFn);
+    if (this._tickerFn && PixiApp.app) {
+      PixiApp.app.ticker.remove(this._tickerFn);
       this._tickerFn = null;
-      this._ticker = null;
     }
     if (this.container) {
       const removed = this.container.removeChildren();
       for (const child of removed) child.destroy({ children: true });
     }
-    // Release gradient canvases
-    for (const c of this._gradientCanvases) {
-      c.width = 0;
-      c.height = 0;
-    }
-    this._gradientCanvases = [];
     this._particles = [];
     this._ambientElements = [];
     this._parallaxLayers = [];

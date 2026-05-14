@@ -58,7 +58,6 @@ const PixiBoardRenderer = {
   drawBoard(themeId) {
     this.computeLayout();
     const theme = ThemeManager.getTheme(themeId);
-    if (!theme || !theme.colors) return;
     const cols = theme.colors;
     this.boardContainer.removeChildren();
     this.frameContainer.removeChildren();
@@ -199,7 +198,6 @@ const PixiBoardRenderer = {
   },
 
   highlightSquare(col, row, color, alpha) {
-    if (!this.overlayContainer) return null;
     const x = this.boardOffsetX + col * this.squareSize;
     const y = this.boardOffsetY + row * this.squareSize;
     const highlight = new PIXI.Graphics();
@@ -210,14 +208,11 @@ const PixiBoardRenderer = {
   },
 
   clearHighlights() {
-    if (!this.overlayContainer) return;
-    const removed = this.overlayContainer.removeChildren();
-    for (const child of removed) child.destroy();
+    this.overlayContainer.removeChildren();
     this.selectedSprite = null;
   },
 
   drawLegalMoves(moves) {
-    if (!this.overlayContainer) return;
     for (const move of moves) {
       const cx = this.boardOffsetX + move.to.col * this.squareSize + this.squareSize / 2;
       const cy = this.boardOffsetY + move.to.row * this.squareSize + this.squareSize / 2;
@@ -229,7 +224,6 @@ const PixiBoardRenderer = {
   },
 
   selectSquare(col, row, color) {
-    if (!this.overlayContainer) return null;
     this.clearSelection();
     const x = this.boardOffsetX + col * this.squareSize;
     const y = this.boardOffsetY + row * this.squareSize;
@@ -244,7 +238,7 @@ const PixiBoardRenderer = {
 
   clearSelection() {
     if (this.selectedSprite) {
-      if (this.overlayContainer) this.overlayContainer.removeChild(this.selectedSprite);
+      this.overlayContainer.removeChild(this.selectedSprite);
       this.selectedSprite.destroy();
       this.selectedSprite = null;
     }

@@ -128,20 +128,7 @@ const PixiGameScreen = {
   },
 
   destroy() {
-    // Kill all tracked tweens and trail timers
-    PixiAnimator.killAll();
-
-    // Kill tweens on specific known targets
     if (PixiBoardRenderer.container) PixiAnimator.killTweensOf(PixiBoardRenderer.container);
-    if (PixiBoardRenderer.flashGraphics) gsap.killTweensOf(PixiBoardRenderer.flashGraphics);
-
-    // Kill tweens on each piece sprite
-    for (const key in PixiBoardRenderer.pieceSprites) {
-      const sprite = PixiBoardRenderer.pieceSprites[key];
-      if (sprite) gsap.killTweensOf(sprite);
-      if (sprite && sprite.scale) gsap.killTweensOf(sprite.scale);
-    }
-
     PixiParticleFX.destroy();
     PixiBoardRenderer.destroy();
     PixiBackgroundRenderer.destroy();

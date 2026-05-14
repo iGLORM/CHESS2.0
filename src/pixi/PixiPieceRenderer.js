@@ -1,6 +1,5 @@
 const PixiPieceRenderer = {
   textures: {},
-  _canvases: {},
 
   getTexture(themeId, color, type) {
     const key = `${themeId}_${color}_${type}`;
@@ -21,7 +20,6 @@ const PixiPieceRenderer = {
     SpriteGen.drawPiece(ctx, type, color, 0, 0, 64, themeId);
     const texture = PIXI.Texture.from({ resource: canvas, scaleMode: 'nearest' });
     this.textures[key] = texture;
-    this._canvases[key] = canvas;
     return texture;
   },
 
@@ -39,10 +37,5 @@ const PixiPieceRenderer = {
       this.textures[key].destroy(true);
     }
     this.textures = {};
-    for (const key in this._canvases) {
-      this._canvases[key].width = 0;
-      this._canvases[key].height = 0;
-    }
-    this._canvases = {};
   },
 };

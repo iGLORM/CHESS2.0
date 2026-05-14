@@ -3,8 +3,6 @@ const PixiParticleFX = {
   particles: [],
   shockwaves: [],
   fireworks: [],
-  _flashTweens: [],
-  _fireworkTimers: [],
 
   init(parentStage) {
     this.container = new PIXI.Container();
@@ -103,13 +101,12 @@ const PixiParticleFX = {
     const bursts = 3 + Math.floor(Math.random() * 3);
 
     for (let b = 0; b < bursts; b++) {
-      const h = setTimeout(() => {
+      setTimeout(() => {
         const fx = x + (Math.random() - 0.5) * 200;
         const fy = y + (Math.random() - 0.5) * 150 - 50;
         const color = colors[Math.floor(Math.random() * colors.length)];
         this._spawnFireworkBurst(fx, fy, color);
       }, b * 400);
-      this._fireworkTimers.push(h);
     }
   },
 
@@ -143,17 +140,11 @@ const PixiParticleFX = {
     flash.y = y;
     this.container.addChild(flash);
 
-    const scaleTween = gsap.to(flash.scale, { x: 3, y: 3, duration: 0.4, ease: 'power2.out' });
-    this._flashTweens.push(scaleTween);
-    const alphaTween = gsap.to(flash, { alpha: 0, duration: 0.5, ease: 'power2.out', onComplete: () => {
-      const idx1 = this._flashTweens.indexOf(scaleTween);
-      if (idx1 !== -1) this._flashTweens.splice(idx1, 1);
-      const idx2 = this._flashTweens.indexOf(alphaTween);
-      if (idx2 !== -1) this._flashTweens.splice(idx2, 1);
+    gsap.to(flash.scale, { x: 3, y: 3, duration: 0.4, ease: 'power2.out' });
+    gsap.to(flash, { alpha: 0, duration: 0.5, ease: 'power2.out', onComplete: () => {
       if (flash.parent) flash.parent.removeChild(flash);
       flash.destroy();
     }});
-    this._flashTweens.push(alphaTween);
   },
 
   spawnTrail(x, y, color) {
@@ -174,7 +165,6 @@ const PixiParticleFX = {
   },
 
   update(dt) {
-    if (!this.container) return;
     for (let i = this.particles.length - 1; i >= 0; i--) {
       const p = this.particles[i];
       p.vx *= p.drag;
@@ -210,17 +200,13 @@ const PixiParticleFX = {
   },
 
   clear() {
-    for (const t of this._flashTweens) t.kill();
-    this._flashTweens = [];
-    for (const h of this._fireworkTimers) clearTimeout(h);
-    this._fireworkTimers = [];
     for (const p of this.particles) {
-      if (this.container) this.container.removeChild(p);
+      this.container.removeChild(p);
       p.destroy();
     }
     this.particles = [];
     for (const sw of this.shockwaves) {
-      if (this.container) this.container.removeChild(sw.sprite);
+      this.container.removeChild(sw.sprite);
       sw.sprite.destroy();
     }
     this.shockwaves = [];

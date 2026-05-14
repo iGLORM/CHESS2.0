@@ -87,105 +87,105 @@
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.2/dist/PixiPlugin.min.js"></script>
   <script>gsap.registerPlugin(PixiPlugin); PixiPlugin.registerPIXI(PIXI);</script>
 
-  <script src="state/Store.js"></script>
-  <script src="layout/Layout.js?v=4"></script>
-  <script src="engine/Board.js"></script>
-  <script src="engine/MoveGen.js"></script>
-  <script src="engine/LegalFilter.js"></script>
-  <script src="engine/MoveExecutor.js"></script>
-  <script src="engine/GameRules.js"></script>
-  <script src="engine/FEN.js"></script>
+  <script src="state/Store.js?v=6"></script>
+  <script src="layout/Layout.js?v=6"></script>
+  <script src="engine/Board.js?v=6"></script>
+  <script src="engine/MoveGen.js?v=6"></script>
+  <script src="engine/LegalFilter.js?v=6"></script>
+  <script src="engine/MoveExecutor.js?v=6"></script>
+  <script src="engine/GameRules.js?v=6"></script>
+  <script src="engine/FEN.js?v=6"></script>
   <script src="engine/ai/Evaluate.js"></script>
-  <script src="engine/ai/Search.js"></script>
+  <script src="engine/ai/Search.js?v=6"></script>
   <script src="engine/ai/CloudEval.js"></script>
   <script src="engine/stockfish/stockfish.js"></script>
   <script src="engine/ai/BotPersonality.js"></script>
   <script src="engine/DifficultyScaler.js"></script>
   <script src="engine/ai/AIController.js"></script>
-  <script src="rendering/TextureManager.js"></script>
-  <script src="rendering/SpriteGen.js"></script>
+  <script src="rendering/TextureManager.js?v=6"></script>
+  <script src="rendering/SpriteGen.js?v=6"></script>
   <script src="rendering/PieceRenderer.js"></script>
-  <script src="rendering/BackgroundRenderer.js"></script>
-  <script src="rendering/BoardRenderer.js"></script>
-  <script src="rendering/UIHelpers.js"></script>
+  <script src="rendering/BackgroundRenderer.js?v=6"></script>
+  <script src="rendering/BoardRenderer.js?v=6"></script>
+  <script src="rendering/UIHelpers.js?v=6"></script>
   <script type="module">
     import { prepare, layout, prepareWithSegments, walkLineRanges, measureNaturalWidth } from './vendor/pretext/layout.js';
     window.Pretext = { prepare, layout, prepareWithSegments, walkLineRanges, measureNaturalWidth };
   </script>
   <script src="rendering/TextFit.js"></script>
   <script src="rendering/Animator.js"></script>
-  <script src="rendering/MiniGameThumbnails.js?v=3"></script>
+  <script src="rendering/MiniGameThumbnails.js?v=6"></script>
   <script src="rendering/ParticleFX.js"></script>
   <script src="themes/themes.js"></script>
-  <script src="themes/ThemeManager.js"></script>
-  <script src="characters/characters.js?v=4"></script>
+  <script src="themes/ThemeManager.js?v=6"></script>
+  <script src="characters/characters.js?v=6"></script>
   <script src="characters/CharacterManager.js"></script>
-  <script src="characters/DialogueManager.js?v=4"></script>
-  <script src="input/Keybindings.js"></script>
-  <script src="input/InputManager.js"></script>
-  <script src="audio/AudioManager.js"></script>
-  <script src="minigames/MiniGameUtils.js"></script>
-  <script src="minigames/QuickClick.js"></script>
-  <script src="minigames/MemoryMatch.js"></script>
+  <script src="characters/DialogueManager.js?v=6"></script>
+  <script src="input/Keybindings.js?v=6"></script>
+  <script src="input/InputManager.js?v=6"></script>
+  <script src="audio/AudioManager.js?v=6"></script>
+  <script src="minigames/MiniGameUtils.js?v=6"></script>
+  <script src="minigames/QuickClick.js?v=6"></script>
+  <script src="minigames/MemoryMatch.js?v=6"></script>
   <script src="minigames/TimingStrike.js"></script>
   <script src="minigames/PatternPress.js"></script>
-  <script src="minigames/ReactionTest.js"></script>
+  <script src="minigames/ReactionTest.js?v=6"></script>
   <script src="minigames/UndertaleDodge.js"></script>
-  <script src="minigames/PowerMeter.js"></script>
-  <script src="minigames/TargetPractice.js"></script>
+  <script src="minigames/PowerMeter.js?v=6"></script>
+  <script src="minigames/TargetPractice.js?v=6"></script>
   <script src="minigames/DodgeFalling.js"></script>
-  <script src="minigames/RhythmTap.js"></script>
-  <script src="minigames/NumberGuess.js"></script>
-  <script src="minigames/CoinFlip.js"></script>
-  <script src="minigames/BarBalance.js"></script>
-  <script src="minigames/ShieldBlock.js"></script>
-  <script src="minigames/WhackMole.js"></script>
-  <script src="minigames/MiniGameManager.js?v=4"></script>
-  <script src="screens/HomeScreen.js?v=4"></script>
-  <script src="screens/ModeSelect.js?v=4"></script>
-  <script src="screens/ThemeSelect.js?v=4"></script>
-  <script src="screens/CharacterSelect.js?v=5"></script>
-  <script src="screens/GameScreen.js?v=5"></script>
-  <script src="screens/SettingsScreen.js?v=5"></script>
-  <script src="screens/MiniGamePractice.js?v=4"></script>
-  <script src="screens/HowToPlay.js?v=4"></script>
-  <script src="screens/StatsScreen.js?v=4"></script>
-  <script src="screens/BotSelect.js?v=4"></script>
+  <script src="minigames/RhythmTap.js?v=6"></script>
+  <script src="minigames/NumberGuess.js?v=6"></script>
+  <script src="minigames/CoinFlip.js?v=6"></script>
+  <script src="minigames/BarBalance.js?v=6"></script>
+  <script src="minigames/ShieldBlock.js?v=6"></script>
+  <script src="minigames/WhackMole.js?v=6"></script>
+  <script src="minigames/MiniGameManager.js?v=6"></script>
+  <script src="screens/HomeScreen.js?v=6"></script>
+  <script src="screens/ModeSelect.js?v=6"></script>
+  <script src="screens/ThemeSelect.js?v=6"></script>
+  <script src="screens/CharacterSelect.js?v=6"></script>
+  <script src="screens/GameScreen.js?v=6"></script>
+  <script src="screens/SettingsScreen.js?v=6"></script>
+  <script src="screens/MiniGamePractice.js?v=6"></script>
+  <script src="screens/HowToPlay.js?v=6"></script>
+  <script src="screens/StatsScreen.js?v=6"></script>
+  <script src="screens/BotSelect.js?v=6"></script>
   <script src="screens/CustomGameScreen.js"></script>
-  <script src="screens/ControlsScreen.js?v=4"></script>
-  <script src="screens/PauseMenu.js?v=4"></script>
+  <script src="screens/ControlsScreen.js?v=6"></script>
+  <script src="screens/PauseMenu.js?v=6"></script>
 
   <script src="pixi/PixiApp.js"></script>
-  <script src="pixi/PixiPieceRenderer.js"></script>
-  <script src="pixi/PixiBackgroundRenderer.js"></script>
-  <script src="pixi/PixiParticleFX.js"></script>
-  <script src="pixi/PixiAnimator.js"></script>
-  <script src="pixi/PixiBoardRenderer.js"></script>
-  <script src="pixi/PixiGameScreen.js"></script>
+  <script src="pixi/PixiPieceRenderer.js?v=6"></script>
+  <script src="pixi/PixiBackgroundRenderer.js?v=6"></script>
+  <script src="pixi/PixiParticleFX.js?v=6"></script>
+  <script src="pixi/PixiAnimator.js?v=6"></script>
+  <script src="pixi/PixiBoardRenderer.js?v=6"></script>
+  <script src="pixi/PixiGameScreen.js?v=6"></script>
   <script src="pixi/PixiMenuBackground.js"></script>
   <script src="pixi/PixiMiniGameFX.js"></script>
-  <script src="pixi/PixiPremiumAssets.js?v=4"></script>
+  <script src="pixi/PixiPremiumAssets.js?v=6"></script>
 
-  <script src="pixi/ui/PixiColorUtil.js"></script>
+  <script src="pixi/ui/PixiColorUtil.js?v=6"></script>
   <script src="pixi/ui/PixiTextStyles.js"></script>
   <script src="pixi/ui/PixiPanel.js"></script>
-  <script src="pixi/ui/PixiButton.js"></script>
+  <script src="pixi/ui/PixiButton.js?v=6"></script>
   <script src="pixi/ui/PixiSeparator.js"></script>
   <script src="pixi/ui/PixiIcon.js"></script>
-  <script src="pixi/ui/PixiSlider.js?v=4"></script>
-  <script src="pixi/ui/PixiToggle.js"></script>
+  <script src="pixi/ui/PixiSlider.js?v=6"></script>
+  <script src="pixi/ui/PixiToggle.js?v=6"></script>
   <script src="pixi/ui/PixiProgressBar.js"></script>
-  <script src="pixi/ui/PixiDitheredRect.js"></script>
-  <script src="pixi/ui/PixiScrollableList.js"></script>
+  <script src="pixi/ui/PixiDitheredRect.js?v=6"></script>
+  <script src="pixi/ui/PixiScrollableList.js?v=6"></script>
   <script src="pixi/ui/PixiPremiumUI.js"></script>
-  <script src="pixi/ui/PixiDialogueBubble.js?v=4"></script>
+  <script src="pixi/ui/PixiDialogueBubble.js?v=6"></script>
   <script src="pixi/ui/PixiUI.js"></script>
-  <script src="pixi/PixiPremiumScene.js?v=4"></script>
-  <script src="pixi/PixiGameHud.js?v=3"></script>
+  <script src="pixi/PixiPremiumScene.js?v=6"></script>
+  <script src="pixi/PixiGameHud.js?v=6"></script>
   <script src="pixi/PixiGameOverOverlay.js"></script>
-  <script src="pixi/PixiScreenManager.js"></script>
+  <script src="pixi/PixiScreenManager.js?v=6"></script>
 
   <script src="telegram/telegram-compat.js"></script>
-  <script src="main.js"></script>
+  <script src="main.js?v=6"></script>
 </body>
 </html>
