@@ -1,3 +1,5 @@
+const PIECE_CHARS = { king: 'k', queen: 'q', rook: 'r', bishop: 'b', knight: 'n', pawn: 'p' };
+
 class Board {
   constructor() {
     this.grid = this.createInitialGrid();
@@ -9,8 +11,8 @@ class Board {
     this.enPassantTarget = null;
     this.halfMoveClock = 0;
     this.fullMoveNumber = 1;
-    this.positionHistory = [];
     this.inCheck = false;
+    this.positionHistory = [this.posKey()];
   }
 
   createInitialGrid() {
@@ -72,12 +74,16 @@ class Board {
     return row >= 0 && row <= 7 && col >= 0 && col <= 7;
   }
 
+  resetHistory() {
+    this.positionHistory = [this.posKey()];
+  }
+
   posKey() {
     let key = '';
     for (let r = 0; r < 8; r++) {
       for (let c = 0; c < 8; c++) {
         const p = this.grid[r][c];
-        key += p ? p.color[0] + p.type[0] : '.';
+        key += p ? (p.color === 'white' ? PIECE_CHARS[p.type].toUpperCase() : PIECE_CHARS[p.type]) : '.';
       }
     }
     key += this.turn;
@@ -85,7 +91,7 @@ class Board {
     key += this.castlingRights.white.queenside ? 'Q' : '';
     key += this.castlingRights.black.kingside ? 'k' : '';
     key += this.castlingRights.black.queenside ? 'q' : '';
-    key += this.enPassantTarget || '-';
+    key += this.enPassantTarget ? 'abcdefgh'[this.enPassantTarget.col] + String(8 - this.enPassantTarget.row) : '-';
     return key;
   }
 }

@@ -93,20 +93,22 @@ class MoveGen {
     const enemy = piece.color === 'white' ? 'black' : 'white';
 
     if (rights.kingside) {
+      const rook = board.grid[row][7];
       const safe = !MoveGen.isSquareAttacked(board, row, col, enemy) &&
                    !MoveGen.isSquareAttacked(board, row, col + 1, enemy) &&
                    !MoveGen.isSquareAttacked(board, row, col + 2, enemy);
       const clear = !board.grid[row][col + 1] && !board.grid[row][col + 2];
-      if (safe && clear) {
+      if (rook && rook.type === 'rook' && rook.color === piece.color && safe && clear) {
         moves.push({ from: { row, col }, to: { row, col: col + 2 }, castling: 'kingside' });
       }
     }
     if (rights.queenside) {
+      const rook = board.grid[row][0];
       const safe = !MoveGen.isSquareAttacked(board, row, col, enemy) &&
                    !MoveGen.isSquareAttacked(board, row, col - 1, enemy) &&
                    !MoveGen.isSquareAttacked(board, row, col - 2, enemy);
       const clear = !board.grid[row][col - 1] && !board.grid[row][col - 2] && !board.grid[row][col - 3];
-      if (safe && clear) {
+      if (rook && rook.type === 'rook' && rook.color === piece.color && safe && clear) {
         moves.push({ from: { row, col }, to: { row, col: col - 2 }, castling: 'queenside' });
       }
     }

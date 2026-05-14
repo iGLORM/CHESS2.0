@@ -22,28 +22,20 @@ class GameRules {
       if (count >= 3) return true;
     }
 
-    let pieces = { white: [], black: [] };
+    const nonKingPieces = [];
     for (let r = 0; r < 8; r++) {
       for (let c = 0; c < 8; c++) {
         const p = board.grid[r][c];
-        if (p) pieces[p.color].push(p);
+        if (p && p.type !== 'king') {
+          nonKingPieces.push({ type: p.type, color: p.color, squareColor: (r + c) % 2 });
+        }
       }
     }
-    const total = pieces.white.length + pieces.black.length;
-    if (total === 2) return true;
-    if (total === 3) {
-      const hasMinor = pieces.white.some(p => p.type === 'knight' || p.type === 'bishop') ||
-                       pieces.black.some(p => p.type === 'knight' || p.type === 'bishop');
-      if (hasMinor) return true;
-    }
-    if (total === 4) {
-      const wb = pieces.white.filter(p => p.type === 'bishop');
-      const bb = pieces.black.filter(p => p.type === 'bishop');
-      if (wb.length === 1 && !pieces.white.some(p => p.type !== 'king' && p.type !== 'bishop') &&
-          bb.length === 1 && !pieces.black.some(p => p.type !== 'king' && p.type !== 'bishop')) {
-        return true;
-      }
-    }
+    if (nonKingPieces.length === 0) return true;
+    if (nonKingPieces.length === 1 &&
+        (nonKingPieces[0].type === 'knight' || nonKingPieces[0].type === 'bishop')) return true;
+    if (nonKingPieces.every(p => p.type === 'bishop') &&
+        nonKingPieces.every(p => p.squareColor === nonKingPieces[0].squareColor)) return true;
 
     return false;
   }

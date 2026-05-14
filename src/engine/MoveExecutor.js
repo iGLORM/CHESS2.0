@@ -10,19 +10,26 @@ class MoveExecutor {
       const row = move.from.row;
       if (move.to.col > move.from.col) {
         const rook = board.grid[row][7];
-        board.grid[row][5] = rook;
-        board.grid[row][7] = null;
+        if (rook && rook.type === 'rook') {
+          board.grid[row][5] = rook;
+          board.grid[row][7] = null;
+        }
       } else {
         const rook = board.grid[row][0];
-        board.grid[row][3] = rook;
-        board.grid[row][0] = null;
+        if (rook && rook.type === 'rook') {
+          board.grid[row][3] = rook;
+          board.grid[row][0] = null;
+        }
       }
     }
 
     if (move.enPassantCapture) {
       // The captured pawn is on the same row as the capturing pawn,
       // in the same column as the destination square.
-      board.grid[move.from.row][move.to.col] = null;
+      const capturedPawn = board.grid[move.from.row][move.to.col];
+      if (capturedPawn && capturedPawn.type === 'pawn') {
+        board.grid[move.from.row][move.to.col] = null;
+      }
     }
   }
 
@@ -44,6 +51,7 @@ class MoveExecutor {
     }
 
     board.turn = color === 'white' ? 'black' : 'white';
+    if (color === 'black') board.fullMoveNumber++;
 
     if (piece.type === 'pawn' && Math.abs(move.to.row - move.from.row) === 2) {
       board.enPassantTarget = {

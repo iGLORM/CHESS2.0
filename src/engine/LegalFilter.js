@@ -23,6 +23,7 @@ class LegalFilter {
       if (MoveGen.isSquareAttacked(board, row, c, enemy)) return false;
       c += dir;
     }
+    if (MoveGen.isSquareAttacked(board, row, move.to.col, enemy)) return false;
     return true;
   }
 }
