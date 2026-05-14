@@ -18,7 +18,18 @@ const MiniGameThumbnails = {
     }
 
     this._cache[cacheKey] = canvas;
+
+    // Enforce max cache size of 30 entries
+    const keys = Object.keys(this._cache);
+    if (keys.length > 30) {
+      delete this._cache[keys[0]];
+    }
+
     return canvas;
+  },
+
+  clearCache() {
+    this._cache = {};
   },
 
   _drawDefault(ctx, w, h, key) {

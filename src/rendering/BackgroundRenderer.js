@@ -4,10 +4,12 @@ class BackgroundRenderer {
     this.lastTheme = null;
     this.time = 0;
     this.bgImages = {};
-    this._loadBgImage('ocean', '../assets/textures/backgrounds/ocean_bg.png');
-    this._loadBgImage('japanese', '../assets/textures/backgrounds/japanese_bg.png');
-    this._loadBgImage('wildwest', '../assets/textures/backgrounds/wildwest_bg.webp');
-    this._loadBgImage('crystal', '../assets/textures/backgrounds/crystal_bg.png');
+    this._bgSources = {
+      ocean: '../assets/textures/backgrounds/ocean_bg.png',
+      japanese: '../assets/textures/backgrounds/japanese_bg.png',
+      wildwest: '../assets/textures/backgrounds/wildwest_bg.webp',
+      crystal: '../assets/textures/backgrounds/crystal_bg.png',
+    };
   }
 
   _loadBgImage(themeId, src) {
@@ -18,8 +20,20 @@ class BackgroundRenderer {
 
   initTheme(themeId) {
     if (this.lastTheme === themeId) return;
+    const oldThemeId = this.lastTheme;
     this.lastTheme = themeId;
     this.state = this.createState(themeId);
+
+    // Lazy-load only the needed theme's background image
+    if (this._bgSources[themeId] && !this.bgImages[themeId]) {
+      this._loadBgImage(themeId, this._bgSources[themeId]);
+    }
+
+    // Release previous theme's image to free memory
+    if (oldThemeId && oldThemeId !== themeId && this.bgImages[oldThemeId]) {
+      this.bgImages[oldThemeId].src = '';
+      delete this.bgImages[oldThemeId];
+    }
   }
 
   createState(themeId) {

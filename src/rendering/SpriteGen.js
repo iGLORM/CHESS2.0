@@ -222,14 +222,14 @@ class SpriteGen {
     const isWhite = color === 'white';
     const baseColor = isWhite ? themeColors.lightPiece : themeColors.darkPiece;
     const outlineColor = isWhite
-      ? this.darken(baseColor, 0.45)
-      : this.lighten(baseColor, 0.35);
+      ? PixiColorUtil.darken(baseColor, 114)
+      : PixiColorUtil.lighten(baseColor, 89);
     const highlightColor = isWhite
-      ? this.lighten(baseColor, 0.25)
-      : this.lighten(baseColor, 0.15);
+      ? PixiColorUtil.lighten(baseColor, 63)
+      : PixiColorUtil.lighten(baseColor, 38);
     const shadowColor = isWhite
-      ? this.darken(baseColor, 0.25)
-      : this.darken(baseColor, 0.15);
+      ? PixiColorUtil.darken(baseColor, 63)
+      : PixiColorUtil.darken(baseColor, 38);
 
     ctx.clearRect(0, 0, size, size);
 
@@ -263,32 +263,6 @@ class SpriteGen {
     }
 
     return canvas;
-  }
-
-  static lighten(hex, amt) {
-    let r = parseInt(hex.slice(1, 3), 16);
-    let g = parseInt(hex.slice(3, 5), 16);
-    let b = parseInt(hex.slice(5, 7), 16);
-    r = Math.min(255, Math.floor(r + amt * 255));
-    g = Math.min(255, Math.floor(g + amt * 255));
-    b = Math.min(255, Math.floor(b + amt * 255));
-    const rs = r.toString(16).padStart(2, '0');
-    const gs = g.toString(16).padStart(2, '0');
-    const bs = b.toString(16).padStart(2, '0');
-    return `#${rs}${gs}${bs}`;
-  }
-
-  static darken(hex, amt) {
-    let r = parseInt(hex.slice(1, 3), 16);
-    let g = parseInt(hex.slice(3, 5), 16);
-    let b = parseInt(hex.slice(5, 7), 16);
-    r = Math.max(0, Math.floor(r - amt * 255));
-    g = Math.max(0, Math.floor(g - amt * 255));
-    b = Math.max(0, Math.floor(b - amt * 255));
-    const rs = r.toString(16).padStart(2, '0');
-    const gs = g.toString(16).padStart(2, '0');
-    const bs = b.toString(16).padStart(2, '0');
-    return `#${rs}${gs}${bs}`;
   }
 
   static generateCharacterSprite(colors, size) {

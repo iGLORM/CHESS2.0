@@ -69,4 +69,13 @@ class TextureManager {
   static getCharacterTexture(characterId) {
     return this.getImage(this.buildPath('characters', characterId));
   }
+
+  static clearThemeTextures(themeId) {
+    for (const key of Object.keys(this.cache)) {
+      if (key.includes('/' + themeId + '_') || key.includes('/' + themeId + '/')) {
+        delete this.cache[key];
+        if (this.loaded) delete this.loaded[key];
+      }
+    }
+  }
 }

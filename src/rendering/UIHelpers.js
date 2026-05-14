@@ -1,3 +1,15 @@
+if (typeof CanvasRenderingContext2D !== 'undefined' && !CanvasRenderingContext2D.prototype.roundRect) {
+  CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, radii) {
+    const r = Math.min(typeof radii === 'number' ? radii : (Array.isArray(radii) ? radii[0] : 0), w / 2, h / 2);
+    this.moveTo(x + r, y);
+    this.arcTo(x + w, y, x + w, y + h, r);
+    this.arcTo(x + w, y + h, x, y + h, r);
+    this.arcTo(x, y + h, x, y, r);
+    this.arcTo(x, y, x + w, y, r);
+    this.closePath();
+  };
+}
+
 class UIHelpers {
   static alpha(color, alpha) {
     if (typeof color === 'string' && color[0] === '#' && color.length === 7) {
@@ -7,25 +19,11 @@ class UIHelpers {
   }
 
   static lighten(hex, amount) {
-    if (!hex || hex[0] !== '#' || hex.length !== 7) return hex;
-    let r = parseInt(hex.slice(1, 3), 16);
-    let g = parseInt(hex.slice(3, 5), 16);
-    let b = parseInt(hex.slice(5, 7), 16);
-    r = Math.min(255, r + amount);
-    g = Math.min(255, g + amount);
-    b = Math.min(255, b + amount);
-    return '#' + [r, g, b].map(c => c.toString(16).padStart(2, '0')).join('');
+    return PixiColorUtil.lighten(hex, amount);
   }
 
   static darken(hex, amount) {
-    if (!hex || hex[0] !== '#' || hex.length !== 7) return hex;
-    let r = parseInt(hex.slice(1, 3), 16);
-    let g = parseInt(hex.slice(3, 5), 16);
-    let b = parseInt(hex.slice(5, 7), 16);
-    r = Math.max(0, r - amount);
-    g = Math.max(0, g - amount);
-    b = Math.max(0, b - amount);
-    return '#' + [r, g, b].map(c => c.toString(16).padStart(2, '0')).join('');
+    return PixiColorUtil.darken(hex, amount);
   }
 
   static truncateText(ctx, text, maxWidth) {

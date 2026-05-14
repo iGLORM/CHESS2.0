@@ -37,8 +37,12 @@ class ThemeManager {
   }
 
   static applyTheme(id) {
+    const prevThemeId = store.get('theme');
     const theme = this.getTheme(id);
     store.set('theme', id);
+    if (prevThemeId && prevThemeId !== id) {
+      TextureManager.clearThemeTextures(prevThemeId);
+    }
     PieceRenderer.clearCache();
     TextureManager.preloadTheme(theme.id);
     if (typeof audioManager !== 'undefined') {

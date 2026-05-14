@@ -8,9 +8,14 @@ class BoardRenderer {
     this.shakeOffset = { x: 0, y: 0 };
     this.shakeIntensity = 0;
     this.shakeFrames = 0;
+    this._shakeTime = 0;
     this.captureFlash = null;
     this.flashAlpha = 0;
     this.checkPulseTime = 0;
+    this._layoutDirty = true;
+    this._lastThemeId = null;
+    this._checkHighlightRGB = null;
+    Layout.onChange(() => { this._layoutDirty = true; });
   }
 
   calcLayout() {
@@ -20,6 +25,7 @@ class BoardRenderer {
     const boardPx = this.squareSize * 8;
     this.boardX = Math.floor((Layout.W - boardPx) / 2);
     this.boardY = Math.floor((Layout.H - boardPx) / 2);
+    this._layoutDirty = false;
   }
 
   boardToScreen(row, col) {
@@ -37,23 +43,37 @@ class BoardRenderer {
   }
 
   render(ctx, board, theme, selected, legalMoves, lastMove, turn, gameStatus, animating, lockedTiles, dt, hoveredSquare) {
-    this.calcLayout();
+    if (this._layoutDirty) this.calcLayout();
     const { boardX, boardY, squareSize } = this;
     const cols = theme.colors;
 
-    // Screen shake
+    // Cache check highlight RGB on theme change
+    if (theme.id !== this._lastThemeId) {
+      const ch = cols.checkHighlight || '#ff4444';
+      this._checkHighlightRGB = {
+        r: parseInt(ch.slice(1, 3), 16),
+        g: parseInt(ch.slice(3, 5), 16),
+        b: parseInt(ch.slice(5, 7), 16),
+      };
+      this._lastThemeId = theme.id;
+    }
+
+    // Screen shake (damped sine wave)
     if (this.shakeFrames > 0) {
       this.shakeFrames--;
-      const intensity = this.shakeIntensity * (this.shakeFrames / 6);
-      this.shakeOffset.x = Math.floor((Math.random() - 0.5) * intensity * 2);
-      this.shakeOffset.y = Math.floor((Math.random() - 0.5) * intensity * 2);
+      this._shakeTime += dt * 30;
+      const decay = this.shakeIntensity * (this.shakeFrames / 8);
+      this.shakeOffset.x = Math.floor(Math.sin(this._shakeTime * 1.0) * decay);
+      this.shakeOffset.y = Math.floor(Math.sin(this._shakeTime * 1.3) * decay);
     } else {
-      this.shakeOffset = { x: 0, y: 0 };
+      this.shakeOffset.x = 0;
+      this.shakeOffset.y = 0;
+      this._shakeTime = 0;
     }
 
     // Capture flash decay
     if (this.flashAlpha > 0) {
-      this.flashAlpha -= 0.06;
+      this.flashAlpha -= 3.6 * dt;
       if (this.flashAlpha < 0) this.flashAlpha = 0;
     }
 
@@ -100,12 +120,14 @@ class BoardRenderer {
     ctx.strokeRect(boardX, boardY, squareSize * 8, squareSize * 8);
 
     // Squares - strict integer math
+    const lightTex = TextureManager.getBoardTexture(theme.id, true);
+    const darkTex = TextureManager.getBoardTexture(theme.id, false);
     for (let row = 0; row < 8; row++) {
       for (let col = 0; col < 8; col++) {
         const sx = boardX + col * squareSize;
         const sy = boardY + row * squareSize;
         const isLight = (row + col) % 2 === 0;
-        const sqTex = TextureManager.getBoardTexture(theme.id, isLight);
+        const sqTex = isLight ? lightTex : darkTex;
         if (sqTex) {
           ctx.drawImage(sqTex, sx, sy, squareSize, squareSize);
         } else {
@@ -199,10 +221,7 @@ class BoardRenderer {
         const sx = boardX + kingPos.col * squareSize;
         const sy = boardY + kingPos.row * squareSize;
         const pulse = Math.sin(this.checkPulseTime * 6) * 0.3 + 0.5;
-        const ch = cols.checkHighlight || '#ff4444';
-        const cr = parseInt(ch.slice(1, 3), 16);
-        const cg = parseInt(ch.slice(3, 5), 16);
-        const cb = parseInt(ch.slice(5, 7), 16);
+        const { r: cr, g: cg, b: cb } = this._checkHighlightRGB;
         ctx.fillStyle = `rgba(${cr},${cg},${cb},${Math.floor(pulse * 40) / 100})`;
         ctx.fillRect(sx + 1, sy + 1, squareSize - 2, squareSize - 2);
         ctx.strokeStyle = `rgba(${cr},${cg},${cb},${Math.floor(pulse * 100) / 100})`;
