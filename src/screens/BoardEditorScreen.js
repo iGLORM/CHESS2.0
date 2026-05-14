@@ -40,8 +40,8 @@ const BoardEditorScreen = {
     const bx = PixiBoardRenderer.boardOffsetX;
     const by = PixiBoardRenderer.boardOffsetY;
     const bs = PixiBoardRenderer.squareSize * 8;
-    this._boardHitArea = new PIXI.Graphics();
-    this._boardHitArea.rect(bx, by, bs, bs).fill({ color: 0x000000, alpha: 0.001 });
+    this._boardHitArea = new PIXI.Container();
+    this._boardHitArea.hitArea = new PIXI.Rectangle(bx, by, bs, bs);
     this._boardHitArea.eventMode = 'static';
     this._boardHitArea.cursor = 'pointer';
     this._boardHitArea.on('pointerdown', (e) => this._onBoardClick(e));
