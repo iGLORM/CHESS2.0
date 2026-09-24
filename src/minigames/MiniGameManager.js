@@ -1,4 +1,11 @@
 class MiniGameManager {
+  static INTRO_SECONDS = 0.9;
+
+  // Games laid out for a ~360px-tall area; they are drawn at that height,
+  // centred in the play area, instead of being stretched thin.
+  static COMPACT_GAMES = ['QuickClick', 'TimingStrike', 'PatternPress', 'ReactionTest', 'PowerMeter', 'RhythmTap', 'NumberGuess', 'CoinFlip'];
+  static COMPACT_HEIGHT = 360;
+
   constructor() {
     this.currentGame = null;
     this.active = false;
@@ -14,7 +21,7 @@ class MiniGameManager {
     this.challengePlayerIsAI = false;
     this.startTime = 0;
     this.doneTime = 0;
-    this.fadeDuration = 1200;
+    this.fadeDuration = 1900;
 
     this.allGames = [
       { type: QuickClick, weight: 1 },
@@ -41,24 +48,25 @@ class MiniGameManager {
   }
 
   _calcOverlayBounds() {
+    // Header (tag, title, difficulty, piece badges) takes the top 118px.
     if (Layout.isPortrait) {
       this.overlayW = Layout.W - 40;
-      this.overlayH = Math.min(Layout.H - 120, 950);
+      this.overlayH = Math.min(Layout.H - 120, 1000);
       this.overlayX = 20;
       this.overlayY = Math.floor((Layout.H - this.overlayH) / 2);
-      this.gameX = this.overlayX + 16;
-      this.gameY = this.overlayY + 85;
-      this.gameW = this.overlayW - 32;
-      this.gameH = this.overlayH - 100;
+      this.gameX = this.overlayX + 18;
+      this.gameY = this.overlayY + 118;
+      this.gameW = this.overlayW - 36;
+      this.gameH = this.overlayH - 136;
     } else {
-      this.overlayW = 700;
-      this.overlayH = 460;
+      this.overlayW = 820;
+      this.overlayH = 600;
       this.overlayX = Math.floor((Layout.W - this.overlayW) / 2);
       this.overlayY = Math.floor((Layout.H - this.overlayH) / 2);
-      this.gameX = this.overlayX + 20;
-      this.gameY = this.overlayY + 95;
-      this.gameW = this.overlayW - 40;
-      this.gameH = this.overlayH - 115;
+      this.gameX = this.overlayX + 22;
+      this.gameY = this.overlayY + 118;
+      this.gameW = this.overlayW - 44;
+      this.gameH = this.overlayH - 140;
     }
   }
 
@@ -140,6 +148,8 @@ class MiniGameManager {
     this.active = true;
     this.callback = callback;
     this.startTime = Date.now();
+    this.introTime = 0;
+    this.challengeIsPractice = false;
     this.doneTime = 0;
 
     this._calcOverlayBounds();
@@ -197,6 +207,8 @@ class MiniGameManager {
     this.active = true;
     this.callback = callback;
     this.startTime = Date.now();
+    this.introTime = 0;
+    this.challengeIsPractice = true;
     this.doneTime = 0;
 
     this._calcOverlayBounds();
@@ -223,19 +235,30 @@ class MiniGameManager {
     const now = performance.now();
     const dt = this._lastFrameAt ? Math.min(0.05, (now - this._lastFrameAt) / 1000) : 1 / 60;
     this._lastFrameAt = now;
-    this.currentGame.update(dt);
 
-    // Bot AI plays the minigame when the challenge owner is AI-controlled.
-    if ((this.challengePlayerIsAI || this.isAIAttacking) && !this.currentGame.done) {
-      this.botTimer += dt;
-      const lvl = this.botSkillLevel || 5;
-      const baseDelay = lvl <= 2 ? 0.8 : lvl <= 4 ? 0.5 : lvl <= 6 ? 0.3 : 0.15;
-      const variance = lvl <= 2 ? 0.6 : lvl <= 4 ? 0.4 : lvl <= 6 ? 0.2 : 0.15;
-      if (!this.nextBotAction || this.botTimer >= this.nextBotAction) {
-        this.nextBotAction = this.botTimer + baseDelay + Math.random() * variance;
-        const missChance = lvl <= 1 ? 0.5 : lvl <= 3 ? 0.3 : lvl <= 5 ? 0.1 : 0;
-        if (this.currentGame.botPlay && Math.random() >= missChance) {
-          this.currentGame.botPlay(dt, this.botTimer);
+    // Short "READY / GO" intro before play starts, so nobody loses time to surprise.
+    this.introTime = (this.introTime || 0) + dt;
+    const inIntro = this.introTime < MiniGameManager.INTRO_SECONDS;
+
+    if (!inIntro) {
+      try {
+        this.currentGame.update(dt);
+      } catch (e) {
+        this._failSafe(e);
+      }
+
+      // Bot AI plays the minigame when the challenge owner is AI-controlled.
+      if ((this.challengePlayerIsAI || this.isAIAttacking) && !this.currentGame.done) {
+        this.botTimer += dt;
+        const lvl = this.botSkillLevel || 5;
+        const baseDelay = lvl <= 2 ? 0.8 : lvl <= 4 ? 0.5 : lvl <= 6 ? 0.3 : 0.15;
+        const variance = lvl <= 2 ? 0.6 : lvl <= 4 ? 0.4 : lvl <= 6 ? 0.2 : 0.15;
+        if (!this.nextBotAction || this.botTimer >= this.nextBotAction) {
+          this.nextBotAction = this.botTimer + baseDelay + Math.random() * variance;
+          const missChance = lvl <= 1 ? 0.5 : lvl <= 3 ? 0.3 : lvl <= 5 ? 0.1 : 0;
+          if (this.currentGame.botPlay && Math.random() >= missChance) {
+            this.currentGame.botPlay(dt, this.botTimer);
+          }
         }
       }
     }
@@ -245,6 +268,7 @@ class MiniGameManager {
     const oy = this.overlayY;
     const ow = this.overlayW;
     const oh = this.overlayH;
+    const pal = MiniGameUtils.colors();
 
     const scaleX = ctx.canvas.width / Layout.W;
     const scaleY = ctx.canvas.height / Layout.H;
@@ -256,7 +280,7 @@ class MiniGameManager {
     if (this.currentGame.done) {
       if (!this.doneTime) this.doneTime = Date.now();
       const elapsed = Date.now() - this.doneTime;
-      globalAlpha = Math.max(0, 1 - elapsed / this.fadeDuration);
+      globalAlpha = Math.max(0, 1 - Math.max(0, elapsed - this.fadeDuration * 0.55) / (this.fadeDuration * 0.45));
       if (elapsed >= this.fadeDuration) {
         this.hideOverlay();
         return;
@@ -266,140 +290,57 @@ class MiniGameManager {
     ctx.save();
     ctx.globalAlpha = globalAlpha;
 
-    const theme = ThemeManager.getTheme(store.get('theme'));
-    const cols = theme.colors;
-
-    // Background dim
-    ctx.fillStyle = 'rgba(0,0,0,0.70)';
+    // Dim the board with a vignette so the challenge reads as a separate moment.
+    const vignette = ctx.createRadialGradient(Layout.cx, Layout.cy, Math.min(Layout.W, Layout.H) * 0.2, Layout.cx, Layout.cy, Math.max(Layout.W, Layout.H) * 0.75);
+    vignette.addColorStop(0, 'rgba(6,4,16,0.72)');
+    vignette.addColorStop(1, 'rgba(2,1,8,0.92)');
+    ctx.fillStyle = vignette;
     ctx.fillRect(0, 0, Layout.W, Layout.H);
 
     // Entrance animation
     const elapsed = Date.now() - this.startTime;
-    const entranceProgress = Math.min(1, elapsed / 400);
+    const entranceProgress = Math.min(1, elapsed / 350);
     const eased = 1 - Math.pow(1 - entranceProgress, 3);
-    const scale = 0.85 + eased * 0.15;
-    const alpha = eased;
+    const scale = 0.9 + eased * 0.1;
 
     ctx.save();
-    ctx.globalAlpha = alpha * globalAlpha;
-    const centerX = Layout.W / 2;
-    const centerY = Layout.H / 2;
-    ctx.translate(centerX, centerY);
+    ctx.globalAlpha = eased * globalAlpha;
+    ctx.translate(Layout.cx, Layout.cy);
     ctx.scale(scale, scale);
-    ctx.translate(-centerX, -centerY);
+    ctx.translate(-Layout.cx, -Layout.cy);
 
-    // Game container with theme colors
-    ctx.shadowColor = cols.accent;
-    ctx.shadowBlur = 20;
-    ctx.fillStyle = cols.background + 'ee';
-    ctx.fillRect(ox, oy, ow, oh);
-    ctx.shadowBlur = 0;
+    this._drawFrame(ctx, ox, oy, ow, oh, pal);
+    this._drawHeader(ctx, ox, oy, ow, pal);
 
-    // Border with glow
-    ctx.strokeStyle = cols.accent;
-    ctx.lineWidth = 2;
-    ctx.strokeRect(ox, oy, ow, oh);
-
-    // Inner border
-    ctx.strokeStyle = cols.text + '15';
-    ctx.lineWidth = 1;
-    ctx.strokeRect(ox + 3, oy + 3, ow - 6, oh - 6);
-
-    // Corner accents
-    const cSize = 12;
-    ctx.strokeStyle = cols.accent;
-    ctx.lineWidth = 2;
-    // Top-left
-    ctx.beginPath(); ctx.moveTo(ox, oy + cSize); ctx.lineTo(ox, oy); ctx.lineTo(ox + cSize, oy); ctx.stroke();
-    // Top-right
-    ctx.beginPath(); ctx.moveTo(ox + ow - cSize, oy); ctx.lineTo(ox + ow, oy); ctx.lineTo(ox + ow, oy + cSize); ctx.stroke();
-    // Bottom-left
-    ctx.beginPath(); ctx.moveTo(ox, oy + oh - cSize); ctx.lineTo(ox, oy + oh); ctx.lineTo(ox + cSize, oy + oh); ctx.stroke();
-    // Bottom-right
-    ctx.beginPath(); ctx.moveTo(ox + ow - cSize, oy + oh); ctx.lineTo(ox + ow, oy + oh); ctx.lineTo(ox + ow, oy + oh - cSize); ctx.stroke();
-
-    const cx = ox + ow / 2;
-
-    // Duel banner
-    if (this.isDuel) {
-      ctx.fillStyle = cols.accent;
-      ctx.font = 'bold 14px "Pixelify Sans", sans-serif';
-      ctx.textAlign = 'center';
-      ctx.shadowColor = cols.accent;
-      ctx.shadowBlur = 8;
-      ctx.fillText('DUEL', cx, oy + 20);
-      ctx.shadowBlur = 0;
+    // The game itself, clipped to its area.
+    ctx.save();
+    MiniGameUtils.roundRect(ctx, this.gameX, this.gameY, this.gameW, this.gameH, 10);
+    ctx.clip();
+    try {
+      const r = this._gameRect();
+      this.currentGame.render(ctx, r.x, r.y, r.w, r.h);
+    } catch (e) {
+      this._failSafe(e);
     }
+    ctx.restore();
 
-    // Piece icons at top. Left is the threatened piece trying to survive.
-    this._drawPieceIcon(ctx, ox + 40, oy + 30, this.attackerPiece, 'left');
-    this._drawPieceIcon(ctx, ox + ow - 90, oy + 30, this.defenderPiece, 'right');
-
-    ctx.fillStyle = cols.text;
-    ctx.font = 'bold 18px "Pixelify Sans", sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText('SURVIVE', cx, oy + 55);
-
-    // Difficulty stars
-    const diff = this.challengeDifficulty || 1;
-    ctx.fillStyle = '#ffcc00';
-    ctx.font = '14px "Pixelify Sans", sans-serif';
-    let stars = '';
-    for (let i = 0; i < 5; i++) stars += i < diff ? '★' : '☆';
-    ctx.fillText('Difficulty: ' + stars, cx, oy + 75);
-
-    // Render the mini-game
-    this.currentGame.render(ctx, this.gameX, this.gameY, this.gameW, this.gameH);
-
-    // Result banner when done
-    if (this.currentGame.done && this.doneTime) {
-      const doneElapsed = Date.now() - this.doneTime;
-      const resultAlpha = Math.min(1, doneElapsed / 300);
-      ctx.globalAlpha = resultAlpha;
-
-      ctx.fillStyle = 'rgba(0,0,0,0.5)';
-      ctx.fillRect(ox + ow * 0.15, oy + oh * 0.35, ow * 0.7, oh * 0.3);
-
-      const defended = this.currentGame.winner === 'attacker';
-      ctx.strokeStyle = defended ? '#44ff44' : '#ff4444';
-      ctx.lineWidth = 2;
-      ctx.strokeRect(ox + ow * 0.15, oy + oh * 0.35, ow * 0.7, oh * 0.3);
-
-      ctx.fillStyle = defended ? '#44ff44' : '#ff4444';
-      ctx.shadowColor = defended ? '#44ff44' : '#ff4444';
-      ctx.shadowBlur = 12;
-      ctx.font = 'bold 28px "Pixelify Sans", sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText(defended ? 'SAVED!' : 'CAPTURED!', cx, oy + oh * 0.55);
-      ctx.shadowBlur = 0;
-
-      ctx.fillStyle = cols.text + 'bb';
-      ctx.font = '13px "Pixelify Sans", sans-serif';
-      ctx.fillText(defended ? 'The threatened piece survives' : 'The capture goes through', cx, oy + oh * 0.62);
-
-      ctx.globalAlpha = alpha * globalAlpha;
-    }
+    if (inIntro) this._drawIntro(ctx, pal);
+    if (this.currentGame.done && this.doneTime) this._drawResult(ctx, pal);
 
     ctx.restore();
 
     if (this.challengePlayerIsAI && !this.currentGame.done) {
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
-      ctx.fillRect(0, 0, Layout.W, 50);
-
-      const blink = Math.floor(Date.now() / 500) % 2 === 0;
-      if (blink) {
-        ctx.fillStyle = '#ffaa44';
-        ctx.font = 'bold 18px "Pixelify Sans", sans-serif';
-        ctx.textAlign = 'center';
-        const bossName = (typeof GameScreen !== 'undefined' && GameScreen.currentCharacter && typeof GameScreen.currentCharacter === 'object')
-          ? GameScreen.currentCharacter.name : 'Opponent';
-        ctx.fillText(bossName + ' is trying to save their piece!', Layout.W / 2, 32);
-      }
-
-      const pulse = 0.3 + 0.3 * Math.sin(Date.now() / 300);
-      ctx.strokeStyle = `rgba(255, 170, 68, ${pulse})`;
-      ctx.lineWidth = 3;
-      ctx.strokeRect(ox, oy, ow, oh);
+      const bossName = (typeof GameScreen !== 'undefined' && GameScreen.currentCharacter && typeof GameScreen.currentCharacter === 'object')
+        ? GameScreen.currentCharacter.name : 'Your opponent';
+      const pulse = 0.55 + 0.45 * Math.sin(Date.now() / 250);
+      ctx.fillStyle = 'rgba(0,0,0,0.55)';
+      ctx.fillRect(0, 0, Layout.W, 48);
+      ctx.fillStyle = MiniGameUtils.colorWithAlpha(pal.warn, pulse);
+      ctx.font = 'bold 20px "Pixelify Sans", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(bossName + ' is defending their piece...', Layout.W / 2, 25);
+      ctx.textBaseline = 'alphabetic';
     }
 
     ctx.restore();
@@ -407,9 +348,216 @@ class MiniGameManager {
     this.animFrame = requestAnimationFrame(() => this.gameLoop());
   }
 
-  _drawPieceIcon(ctx, x, y, piece, side) {
+  _gameRect() {
+    const compact = MiniGameManager.COMPACT_GAMES.includes(this.currentGame.constructor.name);
+    if (!compact || this.gameH <= MiniGameManager.COMPACT_HEIGHT + 40) {
+      return { x: this.gameX, y: this.gameY, w: this.gameW, h: this.gameH };
+    }
+    const h = MiniGameManager.COMPACT_HEIGHT;
+    return { x: this.gameX, y: this.gameY + Math.round((this.gameH - h) / 2), w: this.gameW, h };
+  }
+
+  // A mini-game bug must never freeze a chess game: end it and let the capture stand.
+  _failSafe(error) {
+    console.error('Mini-game error:', error);
+    if (this.currentGame && !this.currentGame.done) {
+      this.currentGame.done = true;
+      this.currentGame.winner = 'defender';
+    }
+  }
+
+  _drawFrame(ctx, ox, oy, ow, oh, pal) {
+    ctx.save();
+    // Drop shadow + body
+    ctx.shadowColor = 'rgba(0,0,0,0.6)';
+    ctx.shadowBlur = 40;
+    ctx.shadowOffsetY = 12;
+    MiniGameUtils.roundRect(ctx, ox, oy, ow, oh, 18);
+    const body = ctx.createLinearGradient(0, oy, 0, oy + oh);
+    body.addColorStop(0, '#221a44');
+    body.addColorStop(1, '#130f28');
+    ctx.fillStyle = body;
+    ctx.fill();
+    ctx.shadowColor = 'transparent';
+
+    // Outer and inner borders
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = MiniGameUtils.colorWithAlpha(this._frameColor(pal), 0.9);
+    MiniGameUtils.roundRect(ctx, ox, oy, ow, oh, 18);
+    ctx.stroke();
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+    MiniGameUtils.roundRect(ctx, ox + 6, oy + 6, ow - 12, oh - 12, 13);
+    ctx.stroke();
+
+    // Game well with a faint pixel grid
+    const gx = this.gameX, gy = this.gameY, gw = this.gameW, gh = this.gameH;
+    MiniGameUtils.roundRect(ctx, gx, gy, gw, gh, 10);
+    ctx.fillStyle = pal.background;
+    ctx.fill();
+    ctx.save();
+    MiniGameUtils.roundRect(ctx, gx, gy, gw, gh, 10);
+    ctx.clip();
+    ctx.fillStyle = 'rgba(255,255,255,0.025)';
+    for (let x = gx; x < gx + gw; x += 24) ctx.fillRect(x, gy, 1, gh);
+    for (let y = gy; y < gy + gh; y += 24) ctx.fillRect(gx, y, gw, 1);
+    const glow = ctx.createRadialGradient(gx + gw / 2, gy, 0, gx + gw / 2, gy, gh);
+    glow.addColorStop(0, MiniGameUtils.colorWithAlpha(this._frameColor(pal), 0.10));
+    glow.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = glow;
+    ctx.fillRect(gx, gy, gw, gh);
+    ctx.restore();
+    ctx.strokeStyle = 'rgba(255,255,255,0.10)';
+    MiniGameUtils.roundRect(ctx, gx, gy, gw, gh, 10);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  _frameColor(pal) {
+    if (this.currentGame && this.currentGame.done && this.doneTime) {
+      return this.currentGame.winner === 'attacker' ? pal.success : pal.danger;
+    }
+    return this.isDuel ? pal.warn : pal.info;
+  }
+
+  _drawHeader(ctx, ox, oy, ow, pal) {
+    const cx = ox + ow / 2;
+    const headerY = oy + 18;
+    const practice = this.challengeIsPractice;
+    const names = { pawn: 'Pawn', knight: 'Knight', bishop: 'Bishop', rook: 'Rook', queen: 'Queen', king: 'King' };
+    const threatened = this.challengePiece ? names[this.challengePiece.type] : 'Piece';
+
+    ctx.save();
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'alphabetic';
+
+    // Tag above the title
+    const tag = practice ? 'PRACTICE' : (this.isDuel ? 'DUEL' : 'CAPTURE CHALLENGE');
+    ctx.font = 'bold 13px "Pixelify Sans", sans-serif';
+    const tagW = ctx.measureText(tag).width + 24;
+    MiniGameUtils.roundRect(ctx, cx - tagW / 2, headerY, tagW, 22, 11);
+    ctx.fillStyle = MiniGameUtils.colorWithAlpha(this.isDuel ? pal.warn : pal.info, 0.18);
+    ctx.fill();
+    ctx.fillStyle = this.isDuel ? pal.warn : pal.info;
+    ctx.fillText(tag, cx, headerY + 16);
+
+    // Title
+    const title = practice ? (this.currentGame.name || 'Mini-Game') : `Save the ${threatened}!`;
+    ctx.font = 'bold 26px "Silkscreen", monospace';
+    ctx.fillStyle = pal.text;
+    ctx.shadowColor = 'rgba(0,0,0,0.6)';
+    ctx.shadowOffsetY = 3;
+    ctx.fillText(title.toUpperCase(), cx, headerY + 54);
+    ctx.shadowColor = 'transparent';
+
+    // Difficulty pips
+    const diff = Math.max(1, Math.min(5, Math.ceil((this.challengeDifficulty || 1) / 2)));
+    const pipW = 16, gap = 6;
+    const totalW = 5 * pipW + 4 * gap;
+    for (let i = 0; i < 5; i++) {
+      const px = cx - totalW / 2 + i * (pipW + gap);
+      MiniGameUtils.roundRect(ctx, px, headerY + 66, pipW, 6, 3);
+      ctx.fillStyle = i < diff ? pal.gold : 'rgba(255,255,255,0.14)';
+      ctx.fill();
+    }
+
+    // Pieces: threatened on the left, attacker on the right.
+    if (!practice && this.challengePiece && this.threatPiece) {
+      this._drawPieceBadge(ctx, ox + 30, headerY - 2, this.challengePiece, 'DEFENDING', pal.success, pal);
+      this._drawPieceBadge(ctx, ox + ow - 30 - 64, headerY - 2, this.threatPiece, 'ATTACKING', pal.danger, pal);
+    }
+    ctx.restore();
+  }
+
+  _drawPieceBadge(ctx, x, y, piece, label, color, pal) {
+    ctx.save();
+    MiniGameUtils.roundRect(ctx, x, y, 64, 64, 12);
+    ctx.fillStyle = MiniGameUtils.colorWithAlpha(color, 0.14);
+    ctx.fill();
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = MiniGameUtils.colorWithAlpha(color, 0.7);
+    ctx.stroke();
+    this._drawPieceIcon(ctx, x + 8, y + 6, piece);
+    ctx.font = 'bold 11px "Pixelify Sans", sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillStyle = color;
+    ctx.fillText(label, x + 32, y + 80);
+    ctx.restore();
+  }
+
+  _drawIntro(ctx, pal) {
+    const t = this.introTime / MiniGameManager.INTRO_SECONDS;
+    const go = t > 0.62;
+    const local = go ? (t - 0.62) / 0.38 : t / 0.62;
+    const gx = this.gameX, gy = this.gameY, gw = this.gameW, gh = this.gameH;
+    ctx.save();
+    ctx.fillStyle = `rgba(8,6,20,${go ? 0.55 * (1 - local) : 0.62})`;
+    MiniGameUtils.roundRect(ctx, gx, gy, gw, gh, 10);
+    ctx.fill();
+    const size = go ? 72 + local * 30 : 56;
+    ctx.font = `bold ${Math.round(size)}px "Silkscreen", monospace`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.globalAlpha *= go ? 1 - local * 0.8 : Math.min(1, local * 3);
+    ctx.fillStyle = go ? pal.success : pal.text;
+    ctx.shadowColor = go ? pal.success : 'rgba(0,0,0,0.7)';
+    ctx.shadowBlur = go ? 24 : 0;
+    ctx.fillText(go ? 'GO!' : 'READY', gx + gw / 2, gy + gh / 2);
+    if (!go && this.currentGame.name) {
+      ctx.shadowBlur = 0;
+      ctx.font = 'bold 20px "Pixelify Sans", sans-serif';
+      ctx.fillStyle = pal.textDim;
+      ctx.fillText(this.currentGame.name, gx + gw / 2, gy + gh / 2 + 56);
+    }
+    ctx.restore();
+  }
+
+  _drawResult(ctx, pal) {
+    const t = Math.min(1, (Date.now() - this.doneTime) / 250);
+    const ease = 1 - Math.pow(1 - t, 3);
+    const defended = this.currentGame.winner === 'attacker';
+    const color = defended ? pal.success : pal.danger;
+    const gx = this.gameX, gy = this.gameY, gw = this.gameW, gh = this.gameH;
+    ctx.save();
+    ctx.fillStyle = `rgba(8,6,20,${0.7 * ease})`;
+    MiniGameUtils.roundRect(ctx, gx, gy, gw, gh, 10);
+    ctx.fill();
+
+    const bandH = 130;
+    const by = gy + gh / 2 - bandH / 2;
+    ctx.globalAlpha *= ease;
+    const band = ctx.createLinearGradient(gx, 0, gx + gw, 0);
+    band.addColorStop(0, MiniGameUtils.colorWithAlpha(color, 0));
+    band.addColorStop(0.5, MiniGameUtils.colorWithAlpha(color, 0.28));
+    band.addColorStop(1, MiniGameUtils.colorWithAlpha(color, 0));
+    ctx.fillStyle = band;
+    ctx.fillRect(gx, by, gw, bandH);
+    ctx.fillStyle = color;
+    ctx.fillRect(gx + gw * 0.2, by, gw * 0.6, 2);
+    ctx.fillRect(gx + gw * 0.2, by + bandH - 2, gw * 0.6, 2);
+
+    const practice = this.challengeIsPractice;
+    const title = practice ? (defended ? 'CLEARED!' : 'FAILED') : (defended ? 'SAVED!' : 'CAPTURED!');
+    const sub = practice
+      ? (defended ? 'You beat the challenge' : 'Try again from the practice menu')
+      : (defended ? 'The capture is cancelled' : 'The capture goes through');
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.font = `bold ${Math.round(44 + (1 - ease) * 20)}px "Silkscreen", monospace`;
+    ctx.fillStyle = color;
+    ctx.shadowColor = color;
+    ctx.shadowBlur = 22;
+    ctx.fillText(title, gx + gw / 2, by + 52);
+    ctx.shadowBlur = 0;
+    ctx.font = 'bold 18px "Pixelify Sans", sans-serif';
+    ctx.fillStyle = pal.text;
+    ctx.fillText(sub, gx + gw / 2, by + 98);
+    ctx.restore();
+  }
+
+  _drawPieceIcon(ctx, x, y, piece) {
     const theme = ThemeManager.getTheme(store.get('theme'));
-    const size = 40;
+    const size = 48;
     PieceRenderer.drawPiece(ctx, piece.type, piece.color, theme, x, y, size);
   }
 
@@ -453,8 +601,12 @@ class MiniGameManager {
     this.challengePlayerIsAI = false;
   }
 
+  get inIntro() {
+    return (this.introTime || 0) < MiniGameManager.INTRO_SECONDS;
+  }
+
   handleClick(x, y) {
-    if (!this.active || !this.currentGame) return;
+    if (!this.active || !this.currentGame || this.inIntro) return;
     if (this.challengePlayerIsAI && this.currentGame && !this.currentGame.done) return;
     if (this.currentGame.done && this.doneTime) return;
 
@@ -464,7 +616,7 @@ class MiniGameManager {
   }
 
   handleKey(key) {
-    if (!this.active || !this.currentGame) return;
+    if (!this.active || !this.currentGame || this.inIntro) return;
     if (this.challengePlayerIsAI && this.currentGame && !this.currentGame.done) return;
     if (this.currentGame.handleKey) {
       this.currentGame.handleKey(key);

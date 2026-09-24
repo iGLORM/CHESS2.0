@@ -1,4 +1,31 @@
 class MiniGameUtils {
+  // Fixed arcade palette for every mini-game, independent of the board theme,
+  // so colours keep their meaning (green = target, red = danger) and contrast
+  // stays high on every theme. Same keys as theme colours, plus extras.
+  static PALETTE = {
+    background: '#100c22',
+    bg: '#100c22',
+    panel: '#211a42',
+    buttonBg: '#2c2458',
+    buttonHover: '#3a3074',
+    lightSquare: '#6b5b95',
+    darkSquare: '#2d1b4e',
+    text: '#f4f0ff',
+    textDim: '#a89fd0',
+    accent: '#3ee07f',
+    highlight: '#a6ffc4',
+    checkHighlight: '#ff4d6d',
+    success: '#3ee07f',
+    danger: '#ff4d6d',
+    warn: '#ffb347',
+    gold: '#ffd166',
+    info: '#4cc9f0',
+  };
+
+  static colors() {
+    return this.PALETTE;
+  }
+
   static roundRect(ctx, x, y, w, h, r) {
     r = Math.min(r, w / 2, h / 2);
     ctx.beginPath();
@@ -10,19 +37,8 @@ class MiniGameUtils {
     ctx.closePath();
   }
 
-  static drawResultOverlay(ctx, x, y, w, h, won, cols) {
-    ctx.save();
-    ctx.fillStyle = won ? 'rgba(80, 220, 130, 0.30)' : 'rgba(220, 70, 80, 0.30)';
-    ctx.fillRect(x, y, w, h);
-    ctx.shadowColor = won ? cols.accent : (cols.highlight || cols.accent);
-    ctx.shadowBlur = 14;
-    ctx.fillStyle = cols.text;
-    ctx.font = 'bold 18px "Pixelify Sans", sans-serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(won ? 'You Win!' : 'You Lose!', x + w / 2, y + h / 2);
-    ctx.restore();
-  }
+  // Results are drawn by MiniGameManager's shared result screen.
+  static drawResultOverlay() {}
 
   static hexToRgb(hex) {
     if (!hex || hex.length < 7) return { r: 255, g: 255, b: 255 };

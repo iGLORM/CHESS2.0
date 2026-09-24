@@ -164,16 +164,11 @@ class TargetPractice {
 
 
   render(ctx, x, y, w, h) {
-    const cols = ThemeManager.getTheme(store.get('theme')).colors;
+    const cols = MiniGameUtils.colors();
     this.lastRect = { x, y, w, h };
     this.gameW = w - 40;
     this.gameH = h - 140;
 
-    ctx.fillStyle = cols.background || cols.bg || cols.panel;
-    ctx.fillRect(x, y, w, h);
-    ctx.strokeStyle = cols.accent;
-    ctx.lineWidth = 3;
-    ctx.strokeRect(x, y, w, h);
 
     ctx.fillStyle = cols.text;
     ctx.font = 'bold 18px "Pixelify Sans", sans-serif';
@@ -209,23 +204,18 @@ class TargetPractice {
       const tx = x + 20 + t.x;
       const ty = targetBaseY + t.y;
       const ts = t.size * alpha * spawnScale;
-      ctx.shadowColor = cols.accent;
-      ctx.shadowBlur = 10 * alpha;
-      ctx.strokeStyle = cols.accent;
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.arc(tx, ty, ts, 0, Math.PI * 2);
-      ctx.stroke();
-      ctx.globalAlpha = alpha * 0.6;
-      ctx.fillStyle = cols.accent;
-      ctx.beginPath();
-      ctx.arc(tx, ty, ts * 0.7, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.globalAlpha = alpha;
-      ctx.fillStyle = cols.text;
-      ctx.beginPath();
-      ctx.arc(tx, ty, ts * 0.25, 0, Math.PI * 2);
-      ctx.fill();
+      // Classic bullseye: alternating red and white rings.
+      ctx.globalAlpha = Math.max(0.35, alpha);
+      ctx.shadowColor = cols.danger;
+      ctx.shadowBlur = 14 * alpha;
+      const rings = [[1, cols.danger], [0.78, '#ffffff'], [0.56, cols.danger], [0.32, '#ffffff'], [0.14, cols.danger]];
+      for (const [r, color] of rings) {
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.arc(tx, ty, Math.max(0.5, ts * r), 0, Math.PI * 2);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+      }
       ctx.restore();
     }
 
@@ -233,7 +223,7 @@ class TargetPractice {
       const alpha = Math.max(0, p.life / p.maxLife);
       ctx.save();
       ctx.globalAlpha = alpha;
-      ctx.fillStyle = cols.accent;
+      ctx.fillStyle = cols.gold;
       ctx.fillRect(x + 20 + p.x - p.size / 2, targetBaseY + p.y - p.size / 2, p.size, p.size);
       ctx.restore();
     }
@@ -242,8 +232,8 @@ class TargetPractice {
       const alpha = Math.max(0, p.life / p.maxLife);
       ctx.save();
       ctx.globalAlpha = alpha;
-      ctx.fillStyle = cols.highlight || cols.accent;
-      ctx.font = 'bold 13px "Pixelify Sans", sans-serif';
+      ctx.fillStyle = cols.gold;
+      ctx.font = 'bold 16px "Pixelify Sans", sans-serif';
       ctx.fillText(p.text, x + 20 + p.x, targetBaseY + p.y);
       ctx.restore();
     }

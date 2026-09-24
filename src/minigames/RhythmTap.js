@@ -114,12 +114,7 @@ class RhythmTap {
 
 
   render(ctx, x, y, w, h) {
-    const cols = ThemeManager.getTheme(store.get('theme')).colors;
-    ctx.fillStyle = cols.background || cols.bg || cols.panel;
-    ctx.fillRect(x, y, w, h);
-    ctx.strokeStyle = cols.accent;
-    ctx.lineWidth = 3;
-    ctx.strokeRect(x, y, w, h);
+    const cols = MiniGameUtils.colors();
 
     // Scale fonts based on available height
     const titleSize = Math.max(18, Math.min(24, h * 0.035));

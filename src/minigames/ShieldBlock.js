@@ -1,5 +1,6 @@
 class ShieldBlock {
   constructor() {
+    this.name = 'Shield Block';
     this.shieldX = 0.5;
     this.shieldW = 80;
     this.arrows = [];
@@ -206,17 +207,12 @@ class ShieldBlock {
   render(ctx, x, y, w, h) {
     this._bounds = { x, y, w, h };
     const theme = ThemeManager.getTheme(store.get('theme'));
-    const cols = theme.colors;
+    const cols = MiniGameUtils.colors();
 
     ctx.save();
     ctx.translate(this.shakeX, this.shakeY);
 
     // Background
-    ctx.fillStyle = cols.background || cols.bg || cols.panel;
-    ctx.fillRect(x, y, w, h);
-    ctx.strokeStyle = cols.accent;
-    ctx.lineWidth = 3;
-    ctx.strokeRect(x, y, w, h);
 
     const arenaX = x + 10;
     const arenaY = y + 10;
@@ -226,7 +222,7 @@ class ShieldBlock {
     if (this.flashTimer > 0) {
       ctx.save();
       ctx.globalAlpha = this.flashTimer * 3;
-      ctx.fillStyle = this.flashColor === 'block' ? cols.accent : (cols.highlight || cols.accent);
+      ctx.fillStyle = this.flashColor === 'block' ? cols.success : cols.danger;
       ctx.fillRect(arenaX, arenaY, arenaW, arenaH);
       ctx.restore();
     }
@@ -252,9 +248,10 @@ class ShieldBlock {
       ctx.save();
       ctx.translate(ax, ay);
       ctx.rotate(arrow.angle * 2);
+      ctx.scale(1.9, 1.9);
 
-      ctx.fillStyle = cols.highlight || cols.accent;
-      ctx.shadowColor = cols.highlight || cols.accent;
+      ctx.fillStyle = cols.danger;
+      ctx.shadowColor = cols.danger;
       ctx.shadowBlur = 8;
       ctx.beginPath();
       ctx.moveTo(0, -10);
@@ -264,7 +261,7 @@ class ShieldBlock {
       ctx.closePath();
       ctx.fill();
 
-      ctx.strokeStyle = cols.accent;
+      ctx.strokeStyle = cols.warn;
       ctx.lineWidth = 1.5;
       ctx.beginPath();
       ctx.moveTo(0, 2);
@@ -287,8 +284,8 @@ class ShieldBlock {
     for (const spark of this.sparks) {
       ctx.save();
       ctx.globalAlpha = spark.life / 0.8;
-      ctx.fillStyle = cols.highlight || cols.accent;
-      ctx.shadowColor = cols.highlight || cols.accent;
+      ctx.fillStyle = cols.gold;
+      ctx.shadowColor = cols.gold;
       ctx.shadowBlur = 6;
       ctx.fillRect(arenaX + spark.x * arenaW - 2, arenaY + spark.y * arenaH - 2, 4, 4);
       ctx.restore();
@@ -330,7 +327,7 @@ class ShieldBlock {
     ctx.fillStyle = cols.panel + 'cc';
     ctx.fillRect(hpX, hpY, hpW, hpH);
     const hpRatio = this.hp / this.maxHp;
-    const hpColor = hpRatio > 0.5 ? cols.accent : hpRatio > 0.25 ? (cols.highlight || cols.accent) : (cols.highlight || cols.text);
+    const hpColor = hpRatio > 0.5 ? cols.success : hpRatio > 0.25 ? cols.warn : cols.danger;
     ctx.fillStyle = hpColor;
     ctx.fillRect(hpX, hpY, hpW * hpRatio, hpH);
     ctx.strokeStyle = cols.text + '44';
@@ -341,7 +338,7 @@ class ShieldBlock {
     ctx.fillText('HP ' + this.hp + '/' + this.maxHp, hpX + hpW / 2, hpY + 9);
 
     const timeLeft = Math.max(0, this.duration - this.timer);
-    ctx.fillStyle = timeLeft < 3 ? (cols.highlight || cols.accent) : cols.text;
+    ctx.fillStyle = timeLeft < 3 ? cols.warn : cols.text;
     ctx.font = 'bold 12px "Pixelify Sans", sans-serif';
     ctx.textAlign = 'right';
     ctx.fillText(timeLeft.toFixed(1) + 's', arenaX + arenaW - 8, hpY + 9);

@@ -212,7 +212,7 @@ class PatternPress {
 
   render(ctx, x, y, w, h) {
     const theme = ThemeManager.getTheme(store.get('theme'));
-    const cols = theme.colors;
+    const cols = MiniGameUtils.colors();
     this.lastRect = { x, y, w, h };
     const palette = this.palette(cols);
     this._lastPalette = palette;
@@ -222,36 +222,7 @@ class PatternPress {
     // Apply shake offset
     ctx.translate(this.shakeX, this.shakeY);
 
-    // Background panel
-    ctx.fillStyle = cols.panel || cols.background || cols.bg;
-    this.roundRect(ctx, x, y, w, h, 12);
-    ctx.fill();
-
-    // Subtle grid pattern
-    ctx.save();
-    ctx.clip(); // clip to the rounded rect
-    ctx.strokeStyle = (cols.text || 'rgba(255,255,255,1)') + '0a';
-    ctx.lineWidth = 1;
-    const gridSize = 28;
-    for (let gx = x; gx < x + w; gx += gridSize) {
-      ctx.beginPath();
-      ctx.moveTo(gx, y);
-      ctx.lineTo(gx, y + h);
-      ctx.stroke();
-    }
-    for (let gy = y; gy < y + h; gy += gridSize) {
-      ctx.beginPath();
-      ctx.moveTo(x, gy);
-      ctx.lineTo(x + w, gy);
-      ctx.stroke();
-    }
-    ctx.restore();
-
-    // Border
-    ctx.strokeStyle = cols.accent;
-    ctx.lineWidth = 3;
-    this.roundRect(ctx, x, y, w, h, 12);
-    ctx.stroke();
+    // Background and grid come from the shared mini-game frame.
 
     // Title
     ctx.fillStyle = cols.text;
@@ -404,19 +375,6 @@ class PatternPress {
     }
 
     // Done message
-    if (this.done) {
-      const win = this.winner === 'attacker';
-      ctx.fillStyle = win ? 'rgba(80, 220, 130, 0.30)' : 'rgba(220, 70, 80, 0.30)';
-      ctx.fillRect(x, y, w, h);
-      ctx.fillStyle = cols.text;
-      ctx.shadowColor = win ? cols.accent : (cols.highlight || cols.accent);
-      ctx.shadowBlur = 14;
-      ctx.font = 'bold 18px "Pixelify Sans", sans-serif';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(win ? 'You Win!' : 'You Lose!', x + w / 2, y + h / 2);
-      ctx.shadowBlur = 0;
-    }
 
     ctx.restore();
   }

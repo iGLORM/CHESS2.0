@@ -118,13 +118,8 @@ class CoinFlip {
   }
 
   render(ctx, x, y, w, h) {
-    const cols = ThemeManager.getTheme(store.get('theme')).colors;
+    const cols = MiniGameUtils.colors();
     this.lastRect = { x, y, w, h };
-    ctx.fillStyle = cols.background || cols.bg || cols.panel;
-    ctx.fillRect(x, y, w, h);
-    ctx.strokeStyle = cols.accent;
-    ctx.lineWidth = 3;
-    ctx.strokeRect(x, y, w, h);
 
     // Scale fonts based on available height
     const titleSize = Math.max(18, Math.min(24, h * 0.035));
@@ -148,7 +143,7 @@ class CoinFlip {
     ctx.fillRect(x + w / 2 - scorePanelW / 2, scoreY, scorePanelW, scorePanelH);
     ctx.fillStyle = cols.accent;
     ctx.font = 'bold ' + Math.round(bodySize + 1) + 'px "Pixelify Sans", sans-serif';
-    ctx.fillText('You: ' + this.playerScore + ' | Defender: ' + this.cpuScore, x + w / 2, scoreY + scorePanelH * 0.65);
+    ctx.fillText('You: ' + this.playerScore + ' | CPU: ' + this.cpuScore, x + w / 2, scoreY + scorePanelH * 0.65);
 
     // Coin - centered vertically in the space between score and buttons
     const cx = x + w / 2;
@@ -166,20 +161,20 @@ class CoinFlip {
       ctx.scale(scaleX, 1);
       // Coin body with gradient
       const coinGrad = ctx.createLinearGradient(-coinSize, -coinSize, coinSize, coinSize);
-      coinGrad.addColorStop(0, cols.highlight || cols.accent);
-      coinGrad.addColorStop(0.5, cols.accent);
-      coinGrad.addColorStop(1, cols.panel);
+      coinGrad.addColorStop(0, '#fff3c4');
+      coinGrad.addColorStop(0.5, cols.gold);
+      coinGrad.addColorStop(1, '#a8741a');
       ctx.fillStyle = coinGrad;
       ctx.beginPath();
       ctx.arc(0, 0, coinSize, 0, Math.PI * 2);
       ctx.fill();
       // Inner ring
-      ctx.strokeStyle = cols.highlight || cols.accent;
+      ctx.strokeStyle = '#fff3c4';
       ctx.lineWidth = 2;
       ctx.beginPath();
       ctx.arc(0, 0, coinSize * 0.75, 0, Math.PI * 2);
       ctx.stroke();
-      ctx.fillStyle = cols.panel;
+      ctx.fillStyle = '#6b4708';
       ctx.font = 'bold ' + Math.round(coinFontSize) + 'px "Pixelify Sans", sans-serif';
       ctx.textAlign = 'center';
       ctx.fillText('?', 0, coinFontSize * 0.35);
@@ -188,9 +183,9 @@ class CoinFlip {
       // Show result
       if (this.flipResult) {
         ctx.save();
-        ctx.shadowColor = cols.accent;
+        ctx.shadowColor = cols.gold;
         ctx.shadowBlur = 18;
-        ctx.strokeStyle = cols.accent;
+        ctx.strokeStyle = cols.gold;
         ctx.lineWidth = 3;
         ctx.beginPath();
         ctx.arc(cx, cy, coinSize + 10 + Math.sin(Date.now() / 180) * 3, 0, Math.PI * 2);
@@ -198,25 +193,25 @@ class CoinFlip {
         ctx.restore();
       }
       const coinGrad = ctx.createRadialGradient(cx - coinSize * 0.3, cy - coinSize * 0.3, coinSize * 0.1, cx, cy, coinSize);
-      coinGrad.addColorStop(0, cols.highlight || cols.accent);
-      coinGrad.addColorStop(0.5, cols.accent);
-      coinGrad.addColorStop(1, cols.panel);
+      coinGrad.addColorStop(0, '#fff3c4');
+      coinGrad.addColorStop(0.5, cols.gold);
+      coinGrad.addColorStop(1, '#a8741a');
       ctx.fillStyle = coinGrad;
       ctx.beginPath();
       ctx.arc(cx, cy, coinSize, 0, Math.PI * 2);
       ctx.fill();
-      ctx.strokeStyle = cols.highlight || cols.accent;
+      ctx.strokeStyle = '#fff3c4';
       ctx.lineWidth = 3;
       ctx.stroke();
       // Inner ring
-      ctx.strokeStyle = cols.panel;
+      ctx.strokeStyle = '#a8741a';
       ctx.lineWidth = 1.5;
       ctx.beginPath();
       ctx.arc(cx, cy, coinSize * 0.7, 0, Math.PI * 2);
       ctx.stroke();
 
       if (this.flipResult) {
-        ctx.fillStyle = cols.panel;
+        ctx.fillStyle = '#6b4708';
         ctx.font = 'bold ' + Math.round(coinFontSize) + 'px "Pixelify Sans", sans-serif';
         ctx.fillText(this.flipResult.toUpperCase(), cx, cy + coinFontSize * 0.3);
       } else {

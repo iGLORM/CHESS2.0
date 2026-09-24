@@ -1,5 +1,6 @@
 class WhackMole {
   constructor() {
+    this.name = 'Whack-a-Mole';
     this.grid = [];
     this.cols = 4;
     this.rows = 3;
@@ -151,18 +152,14 @@ class WhackMole {
 
   render(ctx, x, y, w, h) {
     const theme = ThemeManager.getTheme(store.get('theme'));
-    const cols = theme.colors;
+    const cols = MiniGameUtils.colors();
 
-    ctx.fillStyle = cols.background || cols.bg || cols.panel;
-    ctx.fillRect(x, y, w, h);
-    ctx.strokeStyle = cols.accent;
-    ctx.lineWidth = 3;
-    ctx.strokeRect(x, y, w, h);
 
+    // Leave room for the hits/time bar above the holes.
     const arenaX = x + 10;
-    const arenaY = y + 10;
+    const arenaY = y + 44;
     const arenaW = w - 20;
-    const arenaH = h - 20;
+    const arenaH = h - 54;
 
     this._arenaX = arenaX;
     this._arenaY = arenaY;
@@ -218,7 +215,7 @@ class WhackMole {
         const popOffset = moleH * cell.popUp * 0.5;
         const moleY = moleBaseY - popOffset;
 
-        const moleColor = cell.type === 'gold' ? (cols.highlight || cols.accent) : cols.accent;
+        const moleColor = cell.type === 'gold' ? cols.gold : '#c28a5c';
         const moleHighlight = cols.text;
         const eyeColor = cols.panel;
 
@@ -234,7 +231,7 @@ class WhackMole {
           ctx.arc(moleX, moleY, moleW / 2, 0, Math.PI * 2);
           ctx.fill();
           ctx.font = 'bold 14px "Pixelify Sans", sans-serif';
-          ctx.fillStyle = cell.type === 'gold' ? (cols.highlight || cols.accent) : cols.accent;
+          ctx.fillStyle = cell.type === 'gold' ? cols.gold : cols.accent;
           ctx.textAlign = 'center';
           ctx.fillText(cell.type === 'gold' ? '+2' : '+1', moleX, moleY + 5);
         } else {
@@ -302,7 +299,7 @@ class WhackMole {
     for (const spark of this.sparks) {
       ctx.save();
       ctx.globalAlpha = spark.life / 0.6;
-      ctx.fillStyle = spark.color === 'gold' ? (cols.highlight || cols.accent) : cols.accent;
+      ctx.fillStyle = spark.color === 'gold' ? cols.gold : cols.accent;
       ctx.shadowColor = ctx.fillStyle;
       ctx.shadowBlur = 6;
       const sx = arenaX + spark.x * arenaW;
@@ -311,34 +308,35 @@ class WhackMole {
       ctx.restore();
     }
 
-    const barY = y - 2;
-    const barH = 18;
-    ctx.fillStyle = cols.panel + 'cc';
-    ctx.fillRect(x, barY, w, barH);
-
-    ctx.fillStyle = cols.text;
-    ctx.font = 'bold 13px "Pixelify Sans", sans-serif';
+    const barY = y + 8;
+    ctx.font = 'bold 18px "Pixelify Sans", sans-serif';
     ctx.textAlign = 'left';
-    ctx.fillText('Hits: ' + this.score + '/' + this.target, x + 8, barY + 13);
+    ctx.fillStyle = cols.text;
+    ctx.fillText('Hits: ' + this.score + ' / ' + this.target, x + 16, barY + 20);
 
     ctx.textAlign = 'center';
     const timeLeft = Math.max(0, this.duration - this.timer);
-    ctx.fillStyle = timeLeft < 3 ? (cols.highlight || cols.accent) : cols.text;
-    ctx.fillText(timeLeft.toFixed(1) + 's', x + w / 2, barY + 13);
+    ctx.fillStyle = timeLeft < 3 ? cols.warn : cols.text;
+    ctx.fillText(timeLeft.toFixed(1) + 's', x + w / 2, barY + 20);
 
     if (this.streak > 1) {
-      ctx.fillStyle = cols.highlight || cols.accent;
+      ctx.fillStyle = cols.gold;
       ctx.textAlign = 'right';
-      ctx.fillText(this.streak + 'x streak', x + w - 8, barY + 13);
+      ctx.fillText(this.streak + 'x streak', x + w - 16, barY + 20);
     }
 
-    const progW = w * 0.4;
+    // Progress toward the target, under the timer.
+    const progW = w * 0.3;
     const progX = x + (w - progW) / 2;
-    const progY = barY + 1;
-    ctx.fillStyle = cols.panel + 'cc';
-    ctx.fillRect(progX, progY + barH - 5, progW, 3);
-    ctx.fillStyle = this.score >= this.target ? cols.accent : (cols.highlight || cols.accent);
-    ctx.fillRect(progX, progY + barH - 5, progW * Math.min(1, this.score / this.target), 3);
+    const progY = barY + 28;
+    MiniGameUtils.roundRect(ctx, progX, progY, progW, 5, 2);
+    ctx.fillStyle = cols.panel;
+    ctx.fill();
+    if (this.score > 0) {
+      MiniGameUtils.roundRect(ctx, progX, progY, progW * Math.min(1, this.score / this.target), 5, 2);
+      ctx.fillStyle = this.score >= this.target ? cols.success : cols.gold;
+      ctx.fill();
+    }
 
     if (this.done) {
       MiniGameUtils.drawResultOverlay(ctx, x, y, w, h, this.winner === 'attacker', cols);

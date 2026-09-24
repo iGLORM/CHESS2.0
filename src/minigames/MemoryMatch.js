@@ -1,4 +1,6 @@
 class MemoryMatch {
+  static PIECE_FOR_SYMBOL = { '♔': 'king', '♕': 'queen', '♖': 'rook', '♗': 'bishop' };
+
   constructor() {
     this.name = 'Memory Match';
     this.done = false;
@@ -103,8 +105,9 @@ class MemoryMatch {
     const headerSpace = h * 0.15;
     const availW = w - gap * 2;
     const availH = h - headerSpace - h * 0.08;
-    const cardW = Math.max(60, Math.min((availW - gap * 3) / 4, (availH - gap) / 2));
-    const cardH = Math.max(80, cardW * 1.2);
+    // Cards are 4:5 and must fit both the width and the height available.
+    const cardH = Math.min((availH - gap) / 2, ((availW - gap * 3) / 4) * 1.25);
+    const cardW = cardH / 1.25;
     const totalW = 4 * (cardW + gap) - gap;
     const totalH = 2 * (cardH + gap) - gap;
     const startX = rect.x + (w - totalW) / 2;
@@ -165,7 +168,7 @@ class MemoryMatch {
 
   render(ctx, x, y, w, h) {
     const theme = ThemeManager.getTheme(store.get('theme'));
-    const cols = theme.colors;
+    const cols = MiniGameUtils.colors();
     this.lastRect = { x, y, w, h };
 
     // Scale fonts based on available height
@@ -173,11 +176,6 @@ class MemoryMatch {
     const bodySize = Math.max(12, Math.min(16, h * 0.022));
     const labelSize = Math.max(11, Math.min(14, h * 0.018));
 
-    ctx.fillStyle = cols.background || cols.bg || cols.panel;
-    ctx.fillRect(x, y, w, h);
-    ctx.strokeStyle = cols.accent;
-    ctx.lineWidth = 3;
-    ctx.strokeRect(x, y, w, h);
 
     const titleY = y + h * 0.06;
     ctx.fillStyle = cols.text;
@@ -211,63 +209,69 @@ class MemoryMatch {
 
       if (isFlipped && showFace) {
         const isMatched = this.matched.includes(i);
-        ctx.fillStyle = isMatched ? cols.accent : cols.buttonHover;
+        // Face: parchment card with the piece artwork.
+        MiniGameUtils.roundRect(ctx, cx, cy, cardW, cardH, r);
+        const face = ctx.createLinearGradient(cx, cy, cx, cy + cardH);
+        face.addColorStop(0, isMatched ? '#d9ffe6' : '#f6f0ff');
+        face.addColorStop(1, isMatched ? '#8fe8b0' : '#c9bde8');
+        ctx.fillStyle = face;
         if (isMatched) {
-          ctx.shadowColor = cols.accent;
-          ctx.shadowBlur = 10;
+          ctx.shadowColor = cols.success;
+          ctx.shadowBlur = 16;
         }
-        ctx.beginPath();
-        ctx.moveTo(cx + r, cy);
-        ctx.lineTo(cx + cardW - r, cy);
-        ctx.arcTo(cx + cardW, cy, cx + cardW, cy + r, r);
-        ctx.lineTo(cx + cardW, cy + cardH - r);
-        ctx.arcTo(cx + cardW, cy + cardH, cx + cardW - r, cy + cardH, r);
-        ctx.lineTo(cx + r, cy + cardH);
-        ctx.arcTo(cx, cy + cardH, cx, cy + cardH - r, r);
-        ctx.lineTo(cx, cy + r);
-        ctx.arcTo(cx, cy, cx + r, cy, r);
-        ctx.closePath();
         ctx.fill();
         ctx.shadowBlur = 0;
-        ctx.strokeStyle = isMatched ? cols.highlight || cols.accent : cols.text + '44';
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = isMatched ? cols.success : '#ffffff';
         ctx.stroke();
-        ctx.fillStyle = cols.text;
-        ctx.font = Math.round(symbolSize) + 'px "Pixelify Sans", sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText(this.cards[i], cx + cardW / 2, cy + cardH / 2 + symbolSize * 0.3);
+        const pieceType = MemoryMatch.PIECE_FOR_SYMBOL[this.cards[i]] || 'pawn';
+        const size = Math.min(cardW, cardH) * 0.72;
+        const theme = ThemeManager.getTheme('space');
+        PieceRenderer.drawPiece(ctx, pieceType, 'black', theme, cx + (cardW - size) / 2, cy + (cardH - size) / 2, size);
       } else {
-        ctx.fillStyle = cols.buttonBg;
+        // Back: deep violet with a diamond lattice and a gold emblem.
+        MiniGameUtils.roundRect(ctx, cx, cy, cardW, cardH, r);
+        const back = ctx.createLinearGradient(cx, cy, cx + cardW, cy + cardH);
+        back.addColorStop(0, '#3b2d7a');
+        back.addColorStop(1, '#241a52');
+        ctx.fillStyle = back;
+        ctx.fill();
+        ctx.save();
+        ctx.clip();
+        ctx.strokeStyle = 'rgba(255,255,255,0.07)';
+        ctx.lineWidth = 2;
+        for (let d = -cardH; d < cardW + cardH; d += 16) {
+          ctx.beginPath();
+          ctx.moveTo(cx + d, cy);
+          ctx.lineTo(cx + d - cardH, cy + cardH);
+          ctx.moveTo(cx + d - cardH, cy);
+          ctx.lineTo(cx + d, cy + cardH);
+          ctx.stroke();
+        }
+        ctx.restore();
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = 'rgba(255,209,102,0.55)';
+        MiniGameUtils.roundRect(ctx, cx + 5, cy + 5, cardW - 10, cardH - 10, Math.max(2, r - 3));
+        ctx.stroke();
+        const em = Math.min(cardW, cardH) * 0.16;
+        ctx.fillStyle = cols.gold;
         ctx.beginPath();
-        ctx.moveTo(cx + r, cy);
-        ctx.lineTo(cx + cardW - r, cy);
-        ctx.arcTo(cx + cardW, cy, cx + cardW, cy + r, r);
-        ctx.lineTo(cx + cardW, cy + cardH - r);
-        ctx.arcTo(cx + cardW, cy + cardH, cx + cardW - r, cy + cardH, r);
-        ctx.lineTo(cx + r, cy + cardH);
-        ctx.arcTo(cx, cy + cardH, cx, cy + cardH - r, r);
-        ctx.lineTo(cx, cy + r);
-        ctx.arcTo(cx, cy, cx + r, cy, r);
+        ctx.moveTo(cx + cardW / 2, cy + cardH / 2 - em);
+        ctx.lineTo(cx + cardW / 2 + em, cy + cardH / 2);
+        ctx.lineTo(cx + cardW / 2, cy + cardH / 2 + em);
+        ctx.lineTo(cx + cardW / 2 - em, cy + cardH / 2);
         ctx.closePath();
         ctx.fill();
-        ctx.strokeStyle = cols.text + '44';
-        ctx.lineWidth = 1;
-        ctx.stroke();
-        // Decorative pattern on back
-        ctx.fillStyle = cols.text + '22';
-        ctx.font = 'bold ' + Math.round(backSymbolSize) + 'px "Pixelify Sans", sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText('?', cx + cardW / 2, cy + cardH / 2 + backSymbolSize * 0.3);
       }
       ctx.restore();
     }
 
     // Progress - positioned below the card grid
     const progressY = startY + 2 * (cardH + gap) + gap;
-    ctx.fillStyle = cols.text + '66';
-    ctx.font = Math.round(labelSize) + 'px "Pixelify Sans", sans-serif';
+    ctx.fillStyle = cols.textDim;
+    ctx.font = 'bold ' + Math.round(labelSize + 2) + 'px "Pixelify Sans", sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText('Pairs: ' + this.pairs + '/' + this.totalPairs, x + w / 2, progressY);
+    ctx.fillText('Pairs: ' + this.pairs + '/' + this.totalPairs, x + w / 2, progressY + 6);
 
     if (this.done) {
       MiniGameUtils.drawResultOverlay(ctx, x, y, w, h, this.winner === 'attacker', cols);

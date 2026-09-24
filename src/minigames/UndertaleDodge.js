@@ -208,16 +208,11 @@ class UndertaleDodge {
   render(ctx, x, y, w, h) {
     this._bounds = { x, y, w, h };
     const theme = ThemeManager.getTheme(store.get('theme'));
-    const cols = theme.colors;
+    const cols = MiniGameUtils.colors();
 
     ctx.save();
     ctx.translate(this.shakeX, this.shakeY);
 
-    ctx.fillStyle = cols.background || cols.bg || cols.panel;
-    ctx.fillRect(x, y, w, h);
-    ctx.strokeStyle = cols.accent;
-    ctx.lineWidth = 3;
-    ctx.strokeRect(x, y, w, h);
 
     ctx.fillStyle = cols.text;
     ctx.font = 'bold 18px "Pixelify Sans", sans-serif';
@@ -230,7 +225,7 @@ class UndertaleDodge {
     ctx.fillStyle = cols.panel;
     ctx.fillRect(x + w / 2 - hpBarW / 2, y + 45, hpBarW, hpBarH);
     const hpPct = this.hp / this.maxHp;
-    ctx.fillStyle = hpPct > 0.5 ? cols.accent : hpPct > 0.25 ? (cols.highlight || cols.accent) : (cols.highlight || cols.text);
+    ctx.fillStyle = hpPct > 0.5 ? cols.success : hpPct > 0.25 ? cols.warn : cols.danger;
     ctx.fillRect(x + w / 2 - hpBarW / 2, y + 45, hpBarW * hpPct, hpBarH);
     ctx.fillStyle = cols.text;
     ctx.font = '12px "Pixelify Sans", sans-serif';
@@ -247,6 +242,13 @@ class UndertaleDodge {
     const arenaW = 240;
     const arenaH = 200;
 
+    // The arena's logic is 240x200; draw it scaled up to fill the play area.
+    const zoom = Math.max(1, Math.min(1.7, (h - 110) / arenaH));
+    ctx.save();
+    ctx.translate(arenaX + arenaW / 2, arenaY);
+    ctx.scale(zoom, zoom);
+    ctx.translate(-(arenaX + arenaW / 2), -arenaY);
+
     // Arena background
     ctx.fillStyle = cols.panel + 'aa';
     ctx.fillRect(arenaX, arenaY, arenaW, arenaH);
@@ -261,10 +263,10 @@ class UndertaleDodge {
     for (const b of this.bullets) {
       const bx = arenaX + (b.x - 200);
       const by = arenaY + (b.y - 140);
-      const bulletColor = b.color === 'warm' ? (cols.highlight || cols.accent)
-        : b.color === 'magic' ? cols.text
-        : b.color === 'cool' ? cols.accent
-        : (cols.highlight || cols.accent);
+      const bulletColor = b.color === 'warm' ? cols.text
+        : b.color === 'magic' ? cols.info
+        : b.color === 'cool' ? cols.warn
+        : cols.text;
       ctx.shadowColor = bulletColor;
       ctx.shadowBlur = 8;
       ctx.fillStyle = bulletColor;
@@ -285,9 +287,9 @@ class UndertaleDodge {
     const ps = this.playerSize;
 
     const flashWhite = this.hitFlashTimer > 0 && Math.floor(this.hitFlashTimer * 12) % 2 === 0;
-    ctx.shadowColor = flashWhite ? cols.text : (cols.highlight || cols.accent);
+    ctx.shadowColor = flashWhite ? cols.text : cols.danger;
     ctx.shadowBlur = 12;
-    ctx.fillStyle = flashWhite ? cols.text : (cols.highlight || cols.accent);
+    ctx.fillStyle = flashWhite ? cols.text : cols.danger;
     // Heart shape
     ctx.beginPath();
     ctx.moveTo(px, py + ps * 0.3);
@@ -302,6 +304,7 @@ class UndertaleDodge {
     ctx.beginPath();
     ctx.ellipse(px - ps * 0.2, py, ps * 0.3, ps * 0.4, 0, 0, Math.PI * 2);
     ctx.fill();
+    ctx.restore();
 
     if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
       ctx.globalAlpha = 0.25;
@@ -317,20 +320,9 @@ class UndertaleDodge {
       ctx.fillStyle = cols.text + '44';
       ctx.font = '12px "Pixelify Sans", sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText('Arrow keys / WASD to dodge', x + w / 2, y + 320);
+      ctx.fillText('Arrow keys / WASD to dodge', x + w / 2, y + h - 14);
     }
 
-    if (this.done) {
-      const win = this.winner === 'attacker';
-      ctx.fillStyle = win ? 'rgba(80, 220, 130, 0.30)' : 'rgba(220, 70, 80, 0.30)';
-      ctx.fillRect(x, y, w, h);
-      ctx.fillStyle = cols.text;
-      ctx.shadowColor = win ? cols.accent : (cols.highlight || cols.accent);
-      ctx.shadowBlur = 14;
-      ctx.font = 'bold 18px "Pixelify Sans", sans-serif';
-      ctx.fillText(win ? 'You Win!' : 'You Lose!', x + w / 2, y + h / 2);
-      ctx.shadowBlur = 0;
-    }
 
     ctx.restore();
   }

@@ -145,15 +145,10 @@ class PowerMeter {
 
 
   render(ctx, x, y, w, h) {
-    const cols = ThemeManager.getTheme(store.get('theme')).colors;
+    const cols = MiniGameUtils.colors();
     ctx.save();
     ctx.translate(this.shakeX, this.shakeY);
 
-    ctx.fillStyle = cols.background || cols.bg || cols.panel;
-    ctx.fillRect(x, y, w, h);
-    ctx.strokeStyle = cols.accent;
-    ctx.lineWidth = 3;
-    ctx.strokeRect(x, y, w, h);
 
     ctx.fillStyle = cols.text;
     ctx.font = 'bold 18px "Pixelify Sans", sans-serif';

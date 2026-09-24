@@ -48,7 +48,8 @@ class QuickClick {
 
   update(dt) {
     if (!this.running || this.done) return;
-    this.timeLeft = 5 - (Date.now() - this.startTime) / 1000;
+    // Count down from the first played frame (after the READY/GO intro).
+    this.timeLeft -= dt;
 
     // CPU auto-clicks for defender (gentle scaling — beatable at all difficulties)
     const cpuRate = dt * (0.8 + (this.difficulty || 1) * 0.35);
@@ -171,7 +172,7 @@ class QuickClick {
   render(ctx, x, y, w, h) {
     this._bounds = { x, y, w, h };
     const theme = ThemeManager.getTheme(store.get('theme'));
-    const cols = theme.colors;
+    const cols = MiniGameUtils.colors();
     this.lastRect = { x, y, w, h };
 
     // Responsive font sizes (scale with area, clamped)
@@ -206,16 +207,11 @@ class QuickClick {
     ctx.translate(shakeX, shakeY);
 
     // Background
-    ctx.fillStyle = cols.background || cols.bg || cols.panel;
-    ctx.fillRect(x, y, w, h);
 
     // Border with accent glow
     ctx.save();
     ctx.shadowColor = cols.accent;
     ctx.shadowBlur = 8;
-    ctx.strokeStyle = cols.accent;
-    ctx.lineWidth = 3;
-    ctx.strokeRect(x, y, w, h);
     ctx.restore();
 
     // Click flash overlay (green, fades over 0.1s)
@@ -349,7 +345,7 @@ class QuickClick {
     // Label
     ctx.fillStyle = cols.text;
     ctx.font = labelSize + 'px "Pixelify Sans", sans-serif';
-    ctx.fillText('Defender: ' + this.p2Clicks, a2x + barW / 2, a2y + barH / 2 + 4);
+    ctx.fillText('CPU: ' + this.p2Clicks, a2x + barW / 2, a2y + barH / 2 + 4);
 
     // Combo counter (between bars and tap zone)
     if (this.comboCount >= 2 && this.comboTimer > 0) {

@@ -213,7 +213,7 @@ class ReactionTest {
 
   render(ctx, x, y, w, h) {
     const theme = ThemeManager.getTheme(store.get('theme'));
-    const cols = theme.colors;
+    const cols = MiniGameUtils.colors();
 
     // Pulsing background alpha
     const pulseAlpha = 0.8 + 0.05 * Math.sin(this.pulsePhase / 500);
@@ -229,9 +229,6 @@ class ReactionTest {
     ctx.fillStyle = bgGrad;
     ctx.fillRect(x, y, w, h);
 
-    ctx.strokeStyle = cols.accent;
-    ctx.lineWidth = 3;
-    ctx.strokeRect(x, y, w, h);
 
     // Title
     ctx.fillStyle = cols.text;

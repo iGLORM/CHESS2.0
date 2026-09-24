@@ -82,7 +82,7 @@ class BarBalance {
     // Spawn spark particles when tilting dangerously
     if (Math.abs(this.angle) > 0.6) {
       const theme = ThemeManager.getTheme(store.get('theme'));
-      this._spawnParticles(0, 0, theme.colors);
+      this._spawnParticles(0, 0, MiniGameUtils.colors());
       // Small shake when tilting hard
       if (this.shakeTimer <= 0) {
         this.shakeTimer = 0.08;
@@ -169,11 +169,9 @@ class BarBalance {
 
   render(ctx, x, y, w, h) {
     const theme = ThemeManager.getTheme(store.get('theme'));
-    const cols = theme.colors;
+    const cols = MiniGameUtils.colors();
     this.lastRect = { x, y, w, h };
 
-    ctx.fillStyle = cols.background || cols.bg || cols.panel;
-    ctx.fillRect(x, y, w, h);
 
     // Animated background pattern: scrolling dots
     ctx.save();

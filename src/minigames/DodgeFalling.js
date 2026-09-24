@@ -229,7 +229,7 @@ class DodgeFalling {
 
   render(ctx, x, y, w, h) {
     const theme = ThemeManager.getTheme(store.get('theme'));
-    const cols = theme.colors;
+    const cols = MiniGameUtils.colors();
     this.lastRect = { x, y, w, h };
 
     ctx.save();
@@ -240,11 +240,6 @@ class DodgeFalling {
     }
 
     // Background
-    ctx.fillStyle = cols.background || cols.bg || cols.panel;
-    ctx.fillRect(x, y, w, h);
-    ctx.strokeStyle = cols.accent;
-    ctx.lineWidth = 3;
-    ctx.strokeRect(x, y, w, h);
 
     // Title
     ctx.fillStyle = cols.text;
@@ -263,8 +258,8 @@ class DodgeFalling {
     for (let i = 0; i < this.hp; i++) {
       ctx.save();
       ctx.shadowBlur = 6;
-      ctx.shadowColor = cols.accent;
-      ctx.fillStyle = cols.accent;
+      ctx.shadowColor = cols.danger;
+      ctx.fillStyle = cols.danger;
       ctx.beginPath();
       ctx.arc(heartsStartX + i * heartSpacing, heartsY, heartSize, 0, Math.PI * 2);
       ctx.fill();
@@ -290,7 +285,7 @@ class DodgeFalling {
     for (const p of this.particles) {
       const alpha = Math.max(0, p.life / p.maxLife);
       ctx.globalAlpha = alpha * 0.5;
-      ctx.fillStyle = cols.accent;
+      ctx.fillStyle = cols.danger;
       ctx.fillRect(areaX + (p.x - p.w / 2) * sx, areaY - 6 + p.y * sy, p.w * sx, p.h * sy);
     }
     ctx.globalAlpha = 1;
@@ -303,10 +298,10 @@ class DodgeFalling {
       // Glow
       ctx.save();
       ctx.shadowBlur = 8;
-      ctx.shadowColor = cols.accent;
+      ctx.shadowColor = cols.danger;
 
       // Main block body
-      ctx.fillStyle = cols.accent;
+      ctx.fillStyle = cols.danger;
       ctx.fillRect(bx, by, b.w * sx, b.h * sy);
 
       ctx.restore();
@@ -364,18 +359,6 @@ class DodgeFalling {
     }
 
     // Game over text
-    if (this.done) {
-      const win = this.winner === 'attacker';
-      ctx.fillStyle = win ? 'rgba(80, 220, 130, 0.30)' : 'rgba(220, 70, 80, 0.30)';
-      ctx.fillRect(x, y, w, h);
-      ctx.fillStyle = cols.text;
-      ctx.shadowColor = win ? cols.accent : (cols.highlight || cols.accent);
-      ctx.shadowBlur = 14;
-      ctx.font = 'bold 18px "Pixelify Sans", sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText(win ? 'You Win!' : 'You Lose!', x + w / 2, y + h / 2);
-      ctx.shadowBlur = 0;
-    }
 
     ctx.restore();
   }

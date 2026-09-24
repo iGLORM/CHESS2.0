@@ -122,18 +122,13 @@ class TimingStrike {
 
   render(ctx, x, y, w, h) {
     const theme = ThemeManager.getTheme(store.get('theme'));
-    const cols = theme.colors;
+    const cols = MiniGameUtils.colors();
 
     // Scale fonts based on available height
     const titleSize = Math.max(18, Math.min(24, h * 0.035));
     const bodySize = Math.max(12, Math.min(16, h * 0.022));
     const labelSize = Math.max(10, Math.min(14, h * 0.018));
 
-    ctx.fillStyle = cols.background || cols.bg || cols.panel;
-    ctx.fillRect(x, y, w, h);
-    ctx.strokeStyle = cols.accent;
-    ctx.lineWidth = 3;
-    ctx.strokeRect(x, y, w, h);
 
     // Title area: top 15% of available height
     const titleY = y + h * 0.06;
