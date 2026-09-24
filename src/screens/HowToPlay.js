@@ -16,9 +16,10 @@ const HowToPlay = {
       title: 'Capture Challenges',
       icon: 'play',
       lines: [
-        'Each side starts with two defense charges.',
-        'A threatened piece can spend one charge for a survival mini-game.',
-        'Win to survive; lose and the capture goes through.',
+        'Each side has 2 Defenses and earns 1 more every 2 captures.',
+        'When a piece is captured, its owner can spend a Defense on a mini-game.',
+        'Win it and the capture is cancelled; the attacker loses their turn.',
+        'Captures that get a king out of check cannot be blocked.',
       ],
     },
     {
@@ -34,8 +35,9 @@ const HowToPlay = {
       title: 'Controls',
       icon: 'settings',
       lines: [
-        'Mouse selects pieces and activates UI.',
-        'Escape pauses during gameplay or backs out of menus.',
+        'Click a piece, then a highlighted square. Esc pauses.',
+        'U undoes your last move, F flips the board.',
+        'Arrow keys step back and forward through the game.',
         'F11 toggles fullscreen.',
       ],
     },

@@ -1,6 +1,7 @@
 const BotSelect = {
+  isPixiScreen: true,
+  pixiContainer: null,
   eloValue: 1000,
-  dragging: false,
 
   init() {
     // Convert stored classic difficulty (1-10) to Elo, or use stored Elo
@@ -11,6 +12,16 @@ const BotSelect = {
       const diff = store.get('classicDifficulty') || 5;
       this.eloValue = 200 + (diff - 1) * 200; // 200, 400, ..., 2000
     }
+    this.playAs = store.get('p1IsWhite') === false ? 'black' : 'white';
+    this.build();
+  },
+
+  destroy() {
+    PixiPremiumScene.destroy(this);
+  },
+
+  pixiUpdate(dt) {
+    PixiPremiumScene.update(this.pixiContainer, dt);
   },
 
   eloToDifficulty(elo) {
@@ -43,252 +54,88 @@ const BotSelect = {
     return 'Full strength. The ultimate challenge.';
   },
 
-  destroy() {},
+  build() {
+    if (this.pixiContainer) this.pixiContainer.destroy({ children: true });
+    this.pixiContainer = PixiPremiumScene.root('Classic Chess', 'Standard rules against the computer', {
+      footerHint: 'Drag the slider or use the arrow keys  |  Enter to start',
+    });
+    PixiScreenManager.setScreenContainer(this.pixiContainer);
 
-  render(ctx, dt) {
-    const theme = ThemeManager.getTheme(store.get('theme'));
-    const cols = theme.colors;
-    const W = Layout.W;
-    const H = Layout.H;
-    const cx = Layout.cx;
+    const cols = ThemeManager.getCurrentColors();
     const portrait = Layout.isPortrait;
-    const s = Layout.uiScale || 1;
-
-    const usePixiBg = typeof PixiMenuBackground !== 'undefined' && PixiMenuBackground.initialized;
-    if (usePixiBg) {
-      ctx.clearRect(0, 0, W, H);
-    } else if (typeof backgroundRenderer !== 'undefined') {
-      backgroundRenderer.render(ctx, dt);
-    } else {
-      ctx.fillStyle = cols.background;
-      ctx.fillRect(0, 0, W, H);
-    }
-
-    const titleY = Math.round(60 * s);
-    const subY = Math.round(90 * s);
-    const sepY = Math.round(108 * s);
-
-    ctx.fillStyle = cols.text;
-    ctx.font = 'bold ' + Math.round(32 * s) + 'px "Pixelify Sans", sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText('SELECT OPPONENT', cx, titleY);
-    ctx.fillStyle = cols.text + '77';
-    ctx.font = Math.round(18 * s) + 'px "Pixelify Sans", sans-serif';
-    ctx.fillText('Choose your AI opponent strength', cx, subY);
-    UIHelpers.drawSeparator(ctx, cx - 340 * s, sepY, 680 * s, cols);
-
-    const rawPanelW = portrait ? 700 : 800;
-    const panelW = Math.min(rawPanelW, W - 80);
-    const panelX = Math.round((W - panelW) / 2);
-    const panelTop = Math.round(130 * s);
-    const panelH = Math.round(320 * s);
-    UIHelpers.drawPanel(ctx, panelX, panelTop, panelW, panelH, cols, { accentTop: true });
-
-    ctx.fillStyle = cols.accent;
-    ctx.font = 'bold ' + Math.round(64 * s) + 'px "Pixelify Sans", sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText(this.eloValue, cx, panelTop + Math.round(80 * s));
-
-    ctx.fillStyle = cols.text + '88';
-    ctx.font = Math.round(18 * s) + 'px "Pixelify Sans", sans-serif';
-    ctx.fillText('ELO', cx, panelTop + Math.round(104 * s));
-
-    const name = this.eloToName(this.eloValue);
-    ctx.fillStyle = cols.accent;
-    ctx.font = 'bold ' + Math.round(26 * s) + 'px "Pixelify Sans", sans-serif';
-    ctx.fillText(name, cx, panelTop + Math.round(146 * s));
-
-    ctx.fillStyle = cols.text + '88';
-    ctx.font = Math.round(20 * s) + 'px "Pixelify Sans", sans-serif';
-    ctx.fillText(this.eloToDescription(this.eloValue), cx, panelTop + Math.round(178 * s));
-
-    const sliderW = Math.min(portrait ? 640 : 680, panelW - 60);
-    const sliderX = Math.round(cx - sliderW / 2);
-    const sliderY = panelTop + Math.round(220 * s);
-    const sliderH = Math.round(18 * s);
-
-    this._sliderBounds = { x: sliderX, y: sliderY, w: sliderW, h: sliderH };
-
-    ctx.fillStyle = cols.panel;
-    ctx.fillRect(sliderX, sliderY, sliderW, sliderH);
-    ctx.strokeStyle = cols.text + '44';
-    ctx.lineWidth = 1;
-    ctx.strokeRect(sliderX, sliderY, sliderW, sliderH);
-
-    const grad = ctx.createLinearGradient(sliderX, 0, sliderX + sliderW, 0);
-    grad.addColorStop(0, '#44dd44');
-    grad.addColorStop(0.4, '#ddaa22');
-    grad.addColorStop(0.7, '#dd6622');
-    grad.addColorStop(1, '#dd2222');
-    ctx.fillStyle = grad;
-    const fillW = ((this.eloValue - 200) / 1800) * sliderW;
-    ctx.fillRect(sliderX, sliderY, fillW, sliderH);
-
-    const knobX = sliderX + fillW;
-    ctx.fillStyle = cols.text;
-    ctx.fillRect(knobX - 6, sliderY - 4, 12, sliderH + 8);
-    ctx.fillStyle = cols.accent;
-    ctx.fillRect(knobX - 4, sliderY - 2, 8, sliderH + 4);
-
-    ctx.fillStyle = cols.text + '66';
-    ctx.font = Math.round(16 * s) + 'px "Pixelify Sans", sans-serif';
-    ctx.textAlign = 'left';
-    ctx.fillText('200', sliderX, sliderY + sliderH + Math.round(22 * s));
-    ctx.textAlign = 'right';
-    ctx.fillText('2000', sliderX + sliderW, sliderY + sliderH + Math.round(22 * s));
-
-    ctx.fillStyle = cols.text + '33';
-    ctx.textAlign = 'center';
-    for (let e = 400; e <= 1800; e += 200) {
-      const tx = sliderX + ((e - 200) / 1800) * sliderW;
-      ctx.fillRect(tx, sliderY + sliderH, 1, 4);
-    }
-
-    const diff = this.eloToDifficulty(this.eloValue);
-    const config = AIController.LEVEL_CONFIG[diff];
-    if (config) {
-      ctx.fillStyle = cols.text + '66';
-      ctx.font = Math.round(18 * s) + 'px "Pixelify Sans", sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText('Depth: ' + config.depth + '  |  AI Level: ' + diff, cx, panelTop + Math.round(290 * s));
-    }
-
-    const sideY = panelTop + panelH + Math.round(30 * s);
-    ctx.fillStyle = cols.text + '88';
-    ctx.font = Math.round(20 * s) + 'px "Pixelify Sans", sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText('Play as:', cx, sideY);
-
-    const p1IsWhite = store.get('p1IsWhite') !== false;
-    const btnW = Math.round(160 * s);
-    const btnH = Math.round(48 * s);
-    const btnGap = Math.round(20 * s);
-    const sideBtnY = sideY + Math.round(16 * s);
-
-    UIHelpers.drawButton(ctx, cx - btnW - btnGap / 2, sideBtnY, btnW, btnH, 'White', cols, {
-      font: 'bold ' + Math.round(20 * s) + 'px "Pixelify Sans", sans-serif',
-      active: p1IsWhite,
-      radius: 10,
-    });
-    UIHelpers.drawButton(ctx, cx + btnGap / 2, sideBtnY, btnW, btnH, 'Black', cols, {
-      font: 'bold ' + Math.round(20 * s) + 'px "Pixelify Sans", sans-serif',
-      active: !p1IsWhite,
-      radius: 10,
-    });
-
-    this._sideBtnY = sideBtnY;
-    this._sideBtnW = btnW;
-    this._sideBtnH = btnH;
-    this._sideBtnGap = btnGap;
-
-    ctx.fillStyle = cols.text + '44';
-    ctx.font = Math.round(16 * s) + 'px "Pixelify Sans", sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText('Drag slider or use arrow keys.', cx, sideBtnY + btnH + Math.round(30 * s));
-
-    const startW = Math.round((portrait ? 340 : 220) * s);
-    const startH = Math.round(56 * s);
-    const startX = Math.round(cx - startW / 2);
-    const startY = portrait ? sideBtnY + btnH + Math.round(60 * s) : H - Math.round(120 * s);
-    ctx.fillStyle = cols.accent + '22';
-    ctx.fillRect(startX + 2, startY + 2, startW - 4, startH + 4);
-    ctx.fillRect(startX + 4, startY + 4, startW, startH + 8);
-    UIHelpers.drawButton(ctx, startX, startY, startW, startH, 'START GAME', cols, {
-      font: 'bold ' + Math.round(22 * s) + 'px "Pixelify Sans", sans-serif',
-      active: true,
-      radius: 10,
-    });
-
-    const backY = portrait ? startY + startH + Math.round(24 * s) : H - Math.round(60 * s);
-    const ditherY = backY - 10;
-    UIHelpers.drawDitheredRect(ctx, 0, ditherY, W, 30, cols.accent, '11');
-    const backW = Math.max(160, Math.round(160 * s));
-    const backH = Math.max(44, Math.round(44 * s));
-    UIHelpers.drawButton(ctx, 30, backY - 10, backW, backH, '< Back', cols, { font: 'bold ' + Math.round(18 * s) + 'px "Pixelify Sans", sans-serif', radius: 10 });
-
-    this._startBounds = { x: startX, y: startY, w: startW, h: startH };
-    this._backBounds = { x: 30, y: backY - 10, w: backW, h: backH };
-  },
-
-  _sliderToElo(x) {
-    const sb = this._sliderBounds || { x: Layout.isPortrait ? 80 : 300, w: Layout.isPortrait ? 640 : 680 };
-    const pct = Math.max(0, Math.min(1, (x - sb.x) / sb.w));
-    return Math.round((200 + pct * 1800) / 50) * 50; // snap to 50
-  },
-
-  _inBounds(x, y, b) {
-    return b && x >= b.x && x <= b.x + b.w && y >= b.y && y <= b.y + b.h;
-  },
-
-  handleClick(x, y) {
     const cx = Layout.cx;
+    const panelW = portrait ? 700 : 760;
+    const panelX = Math.round(cx - panelW / 2);
+    const panelY = portrait ? 190 : 168;
+    const panelH = 300;
+    PixiPremiumScene.panel(this.pixiContainer, panelX, panelY, panelW, panelH, { accentAlpha: 0.5 });
 
-    // Back button
-    if (this._inBounds(x, y, this._backBounds)) {
-      if (typeof audioManager !== 'undefined' && typeof audioManager.playButton === 'function') audioManager.playButton();
-      switchScreen('home');
-      return;
-    }
+    const centered = (text, y, style) => {
+      const t = PixiPremiumScene.text(text, style);
+      t.anchor.set(0.5, 0);
+      t.x = cx;
+      t.y = y;
+      this.pixiContainer.addChild(t);
+      return t;
+    };
 
-    // Start button
-    if (this._inBounds(x, y, this._startBounds)) {
-      if (typeof audioManager !== 'undefined' && typeof audioManager.playButton === 'function') audioManager.playButton();
-      store.set('classicElo', this.eloValue);
-      store.set('classicDifficulty', this.eloToDifficulty(this.eloValue));
-      store.set('mode', 'classic');
-      store.set('miniGamesEnabled', false);
-      switchScreen('game');
-      return;
-    }
+    const elo = centered(String(this.eloValue), panelY + 34, { fontFamily: PixiTextStyles.FONT_TITLE, fontSize: 56, fontWeight: 'bold', fill: cols.accent });
+    centered('ELO', panelY + 100, { fontSize: 16, fontWeight: '700', fill: PixiPremiumScene.alpha(cols.text, '88') });
+    const name = centered(this.eloToName(this.eloValue), panelY + 128, { fontSize: 28, fontWeight: '800', fill: cols.text });
+    const desc = centered(this.eloToDescription(this.eloValue), panelY + 166, { fontSize: 20, fill: PixiPremiumScene.alpha(cols.text, 'aa') });
 
-    // Side selection
-    const btnW = this._sideBtnW || 160;
-    const btnH = this._sideBtnH || 40;
-    const btnGap = this._sideBtnGap || 20;
-    const sideBtnY = this._sideBtnY || 485;
-    if (x >= cx - btnW - btnGap / 2 && x <= cx - btnGap / 2 && y >= sideBtnY && y <= sideBtnY + btnH) {
-      if (typeof audioManager !== 'undefined' && typeof audioManager.playButton === 'function') audioManager.playButton();
-      store.set('p1IsWhite', true);
-      return;
-    }
-    if (x >= cx + btnGap / 2 && x <= cx + btnGap / 2 + btnW && y >= sideBtnY && y <= sideBtnY + btnH) {
-      if (typeof audioManager !== 'undefined' && typeof audioManager.playButton === 'function') audioManager.playButton();
-      store.set('p1IsWhite', false);
-      return;
-    }
+    const sliderW = panelW - 120;
+    const slider = new PixiSlider({
+      width: sliderW,
+      height: 18,
+      min: 200,
+      max: 2000,
+      step: 50,
+      value: this.eloValue,
+      cols,
+      gradientStops: [
+        { pos: 0, color: '#7dea99' },
+        { pos: 0.45, color: cols.accent },
+        { pos: 1, color: '#ff6578' },
+      ],
+      showTicks: true,
+      tickInterval: 300,
+    });
+    slider.x = Math.round(cx - sliderW / 2);
+    slider.y = panelY + 222;
+    slider.onChange((value) => {
+      this.eloValue = value;
+      elo.text = String(value);
+      name.text = this.eloToName(value);
+      desc.text = this.eloToDescription(value);
+    });
+    this.pixiContainer.addChild(slider);
+    this._slider = slider;
 
-    // Slider click
-    const sb = this._sliderBounds || { x: Layout.isPortrait ? 80 : 300, y: 350, w: Layout.isPortrait ? 640 : 680, h: 16 };
-    if (x >= sb.x && x <= sb.x + sb.w && y >= sb.y - 4 && y <= sb.y + sb.h + 4) {
-      this.eloValue = this._sliderToElo(x);
-      this.dragging = true;
-      return;
-    }
+    const sideY = panelY + panelH + 34;
+    centered('Play as', sideY, { fontSize: 20, fontWeight: '700', fill: PixiPremiumScene.alpha(cols.text, 'aa') });
+    const sideBtnW = 150;
+    ['white', 'black'].forEach((color, i) => {
+      const x = i === 0 ? cx - sideBtnW - 10 : cx + 10;
+      PixiPremiumScene.button(this.pixiContainer, x, sideY + 36, sideBtnW, 48, color === 'white' ? 'White' : 'Black', () => {
+        this.playAs = color;
+        this.build();
+      }, { primary: this.playAs === color, fontSize: 18 });
+    });
+
+    const btnY = Layout.H - 82;
+    PixiPremiumScene.button(this.pixiContainer, 36, btnY, 160, 44, 'Back', () => switchScreen('home'), { icon: 'back' });
+    PixiPremiumScene.button(this.pixiContainer, Layout.W - 260, btnY - 8, 220, 58, 'Start Game', () => this.startGame(), { primary: true, icon: 'play', fontSize: 22 });
   },
 
-  handleMouseMove(x, y) {
-    if (this.dragging) {
-      this.eloValue = this._sliderToElo(x);
-      return;
-    }
-    const canvas = document.getElementById('gameCanvas');
-    const sb = this._sliderBounds || { x: Layout.isPortrait ? 80 : 300, y: 350, w: Layout.isPortrait ? 640 : 680, h: 16 };
-    const onSlider = x >= sb.x && x <= sb.x + sb.w && y >= sb.y - 4 && y <= sb.y + sb.h + 4;
-    const onStart = this._inBounds(x, y, this._startBounds);
-    const onBack = this._inBounds(x, y, this._backBounds);
-    canvas.style.cursor = (onSlider || onStart || onBack) ? 'pointer' : 'default';
-  },
-
-  handleMouseDown(x, y) {
-    const sb = this._sliderBounds || { x: Layout.isPortrait ? 80 : 300, y: 350, w: Layout.isPortrait ? 640 : 680, h: 16 };
-    if (x >= sb.x && x <= sb.x + sb.w && y >= sb.y - 10 && y <= sb.y + sb.h + 10) {
-      this.dragging = true;
-      this.eloValue = this._sliderToElo(x);
-    }
-  },
-
-  handleMouseUp() {
-    this.dragging = false;
+  startGame() {
+    store.set('classicElo', this.eloValue);
+    store.set('classicDifficulty', this.eloToDifficulty(this.eloValue));
+    store.set('p1IsWhite', this.playAs !== 'black');
+    store.set('mode', 'classic');
+    store.set('miniGamesEnabled', false);
+    store.saveProgress();
+    switchScreen('game');
   },
 
   handleKeyDown(e) {
@@ -296,18 +143,10 @@ const BotSelect = {
       switchScreen('home');
       return;
     }
-    if (e.key === 'ArrowLeft') {
-      this.eloValue = Math.max(200, this.eloValue - 50);
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+      const next = e.key === 'ArrowLeft' ? this.eloValue - 50 : this.eloValue + 50;
+      this._slider.setValue(Math.max(200, Math.min(2000, next)));
     }
-    if (e.key === 'ArrowRight') {
-      this.eloValue = Math.min(2000, this.eloValue + 50);
-    }
-    if (e.key === 'Enter' || e.key === ' ') {
-      store.set('classicElo', this.eloValue);
-      store.set('classicDifficulty', this.eloToDifficulty(this.eloValue));
-      store.set('mode', 'classic');
-      store.set('miniGamesEnabled', false);
-      switchScreen('game');
-    }
+    if (e.key === 'Enter' || e.key === ' ') this.startGame();
   },
 };

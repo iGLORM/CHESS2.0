@@ -223,7 +223,9 @@ const PixiPremiumScene = {
   button(parent, x, y, w, h, label, onClick, options = {}) {
     const cols = this.cols();
     const scale = (typeof Layout !== 'undefined' && Layout.uiScale) || 1;
-    const scaledH = Math.max(Math.round(h * scale), 68);
+    // Large touch targets in portrait (phones); in landscape honour the
+    // requested height so buttons don't overlap the layout around them.
+    const scaledH = Layout.isPortrait ? Math.max(Math.round(h * scale), 68) : Math.round(h * scale);
     const scaledFontSize = Math.round((options.fontSize || 18) * scale);
     const btn = this.card(parent, x, y, w, scaledH, {
       active: options.primary,

@@ -126,6 +126,8 @@ class Store {
         customBgTheme: this.state.customBgTheme,
         stats: this.state.stats,
         trainingProgress: this.state.trainingProgress,
+        // Player names and last-used Classic/Custom game options.
+        prefs: Object.fromEntries(Store.PREF_KEYS.map(k => [k, this.state[k]])),
       }));
     } catch (e) { console.warn('Store: failed to save progress', e.message); }
   }
@@ -164,6 +166,11 @@ class Store {
         this.state.customMusicTheme = data.customMusicTheme || 'space';
         this.state.customBgTheme = data.customBgTheme || 'space';
         this.state.stats = { ...this.state.stats, ...data.stats };
+        if (data.prefs) {
+          for (const k of Store.PREF_KEYS) {
+            if (data.prefs[k] !== undefined && data.prefs[k] !== null) this.state[k] = data.prefs[k];
+          }
+        }
         if (data.trainingProgress) {
           this.state.trainingProgress = { ...this.state.trainingProgress, ...data.trainingProgress };
         }
@@ -208,5 +215,7 @@ class Store {
     }
   }
 }
+
+Store.PREF_KEYS = ['whitePlayer', 'blackPlayer', 'classicElo', 'classicDifficulty', 'customElo', 'customDifficulty', 'customPlayAs', 'customGameplayMode', 'customMinigames'];
 
 const store = new Store();

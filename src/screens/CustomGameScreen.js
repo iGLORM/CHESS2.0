@@ -121,16 +121,19 @@ const CustomGameScreen = {
     });
     this.pixiContainer.addChild(slider);
 
-    const btnAreaX = portrait ? (innerX + sliderW - 360) : 994;
-    const btnAreaY = portrait ? 288 : 190;
+    // Landscape: side buttons and the rules toggle stack at the panel's right edge.
+    const btnAreaX = portrait ? (innerX + sliderW - 360) : 1000;
+    const btnAreaY = portrait ? 288 : 160;
     ['white', 'black'].forEach((color, i) => {
-      PixiPremiumScene.button(this.pixiContainer, btnAreaX + i * 94, btnAreaY, 82, 42, color === 'white' ? 'White' : 'Black', () => {
+      PixiPremiumScene.button(this.pixiContainer, btnAreaX + i * 92, btnAreaY, 84, 40, color === 'white' ? 'White' : 'Black', () => {
         this.playAs = color;
         this.build();
       }, { primary: this.playAs === color, fontSize: 16 });
     });
 
-    PixiPremiumScene.button(this.pixiContainer, btnAreaX + 194, btnAreaY + 3, 176, 36, this.gameplayMode ? 'Gameplay: ON' : 'Gameplay: OFF', () => {
+    const rulesX = portrait ? btnAreaX + 194 : btnAreaX;
+    const rulesY = portrait ? btnAreaY + 3 : btnAreaY + 52;
+    PixiPremiumScene.button(this.pixiContainer, rulesX, rulesY, 176, 40, this.gameplayMode ? 'Defenses: ON' : 'Defenses: OFF', () => {
       this.gameplayMode = !this.gameplayMode;
       this.build();
     }, { primary: this.gameplayMode, fontSize: 14 });

@@ -124,6 +124,60 @@ const GameScreen = {
     this._dialogueBubble = null;
     this._initDialogue();
     this.saveSnapshot();
+
+    // First game with Chess 2.0 rules: explain Defenses before anyone moves.
+    const settings = store.get('settings') || {};
+    if (this.gameplayMode && store.get('miniGamesEnabled') && !settings.seenRulesIntro) {
+      this._showRulesIntro();
+    }
+  },
+
+  _showRulesIntro() {
+    this.introVisible = true;
+    const cols = ThemeManager.getCurrentColors();
+    const c = new PIXI.Container();
+    c.zIndex = 950;
+    const shade = new PIXI.Graphics().rect(0, 0, Layout.W, Layout.H).fill({ color: 0x000000, alpha: 0.66 });
+    c.addChild(shade);
+    const w = Math.min(660, Layout.W - 60);
+    const h = 440;
+    const x = Math.round(Layout.cx - w / 2);
+    const y = Math.round(Layout.cy - h / 2);
+    PixiPremiumScene.panel(c, x, y, w, h, { alpha: 0.96, accentAlpha: 0.9 });
+    const title = PixiPremiumScene.text('CHESS 2.0 RULES', { fontFamily: PixiTextStyles.FONT_TITLE, fontSize: 30, fontWeight: 'bold', fill: cols.accent });
+    title.anchor.set(0.5, 0);
+    title.x = Layout.cx;
+    title.y = y + 34;
+    c.addChild(title);
+    const paragraphs = [
+      'Normal chess, with one twist.',
+      'When one of your pieces is about to be captured, you can spend a Defense to play a quick mini-game. Win it and the capture is cancelled: your opponent loses their turn.',
+      'You start with 2 Defenses and earn 1 more for every 2 captures. A capture that gets a king out of check cannot be blocked.',
+    ];
+    let ty = y + 96;
+    for (const para of paragraphs) {
+      const t = PixiPremiumScene.text(para, { fontSize: 19, fill: cols.text, lineHeight: 27, wordWrap: true, wordWrapWidth: w - 76 });
+      t.x = x + 38;
+      t.y = ty;
+      c.addChild(t);
+      ty += t.height + 16;
+    }
+    const bw = 200, bh = 52;
+    const bx = Math.round(Layout.cx - bw / 2), by = y + h - bh - 26;
+    PixiPremiumScene.button(c, bx, by, bw, bh, "Let's play", () => this._dismissRulesIntro(), { primary: true, fontSize: 20 });
+    this._introButton = { x: bx, y: by, w: bw, h: Layout.isPortrait ? Math.max(bh, 68) : bh };
+    PixiApp.stage.addChild(c);
+    PixiApp.stage.sortableChildren = true;
+    this._introContainer = c;
+  },
+
+  _dismissRulesIntro() {
+    if (!this.introVisible) return;
+    this.introVisible = false;
+    if (this._introContainer) { this._introContainer.destroy({ children: true }); this._introContainer = null; }
+    store.set('settings', { ...(store.get('settings') || {}), seenRulesIntro: true });
+    store.saveProgress();
+    this.aiCooldown = 400;
   },
 
   _initVisuals() {
@@ -165,6 +219,8 @@ const GameScreen = {
 
   destroy() {
     this._aiToken = (this._aiToken || 0) + 1;
+    this.introVisible = false;
+    if (this._introContainer) { this._introContainer.destroy({ children: true }); this._introContainer = null; }
     if (this._aiTimeout) {
       clearTimeout(this._aiTimeout);
       this._aiTimeout = null;
@@ -378,7 +434,7 @@ const GameScreen = {
       this.aiCooldown -= dt * 1000;
       if (this.aiCooldown < 0) this.aiCooldown = 0;
     }
-    const isLive = this.reviewingAt === null;
+    const isLive = this.reviewingAt === null && !this.introVisible;
     if (isLive && this.isAIMode && this.turn === this.aiColor && !this.aiThinking && !this.gameOver && this.aiCooldown <= 0) {
       this.doAIMove();
     }
@@ -489,6 +545,12 @@ const GameScreen = {
   },
 
   handleClick(x, y) {
+    if (this.introVisible) {
+      const b = this._introButton;
+      if (b && x >= b.x && x <= b.x + b.w && y >= b.y && y <= b.y + b.h) this._dismissRulesIntro();
+      return;
+    }
+
     // Promotion dialog
     if (this.promotionPending) {
       const sqSize = 80;
@@ -645,6 +707,10 @@ const GameScreen = {
   },
 
   handleKeyDown(e) {
+    if (this.introVisible) {
+      if (e.key === 'Enter' || e.key === ' ' || e.key === 'Escape') this._dismissRulesIntro();
+      return;
+    }
     if (e.key === 'Escape') {
       if (this.gameOver) {
         switchScreen('home');
