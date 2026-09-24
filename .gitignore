@@ -13,3 +13,4 @@ dev/
 _test_*
 deploy.sh
 nginx-game.conf
+.playwright-mcp/
