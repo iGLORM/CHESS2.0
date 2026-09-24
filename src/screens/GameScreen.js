@@ -33,6 +33,54 @@ const GameScreen = {
 
   _lastInitData: null,
 
+  SAVE_KEY: 'chess2_current_game',
+
+  getSavedGame() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(this.SAVE_KEY));
+      return saved && saved.v === 1 && saved.snapshots && saved.snapshots.length > 1 ? saved : null;
+    } catch (e) {
+      return null;
+    }
+  },
+
+  clearSavedGame() {
+    try { localStorage.removeItem(this.SAVE_KEY); } catch (e) { /* storage unavailable */ }
+  },
+
+  // Keeps the live game in localStorage so it survives closing the app.
+  _persistGame() {
+    if (this.gameOver || this.reviewingAt !== null) return;
+    if (this.moveHistory.length === 0) { this.clearSavedGame(); return; }
+    try {
+      localStorage.setItem(this.SAVE_KEY, JSON.stringify({
+        v: 1,
+        mode: this.mode,
+        p1IsWhite: this.playerColor === 'white',
+        selectedCharacter: this.currentCharacter ? this.currentCharacter.id : null,
+        characterLevel: this.characterLevel,
+        gameplayMode: this.gameplayMode,
+        miniGamesEnabled: !!store.get('miniGamesEnabled'),
+        customMinigames: store.get('customMinigames') || {},
+        snapshots: this.boardSnapshots.slice(-40),
+      }));
+    } catch (e) { /* storage full or unavailable: resume just won't be offered */ }
+  },
+
+  resumeSavedGame() {
+    const saved = this.getSavedGame();
+    if (!saved) return;
+    store.update({
+      mode: saved.mode,
+      p1IsWhite: saved.p1IsWhite,
+      miniGamesEnabled: saved.miniGamesEnabled,
+      customGameplayMode: saved.gameplayMode,
+      customMinigames: saved.customMinigames,
+    });
+    if (saved.selectedCharacter) store.set('selectedCharacter', saved.selectedCharacter);
+    switchScreen('game', { restore: saved });
+  },
+
   init(data) {
     // Returning from Settings opened via the pause menu: keep the game as it was.
     if (data && data.resume && this.board && !this.gameOver) {
@@ -124,6 +172,17 @@ const GameScreen = {
     this._dialogueBubble = null;
     this._initDialogue();
     this.saveSnapshot();
+
+    if (data && data.restore) {
+      const saved = data.restore;
+      this._lastInitData = null;
+      this.characterLevel = saved.characterLevel;
+      this.gameplayMode = saved.gameplayMode !== false;
+      this.boardSnapshots = saved.snapshots;
+      this.restoreSnapshot(this.boardSnapshots[this.boardSnapshots.length - 1]);
+      store.update({ board: this.board, turn: this.turn, gameStatus: this.gameStatus });
+      return;
+    }
 
     // First game with Chess 2.0 rules: explain Defenses before anyone moves.
     const settings = store.get('settings') || {};
@@ -290,6 +349,7 @@ const GameScreen = {
     // Keep only last 200 snapshots
     if (this.boardSnapshots.length > 200) this.boardSnapshots.shift();
     this.boardSnapshots.push(snap);
+    this._persistGame();
   },
 
   restoreSnapshot(snap) {
@@ -374,6 +434,7 @@ const GameScreen = {
     this.aiCooldown = 400;
     this.restoreSnapshot(this.boardSnapshots[idx]);
     this.boardSnapshots.length = idx + 1;
+    this._persistGame();
     this.selectedSquare = null;
     this.legalMoves = [];
     this.pendingRevertMove = null;
@@ -1108,6 +1169,7 @@ const GameScreen = {
   },
 
   handleGameEnd() {
+    this.clearSavedGame();
     if (typeof DialogueManager !== 'undefined') DialogueManager.destroy();
     if (this._dialogueBubble) { this._dialogueBubble.dismiss(); this._dialogueBubble = null; }
 

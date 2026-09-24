@@ -1,12 +1,12 @@
 /*
  * Pixelify Sans and Silkscreen, SIL Open Font License 1.1, bundled so the game
- * works offline. Pixelify Sans is the static per-weight build; its "C", "c" and "2"
- * have been adjusted to open wider so they are not misread as "O" and "8" at
- * small sizes (the original gaps are one pixel wide).
+ * works offline. Pixelify Sans is the static per-weight build. In C, c, 2, 3,
+ * 5, 6, 9, S and G the one-pixel gaps between strokes have been widened so the
+ * letters are not misread as O or 8 at small sizes.
  */
-@font-face { font-family: 'Pixelify Sans'; font-weight: 400; font-display: block; src: url(PixelifySans-400.woff2?v=3) format('woff2'); }
-@font-face { font-family: 'Pixelify Sans'; font-weight: 500; font-display: block; src: url(PixelifySans-500.woff2?v=3) format('woff2'); }
-@font-face { font-family: 'Pixelify Sans'; font-weight: 600; font-display: block; src: url(PixelifySans-600.woff2?v=3) format('woff2'); }
-@font-face { font-family: 'Pixelify Sans'; font-weight: 700 900; font-display: block; src: url(PixelifySans-700.woff2?v=3) format('woff2'); }
-@font-face { font-family: 'Silkscreen'; font-weight: 400; font-display: block; src: url(Silkscreen-Regular.woff2?v=3) format('woff2'); }
-@font-face { font-family: 'Silkscreen'; font-weight: 700; font-display: block; src: url(Silkscreen-Bold.woff2?v=3) format('woff2'); }
+@font-face { font-family: 'Pixelify Sans'; font-weight: 400; font-display: block; src: url(PixelifySans-400.woff2?v=4) format('woff2'); }
+@font-face { font-family: 'Pixelify Sans'; font-weight: 500; font-display: block; src: url(PixelifySans-500.woff2?v=4) format('woff2'); }
+@font-face { font-family: 'Pixelify Sans'; font-weight: 600; font-display: block; src: url(PixelifySans-600.woff2?v=4) format('woff2'); }
+@font-face { font-family: 'Pixelify Sans'; font-weight: 700 900; font-display: block; src: url(PixelifySans-700.woff2?v=4) format('woff2'); }
+@font-face { font-family: 'Silkscreen'; font-weight: 400; font-display: block; src: url(Silkscreen-Regular.woff2?v=4) format('woff2'); }
+@font-face { font-family: 'Silkscreen'; font-weight: 700; font-display: block; src: url(Silkscreen-Bold.woff2?v=4) format('woff2'); }

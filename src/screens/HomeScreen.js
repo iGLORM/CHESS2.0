@@ -288,7 +288,20 @@ const HomeScreen = {
       document.fonts.ready.then(() => this._refitAllText());
     }
 
+    this._buildResumeButton();
+
     PixiScreenManager.setScreenContainer(this.pixiContainer);
+  },
+
+  // Offer to continue a game that was left unfinished (e.g. the app was closed).
+  _buildResumeButton() {
+    const saved = GameScreen.getSavedGame();
+    if (!saved) return;
+    const names = { story: 'Story', classic: 'Classic', custom: 'Custom', '1v1': '1v1' };
+    const moves = saved.snapshots.length - 1;
+    const label = `Resume ${names[saved.mode] || ''} game (${moves} moves)`;
+    const w = Layout.isPortrait ? 420 : 330;
+    PixiPremiumScene.button(this.pixiContainer, Layout.W - w - 24, 22, w, 44, label, () => GameScreen.resumeSavedGame(), { primary: true, icon: 'play', fontSize: 16 });
   },
 
   _fitText(textObj, maxWidth) {
