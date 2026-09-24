@@ -73,6 +73,7 @@ const HowToPlay = {
       const btnY = Layout.H - Layout.SAFE_BOTTOM - 48;
       PixiPremiumScene.button(this.pixiContainer, 36, btnY, 160, 44, 'Back', () => switchScreen('home'), { icon: 'back' });
       PixiPremiumScene.button(this.pixiContainer, Layout.W - 196, btnY, 160, 44, 'Practice', () => switchScreen('miniGamePractice'), { icon: 'play' });
+      PixiPremiumScene.button(this.pixiContainer, Layout.W / 2 - 80, btnY, 160, 44, 'Credits', () => switchScreen('credits'), { icon: 'spark' });
     } else {
       PixiPremiumScene.panel(this.pixiContainer, 76, 132, 1128, 524, { accentAlpha: 0.42 });
 
@@ -90,6 +91,7 @@ const HowToPlay = {
 
       PixiPremiumScene.button(this.pixiContainer, 36, 718, 160, 44, 'Back', () => switchScreen('home'), { icon: 'back' });
       PixiPremiumScene.button(this.pixiContainer, 1084, 718, 160, 44, 'Practice', () => switchScreen('miniGamePractice'), { icon: 'play' });
+      PixiPremiumScene.button(this.pixiContainer, 908, 718, 160, 44, 'Credits', () => switchScreen('credits'), { icon: 'spark' });
     }
   },
 

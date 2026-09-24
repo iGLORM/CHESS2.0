@@ -146,6 +146,7 @@ function initApp() {
   registerScreen('settings', SettingsScreen);
   registerScreen('miniGamePractice', MiniGamePractice);
   registerScreen('howToPlay', HowToPlay);
+  registerScreen('credits', CreditsScreen);
   registerScreen('botSelect', BotSelect);
   registerScreen('customGame', CustomGameScreen);
   registerScreen('stats', StatsScreen);
