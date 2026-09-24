@@ -73,7 +73,7 @@ const SettingsScreen = {
       const panelW = Math.min(720, Layout.W - 80);
       const panelX = (Layout.W - panelW) / 2;
       PixiPremiumScene.panel(this.pixiContainer, panelX, 132, panelW, 330, { accentAlpha: 0.48 });
-      this.sectionTitle(panelX + 32, 160, 'Audio Mix', 'Balanced sliders with no hidden hitboxes');
+      this.sectionTitle(panelX + 32, 160, 'Audio Mix', 'Music and sound effects');
 
       const sliderW = panelW - 160;
       this.addSlider(panelX + 40, 236, sliderW, 'Music Volume', this.settings.musicVolume, (value) => {
@@ -119,7 +119,7 @@ const SettingsScreen = {
       this.pixiContainer.addChild(bossHint);
     } else {
       PixiPremiumScene.panel(this.pixiContainer, 76, 132, 552, 330, { accentAlpha: 0.48 });
-      this.sectionTitle(108, 160, 'Audio Mix', 'Balanced sliders with no hidden hitboxes');
+      this.sectionTitle(108, 160, 'Audio Mix', 'Music and sound effects');
 
       this.addSlider(116, 236, 472, 'Music Volume', this.settings.musicVolume, (value) => {
         this.settings.musicVolume = value;
@@ -173,11 +173,11 @@ const SettingsScreen = {
       const panelX = (Layout.W - panelW) / 2;
       const panelY = 492;
       PixiPremiumScene.panel(this.pixiContainer, panelX, panelY, panelW, 270, { accentAlpha: 0.48 });
-      this.sectionTitle(panelX + 32, panelY + 28, 'Players', 'Readable names with inline editing');
+      this.sectionTitle(panelX + 32, panelY + 28, 'Players', 'Names shown in Local 1v1 games');
       this.nameRow(panelX + 40, panelY + 98, 'Player 1 Name', 'whitePlayer', store.get('whitePlayer') || 'Player 1', panelW - 80);
       this.nameRow(panelX + 40, panelY + 178, 'Player 2 Name', 'blackPlayer', store.get('blackPlayer') || 'Player 2', panelW - 80);
 
-      const note = PixiPremiumScene.text('Names are UI-only and do not change save compatibility.', {
+      const note = PixiPremiumScene.text('Click a name to edit it. Enter saves, Escape cancels.', {
         fontSize: Math.round(15 * s),
         fill: PixiPremiumScene.alpha(cols.text, '77'),
       });
@@ -187,11 +187,11 @@ const SettingsScreen = {
       this.pixiContainer.addChild(note);
     } else {
       PixiPremiumScene.panel(this.pixiContainer, 660, 132, 544, 330, { accentAlpha: 0.48 });
-      this.sectionTitle(692, 160, 'Players', 'Readable names with inline editing');
+      this.sectionTitle(692, 160, 'Players', 'Names shown in Local 1v1 games');
       this.nameRow(700, 230, 'Player 1 Name', 'whitePlayer', store.get('whitePlayer') || 'Player 1');
       this.nameRow(700, 310, 'Player 2 Name', 'blackPlayer', store.get('blackPlayer') || 'Player 2');
 
-      const note = PixiPremiumScene.text('Names are UI-only and do not change save compatibility.', {
+      const note = PixiPremiumScene.text('Click a name to edit it. Enter saves, Escape cancels.', {
         fontSize: Math.round(15 * s),
         fill: PixiPremiumScene.alpha(cols.text, '77'),
       });
@@ -199,7 +199,30 @@ const SettingsScreen = {
       note.y = 366;
       PixiPremiumScene.fit(note, 450);
       this.pixiContainer.addChild(note);
+      this.buildFullscreenRow(700, 412, 1140);
     }
+  },
+
+  // Fullscreen switch (desktop and desktop browsers; phones are always full screen).
+  buildFullscreenRow(labelX, y, toggleX) {
+    const cols = ThemeManager.getCurrentColors();
+    const s = Layout.uiScale || 1;
+    const label = PixiPremiumScene.text('Fullscreen (F11)', { fontSize: Math.round(17 * s), fontWeight: '800', fill: cols.text });
+    label.x = labelX;
+    label.y = y - 2;
+    this.pixiContainer.addChild(label);
+    const isOn = () => (window.electron && window.electron.isDesktop)
+      ? window.electron.isFullscreen()
+      : Promise.resolve(!!document.fullscreenElement);
+    const toggle = new PixiToggle({ width: 58, height: 24, value: false, cols });
+    toggle.x = toggleX;
+    toggle.y = y;
+    // Reflect the real window state without firing the change handler.
+    isOn().then((on) => { toggle._value = on; toggle._draw(); });
+    toggle.onChange(() => {
+      if (window.electron && window.electron.toggleFullscreen) window.electron.toggleFullscreen();
+    });
+    this.pixiContainer.addChild(toggle);
   },
 
   buildActionPanel() {

@@ -260,13 +260,6 @@ function initApp() {
       }
       return;
     }
-    if (e.key === 'F12') {
-      e.preventDefault();
-      if (typeof ScreenshotCapture !== 'undefined') {
-        ScreenshotCapture.captureAll();
-      }
-      return;
-    }
     if (store.get('miniGameActive')) {
       miniGameManager.handleKey(e.key);
       e.preventDefault();

@@ -50,7 +50,7 @@ const HowToPlay = {
   build() {
     if (this.pixiContainer) this.pixiContainer.destroy({ children: true });
     this.pixiContainer = PixiPremiumScene.root('How To Play', 'Rules, capture challenges, story, and controls', {
-      footerHint: 'Learn the core loop, then jump back into the match',
+      footerHint: 'Tip: practise every mini-game from Settings'
     });
     PixiScreenManager.setScreenContainer(this.pixiContainer);
 

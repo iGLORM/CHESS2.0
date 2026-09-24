@@ -51,7 +51,7 @@ const MiniGamePractice = {
 
   build() {
     if (this.pixiContainer) this.pixiContainer.destroy({ children: true });
-    this.pixiContainer = PixiPremiumScene.root('Mini-Game Practice', 'Pick a capture challenge and launch immediately', { footerHint: 'Practice runs use the same mini-game overlay and stats callbacks' });
+    this.pixiContainer = PixiPremiumScene.root('Mini-Game Practice', 'Pick a mini-game to practise', { footerHint: 'These are the games that decide contested captures' });
     PixiScreenManager.setScreenContainer(this.pixiContainer);
 
     const s = Layout.uiScale || 1;

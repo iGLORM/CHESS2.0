@@ -9,7 +9,7 @@ const StatsScreen = {
   build() {
     if (this.pixiContainer) this.pixiContainer.destroy({ children: true });
     this.pixiContainer = PixiPremiumScene.root('Statistics', 'Match results, captures, mini-games, and story progress', {
-      footerHint: 'Progress is read from your existing save data',
+      footerHint: 'Stats update after every game',
     });
     PixiScreenManager.setScreenContainer(this.pixiContainer);
 

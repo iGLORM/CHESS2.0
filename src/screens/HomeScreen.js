@@ -289,6 +289,9 @@ const HomeScreen = {
     }
 
     this._buildResumeButton();
+    if (window.electron && window.electron.isDesktop) {
+      PixiPremiumScene.button(this.pixiContainer, 24, 22, 120, 44, 'Quit', () => window.electron.quit(), { fontSize: 16 });
+    }
 
     PixiScreenManager.setScreenContainer(this.pixiContainer);
   },

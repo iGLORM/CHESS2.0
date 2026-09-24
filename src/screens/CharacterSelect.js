@@ -30,7 +30,7 @@ const CharacterSelect = {
       : this.phase === 'difficulty'
         ? 'Choose how the story scales'
         : 'Pick the next challenger';
-    this.pixiContainer = PixiPremiumScene.root('Story Mode', subtitle, { footerHint: 'Story progress and save data stay unchanged' });
+    this.pixiContainer = PixiPremiumScene.root('Story Mode', subtitle, { footerHint: 'Your progress is saved automatically' });
     PixiScreenManager.setScreenContainer(this.pixiContainer);
 
     if (this.phase === 'slots') this.buildSlots();
