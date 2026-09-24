@@ -1,0 +1,22 @@
+/* Pixelify Sans and Silkscreen, both SIL Open Font License 1.1 (Google Fonts). Bundled so the game works offline. */
+@font-face {
+  font-family: 'Pixelify Sans';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: block;
+  src: url(PixelifySans.woff2) format('woff2');
+}
+@font-face {
+  font-family: 'Silkscreen';
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url(Silkscreen-Regular.woff2) format('woff2');
+}
+@font-face {
+  font-family: 'Silkscreen';
+  font-style: normal;
+  font-weight: 700;
+  font-display: block;
+  src: url(Silkscreen-Bold.woff2) format('woff2');
+}

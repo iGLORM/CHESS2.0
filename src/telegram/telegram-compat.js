@@ -1,5 +1,5 @@
 (function () {
-  const isTelegram = window.Telegram && window.Telegram.WebApp;
+  const isTelegram = !!(window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData);
 
   // Web fullscreen fallback (when window.electron is absent)
   if (!window.electron) {

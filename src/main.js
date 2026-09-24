@@ -300,9 +300,16 @@ function initApp() {
 
   resizeCanvas();
 
-  const fontsReady = document.fonts && document.fonts.ready
+  // Text is baked into textures when a screen is built, so wait for the pixel
+  // fonts before the first screen or it renders in a fallback font.
+  const fontsReady = document.fonts && document.fonts.load
     ? Promise.race([
-      document.fonts.ready,
+      Promise.all([
+        document.fonts.load('16px "Pixelify Sans"'),
+        document.fonts.load('bold 16px "Pixelify Sans"'),
+        document.fonts.load('16px "Silkscreen"'),
+        document.fonts.load('bold 16px "Silkscreen"'),
+      ]).catch(() => {}),
       new Promise(resolve => setTimeout(resolve, 2500)),
     ])
     : Promise.resolve();
