@@ -223,8 +223,9 @@ const GameScreen = {
     }
     const bw = 200, bh = 52;
     const bx = Math.round(Layout.cx - bw / 2), by = y + h - bh - 26;
-    PixiPremiumScene.button(c, bx, by, bw, bh, "Let's play", () => this._dismissRulesIntro(), { primary: true, fontSize: 20 });
-    this._introButton = { x: bx, y: by, w: bw, h: Layout.isPortrait ? Math.max(bh, 68) : bh };
+    const btn = PixiPremiumScene.button(c, bx, by, bw, bh, "Let's play", () => this._dismissRulesIntro(), { primary: true, fontSize: 20 });
+    // Clicks arrive via the Canvas 2D layer, so mirror the button's real (scaled) size.
+    this._introButton = { x: bx, y: by, w: btn.hitArea.width, h: btn.hitArea.height };
     PixiApp.stage.addChild(c);
     PixiApp.stage.sortableChildren = true;
     this._introContainer = c;
@@ -495,7 +496,7 @@ const GameScreen = {
       this.aiCooldown -= dt * 1000;
       if (this.aiCooldown < 0) this.aiCooldown = 0;
     }
-    const isLive = this.reviewingAt === null && !this.introVisible;
+    const isLive = this.reviewingAt === null && !this.introVisible && !PauseMenu.visible;
     if (isLive && this.isAIMode && this.turn === this.aiColor && !this.aiThinking && !this.gameOver && this.aiCooldown <= 0) {
       this.doAIMove();
     }
@@ -773,11 +774,10 @@ const GameScreen = {
       return;
     }
     if (e.key === 'Escape') {
-      if (this.gameOver) {
-        switchScreen('home');
-      } else {
-        PauseMenu.show();
-      }
+      if (this.gameOver) switchScreen('home');
+      else if (PauseMenu.visible) PauseMenu.hide();
+      else PauseMenu.show();
+      return;
     }
     if (PauseMenu.visible) return;
     if (e.key === 'ArrowLeft') this.stepBack();
