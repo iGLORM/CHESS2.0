@@ -1,227 +1,161 @@
 /**
- * BotPersonality - Stockfish wrapper for Chess 2.0
+ * BotPersonality - runs the game's two chess engines off the main thread so
+ * the game never freezes while the computer thinks:
  *
- * Uses server-side Stockfish API (Telegram/web) or local WASM (Electron).
- * Exposes three personalities:
- *   Noob         - Skill Level 0,  depth 1, 30% chance of random move
- *   Intermediate - Skill Level 5,  depth 5
- *   Pro          - Skill Level 20, depth 20
+ *   - Stockfish (bundled WebAssembly build) in a Web Worker, spoken to over UCI.
+ *   - The built-in alpha-beta engine (Search.js) in its own worker, used for
+ *     the weakest levels where human-like mistakes matter more than strength.
+ *
+ * Everything is local; nothing is sent over the network.
  */
 class BotPersonality {
-  static engine = null;
-  static ready = false;
-  static useServerAPI = false;
-  static serverAPIUrl = '/api/stockfish';
-  static outputBuffer = [];
-  static pendingResolve = null;
-  static pendingReject = null;
-  static initPromise = null;
+  static STOCKFISH_PATH = 'engine/stockfish/stockfish-18-lite-single.js';
+  static SEARCH_WORKER_PATH = 'engine/ai/searchWorker.js';
 
-  static PERSONALITIES = {
-    noob:         { skillLevel: 0,  depth: 1,  randomChance: 0.30, movetime: null },
-    intermediate: { skillLevel: 5,  depth: 5,  randomChance: 0.00, movetime: null },
-    pro:          { skillLevel: 20, depth: 20, randomChance: 0.00, movetime: 5000 },
-  };
+  static _sf = null;          // Stockfish worker
+  static _sfReady = null;     // Promise<boolean>
+  static _sfQueue = Promise.resolve();
+  static _sfListener = null;
 
-  /**
-   * Initialise the Stockfish engine (singleton).
-   */
-  static async init() {
-    if (this.initPromise) return this.initPromise;
-    this.initPromise = this._doInit();
-    return this.initPromise;
-  }
+  static _search = null;      // built-in engine worker
+  static _searchId = 0;
+  static _searchPending = new Map();
 
-  static async _doInit() {
-    // Try to grab the factory that stockfish.js stashed on its <script> node
-    const script = document.querySelector('script[src*="stockfish"]');
-    const factory = script ? script._exports : null;
+  /* ------------------------------------------------------------------ */
+  /*  Stockfish                                                          */
+  /* ------------------------------------------------------------------ */
 
-    if (!factory) {
-      // WASM not available (Telegram/web) — use server API
-      this.useServerAPI = true;
-      this.ready = true;
-      return true;
-    }
-
-    const basePath = script.src.replace(/\/[^\/]+$/, '/');
-
-    try {
-      this.engine = factory({
-        locateFile: (file) => basePath + file,
-        listener: (line) => this._onEngineOutput(line),
-      });
-
-      // Wait until the WASM module has finished initialising
-      if (this.engine.ready && typeof this.engine.ready.then === 'function') {
-        await this.engine.ready;
-      } else {
-        await this._pollReady();
+  static init() {
+    if (this._sfReady) return this._sfReady;
+    this._sfReady = new Promise((resolve) => {
+      try {
+        this._sf = new Worker(this.STOCKFISH_PATH);
+      } catch (e) {
+        console.warn('Stockfish worker unavailable:', e.message);
+        resolve(false);
+        return;
       }
+      const timer = setTimeout(() => resolve(false), 10000);
+      this._sf.onmessage = (e) => {
+        const line = String(e.data);
+        if (line === 'readyok' && timer) {
+          clearTimeout(timer);
+          resolve(true);
+        }
+        if (this._sfListener) this._sfListener(line);
+      };
+      this._sf.onerror = (e) => {
+        console.warn('Stockfish worker error:', e.message);
+        clearTimeout(timer);
+        resolve(false);
+      };
+      this._sf.postMessage('uci');
+      this._sf.postMessage('isready');
+    });
+    return this._sfReady;
+  }
 
-      // UCI handshake
-      this._send('uci');
-      await this._waitFor('uciok');
+  static get available() {
+    return !!this._sf;
+  }
 
-      this._send('isready');
-      await this._waitFor('readyok');
-
-      this.ready = true;
-    } catch (e) {
-      // WASM init failed — fall back to server API
-      console.warn('Stockfish WASM init failed, using server API:', e.message);
-      this.engine = null;
-      this.useServerAPI = true;
-      this.ready = true;
-    }
-    return true;
+  // Runs one UCI search at a time. Resolves with { bestMove, info } or null.
+  static _runSearch(commands, timeoutMs) {
+    const job = this._sfQueue.then(async () => {
+      if (!(await this.init())) return null;
+      return new Promise((resolve) => {
+        let lastInfo = '';
+        const finish = (result) => {
+          clearTimeout(timer);
+          this._sfListener = null;
+          resolve(result);
+        };
+        const timer = setTimeout(() => {
+          // Ask for the move now; if Stockfish is wedged, give up.
+          this._sf.postMessage('stop');
+          setTimeout(() => finish(null), 1000);
+        }, timeoutMs);
+        this._sfListener = (line) => {
+          if (line.startsWith('info') && line.includes(' pv ')) lastInfo = line;
+          if (line.startsWith('bestmove')) {
+            const uci = line.split(/\s+/)[1];
+            finish({ bestMove: uci && uci !== '(none)' ? uci : null, info: lastInfo });
+          }
+        };
+        for (const cmd of commands) this._sf.postMessage(cmd);
+      });
+    });
+    this._sfQueue = job.catch(() => null);
+    return job;
   }
 
   /**
-   * Ask Stockfish for the best move for a given FEN and personality.
-   *
-   * @param {string} fen          – position in FEN notation
-   * @param {string} profileKey   – 'noob' | 'intermediate' | 'pro'
-   * @param {Array}  legalMoves   – game's legal-move objects (for UCI→move lookup)
-   * @returns {Promise<Object>}   – resolves to a move object or null
+   * Best move from Stockfish as a UCI string (e.g. "e2e4"), or null.
+   * opts: { skill 0-20, depth?, movetime? }
    */
-  static async getMove(fen, profileKey, legalMoves) {
-    await this.init();
-
-    const profile = this.PERSONALITIES[profileKey] || this.PERSONALITIES.noob;
-
-    // Personality: random-move injection for Noob
-    if (profile.randomChance > 0 && Math.random() < profile.randomChance) {
-      return legalMoves[Math.floor(Math.random() * legalMoves.length)] || null;
-    }
-
-    // Server API path (Telegram/web)
-    if (this.useServerAPI) {
-      return this._getMoveFromServer(fen, profile, legalMoves);
-    }
-
-    // Local WASM path (Electron)
-    this._send(`setoption name Skill Level value ${profile.skillLevel}`);
-    this._send(`setoption name UCI_LimitStrength value ${profile.skillLevel < 20 ? 'true' : 'false'}`);
-
-    this._send(`position fen ${fen}`);
-
-    if (profile.movetime) {
-      this._send(`go movetime ${profile.movetime}`);
-    } else {
-      this._send(`go depth ${profile.depth}`);
-    }
-
-    const bestMoveUci = await this._waitForBestMove();
-    if (!bestMoveUci) return null;
-
-    return this._uciToMove(bestMoveUci, legalMoves);
+  static async bestMove(fen, opts = {}) {
+    const skill = Math.max(0, Math.min(20, opts.skill ?? 20));
+    const go = opts.movetime ? `go movetime ${opts.movetime}` : `go depth ${opts.depth || 10}`;
+    const result = await this._runSearch([
+      'ucinewgame',
+      `setoption name Skill Level value ${skill}`,
+      `position fen ${fen}`,
+      go,
+    ], (opts.movetime || 4000) + 6000);
+    return result ? result.bestMove : null;
   }
 
-  static async _getMoveFromServer(fen, profile, legalMoves) {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 12000);
-
-    try {
-      const response = await fetch(this.serverAPIUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          fen,
-          skillLevel: profile.skillLevel,
-          depth: profile.depth,
-          movetime: profile.movetime,
-        }),
-        signal: controller.signal,
-      });
-      clearTimeout(timeout);
-
-      if (!response.ok) return null;
-
-      const data = await response.json();
-      if (!data.bestmove) return null;
-
-      return this._uciToMove(data.bestmove, legalMoves);
-    } catch (e) {
-      clearTimeout(timeout);
-      return null;
-    }
+  /** Evaluation for the coach: { bestMove, scoreCp, mate, pv } or null. */
+  static async analyse(fen, depth = 12) {
+    const result = await this._runSearch([
+      'setoption name Skill Level value 20',
+      `position fen ${fen}`,
+      `go depth ${depth}`,
+    ], 15000);
+    if (!result) return null;
+    const cp = result.info.match(/score cp (-?\d+)/);
+    const mate = result.info.match(/score mate (-?\d+)/);
+    const pv = result.info.match(/\bpv\s+(.+)/);
+    return {
+      bestMove: result.bestMove,
+      scoreCp: cp ? parseInt(cp[1], 10) : null,
+      mate: mate ? parseInt(mate[1], 10) : null,
+      pv: pv ? pv[1].trim().split(/\s+/) : [],
+    };
   }
 
   /* ------------------------------------------------------------------ */
-  /*  UCI helpers                                                        */
+  /*  Built-in engine                                                    */
   /* ------------------------------------------------------------------ */
 
-  static _send(cmd) {
-    if (!this.engine) return;
-    if (typeof this.engine.ccall === 'function') {
-      this.engine.ccall('command', null, ['string'], [cmd], { async: /^go\b/.test(cmd) });
-    } else if (typeof this.engine.postMessage === 'function') {
-      this.engine.postMessage(cmd);
-    }
-  }
-
-  static _onEngineOutput(line) {
-    if (!line) return;
-    // Best-move resolution
-    if (line.startsWith('bestmove')) {
-      const parts = line.trim().split(/\s+/);
-      const uci = parts[1];
-      if (this.pendingResolve) {
-        this.pendingResolve(uci);
-        this.pendingResolve = null;
-        this.pendingReject  = null;
+  /** Best move from the built-in engine as { from, to, promotion }, or null. */
+  static searchMove(fen, color, depth, noise, timeoutMs = 8000) {
+    if (!this._search) {
+      try {
+        this._search = new Worker(this.SEARCH_WORKER_PATH);
+        this._search.onmessage = (e) => {
+          const pending = this._searchPending.get(e.data.id);
+          if (pending) {
+            this._searchPending.delete(e.data.id);
+            pending(e.data.move);
+          }
+        };
+        this._search.onerror = (e) => console.warn('Search worker error:', e.message);
+      } catch (e) {
+        return Promise.resolve(null);
       }
-      return;
     }
-    // Buffer everything else for _waitFor()
-    this.outputBuffer.push(line);
-  }
-
-  static _pollReady() {
+    const id = ++this._searchId;
     return new Promise((resolve) => {
-      const check = () => {
-        if (this.engine && typeof this.engine._isReady === 'function' && this.engine._isReady()) {
-          resolve();
-        } else {
-          setTimeout(check, 50);
-        }
-      };
-      check();
-    });
-  }
-
-  static _waitFor(token, timeoutMs = 30000) {
-    return new Promise((resolve, reject) => {
-      const deadline = Date.now() + timeoutMs;
-      const check = () => {
-        const idx = this.outputBuffer.findIndex(l => l.includes(token));
-        if (idx !== -1) {
-          this.outputBuffer.splice(0, idx + 1);
-          resolve();
-          return;
-        }
-        if (Date.now() > deadline) {
-          reject(new Error(`Timeout waiting for "${token}"`));
-          return;
-        }
-        setTimeout(check, 20);
-      };
-      check();
-    });
-  }
-
-  static _waitForBestMove(timeoutMs = 30000) {
-    return new Promise((resolve, reject) => {
-      this.pendingResolve = resolve;
-      this.pendingReject  = reject;
-      setTimeout(() => {
-        if (this.pendingReject) {
-          this.pendingReject(new Error('Stockfish bestmove timeout'));
-          this.pendingResolve = null;
-          this.pendingReject  = null;
-        }
+      const timer = setTimeout(() => {
+        this._searchPending.delete(id);
+        resolve(null);
       }, timeoutMs);
+      this._searchPending.set(id, (move) => {
+        clearTimeout(timer);
+        resolve(move);
+      });
+      this._search.postMessage({ id, fen, color, depth, noise });
     });
   }
 
@@ -243,22 +177,15 @@ class BotPersonality {
       promotion = promoMap[uci[4]] || null;
     }
 
-    return (
-      legalMoves.find(m =>
-        m.from.row === fromRow && m.from.col === fromCol &&
-        m.to.row   === toRow   && m.to.col   === toCol &&
-        (m.promotion || null) === (promotion || null)
-      ) || null
-    );
+    return this._findLegal({ from: { row: fromRow, col: fromCol }, to: { row: toRow, col: toCol }, promotion }, legalMoves);
   }
 
-  /* ------------------------------------------------------------------ */
-  /*  Level → personality mapping                                        */
-  /* ------------------------------------------------------------------ */
-
-  static mapLevel(level) {
-    if (level <= 4)  return 'noob';
-    if (level <= 8)  return 'intermediate';
-    return 'pro';
+  static _findLegal(move, legalMoves) {
+    if (!move) return null;
+    return legalMoves.find(m =>
+      m.from.row === move.from.row && m.from.col === move.from.col &&
+      m.to.row === move.to.row && m.to.col === move.to.col &&
+      (m.promotion || null) === (move.promotion || null)
+    ) || null;
   }
 }

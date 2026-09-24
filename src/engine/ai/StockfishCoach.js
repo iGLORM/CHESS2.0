@@ -1,8 +1,4 @@
 class StockfishCoach {
-  static _infoLines = [];
-  static _origListener = null;
-  static _analysisResolve = null;
-  static _analysisReject = null;
   static _initialized = false;
 
   static async init() {
@@ -12,80 +8,14 @@ class StockfishCoach {
   }
 
   static async evaluatePosition(fen, depth = 12) {
-    await this.init();
-
-    if (BotPersonality.useServerAPI) {
-      return this._evaluateViaServer(fen, depth);
-    }
-
-    return this._evaluateViaWasm(fen, depth);
-  }
-
-  static async _evaluateViaWasm(fen, depth) {
-    this._infoLines = [];
-
-    const origListener = BotPersonality.engine.listener;
-    BotPersonality.engine.listener = (line) => {
-      if (!line) return;
-      if (line.startsWith('info') && line.includes('score')) {
-        this._infoLines.push(line);
-      }
-      if (origListener) origListener(line);
-    };
-
-    BotPersonality._send('isready');
-    await BotPersonality._waitFor('readyok', 5000);
-
-    BotPersonality._send(`position fen ${fen}`);
-    BotPersonality._send(`go depth ${depth}`);
-
-    const bestMove = await BotPersonality._waitForBestMove(15000);
-
-    BotPersonality.engine.listener = origListener;
-
-    const lastInfo = this._infoLines[this._infoLines.length - 1] || '';
-    const parsed = this._parseInfoLine(lastInfo);
-
-    return {
-      bestMove: bestMove || null,
-      scoreCp: parsed.scoreCp,
-      mate: parsed.mate,
-      pv: parsed.pv,
-    };
-  }
-
-  static async _evaluateViaServer(fen, depth) {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 15000);
-
-    try {
-      const response = await fetch(BotPersonality.serverAPIUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ fen, depth, mode: 'analysis' }),
-        signal: controller.signal,
-      });
-      clearTimeout(timeout);
-
-      if (!response.ok) return this._fallbackEval(fen);
-
-      const data = await response.json();
-      return {
-        bestMove: data.bestmove || null,
-        scoreCp: data.score != null ? data.score : null,
-        mate: data.mate || null,
-        pv: data.pv ? data.pv.split(' ') : [],
-      };
-    } catch (e) {
-      clearTimeout(timeout);
-      return this._fallbackEval(fen);
-    }
+    const result = await BotPersonality.analyse(fen, depth);
+    return result || this._fallbackEval(fen);
   }
 
   static _fallbackEval(fen) {
     const board = FEN.toBoard(fen);
     const color = fen.split(' ')[1] === 'w' ? 'white' : 'black';
-    const bestMove = Search.findBestMove(board, color, 4);
+    const bestMove = Search.findBestMove(board, color, 3);
     const score = Evaluate.evaluate(board, color);
     const uci = bestMove ? this._moveToUci(bestMove) : null;
     return { bestMove: uci, scoreCp: score, mate: null, pv: uci ? [uci] : [] };

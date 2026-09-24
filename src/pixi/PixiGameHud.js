@@ -135,7 +135,7 @@ const PixiGameHud = {
       });
     }
 
-    if (game.gameplayMode) {
+    if (game.usesDefenses) {
       const charges = game.defensiveMiniGames?.[color] ?? 0;
       this._text('DEFENSES: ' + charges, x + pad, y + 112, {
         fontSize: 12,
@@ -267,7 +267,7 @@ const PixiGameHud = {
       this._text('WAITING', x + 316, y + 26, { fontSize: 18, fontWeight: '800', fill: PixiColorUtil.alpha(cols.text, '77') });
     }
 
-    if (game.gameplayMode) {
+    if (game.usesDefenses) {
       const charges = game.defensiveMiniGames?.[color] ?? 0;
       this._text('DEF: ' + charges, x + 460, y + 26, { fontSize: 18, fontWeight: '900', fill: charges > 0 ? cols.accent : PixiColorUtil.alpha(cols.text, '44') });
     }

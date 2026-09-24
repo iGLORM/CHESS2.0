@@ -448,6 +448,12 @@ const GameScreen = {
     if (typeof PixiBoardRenderer !== 'undefined') PixiBoardRenderer.flipped = this.flipped;
   },
 
+  // Defenses only exist when the Chess 2.0 capture mini-games are on
+  // (never in Classic Chess).
+  get usesDefenses() {
+    return this.gameplayMode && !!store.get('miniGamesEnabled');
+  },
+
   // The colour shown at the bottom of the board / on the left panel.
   get bottomColor() {
     return this.flipped ? 'black' : 'white';
