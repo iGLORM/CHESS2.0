@@ -208,6 +208,9 @@ npm run build:linux   # Linux AppImage + deb
 
 Built files are written to `dist/`.
 
+For Steam, `npm run build:steam:win` / `build:steam:mac` / `build:steam:linux` produce the unpacked
+app folders to upload. See [STEAM_RELEASE.md](STEAM_RELEASE.md) for the full release checklist.
+
 ### Platform Launchers
 
 | Platform | Launcher | Usage |
