@@ -3,6 +3,9 @@ const PixiGameOverOverlay = {
   initialized: false,
   _lastKey: null,
   _game: null,
+  // Button rectangles in game coordinates. Clicks land on the Canvas 2D layer
+  // above Pixi, so GameScreen routes them here.
+  buttonRects: null,
 
   init(game) {
     if (!PixiApp.stage) return;
@@ -54,6 +57,7 @@ const PixiGameOverOverlay = {
     this.container.visible = false;
     this.container.alpha = 0;
     this._lastKey = null;
+    this.buttonRects = null;
   },
 
   _makeKey(game) {
@@ -92,7 +96,7 @@ const PixiGameOverOverlay = {
     c.addChild(panel);
 
     const crown = new PIXI.Graphics();
-    const crownColor = game.gameResult === 'black' ? 0x8f7cff : 0xffdc65;
+    const crownColor = (game.isAIMode ? !game.playerWon() : game.gameResult === 'black') ? 0x8f7cff : 0xffdc65;
     crown.rect(0, 18, 58, 12)
       .rect(7, 6, 10, 20)
       .rect(24, 0, 10, 26)
@@ -122,7 +126,7 @@ const PixiGameOverOverlay = {
 
     let buttonY = panelY + 166;
     if (game.currentCharacter && game.gameResult) {
-      const dialogue = game.gameResult === 'white'
+      const dialogue = game.playerWon()
         ? game.currentCharacter.dialogue.after
         : game.currentCharacter.dialogue.win;
       const text = PixiPremiumUI.text(dialogue || '', {
@@ -150,9 +154,10 @@ const PixiGameOverOverlay = {
       { text: 'Play Again', action: 'rematch', x: Layout.cx - 214, y: buttonY, width: 200 },
       { text: 'Main Menu', action: 'menu', x: Layout.cx + 14, y: buttonY, width: 200 },
     ];
-    if (game.mode === 'story' && game.gameResult === 'white') {
+    if (game.mode === 'story' && game.playerWon() && game.currentCharacter && game.currentCharacter.level < 10) {
       actions.push({ text: 'Next Level', action: 'next', x: Layout.cx - 100, y: buttonY + 70, width: 200 });
     }
+    this.buttonRects = actions.map(a => ({ action: a.action, x: a.x, y: a.y, w: a.width, h: 56 }));
 
     for (const item of actions) {
       const btn = new PixiButton({
@@ -174,17 +179,11 @@ const PixiGameOverOverlay = {
   },
 
   _title(game) {
-    if (game.gameResult === 'white') return 'White Wins!';
-    if (game.gameResult === 'black') return 'Black Wins!';
-    return 'Draw!';
+    return game.resultTitle();
   },
 
   _reason(game) {
-    if (game.gameStatus === 'checkmate') return 'by Checkmate';
-    if (game.gameStatus === 'stalemate') return 'by Stalemate';
-    if (game.gameStatus === 'draw') return 'by Draw';
-    if (game.gameStatus === 'resigned') return 'by Resignation';
-    return 'Game Over';
+    return game.resultReason();
   },
 
   destroy() {
@@ -196,5 +195,6 @@ const PixiGameOverOverlay = {
     this.initialized = false;
     this._lastKey = null;
     this._game = null;
+    this.buttonRects = null;
   },
 };

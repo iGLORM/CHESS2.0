@@ -598,7 +598,7 @@ const HomeScreen = {
     }
     switch (action) {
       case 'story':  store.set('mode', 'story'); switchScreen('characterSelect'); break;
-      case '1v1':    store.set('mode', '1v1'); store.set('miniGamesEnabled', true); switchScreen('game', { mode: '1v1' }); break;
+      case '1v1':    store.update({ mode: '1v1', miniGamesEnabled: true, p1IsWhite: true }); switchScreen('game', { mode: '1v1' }); break;
       case 'classic': switchScreen('botSelect'); break;
       case 'training': switchScreen('trainingHub'); break;
       case 'custom': switchScreen('customGame'); break;

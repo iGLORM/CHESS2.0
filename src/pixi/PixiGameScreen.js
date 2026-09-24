@@ -27,12 +27,30 @@ const PixiGameScreen = {
       this._lastTheme = currentTheme;
     }
 
+    if (this._lastFlipped !== PixiBoardRenderer.flipped) {
+      PixiBoardRenderer.drawBoard(currentTheme);
+      this._lastFlipped = PixiBoardRenderer.flipped;
+      this._lastBoardKey = null;
+      this._lastSelection = null;
+      this._lastMarkerKey = null;
+      PixiBoardRenderer.clearHighlights();
+    }
+
     if (gameState.board) {
       const boardKey = this._getBoardKey(gameState.board);
       if (this._lastBoardKey !== boardKey) {
         PixiBoardRenderer.setPieces(gameState.board, currentTheme);
         this._lastBoardKey = boardKey;
       }
+    }
+
+    const lm = gameState.lastMove;
+    const cs = gameState.checkSquare;
+    const markerKey = (lm ? `${lm.from.row}${lm.from.col}${lm.to.row}${lm.to.col}` : '-') + '|' + (cs ? `${cs.row}${cs.col}` : '-') + '|' + currentTheme;
+    if (this._lastMarkerKey !== markerKey) {
+      const accent = ThemeManager.getTheme(currentTheme).colors.highlight || ThemeManager.getTheme(currentTheme).colors.accent;
+      PixiBoardRenderer.setMarkers(lm, cs, PixiColorUtil.hexToNum(accent));
+      this._lastMarkerKey = markerKey;
     }
 
     // Sync highlights
@@ -112,6 +130,10 @@ const PixiGameScreen = {
     return PixiBoardRenderer.getSquareAt(x, y);
   },
 
+  squareCenter(row, col) {
+    return PixiBoardRenderer.squareCenter(row, col);
+  },
+
   resize() {
     PixiApp.resize();
   },
@@ -136,5 +158,7 @@ const PixiGameScreen = {
     this._lastTheme = null;
     this._lastBoardKey = null;
     this._lastSelection = null;
+    this._lastMarkerKey = null;
+    this._lastFlipped = null;
   },
 };

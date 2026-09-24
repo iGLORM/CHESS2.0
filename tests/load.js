@@ -21,6 +21,8 @@ const ENGINE = [
   'engine/MoveExecutor.js',
   'engine/GameRules.js',
   'engine/FEN.js',
+  'engine/CaptureRules.js',
+  'engine/Notation.js',
 ];
 
 module.exports = { loadGame, ENGINE };

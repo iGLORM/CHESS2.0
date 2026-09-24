@@ -2,6 +2,8 @@ const PixiGameHud = {
   container: null,
   initialized: false,
   _lastKey: null,
+  // Clickable status-bar areas in game coordinates, read by GameScreen.handleClick.
+  hitRects: [],
 
   init() {
     if (!PixiApp.stage) return;
@@ -23,9 +25,11 @@ const PixiGameHud = {
 
     const theme = ThemeManager.getTheme(store.get('theme'));
     const cols = theme.colors;
+    this.hitRects = [];
     this._drawTopAccent(cols);
-    this._drawSidePanel(game, cols, 'left', 'white');
-    this._drawSidePanel(game, cols, 'right', 'black');
+    const bottom = game.bottomColor;
+    this._drawSidePanel(game, cols, 'left', bottom);
+    this._drawSidePanel(game, cols, 'right', bottom === 'white' ? 'black' : 'white');
     this._drawStatusBar(game, cols);
   },
 
@@ -46,6 +50,9 @@ const PixiGameHud = {
       game.moveHistory.length,
       store.get('whitePlayer'),
       store.get('blackPlayer'),
+      game.flipped,
+      game.canUndo(),
+      game.aiThinking,
     ].join('|');
   },
 
@@ -84,13 +91,12 @@ const PixiGameHud = {
     const x = isLeft ? 34 : 1006;
     const y = 116;
     const w = 240;
-    const h = 206;
+    const h = 218;
     const pad = 18;
     const isTurn = game.turn === color && !game.gameOver;
     this._panel(x, y, w, h, cols, { active: isTurn, alpha: 0.68 });
 
-    const name = color === 'white' ? store.get('whitePlayer') : store.get('blackPlayer');
-    const nameText = this._text(name || (color === 'white' ? 'White' : 'Black'), x + pad, y + 30, {
+    const nameText = this._text(game.getPlayerName(color), x + pad, y + 30, {
       fontSize: 22,
       fontWeight: '900',
       fill: isTurn ? cols.accent : cols.text,
@@ -115,7 +121,8 @@ const PixiGameHud = {
       .stroke({ color: PixiColorUtil.hexToNum(isTurn ? cols.accent : PixiColorUtil.alpha(cols.text, '44')), alpha: 0.70, width: 2 });
     this.container.addChild(turnPill);
     if (isTurn) {
-      this._text('ACTIVE TURN', x + pad + 13, y + 83, {
+      const thinking = game.isAIMode && color === game.aiColor && game.aiThinking;
+      this._text(thinking ? 'THINKING...' : 'ACTIVE TURN', x + pad + 13, y + 83, {
         fontSize: 13,
         fontWeight: '900',
         fill: PixiColorUtil.alpha(cols.accent, 'cc'),
@@ -174,7 +181,7 @@ const PixiGameHud = {
       });
     }
 
-    if (game.mode === 'story' && color === 'black' && game.currentCharacter) {
+    if (game.mode === 'story' && color === game.aiColor && game.currentCharacter) {
       this._panel(x, 350, w, 112, cols, { accent: game.currentCharacter.colors.primary, alpha: 0.68 });
       this._text(game.currentCharacter.name, x + pad, 380, {
         fontSize: 16,
@@ -194,19 +201,28 @@ const PixiGameHud = {
         fontWeight: '900',
         fill: PixiColorUtil.alpha(cols.text, '66'),
       });
-      const files = 'abcdefgh';
-      const recent = game.moveHistory.slice(-11);
-      for (let i = 0; i < recent.length; i++) {
-        const m = recent[i];
-        const moveNum = game.moveHistory.length - recent.length + i + 1;
-        const pieceChar = { pawn: '', knight: 'N', bishop: 'B', rook: 'R', queen: 'Q', king: 'K' }[m.piece?.type || 'pawn'] || '';
-        const to = files[m.to.col] + (8 - m.to.row);
-        this._text(moveNum + '. ' + pieceChar + to, x + pad, 408 + i * 18, {
+      const rows = this.historyRows(game.moveHistory).slice(-11);
+      rows.forEach((row, i) => {
+        const isLast = i === rows.length - 1;
+        this._text(row.text, x + pad, 408 + i * 18, {
           fontSize: 15,
-          fill: i === recent.length - 1 ? cols.accent : PixiColorUtil.alpha(cols.text, '77'),
+          fill: row.blocked ? (cols.checkHighlight || '#ff6677') : (isLast ? cols.accent : PixiColorUtil.alpha(cols.text, '99')),
         });
-      }
+      });
     }
+  },
+
+  // One line per move: "1. e4", "1... e5". A capture blocked by a minigame
+  // is shown as the attempted move followed by "blocked".
+  historyRows(history) {
+    return history.map((m, i) => {
+      const num = Math.floor(i / 2) + 1;
+      const prefix = i % 2 === 0 ? num + '. ' : num + '... ';
+      const san = m.san || '?';
+      return m.defended
+        ? { text: prefix + san.replace(/[+#]$/, '') + '  blocked', blocked: true }
+        : { text: prefix + san, blocked: false };
+    });
   },
 
   _drawHorizPanel(game, cols, side, color) {
@@ -221,8 +237,7 @@ const PixiGameHud = {
     const isTurn = game.turn === color && !game.gameOver;
     this._panel(x, y, w, h, cols, { active: isTurn, alpha: 0.68 });
 
-    const name = color === 'white' ? store.get('whitePlayer') : store.get('blackPlayer');
-    const nameText = this._text(name || (color === 'white' ? 'White' : 'Black'), x + pad, y + 18, {
+    const nameText = this._text(game.getPlayerName(color), x + pad, y + 18, {
       fontSize: 32,
       fontWeight: '900',
       fill: isTurn ? cols.accent : cols.text,
@@ -276,77 +291,71 @@ const PixiGameHud = {
       this._text((adv > 0 ? '+' : '') + adv, x + pad, y + 146, { fontSize: 22, fontWeight: '700', fill: adv > 0 ? '#66dd77' : '#dd6677' });
     }
 
-    if (game.mode === 'story' && color === 'black' && game.currentCharacter) {
+    if (game.mode === 'story' && color === game.aiColor && game.currentCharacter) {
       this._text(game.currentCharacter.name, x + w - 280, y + 106, { fontSize: 22, fontWeight: '900', fill: game.currentCharacter.colors.primary });
     }
   },
 
   _drawStatusBar(game, cols) {
-    const x = Layout.isPortrait ? 60 : 368;
-    const y = Layout.isPortrait ? (Layout.H - 90) : 724;
-    const w = Layout.isPortrait ? (Layout.W - 120) : 544;
-    const h = Layout.isPortrait ? 70 : 58;
+    const portrait = Layout.isPortrait;
+    const x = portrait ? 60 : 368;
+    const y = portrait ? (Layout.H - 90) : 724;
+    const w = portrait ? (Layout.W - 120) : 544;
+    const h = portrait ? 70 : 58;
     this._panel(x, y, w, h, cols, { active: game.gameStatus === 'check', alpha: 0.68 });
 
-    const turnText = game.turn === 'white' ? "White's Turn" : "Black's Turn";
-    const statusText = game.gameStatus === 'check' ? 'CHECK!  ' + turnText : turnText;
+    let turnText;
+    if (game.reviewingAt !== null) turnText = 'Reviewing move ' + game.reviewingAt;
+    else if (game.isAIMode) turnText = game.turn === game.playerColor ? 'Your Turn' : game.getPlayerName(game.turn) + "'s Turn";
+    else turnText = game.getPlayerName(game.turn) + "'s Turn";
+    const statusText = game.gameStatus === 'check' && game.reviewingAt === null ? 'CHECK!  ' + turnText : turnText;
     const status = PixiPremiumUI.text(statusText, {
-      fontSize: Layout.isPortrait ? 32 : 22,
+      fontSize: portrait ? 28 : 20,
       fontWeight: '900',
       fill: game.gameStatus === 'check' ? (cols.checkHighlight || cols.accent) : cols.text,
     });
     status.anchor.set(0.5);
-    status.x = Layout.cx;
+    status.x = x + w / 2;
     status.y = y + Math.floor(h / 2);
-    PixiPremiumUI.fitText(status, 300);
+    PixiPremiumUI.fitText(status, w - (portrait ? 420 : 300));
     this.container.addChild(status);
 
+    const btnH = portrait ? 40 : 28;
+    const btnY = y + Math.floor((h - btnH) / 2);
+    const fs = portrait ? 16 : 11;
     const navEnabled = game.boardSnapshots.length > 1;
-    const nav = [
-      { text: '<', px: x + 22, enabled: navEnabled && game.reviewingAt !== 0 },
-      { text: '>', px: x + 58, enabled: navEnabled && game.reviewingAt !== null && game.reviewingAt < game.boardSnapshots.length - 1 },
+    const left = [
+      { label: '<', action: 'back', w: btnH, enabled: navEnabled && game.reviewingAt !== 0 },
+      { label: '>', action: 'forward', w: btnH, enabled: game.reviewingAt !== null },
+      { label: 'LIVE', action: 'live', w: portrait ? 64 : 44, enabled: game.reviewingAt !== null },
     ];
-    for (const item of nav) {
-      const box = new PIXI.Graphics();
-      box.roundRect(item.px, y + 16, 28, 28, 5)
-        .fill({ color: PixiColorUtil.hexToNum(cols.buttonBg), alpha: item.enabled ? 0.75 : 0.30 })
-        .roundRect(item.px, y + 16, 28, 28, 5)
-        .stroke({ color: PixiColorUtil.hexToNum(item.enabled ? cols.accent : PixiColorUtil.alpha(cols.text, '33')), alpha: 0.7, width: 2 });
-      this.container.addChild(box);
-      const t = PixiPremiumUI.text(item.text, {
-        fontSize: 17,
-        fontWeight: '900',
-        fill: item.enabled ? cols.text : PixiColorUtil.alpha(cols.text, '33'),
-      });
-      t.anchor.set(0.5);
-      t.x = item.px + 14;
-      t.y = y + 30;
-      this.container.addChild(t);
-    }
-    this._text('LIVE', x + 104, y + 24, {
-      fontSize: Layout.isPortrait ? 16 : 11,
+    const right = [
+      { label: 'UNDO', action: 'undo', w: portrait ? 80 : 52, enabled: game.canUndo() },
+      { label: 'FLIP', action: 'flip', w: portrait ? 72 : 46, enabled: true },
+    ];
+    let bx = x + 18;
+    for (const b of left) { this._button(b, bx, btnY, btnH, fs, cols); bx += b.w + 6; }
+    bx = x + w - 18;
+    for (const b of right.slice().reverse()) { bx -= b.w; this._button(b, bx, btnY, btnH, fs, cols); bx -= 6; }
+  },
+
+  _button(b, bx, by, bh, fontSize, cols) {
+    const g = new PIXI.Graphics();
+    g.roundRect(bx, by, b.w, bh, 5)
+      .fill({ color: PixiColorUtil.hexToNum(cols.buttonBg), alpha: b.enabled ? 0.75 : 0.30 })
+      .roundRect(bx, by, b.w, bh, 5)
+      .stroke({ color: PixiColorUtil.hexToNum(b.enabled ? cols.accent : PixiColorUtil.alpha(cols.text, '33')), alpha: 0.7, width: 2 });
+    this.container.addChild(g);
+    const t = PixiPremiumUI.text(b.label, {
+      fontSize: b.label.length === 1 ? fontSize + 5 : fontSize,
       fontWeight: '900',
-      fill: game.reviewingAt !== null ? cols.accent : PixiColorUtil.alpha(cols.text, '22'),
+      fill: b.enabled ? cols.text : PixiColorUtil.alpha(cols.text, '33'),
     });
-
-    const snapIdx = game.reviewingAt !== null ? (game.reviewingAt + 1) : game.boardSnapshots.length;
-    const move = PixiPremiumUI.text('Move #' + snapIdx, {
-      fontSize: Layout.isPortrait ? 20 : 13,
-      fontWeight: '800',
-      fill: PixiColorUtil.alpha(cols.text, '66'),
-    });
-    move.anchor.set(1, 0);
-    move.x = x + w - 22;
-    move.y = y + 24;
-    this.container.addChild(move);
-
-    if (game.lockedTiles.length > 0) {
-      this._text('Locked: ' + game.lockedTiles.length, x + 166, y + 27, {
-        fontSize: Layout.isPortrait ? 16 : 12,
-        fontWeight: '700',
-        fill: cols.checkHighlight || cols.accent,
-      });
-    }
+    t.anchor.set(0.5);
+    t.x = bx + b.w / 2;
+    t.y = by + bh / 2;
+    this.container.addChild(t);
+    if (b.enabled) this.hitRects.push({ action: b.action, x: bx, y: by, w: b.w, h: bh });
   },
 
   destroy() {
@@ -356,5 +365,6 @@ const PixiGameHud = {
     }
     this.initialized = false;
     this._lastKey = null;
+    this.hitRects = [];
   },
 };

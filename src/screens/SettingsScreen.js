@@ -11,7 +11,11 @@ const SettingsScreen = {
   feedbackDone: false,
   _feedbackTextarea: null,
 
-  init() {
+  init(data) {
+    // Opened from the pause menu: Back returns to the paused game.
+    if (data && data.returnTo === 'game') this._returnTo = 'game';
+    else if (!this._visitingThemes) this._returnTo = 'home';
+    this._visitingThemes = false;
     this.settings = { ...store.get('settings') };
     if (this.settings.musicVolume == null) this.settings.musicVolume = 0.5;
     if (this.settings.sfxVolume == null) this.settings.sfxVolume = 0.5;
@@ -56,8 +60,8 @@ const SettingsScreen = {
     this.buildActionPanel();
 
     const btnY = Layout.isPortrait ? Layout.H - Layout.SAFE_BOTTOM - 48 : 718;
-    PixiPremiumScene.button(this.pixiContainer, 36, btnY, 160, 44, 'Back', () => switchScreen('home'), { icon: 'back' });
-    PixiPremiumScene.button(this.pixiContainer, Layout.W - 196, btnY, 160, 44, 'Themes', () => switchScreen('themeSelect', { returnTo: 'settings' }), { icon: 'spark' });
+    PixiPremiumScene.button(this.pixiContainer, 36, btnY, 160, 44, 'Back', () => this.goBack(), { icon: 'back' });
+    PixiPremiumScene.button(this.pixiContainer, Layout.W - 196, btnY, 160, 44, 'Themes', () => { this._visitingThemes = true; switchScreen('themeSelect', { returnTo: 'settings' }); }, { icon: 'spark' });
     if (this.feedbackOpen) this.buildFeedbackModal();
     if (this.confirmReset) this.buildResetModal();
   },
@@ -641,6 +645,11 @@ const SettingsScreen = {
       if (e.key === 'Escape') this._cancelNameInput();
       return;
     }
-    if (e.key === 'Escape') switchScreen('home');
+    if (e.key === 'Escape') this.goBack();
+  },
+
+  goBack() {
+    if (this._returnTo === 'game') switchScreen('game', { resume: true });
+    else switchScreen('home');
   },
 };

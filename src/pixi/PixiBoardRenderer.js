@@ -10,9 +10,25 @@ const PixiBoardRenderer = {
   boardOffsetY: 58,
   flashGraphics: null,
   selectedSprite: null,
+  markersContainer: null,
+  flipped: false,
 
   FRAME_PAD: 6,
   PIECE_SIZE: 72,
+
+  // Board squares are addressed by engine row/col; when flipped (playing Black)
+  // they are drawn rotated 180 degrees so the player's pieces sit at the bottom.
+  squareX(col) {
+    return this.boardOffsetX + (this.flipped ? 7 - col : col) * this.squareSize;
+  },
+
+  squareY(row) {
+    return this.boardOffsetY + (this.flipped ? 7 - row : row) * this.squareSize;
+  },
+
+  squareCenter(row, col) {
+    return { x: this.squareX(col) + this.squareSize / 2, y: this.squareY(row) + this.squareSize / 2 };
+  },
 
   computeLayout() {
     if (Layout.isPortrait) {
@@ -35,6 +51,7 @@ const PixiBoardRenderer = {
   },
 
   init(parentStage) {
+    this.flipped = false;
     this.container = new PIXI.Container();
     parentStage.addChild(this.container);
 
@@ -42,9 +59,11 @@ const PixiBoardRenderer = {
     this.boardContainer = new PIXI.Container();
     this.piecesContainer = new PIXI.Container();
     this.overlayContainer = new PIXI.Container();
+    this.markersContainer = new PIXI.Container();
 
     this.container.addChild(this.frameContainer);
     this.container.addChild(this.boardContainer);
+    this.container.addChild(this.markersContainer);
     this.container.addChild(this.piecesContainer);
     this.container.addChild(this.overlayContainer);
 
@@ -97,8 +116,8 @@ const PixiBoardRenderer = {
     this.frameContainer.addChild(frame);
 
     for (let i = 0; i < 8; i++) {
-      const file = String.fromCharCode(97 + i);
-      const rank = String(8 - i);
+      const file = String.fromCharCode(97 + (this.flipped ? 7 - i : i));
+      const rank = String(this.flipped ? i + 1 : 8 - i);
       const labelStyle = { fontFamily: '"Pixelify Sans", sans-serif', fontSize: 14, fill: PixiColorUtil.alpha(cols.text, '55') };
 
       // File labels (bottom)
@@ -157,10 +176,9 @@ const PixiBoardRenderer = {
           const sprite = PixiPieceRenderer.createSprite(themeId, piece.color, piece.type);
           sprite.width = this.PIECE_SIZE;
           sprite.height = this.PIECE_SIZE;
-          const x = this.boardOffsetX + col * this.squareSize + this.squareSize / 2;
-          const y = this.boardOffsetY + row * this.squareSize + this.squareSize / 2;
-          sprite.x = x;
-          sprite.y = y;
+          const center = this.squareCenter(row, col);
+          sprite.x = center.x;
+          sprite.y = center.y;
           this.piecesContainer.addChild(sprite);
           this.pieceSprites[key] = sprite;
         }
@@ -175,8 +193,7 @@ const PixiBoardRenderer = {
       if (onComplete) onComplete();
       return;
     }
-    const toX = this.boardOffsetX + toCol * this.squareSize + this.squareSize / 2;
-    const toY = this.boardOffsetY + toRow * this.squareSize + this.squareSize / 2;
+    const { x: toX, y: toY } = this.squareCenter(toRow, toCol);
     PixiAnimator.movePiece(sprite, sprite.x, sprite.y, toX, toY, 0.3, () => {
       delete this.pieceSprites[key];
       this.pieceSprites[`${toCol},${toRow}`] = sprite;
@@ -198,8 +215,8 @@ const PixiBoardRenderer = {
   },
 
   highlightSquare(col, row, color, alpha) {
-    const x = this.boardOffsetX + col * this.squareSize;
-    const y = this.boardOffsetY + row * this.squareSize;
+    const x = this.squareX(col);
+    const y = this.squareY(row);
     const highlight = new PIXI.Graphics();
     highlight.rect(x + 2, y + 2, this.squareSize - 4, this.squareSize - 4)
       .fill({ color: color, alpha: alpha || 0.3 });
@@ -214,19 +231,43 @@ const PixiBoardRenderer = {
 
   drawLegalMoves(moves) {
     for (const move of moves) {
-      const cx = this.boardOffsetX + move.to.col * this.squareSize + this.squareSize / 2;
-      const cy = this.boardOffsetY + move.to.row * this.squareSize + this.squareSize / 2;
+      const { x: cx, y: cy } = this.squareCenter(move.to.row, move.to.col);
       const dot = new PIXI.Graphics();
-      dot.circle(cx, cy, 10).fill({ color: 0xffffff, alpha: 0.3 });
-      dot.circle(cx, cy, 10).stroke({ width: 1, color: 0xffffff, alpha: 0.15 });
+      if (move.captured) {
+        // Ring around capturable pieces so the target stays visible.
+        const r = this.squareSize / 2 - 4;
+        dot.circle(cx, cy, r).stroke({ width: 4, color: 0xffffff, alpha: 0.35 });
+      } else {
+        dot.circle(cx, cy, 10).fill({ color: 0xffffff, alpha: 0.3 });
+        dot.circle(cx, cy, 10).stroke({ width: 1, color: 0xffffff, alpha: 0.15 });
+      }
       this.overlayContainer.addChild(dot);
     }
   },
 
+  // Last-move and check markers drawn under the pieces.
+  setMarkers(lastMove, checkSquare, accentColor) {
+    if (!this.markersContainer) return;
+    this.markersContainer.removeChildren().forEach(c => c.destroy());
+    const g = new PIXI.Graphics();
+    if (lastMove) {
+      for (const sq of [lastMove.from, lastMove.to]) {
+        g.rect(this.squareX(sq.col), this.squareY(sq.row), this.squareSize, this.squareSize)
+          .fill({ color: accentColor || 0xffe066, alpha: 0.22 });
+      }
+    }
+    if (checkSquare) {
+      const { x, y } = this.squareCenter(checkSquare.row, checkSquare.col);
+      g.circle(x, y, this.squareSize * 0.48).fill({ color: 0xff2a3a, alpha: 0.28 });
+      g.circle(x, y, this.squareSize * 0.34).fill({ color: 0xff2a3a, alpha: 0.30 });
+    }
+    this.markersContainer.addChild(g);
+  },
+
   selectSquare(col, row, color) {
     this.clearSelection();
-    const x = this.boardOffsetX + col * this.squareSize;
-    const y = this.boardOffsetY + row * this.squareSize;
+    const x = this.squareX(col);
+    const y = this.squareY(row);
     const select = new PIXI.Graphics();
     select.rect(x + 1, y + 1, this.squareSize - 2, this.squareSize - 2)
       .fill({ color: color || 0xffff00, alpha: 0.2 })
@@ -253,10 +294,10 @@ const PixiBoardRenderer = {
   },
 
   getSquareAt(x, y) {
-    const col = Math.floor((x - this.boardOffsetX) / this.squareSize);
-    const row = Math.floor((y - this.boardOffsetY) / this.squareSize);
-    if (col >= 0 && col < 8 && row >= 0 && row < 8) {
-      return { col, row };
+    const dc = Math.floor((x - this.boardOffsetX) / this.squareSize);
+    const dr = Math.floor((y - this.boardOffsetY) / this.squareSize);
+    if (dc >= 0 && dc < 8 && dr >= 0 && dr < 8) {
+      return this.flipped ? { col: 7 - dc, row: 7 - dr } : { col: dc, row: dr };
     }
     return null;
   },
@@ -271,6 +312,7 @@ const PixiBoardRenderer = {
     this.boardContainer = null;
     this.piecesContainer = null;
     this.overlayContainer = null;
+    this.markersContainer = null;
     this.flashGraphics = null;
     this.selectedSprite = null;
   },

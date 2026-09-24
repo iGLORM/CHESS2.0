@@ -34,7 +34,13 @@ const GameScreen = {
   _lastInitData: null,
 
   init(data) {
+    // Returning from Settings opened via the pause menu: keep the game as it was.
+    if (data && data.resume && this.board && !this.gameOver) {
+      this._resume();
+      return;
+    }
     this._lastInitData = data;
+    this._aiToken = (this._aiToken || 0) + 1;
     this.board = new Board();
     this.selectedSquare = null;
     this.legalMoves = [];
@@ -54,6 +60,7 @@ const GameScreen = {
     this.gameOverTimer = 0;
     this.hoveredGameOverBtn = null;
     this.lastMove = null;
+    this.drawReason = null;
     this.lockedTiles = [];
     this.pendingRevertMove = null;
     this.captureCombo = 0;
@@ -64,9 +71,17 @@ const GameScreen = {
     if (canvas) canvas.style.pointerEvents = 'auto';
 
     this.mode = store.get('mode');
+    this.isAIMode = this.mode === 'story' || this.mode === 'classic' || this.mode === 'custom';
+    // Every mode sets its own options so nothing leaks over from the last mode played.
+    if (this.mode === 'story') {
+      store.set('p1IsWhite', true);
+      store.set('miniGamesEnabled', (store.get('settings') || {}).miniGamesEnabled !== false);
+    }
     const p1IsWhite = store.get('p1IsWhite') !== false;
+    this.playerColor = p1IsWhite ? 'white' : 'black';
     this.aiColor = p1IsWhite ? 'black' : 'white';
-    this.gameplayMode = store.get('customGameplayMode') !== false;
+    this.flipped = this.isAIMode && this.playerColor === 'black';
+    this.gameplayMode = this.mode === 'custom' ? store.get('customGameplayMode') !== false : true;
     if (this.mode === 'story') {
       this.currentCharacter = store.get('selectedCharacter');
       if (typeof this.currentCharacter === 'string') {
@@ -104,9 +119,17 @@ const GameScreen = {
     }
     audioManager.startMusic();
 
-    // Initialize Pixi rendering
+    this._initVisuals();
+
+    this._dialogueBubble = null;
+    this._initDialogue();
+    this.saveSnapshot();
+  },
+
+  _initVisuals() {
     if (typeof PixiGameScreen !== 'undefined') {
       PixiGameScreen.init();
+      PixiBoardRenderer.flipped = !!this.flipped;
       PixiGameScreen.renderBoard(this.board, store.get('theme') || 'space');
     }
     if (typeof PixiGameHud !== 'undefined') {
@@ -115,8 +138,9 @@ const GameScreen = {
     if (typeof PixiGameOverOverlay !== 'undefined') {
       PixiGameOverOverlay.init(this);
     }
+  },
 
-    this._dialogueBubble = null;
+  _initDialogue() {
     if (this.mode === 'story' && this.currentCharacter && typeof DialogueManager !== 'undefined') {
       DialogueManager.init(this.currentCharacter, (text, character) => {
         this._showDialogueBubble(text, character);
@@ -124,7 +148,23 @@ const GameScreen = {
     }
   },
 
+  _resume() {
+    this._aiToken = (this._aiToken || 0) + 1;
+    this.aiThinking = false;
+    this.aiCooldown = 400;
+    this.selectedSquare = null;
+    this.legalMoves = [];
+    const canvas = document.getElementById('gameCanvas');
+    if (canvas) canvas.style.pointerEvents = 'auto';
+    audioManager.init();
+    audioManager.startMusic();
+    this._initVisuals();
+    this._dialogueBubble = null;
+    this._initDialogue();
+  },
+
   destroy() {
+    this._aiToken = (this._aiToken || 0) + 1;
     if (this._aiTimeout) {
       clearTimeout(this._aiTimeout);
       this._aiTimeout = null;
@@ -165,17 +205,7 @@ const GameScreen = {
       PixiGameOverOverlay.destroy();
     }
 
-    // Re-init the visual layer
-    if (typeof PixiGameScreen !== 'undefined') {
-      PixiGameScreen.init();
-      PixiGameScreen.renderBoard(this.board, store.get('theme') || 'space');
-    }
-    if (typeof PixiGameHud !== 'undefined') {
-      PixiGameHud.init();
-    }
-    if (typeof PixiGameOverOverlay !== 'undefined') {
-      PixiGameOverOverlay.init(this);
-    }
+    this._initVisuals();
   },
 
   saveSnapshot() {
@@ -185,7 +215,9 @@ const GameScreen = {
       castlingRights: JSON.parse(JSON.stringify(this.board.castlingRights)),
       enPassantTarget: this.board.enPassantTarget ? { ...this.board.enPassantTarget } : null,
       halfMoveClock: this.board.halfMoveClock,
-      moveHistory: [...this.moveHistory.map(m => ({ from: { ...m.from }, to: { ...m.to }, piece: m.piece ? { ...m.piece } : null, captured: m.captured ? { ...m.captured } : null }))],
+      fullMoveNumber: this.board.fullMoveNumber,
+      positionHistory: [...this.board.positionHistory],
+      moveHistory: this.moveHistory.map(m => ({ ...m, from: { ...m.from }, to: { ...m.to }, piece: m.piece ? { ...m.piece } : null, captured: m.captured ? { ...m.captured } : null })),
       capturedPieces: JSON.parse(JSON.stringify(this.capturedPieces)),
       gameStatus: this.gameStatus,
       gameOver: this.gameOver,
@@ -213,18 +245,22 @@ const GameScreen = {
     this.board.castlingRights = snap.castlingRights;
     this.board.enPassantTarget = snap.enPassantTarget;
     this.board.halfMoveClock = snap.halfMoveClock;
+    this.board.fullMoveNumber = snap.fullMoveNumber || this.board.fullMoveNumber;
+    if (snap.positionHistory) this.board.positionHistory = [...snap.positionHistory];
     this.board.inCheck = snap.inCheck;
-    this.moveHistory = snap.moveHistory;
-    this.capturedPieces = snap.capturedPieces;
+    this.board.turn = snap.turn;
+    this.turn = snap.turn;
+    this.moveHistory = snap.moveHistory.map(m => ({ ...m }));
+    this.capturedPieces = JSON.parse(JSON.stringify(snap.capturedPieces));
     this.gameStatus = snap.gameStatus;
     this.gameOver = snap.gameOver;
     this.gameResult = snap.gameResult;
-    this.selectedSquare = snap.selectedSquare;
-    this.legalMoves = snap.legalMoves;
+    this.selectedSquare = null;
+    this.legalMoves = [];
     this.lastMove = snap.lastMove;
-    this.lockedTiles = snap.lockedTiles;
-    this.defensiveMiniGames = snap.defensiveMiniGames || { white: 2, black: 2 };
-    this.captureRewardProgress = snap.captureRewardProgress || { white: 0, black: 0 };
+    this.lockedTiles = snap.lockedTiles.map(t => ({ ...t }));
+    this.defensiveMiniGames = { ...(snap.defensiveMiniGames || { white: 2, black: 2 }) };
+    this.captureRewardProgress = { ...(snap.captureRewardProgress || { white: 0, black: 0 }) };
     this.gameplayMode = snap.gameplayMode !== false;
   },
 
@@ -239,10 +275,94 @@ const GameScreen = {
     const last = this.boardSnapshots[this.boardSnapshots.length - 1];
     if (last) {
       this.restoreSnapshot(last);
-      this.turn = last.turn;
       this.aiThinking = false;
     }
     this.reviewingAt = null;
+  },
+
+  stepBack() {
+    if (this.boardSnapshots.length < 2 || this.reviewingAt === 0) return;
+    const idx = this.reviewingAt === null ? this.boardSnapshots.length - 2 : this.reviewingAt - 1;
+    this.goToMove(Math.max(0, idx));
+  },
+
+  stepForward() {
+    if (this.reviewingAt === null) return;
+    if (this.reviewingAt < this.boardSnapshots.length - 2) this.goToMove(this.reviewingAt + 1);
+    else this.goToLive();
+  },
+
+  // Snapshot to return to on Undo: against the AI, the last position where it
+  // was the player's turn; in local 1v1, simply the previous position.
+  _undoTargetIndex() {
+    const last = this.boardSnapshots.length - 1;
+    if (last < 1) return -1;
+    if (!this.isAIMode) return last - 1;
+    for (let i = last - 1; i >= 0; i--) {
+      if (this.boardSnapshots[i].turn === this.playerColor) return i;
+    }
+    return -1;
+  },
+
+  canUndo() {
+    return !this.gameOver && this.reviewingAt === null && !this.promotionPending &&
+      !store.get('miniGameActive') && this._undoTargetIndex() !== -1;
+  },
+
+  undo() {
+    if (!this.canUndo()) return;
+    const idx = this._undoTargetIndex();
+    this._aiToken = (this._aiToken || 0) + 1;
+    if (this._aiTimeout) { clearTimeout(this._aiTimeout); this._aiTimeout = null; }
+    this.aiThinking = false;
+    this.aiCooldown = 400;
+    this.restoreSnapshot(this.boardSnapshots[idx]);
+    this.boardSnapshots.length = idx + 1;
+    this.selectedSquare = null;
+    this.legalMoves = [];
+    this.pendingRevertMove = null;
+    store.update({ board: this.board, turn: this.turn, gameStatus: this.gameStatus });
+    audioManager.playSelect();
+  },
+
+  flipBoard() {
+    this.flipped = !this.flipped;
+    if (typeof PixiBoardRenderer !== 'undefined') PixiBoardRenderer.flipped = this.flipped;
+  },
+
+  // The colour shown at the bottom of the board / on the left panel.
+  get bottomColor() {
+    return this.flipped ? 'black' : 'white';
+  },
+
+  getPlayerName(color) {
+    if (this.isAIMode) {
+      if (color === this.playerColor) return 'You';
+      if (this.currentCharacter) return this.currentCharacter.name;
+      return 'Computer';
+    }
+    const name = color === 'white' ? store.get('whitePlayer') : store.get('blackPlayer');
+    return name || (color === 'white' ? 'White' : 'Black');
+  },
+
+  playerWon() {
+    return this.gameResult === this.playerColor;
+  },
+
+  resultTitle() {
+    if (!this.gameResult || this.gameResult === 'draw') return 'Draw!';
+    if (this.isAIMode) return this.playerWon() ? 'You Win!' : 'You Lose';
+    return this.getPlayerName(this.gameResult) + ' Wins!';
+  },
+
+  resultReason() {
+    switch (this.gameStatus) {
+      case 'checkmate': return 'by Checkmate';
+      case 'stalemate': return 'by Stalemate';
+      case 'draw': return this.drawReason || 'by Draw';
+      case 'resigned': return 'by Resignation';
+      default: return 'Game Over';
+    }
   },
 
   render(ctx, dt) {
@@ -258,9 +378,8 @@ const GameScreen = {
       this.aiCooldown -= dt * 1000;
       if (this.aiCooldown < 0) this.aiCooldown = 0;
     }
-    const isAIMode = this.mode === 'story' || this.mode === 'classic' || this.mode === 'custom';
     const isLive = this.reviewingAt === null;
-    if (isLive && isAIMode && this.turn === this.aiColor && !this.aiThinking && !this.gameOver && this.aiCooldown <= 0) {
+    if (isLive && this.isAIMode && this.turn === this.aiColor && !this.aiThinking && !this.gameOver && this.aiCooldown <= 0) {
       this.doAIMove();
     }
 
@@ -269,27 +388,22 @@ const GameScreen = {
       const filteredMoves = this.legalMoves.filter(m =>
         !this.lockedTiles.some(t => t.row === m.to.row && t.col === m.to.col)
       );
+      const inCheck = this.gameStatus === 'check' || this.gameStatus === 'checkmate';
       PixiGameScreen.update(dt, {
         board: this.board,
         selectedSquare: this.selectedSquare,
         legalMoves: filteredMoves,
+        lastMove: this.lastMove,
+        checkSquare: inCheck ? this.board.findKing(this.turn) : null,
       });
     }
 
-    if (typeof PixiGameHud !== 'undefined' && PixiGameHud.initialized) {
+    if (typeof PixiGameHud !== 'undefined') {
       PixiGameHud.update(this);
-    } else {
-      this.renderSidePanel(ctx, cols, 'left', 'white');
-      this.renderSidePanel(ctx, cols, 'right', 'black');
-      this.renderStatusBar(ctx, cols);
     }
 
-    if (this.gameOver) {
-      if (typeof PixiGameOverOverlay !== 'undefined' && PixiGameOverOverlay.initialized) {
-        PixiGameOverOverlay.update(this);
-      } else {
-        this.renderGameOverOverlay(ctx, cols);
-      }
+    if (typeof PixiGameOverOverlay !== 'undefined') {
+      PixiGameOverOverlay.update(this);
     }
 
     const canvas = document.getElementById('gameCanvas');
@@ -351,310 +465,27 @@ const GameScreen = {
   },
 
   getGameOverButtons() {
-    const cx = Layout.cx;
-    const panelY = Layout.cy - 155;
-    const btnRow1Y = panelY + 160;
-    const buttons = [
-      { text: 'Play Again', action: 'rematch', x: cx - 214, y: btnRow1Y, w: 200, h: 56 },
-      { text: 'Main Menu', action: 'menu', x: cx + 14, y: btnRow1Y, w: 200, h: 56 },
-    ];
-    if (this.mode === 'story' && this.gameResult === 'white') {
-      buttons.push({ text: 'Next Level', action: 'next', x: cx - 100, y: btnRow1Y + 70, w: 200, h: 56 });
+    if (typeof PixiGameOverOverlay !== 'undefined' && PixiGameOverOverlay.buttonRects) {
+      return PixiGameOverOverlay.buttonRects;
     }
-    return buttons;
+    return [];
   },
 
-  renderGameOverOverlay(ctx, cols) {
-    this.gameOverTimer = Math.min(1, this.gameOverTimer + 0.08);
-    ctx.save();
-    ctx.globalAlpha = this.gameOverTimer;
-    ctx.fillStyle = 'rgba(0,0,0,0.64)';
-    ctx.fillRect(0, 0, Layout.W, Layout.H);
-
-    const panelW = 640;
-    const panelX = Layout.cx - panelW / 2;
-    const panelY = Layout.cy - 155;
-    const panelH = (this.mode === 'story' && this.gameResult === 'white') ? 300 : 245;
-    UIHelpers.drawPanel(ctx, panelX, panelY, panelW, panelH, cols, { accentTop: true });
-
-    if (this.gameResult && this.gameResult !== 'draw') {
-      UIHelpers.drawIcon(ctx, Layout.cx - 12, panelY + 54, 'crown', 14, cols, {
-        color: this.gameResult === 'white' ? cols.lightPiece : cols.darkPiece,
-      });
-    }
-
-    let msg = 'Draw!';
-    if (this.gameResult === 'white') msg = 'White Wins!';
-    else if (this.gameResult === 'black') msg = 'Black Wins!';
-
-    ctx.fillStyle = cols.text;
-    ctx.font = 'bold 34px "Pixelify Sans", sans-serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'alphabetic';
-    ctx.fillText(msg, Layout.cx, panelY + 112);
-
-    let reason = 'Game Over';
-    if (this.gameStatus === 'checkmate') reason = 'by Checkmate';
-    else if (this.gameStatus === 'stalemate') reason = 'by Stalemate';
-    else if (this.gameStatus === 'draw') reason = 'by Draw';
-    else if (this.gameStatus === 'resigned') reason = 'by Resignation';
-    ctx.fillStyle = cols.text + 'aa';
-    ctx.font = '15px "Pixelify Sans", sans-serif';
-    ctx.fillText(reason, Layout.cx, panelY + 140);
-
-    if (this.gameResult && this.currentCharacter) {
-      ctx.fillStyle = cols.text + 'bb';
-      ctx.font = '15px "Pixelify Sans", sans-serif';
-      ctx.textAlign = 'left';
-      const dlg = this.gameResult === 'white'
-        ? this.currentCharacter.dialogue.after
-        : this.currentCharacter.dialogue.win;
-      UIHelpers.wrapText(ctx, dlg || '', panelX + 48, panelY + 168, panelW - 96, 20, 5);
-    }
-
-    for (const btn of this.getGameOverButtons()) {
-      UIHelpers.drawButton(ctx, btn.x, btn.y, btn.w, btn.h, btn.text, cols, {
-        font: 'bold 14px "Pixelify Sans", sans-serif',
-        hover: this.hoveredGameOverBtn === btn.action,
-      });
-    }
-    ctx.restore();
+  _hudActionAt(x, y) {
+    const rects = (typeof PixiGameHud !== 'undefined' && PixiGameHud.hitRects) || [];
+    const hit = rects.find(r => x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h);
+    return hit ? hit.action : null;
   },
 
-  renderSidePanel(ctx, cols, side, color) {
-    const isLeft = side === 'left';
-    const portrait = Layout.isPortrait;
-    const s = portrait ? 2.0 : (Layout.uiScale || 1);
-    const w = portrait ? 280 : 194;
-    const x = isLeft ? 8 : Layout.W - w - 8;
-    const y = 80;
-    const h = 640;
-    const pad = portrait ? Math.round(10 * s) : 14;
-    const isPlayerTurn = this.turn === color;
-    const playerName = color === 'white' ? store.get('whitePlayer') : store.get('blackPlayer');
-
-    ctx.save();
-    this._roundRect(ctx, x, y, w, h, 8);
-    ctx.fillStyle = cols.panel + 'dd';
-    ctx.fill();
-    ctx.strokeStyle = isPlayerTurn && !this.gameOver ? cols.accent + '88' : cols.text + '22';
-    ctx.lineWidth = isPlayerTurn ? 2 : 1;
-    ctx.stroke();
-    ctx.restore();
-
-    if (isPlayerTurn && !this.gameOver) {
-      ctx.fillStyle = cols.accent + '44';
-      if (isLeft) {
-        ctx.fillRect(x, y + 4, 3, h - 8);
-      } else {
-        ctx.fillRect(x + w - 3, y + 4, 3, h - 8);
-      }
+  handleHudAction(action) {
+    switch (action) {
+      case 'back': this.stepBack(); break;
+      case 'forward': this.stepForward(); break;
+      case 'live': this.goToLive(); break;
+      case 'undo': this.undo(); break;
+      case 'flip': this.flipBoard(); break;
+      case 'pause': PauseMenu.show(); break;
     }
-
-    let cy = y + pad + 4;
-    ctx.fillStyle = isPlayerTurn && !this.gameOver ? cols.accent : cols.text;
-    ctx.font = 'bold ' + Math.round(16 * s) + 'px "Pixelify Sans", sans-serif';
-    ctx.textAlign = 'left';
-    ctx.fillText(UIHelpers.truncateText(ctx, playerName, w - pad * 2), x + pad, cy);
-    cy += 6;
-
-    const indicatorSize = Math.round(18 * s);
-    ctx.fillStyle = color === 'white' ? '#e8e0d0' : '#3a3530';
-    this._roundRect(ctx, x + pad, cy, indicatorSize, indicatorSize, 3);
-    ctx.fill();
-    ctx.strokeStyle = cols.text + '44';
-    ctx.lineWidth = 1;
-    ctx.stroke();
-
-    if (isPlayerTurn && !this.gameOver) {
-      ctx.fillStyle = cols.accent + 'cc';
-      ctx.font = Math.round(14 * s) + 'px "Pixelify Sans", sans-serif';
-      ctx.fillText('YOUR TURN', x + pad + indicatorSize + 6, cy + indicatorSize - 2);
-    }
-    cy += indicatorSize + 10;
-
-    ctx.fillStyle = cols.text + '22';
-    ctx.fillRect(x + pad, cy, w - pad * 2, 1);
-    cy += 12;
-
-    if (this.gameplayMode) {
-      const charges = this.defensiveMiniGames[color] || 0;
-      ctx.fillStyle = charges > 0 ? cols.accent : cols.text + '44';
-      ctx.font = 'bold ' + Math.round(13 * s) + 'px "Pixelify Sans", sans-serif';
-      ctx.fillText('DEFENSES: ' + charges, x + pad, cy);
-      cy += 22;
-    }
-
-    const captured = this.capturedPieces[color];
-    const pieceValues = { pawn: 1, knight: 3, bishop: 3, rook: 5, queen: 9, king: 0 };
-    const pieceSymbols = { pawn: '♟', knight: '♞', bishop: '♝', rook: '♜', queen: '♛', king: '♚' };
-
-    ctx.fillStyle = cols.text + '88';
-    ctx.font = Math.round(14 * s) + 'px "Pixelify Sans", sans-serif';
-    ctx.fillText('CAPTURED', x + pad, cy);
-    cy += 8;
-
-    const pieceSpacing = Math.round(16 * s);
-    const pieceFontSize = Math.round(18 * s);
-    if (captured.length === 0) {
-      ctx.fillStyle = cols.text + '33';
-      ctx.font = pieceFontSize + 'px "Pixelify Sans", sans-serif';
-      ctx.fillText('None yet', x + pad, cy + 8);
-      cy += 20;
-    } else {
-      let px = x + pad;
-      ctx.font = pieceFontSize + 'px "Pixelify Sans", sans-serif';
-      for (const p of captured.slice(0, 20)) {
-        ctx.fillStyle = p.color === 'white' ? '#e8e0d0' : '#888';
-        ctx.fillText(pieceSymbols[p.type] || '?', px, cy + 10);
-        px += pieceSpacing;
-        if (px > x + w - pad) { px = x + pad; cy += pieceFontSize; }
-      }
-      cy += 22;
-    }
-
-    // Material advantage
-    const whiteCaptures = this.capturedPieces.white;
-    const blackCaptures = this.capturedPieces.black;
-    const whiteMatCaptured = whiteCaptures.reduce((s, p) => s + (pieceValues[p.type] || 0), 0);
-    const blackMatCaptured = blackCaptures.reduce((s, p) => s + (pieceValues[p.type] || 0), 0);
-    const whiteAdvantage = whiteMatCaptured - blackMatCaptured;
-
-    if (whiteAdvantage !== 0) {
-      const isWhiteSide = color === 'white';
-      const advantage = isWhiteSide ? whiteAdvantage : -whiteAdvantage;
-      const matFont = 'bold ' + Math.round(16 * s) + 'px "Pixelify Sans", sans-serif';
-      if (advantage > 0) {
-        ctx.fillStyle = '#44dd44';
-        ctx.font = matFont;
-        ctx.fillText('+' + advantage, x + pad, cy);
-      } else if (advantage < 0) {
-        ctx.fillStyle = '#dd4444';
-        ctx.font = matFont;
-        ctx.fillText(advantage, x + pad, cy);
-      }
-      cy += 18;
-    }
-
-    cy += 4;
-    ctx.fillStyle = cols.text + '22';
-    ctx.fillRect(x + pad, cy, w - pad * 2, 1);
-    cy += 12;
-
-    if (this.mode === 'story' && color === 'black' && this.currentCharacter) {
-      ctx.fillStyle = this.currentCharacter.colors.primary;
-      ctx.font = 'bold ' + Math.round(16 * s) + 'px "Pixelify Sans", sans-serif';
-      ctx.fillText(UIHelpers.truncateText(ctx, this.currentCharacter.name, w - pad * 2), x + pad, cy);
-      cy += 4;
-      ctx.fillStyle = cols.text + '66';
-      ctx.font = Math.round(14 * s) + 'px "Pixelify Sans", sans-serif';
-      ctx.fillText('Level ' + this.currentCharacter.level, x + pad, cy + 8);
-      cy += 20;
-    }
-
-    if (isLeft && this.moveHistory.length > 0) {
-      ctx.fillStyle = cols.text + '66';
-      ctx.font = Math.round(14 * s) + 'px "Pixelify Sans", sans-serif';
-      ctx.fillText('MOVE HISTORY', x + pad, cy);
-      cy += 8;
-
-      ctx.fillStyle = cols.text + '88';
-      ctx.font = Math.round(16 * s) + 'px "Pixelify Sans", sans-serif';
-      const files = 'abcdefgh';
-      const recentMoves = this.moveHistory.slice(portrait ? -6 : -10);
-      for (let i = 0; i < recentMoves.length; i++) {
-        const m = recentMoves[i];
-        const moveNum = this.moveHistory.length - recentMoves.length + i + 1;
-        const pieceChar = { pawn: '', knight: 'N', bishop: 'B', rook: 'R', queen: 'Q', king: 'K' }[m.piece?.type || 'pawn'] || '';
-        const to = files[m.to.col] + (8 - m.to.row);
-        const isLast = i === recentMoves.length - 1;
-        ctx.fillStyle = isLast ? cols.accent : cols.text + '77';
-        ctx.fillText(moveNum + '. ' + pieceChar + to, x + pad, cy + 10);
-        cy += portrait ? 14 : 16;
-      }
-    }
-  },
-
-  _roundRect(ctx, x, y, w, h, r) {
-    ctx.beginPath();
-    ctx.moveTo(x + r, y);
-    ctx.lineTo(x + w - r, y);
-    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
-    ctx.lineTo(x + w, y + h - r);
-    ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-    ctx.lineTo(x + r, y + h);
-    ctx.quadraticCurveTo(x, y + h, x, y + h - r);
-    ctx.lineTo(x, y + r);
-    ctx.quadraticCurveTo(x, y, x + r, y);
-    ctx.closePath();
-  },
-
-  renderStatusBar(ctx, cols) {
-    const portrait = Layout.isPortrait;
-    const panelW = portrait ? 140 : 194;
-    const panelMargin = 8;
-    const barX = portrait ? (panelMargin + panelW + 4) : 210;
-    const barW = portrait ? (Layout.W - 2 * (panelMargin + panelW + 4)) : (Layout.W - 420);
-    const y = Layout.H - 55;
-    ctx.save();
-    this._roundRect(ctx, barX, y, barW, 38, 6);
-    ctx.fillStyle = cols.panel + 'dd';
-    ctx.fill();
-    ctx.strokeStyle = cols.text + '22';
-    ctx.lineWidth = 1;
-    ctx.stroke();
-    ctx.restore();
-
-    const sBar = portrait ? 2.0 : (Layout.uiScale || 1);
-    const mainFont = Math.round(18 * sBar);
-    const subFont = Math.round(14 * sBar);
-    ctx.fillStyle = cols.text;
-    ctx.font = mainFont + 'px "Pixelify Sans", sans-serif';
-    ctx.textAlign = 'center';
-    const turnText = this.turn === 'white' ? "White's Turn" : "Black's Turn";
-    if (this.gameStatus === 'check') {
-      ctx.fillStyle = cols.checkHighlight || cols.accent;
-      ctx.font = 'bold ' + Math.round(12 * sBar) + 'px "Silkscreen", monospace';
-      ctx.fillText('CHECK!', Layout.cx, y + 18);
-      ctx.fillStyle = cols.text + '88';
-      ctx.font = subFont + 'px "Pixelify Sans", sans-serif';
-      ctx.fillText(turnText, Layout.cx, y + 32);
-    } else {
-      ctx.fillText(turnText, Layout.cx, y + 22);
-    }
-
-    const isReviewing = this.reviewingAt !== null;
-    const navY = y + 5;
-    const navEnabled = this.boardSnapshots.length > 1;
-
-    ctx.fillStyle = navEnabled && this.reviewingAt !== 0 ? cols.text : cols.text + '22';
-    ctx.font = 'bold 16px "Pixelify Sans", sans-serif';
-    ctx.textAlign = 'left';
-    ctx.fillText('◀', barX, navY + 18);
-
-    ctx.fillStyle = navEnabled && isReviewing && this.reviewingAt < this.boardSnapshots.length - 1 ? cols.text : cols.text + '22';
-    ctx.fillText('▶', barX + 18, navY + 18);
-
-    ctx.fillStyle = isReviewing ? cols.accent : cols.text + '22';
-    ctx.font = '9px "Pixelify Sans", sans-serif';
-    ctx.fillText('LIVE', barX + 38, navY + 18);
-
-    ctx.fillStyle = cols.text + '66';
-    ctx.font = '10px "Pixelify Sans", sans-serif';
-    ctx.textAlign = 'right';
-    const snapIdx = isReviewing ? (this.reviewingAt + 1) : this.boardSnapshots.length;
-    ctx.fillText('Move #' + snapIdx, barX + barW - 10, y + 22);
-
-    if (this.lockedTiles.length > 0) {
-      ctx.fillStyle = cols.checkHighlight || cols.accent;
-      ctx.font = '10px "Pixelify Sans", sans-serif';
-      ctx.textAlign = 'left';
-      ctx.fillText('Locked: ' + this.lockedTiles.length, barX + 110, y + 22);
-    }
-    ctx.fillStyle = cols.text + '44';
-    ctx.font = '10px "Pixelify Sans", sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText('ESC: Pause', Layout.cx, y + 32);
   },
 
   handleClick(x, y) {
@@ -694,32 +525,11 @@ const GameScreen = {
       return;
     }
 
-    const portrait = Layout.isPortrait;
-    const _panelW = portrait ? 140 : 194;
-    const barX = portrait ? (8 + _panelW + 4) : 210;
-    const statusY = Layout.H - 55;
-    const navHitY = statusY;
-    if (y >= navHitY && y <= navHitY + 38) {
-      if (x >= barX && x <= barX + 18) {
-        // Back
-        if (this.reviewingAt !== 0 && this.boardSnapshots.length > 1) {
-          const idx = this.reviewingAt === null ? this.boardSnapshots.length - 2 : this.reviewingAt - 1;
-          this.goToMove(Math.max(0, idx));
-        }
-        return;
-      }
-      if (x >= barX + 18 && x <= barX + 36) {
-        // Forward
-        if (this.reviewingAt !== null && this.reviewingAt < this.boardSnapshots.length - 1) {
-          this.goToMove(this.reviewingAt + 1);
-        }
-        return;
-      }
-      if (x >= barX + 38 && x <= barX + 80) {
-        // Live
-        this.goToLive();
-        return;
-      }
+    const hudAction = this._hudActionAt(x, y);
+    if (hudAction) {
+      if (typeof audioManager.playButton === 'function') audioManager.playButton();
+      this.handleHudAction(hudAction);
+      return;
     }
 
     // Don't allow moves while reviewing
@@ -815,6 +625,11 @@ const GameScreen = {
       return;
     }
 
+    if (this._hudActionAt(x, y)) {
+      canvas.style.cursor = 'pointer';
+      return;
+    }
+
     let boardPos = null;
     if (typeof PixiGameScreen !== 'undefined' && PixiGameScreen.initialized) {
       boardPos = PixiGameScreen.getSquareAt(x, y);
@@ -837,58 +652,67 @@ const GameScreen = {
         PauseMenu.show();
       }
     }
-    if (e.key === 'ArrowLeft' && this.boardSnapshots.length > 1) {
-      const idx = this.reviewingAt === null ? this.boardSnapshots.length - 2 : this.reviewingAt - 1;
-      this.goToMove(Math.max(0, idx));
-    }
-    if (e.key === 'ArrowRight') {
-      if (this.reviewingAt !== null && this.reviewingAt < this.boardSnapshots.length - 1) {
-        this.goToMove(this.reviewingAt + 1);
-      } else if (this.reviewingAt !== null && this.reviewingAt === this.boardSnapshots.length - 1) {
-        this.goToLive();
-      }
+    if (PauseMenu.visible) return;
+    if (e.key === 'ArrowLeft') this.stepBack();
+    if (e.key === 'ArrowRight') this.stepForward();
+    if (e.key === 'f' || e.key === 'F') this.flipBoard();
+    if (e.key === 'u' || e.key === 'U' || ((e.ctrlKey || e.metaKey) && (e.key === 'z' || e.key === 'Z'))) {
+      e.preventDefault();
+      this.undo();
     }
   },
 
   executePlayerMove(move) {
-    const piece = this.board.grid[move.from.row][move.from.col];
-    const captured = this.board.grid[move.to.row][move.to.col];
-    const isCapture = !!captured;
+    this.playMove(move, false);
+  },
 
-    if (isCapture && this.gameplayMode && this.tryStartDefensiveMiniGame(move, piece, captured, false)) {
-      return;
+  // Plays a move for either side, giving the defender a chance to block a
+  // capture with a minigame first. Returns true if a minigame was started.
+  playMove(move, isAIMove) {
+    const piece = this.board.grid[move.from.row][move.from.col];
+    const captured = CaptureRules.capturedPiece(this.board, move);
+    move.san = Notation.toSAN(this.board, move);
+
+    if (captured && this.gameplayMode && this.tryStartDefensiveMiniGame(move, piece, captured, isAIMove)) {
+      return true;
     }
 
-    if (isCapture && !this.gameplayMode && Math.random() < 0.3 && MiniGameManager.shouldTriggerMiniGame()) {
-      const isAIMode = this.mode === 'story' || this.mode === 'classic' || this.mode === 'custom';
-      const isAIAttacking = isAIMode && this.turn === this.aiColor;
-
+    // Legacy "locked tile" rules (Custom Game with Chess 2.0 rules off).
+    if (captured && !this.gameplayMode && Math.random() < 0.3 && MiniGameManager.shouldTriggerMiniGame() &&
+        CaptureRules.isChallengeable(this.board, move)) {
+      const token = this._aiToken;
       this.pendingRevertMove = { move, piece, captured };
-      miniGameManager.startMiniGame(
+      const started = miniGameManager.startMiniGame(
         piece, captured, move.to,
-        isAIAttacking,
+        isAIMove,
         (winner) => {
+          if (token !== this._aiToken) return;
           if (winner === 'attacker') {
             this.executeCaptureMove(move, piece, captured);
           } else {
             this.revertMoveAndLockTile(move);
           }
-        }
+          if (isAIMove) {
+            this.aiThinking = false;
+            this.aiCooldown = 600;
+          }
+        },
+        this.characterLevel
       );
-      return;
+      if (started) return true;
     }
 
-    this.lastMoveWasCapture = !!captured;
     if (!captured) this.captureCombo = 0;
     this.executeCaptureMove(move, piece, captured);
+    return false;
   },
 
   tryStartDefensiveMiniGame(move, piece, captured, isAIMove) {
     if (!captured || !MiniGameManager.shouldTriggerMiniGame()) return false;
-    if ((this.defensiveMiniGames[captured.color] || 0) <= 0) return false;
+    if (!CaptureRules.canDefend(this.board, move, this.defensiveMiniGames[captured.color])) return false;
 
-    const isAIMode = this.mode === 'story' || this.mode === 'classic' || this.mode === 'custom';
-    const challengePlayerIsAI = isAIMode && captured.color === this.aiColor;
+    const token = this._aiToken;
+    const challengePlayerIsAI = this.isAIMode && captured.color === this.aiColor;
     const started = miniGameManager.startDefensiveMiniGame({
       attacker: piece,
       defender: captured,
@@ -896,6 +720,7 @@ const GameScreen = {
       challengePlayerIsAI,
       botSkillLevel: this.characterLevel,
     }, (result) => {
+      if (token !== this._aiToken) return;
       if (result === 'defended') {
         this.cancelCaptureAndPassTurn(move, piece, captured);
       } else {
@@ -965,21 +790,12 @@ const GameScreen = {
       store.set('stats', stats);
 
       const theme = ThemeManager.getTheme(store.get('theme'));
-      const sqSize = 80;
-      const offsetX = 320;
-      const offsetY = 80;
-      const cx = offsetX + move.to.col * sqSize + sqSize / 2;
-      const cy = offsetY + move.to.row * sqSize + sqSize / 2;
-
       if (typeof PixiGameScreen !== 'undefined' && PixiGameScreen.initialized) {
-        const isMajor = captured && (captured.type === 'rook' || captured.type === 'queen');
+        const { x: cx, y: cy } = PixiGameScreen.squareCenter(move.to.row, move.to.col);
+        const isMajor = captured.type === 'rook' || captured.type === 'queen';
         PixiGameScreen.spawnCaptureParticles(cx, cy, PixiColorUtil.hexToNum(theme.colors.accent), captured.type);
         PixiGameScreen.shakeScreen(isMajor ? 14 : 8);
         PixiGameScreen.flashScreen(isMajor ? 0xffeeaa : 0xffffff);
-      } else {
-        this.particleFX.captureEffect(cx, cy, theme);
-        this.boardRenderer.triggerScreenShake(8);
-        this.boardRenderer.triggerCaptureFlash(move.to.row, move.to.col);
       }
 
       audioManager.playCapture();
@@ -990,24 +806,16 @@ const GameScreen = {
       }
     } else {
       audioManager.playMove(piece ? piece.type : null);
-      const theme = ThemeManager.getTheme(store.get('theme'));
-      const sqSize = 80;
-      const offsetX = 320;
-      const offsetY = 80;
-      const cx = offsetX + move.to.col * sqSize + sqSize / 2;
-      const cy = offsetY + move.to.row * sqSize + sqSize / 2;
-
       if (typeof PixiGameScreen !== 'undefined' && PixiGameScreen.initialized) {
+        const theme = ThemeManager.getTheme(store.get('theme'));
+        const { x: cx, y: cy } = PixiGameScreen.squareCenter(move.to.row, move.to.col);
         PixiGameScreen.spawnMoveParticles(cx, cy, PixiColorUtil.hexToNum(theme.colors.accent));
-      } else {
-        this.particleFX.moveEffect(cx, cy, theme);
       }
     }
 
     move.piece = piece;
     move.captured = captured;
     MoveExecutor.executeMove(this.board, move, this.turn);
-    this.saveSnapshot();
     this.afterMove(move);
   },
 
@@ -1070,6 +878,7 @@ const GameScreen = {
     } else if (status.status === 'draw') {
       this.gameOver = true;
       this.gameResult = 'draw';
+      this.drawReason = this._drawReason();
       this.handleGameEnd();
       audioManager.playGameOver();
     }
@@ -1093,6 +902,13 @@ const GameScreen = {
     });
   },
 
+  _drawReason() {
+    if (this.board.halfMoveClock >= 100) return 'by the 50-move rule';
+    const key = this.board.posKey();
+    if (this.board.positionHistory.filter(k => k === key).length >= 3) return 'by repetition';
+    return 'by insufficient material';
+  },
+
   afterMove(move) {
     this.lastMove = { from: move.from, to: move.to };
     this.moveHistory.push(move);
@@ -1102,6 +918,7 @@ const GameScreen = {
     this.lockedTiles = [];
     this.pendingRevertMove = null;
     this.finishTurnStatus();
+    this.saveSnapshot();
 
     if (this.mode === 'story' && typeof DialogueManager !== 'undefined') {
       if (this.moveHistory.length === 1) {
@@ -1113,106 +930,76 @@ const GameScreen = {
 
   doAIMove() {
     this.aiThinking = true;
+    // Any undo, restart, or screen change bumps the token so a late AI answer is dropped.
+    const token = this._aiToken = (this._aiToken || 0) + 1;
 
     if (this.mode === 'story' && typeof DialogueManager !== 'undefined') {
       DialogueManager.onAIThinkStart(this.board, this.aiColor);
     }
 
-    // Safety timeout: if AI takes longer than 10 seconds, force-reset
+    // Safety net: if the engine never answers, play a random legal move.
     const safetyTimer = setTimeout(() => {
-      console.error('AI safety timeout triggered — forcing aiThinking = false');
-      this.aiThinking = false;
-      this.aiCooldown = 500;
-    }, 10000);
+      if (token !== this._aiToken) return;
+      console.error('AI safety timeout triggered — playing a fallback move');
+      this._aiToken++;
+      this._playAIMove(null);
+    }, 12000);
 
     this._aiTimeout = setTimeout(async () => {
+      let move = null;
       try {
-        if (this.gameOver) { this.aiThinking = false; clearTimeout(safetyTimer); return; }
-
-        let legalMoves = GameRules.getLegalMoves(this.board, this.aiColor);
-        legalMoves = legalMoves.filter(m =>
-          !this.lockedTiles.some(t => t.row === m.to.row && t.col === m.to.col)
-        );
-
-        if (legalMoves.length === 0) {
-          this.aiThinking = false;
-          clearTimeout(safetyTimer);
-          if (this.board.inCheck) {
-            // Checkmate (or locked tiles blocking all escape — same result)
-            this.gameOver = true;
-            this.gameStatus = 'checkmate';
-            this.gameResult = this.aiColor === 'white' ? 'black' : 'white';
-            this.handleGameEnd();
-            audioManager.playVictory();
-          } else {
-            // Stalemate (no legal moves, not in check)
-            this.gameOver = true;
-            this.gameStatus = 'stalemate';
-            this.gameResult = 'draw';
-            this.handleGameEnd();
-            audioManager.playGameOver();
-          }
-          return;
-        }
-
-        let move = null;
-        try {
+        const legalMoves = this._aiLegalMoves();
+        if (!this.gameOver && legalMoves.length > 0) {
           move = await AIController.getMoveAsync(this.board, this.aiColor, this.characterLevel, legalMoves);
-        } catch (e) {
-          console.error('AIController.getMoveAsync error:', e);
-          try {
-            move = AIController.getMove(this.board, this.aiColor, this.characterLevel);
-          } catch (e2) {
-            console.error('AIController.getMove error:', e2);
-          }
         }
-        if (move && this.lockedTiles.some(t => t.row === move.to.row && t.col === move.to.col)) {
-          move = null;
-        }
-        if (!move) {
-          move = legalMoves.length === 1 ? legalMoves[0] : legalMoves[Math.floor(Math.random() * legalMoves.length)];
-        }
-
-        if (this.mode === 'story' && typeof DialogueManager !== 'undefined') {
-          DialogueManager.onAIThinkEnd();
-        }
-
-        const piece = this.board.grid[move.from.row][move.from.col];
-        const captured = this.board.grid[move.to.row][move.to.col];
-        const isCapture = !!captured;
-
-        if (isCapture && this.gameplayMode && this.tryStartDefensiveMiniGame(move, piece, captured, true)) {
-          clearTimeout(safetyTimer);
-          this.aiCooldown = 600;
-          return;
-        }
-
-        if (isCapture && !this.gameplayMode && Math.random() < 0.3 && MiniGameManager.shouldTriggerMiniGame()) {
-          miniGameManager.startMiniGame(
-            piece, captured, move.to,
-            true,
-            (winner) => {
-              if (winner === 'attacker') {
-                this.executeCaptureMove(move, piece, captured);
-              } else {
-                this.revertMoveAndLockTile(move);
-              }
-              this.aiThinking = false;
-              this.aiCooldown = 600;
-            }
-          );
-          clearTimeout(safetyTimer);
-          return;
-        }
-
-        this.executeCaptureMove(move, piece, captured);
-        this.aiThinking = false;
       } catch (e) {
-        console.error('doAIMove error:', e);
-        this.aiThinking = false;
+        console.error('AIController.getMoveAsync error:', e);
       }
+      if (token !== this._aiToken) return;
       clearTimeout(safetyTimer);
+      this._playAIMove(move);
     }, 500 + Math.random() * 700);
+  },
+
+  _aiLegalMoves() {
+    return GameRules.getLegalMoves(this.board, this.aiColor).filter(m =>
+      !this.lockedTiles.some(t => t.row === m.to.row && t.col === m.to.col));
+  },
+
+  _playAIMove(move) {
+    try {
+      if (this.gameOver) { this.aiThinking = false; return; }
+      const legalMoves = this._aiLegalMoves();
+      if (legalMoves.length === 0) {
+        this.aiThinking = false;
+        // Only reachable with locked tiles; normal mates are caught after the previous move.
+        this.gameOver = true;
+        this.gameStatus = this.board.inCheck ? 'checkmate' : 'stalemate';
+        this.gameResult = this.board.inCheck ? this.playerColor : 'draw';
+        this.handleGameEnd();
+        return;
+      }
+      // Only trust the engine's move if it is actually legal right now.
+      const chosen = move && legalMoves.find(m =>
+        m.from.row === move.from.row && m.from.col === move.from.col &&
+        m.to.row === move.to.row && m.to.col === move.to.col &&
+        (m.promotion || null) === (move.promotion || null));
+      const finalMove = chosen || legalMoves[Math.floor(Math.random() * legalMoves.length)];
+
+      if (this.mode === 'story' && typeof DialogueManager !== 'undefined') {
+        DialogueManager.onAIThinkEnd();
+      }
+
+      if (this.playMove(finalMove, true)) {
+        // A minigame is running; its callback clears aiThinking.
+        this.aiCooldown = 600;
+        return;
+      }
+      this.aiThinking = false;
+    } catch (e) {
+      console.error('AI move error:', e);
+      this.aiThinking = false;
+    }
   },
 
   _showDialogueBubble(text, character) {
@@ -1233,27 +1020,40 @@ const GameScreen = {
     this._dialogueBubble = bubble;
   },
 
+  // Against the AI the player resigns; in local 1v1 the side to move resigns.
   surrender() {
     if (this.gameOver) return;
+    const loser = this.isAIMode ? this.playerColor : this.turn;
+    this._aiToken++;
+    this.aiThinking = false;
     this.gameOver = true;
     this.gameStatus = 'resigned';
-    this.gameResult = this.turn === 'white' ? 'black' : 'white';
+    this.gameResult = loser === 'white' ? 'black' : 'white';
     this.handleGameEnd();
     audioManager.playGameOver();
+  },
+
+  // Leaving an AI game part-way counts as resigning; leaving a 1v1 game does not.
+  quitToMenu() {
+    if (!this.gameOver && this.isAIMode && this.moveHistory.length > 0) {
+      this.surrender();
+    }
+    switchScreen('home');
   },
 
   handleGameEnd() {
     if (typeof DialogueManager !== 'undefined') DialogueManager.destroy();
     if (this._dialogueBubble) { this._dialogueBubble.dismiss(); this._dialogueBubble = null; }
 
+    // Stats are kept from Player 1's point of view (the human against the AI).
     const stats = store.get('stats');
     stats.gamesPlayed++;
-    if (this.gameResult === 'white') stats.wins++;
-    else if (this.gameResult === 'black') stats.losses++;
-    else stats.draws++;
+    if (this.gameResult === 'draw' || !this.gameResult) stats.draws++;
+    else if (this.playerWon()) stats.wins++;
+    else stats.losses++;
     store.set('stats', stats);
 
-    if (this.mode === 'story' && this.gameResult === 'white') {
+    if (this.mode === 'story' && this.playerWon()) {
       const save = store.getActiveSave();
       const charLevel = this.currentCharacter ? this.currentCharacter.level : 1;
       if (charLevel >= save.maxUnlockedLevel && charLevel < 10) {
@@ -1279,7 +1079,8 @@ const GameScreen = {
     }
     switch (action) {
       case 'rematch':
-        this.init();
+        this.destroy();
+        this.init(this._lastInitData);
         break;
       case 'menu':
         switchScreen('home');
@@ -1294,7 +1095,8 @@ const GameScreen = {
             save.storyLevel = nextLevel;
             store.set('selectedCharacter', nextChar);
             store.setActiveSave(save);
-            this.init();
+            this.destroy();
+            this.init(this._lastInitData);
           } else {
             switchScreen('home');
           }

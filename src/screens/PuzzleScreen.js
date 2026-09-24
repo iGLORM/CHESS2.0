@@ -82,6 +82,7 @@ const PuzzleScreen = {
 
     // --- Board ---
     PixiBoardRenderer.init(this.pixiContainer);
+    PixiBoardRenderer.flipped = this._sideToMove === 'black';
     PixiBoardRenderer.drawBoard(themeId);
     PixiBoardRenderer.setPieces(this._board, themeId);
 

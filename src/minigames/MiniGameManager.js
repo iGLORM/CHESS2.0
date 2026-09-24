@@ -156,6 +156,7 @@ class MiniGameManager {
     else audioManager.playMiniGameStart();
 
     if (this.animFrame) cancelAnimationFrame(this.animFrame);
+    this._lastFrameAt = 0;
     this.gameLoop();
     return true;
   }
@@ -211,13 +212,17 @@ class MiniGameManager {
     audioManager.playMiniGameStart();
 
     if (this.animFrame) cancelAnimationFrame(this.animFrame);
+    this._lastFrameAt = 0;
     this.gameLoop();
   }
 
   gameLoop() {
     if (!this.active) return;
 
-    const dt = 1 / 60;
+    // Real elapsed time, so minigames run at the same speed on 60Hz and 120Hz screens.
+    const now = performance.now();
+    const dt = this._lastFrameAt ? Math.min(0.05, (now - this._lastFrameAt) / 1000) : 1 / 60;
+    this._lastFrameAt = now;
     this.currentGame.update(dt);
 
     // Bot AI plays the minigame when the challenge owner is AI-controlled.
@@ -431,10 +436,13 @@ class MiniGameManager {
     if (this.callback) {
       const winner = this.currentGame ? this.currentGame.winner : 'attacker';
       const result = winner === 'attacker' ? 'defended' : 'captured';
-      const stats = store.get('stats');
-      stats.miniGamesPlayed++;
-      if (winner === 'attacker') stats.miniGamesWon++;
-      store.set('stats', stats);
+      // Only count minigames a human actually played.
+      if (!this.challengePlayerIsAI && !this.isAIAttacking) {
+        const stats = store.get('stats');
+        stats.miniGamesPlayed++;
+        if (winner === 'attacker') stats.miniGamesWon++;
+        store.set('stats', stats);
+      }
       this.challengeResult = result;
       this.callback(result);
       this.callback = null;

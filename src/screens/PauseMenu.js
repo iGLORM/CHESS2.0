@@ -201,16 +201,11 @@ const PauseMenu = {
         if (typeof audioManager !== 'undefined' && typeof audioManager.playButton === 'function') audioManager.playButton();
         const action = actions[i];
         if (action === 'resume') this.hide();
-        else if (action === 'settings') { this.hide(); switchScreen('settings'); }
+        else if (action === 'settings') { this.hide(); switchScreen('settings', { returnTo: 'game' }); }
         else if (action === 'surrender') { this.confirmSurrender = true; }
         else if (action === 'quit') {
           this.hide();
-          if (GameScreen.gameStatus === 'playing' || GameScreen.gameStatus === 'check') {
-            GameScreen.gameOver = true;
-            GameScreen.gameResult = GameScreen.turn === 'white' ? 'black' : 'white';
-            GameScreen.handleGameEnd();
-          }
-          switchScreen('home');
+          GameScreen.quitToMenu();
         }
         return;
       }

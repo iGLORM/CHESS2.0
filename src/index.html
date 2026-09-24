@@ -6,7 +6,7 @@
   <title>Chess 2.0</title>
   <meta name="description" content="Chess 2.0 — A Pixel Chess Adventure">
   <meta name="theme-color" content="#000000">
-  <link href="vendor/fonts/fonts.css" rel="stylesheet">
+  <link href="vendor/fonts/fonts.css?v=2" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html, body {
@@ -41,11 +41,15 @@
       }
     }
     @media (orientation: portrait) {
-      #gameShell {
-        width: 100vw;
-        height: calc(100vh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+      /* Keep the 800x1280 game at its true shape instead of stretching it. */
+      body {
         padding-top: env(safe-area-inset-top, 0px);
-        align-self: flex-end;
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+      }
+      #gameShell {
+        --avail-h: calc(100vh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+        width: min(100vw, calc(var(--avail-h) * 0.625));
+        height: min(var(--avail-h), calc(100vw * 1.6));
       }
     }
     #gameCanvas, #pixiCanvas, #miniGameOverlay {
@@ -99,6 +103,8 @@
   <script src="engine/MoveExecutor.js?v=10"></script>
   <script src="engine/GameRules.js?v=10"></script>
   <script src="engine/FEN.js?v=10"></script>
+  <script src="engine/CaptureRules.js"></script>
+  <script src="engine/Notation.js"></script>
   <script src="engine/ai/Evaluate.js"></script>
   <script src="engine/ai/Search.js?v=10"></script>
   <script src="engine/ai/CloudEval.js"></script>
