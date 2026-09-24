@@ -7,10 +7,13 @@ This file provides guidance to Codex (Codex.ai/code) when working with code in t
 ```bash
 npm install          # Install dependencies (Electron, @chenglou/pretext)
 npm start            # Launch the game (runs `electron .`)
-npx electron .       # Alternative launch command
+npm test             # Engine + Chess 2.0 rule tests (node --test, no dependencies)
+CHESS2_HEADLESS=1 npx electron . --remote-debugging-port=9333   # Hidden window for automated checks
 ```
 
-No test framework, linter, or build step is configured. The app runs directly from source via Electron.
+No linter or build step is configured. The app runs directly from source via Electron.
+All local scripts in `src/index.html` share one cache-busting tag (`?v=NN`); bump it when deploying
+so the Telegram web version never mixes old and new files.
 
 ### Dependencies
 - **Electron** — app shell

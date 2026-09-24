@@ -23,8 +23,8 @@
 </p>
 
 <p align="center">
-  Play classic chess, challenge unique characters in Story Mode, or battle a friend in local 1v1.<br/>
-  Featuring dynamic themes, character dialogue, capture minigames, and a custom chess engine with AI opponents.
+  Chess with a twist: when a piece is about to be captured, its owner can fight back in a quick mini-game.<br/>
+  Challenge ten characters in Story Mode, play the computer, solve puzzles, or battle a friend on the same screen.
 </p>
 
 ---
@@ -49,23 +49,35 @@
 
 ---
 
+## The Chess 2.0 Rule
+
+Everything is normal chess, with one twist:
+
+- When one of your pieces is about to be captured, you can spend a **Defense** to play a quick skill mini-game.
+- **Win** it and the capture is cancelled: the attacking piece stays where it was and your opponent loses their turn.
+- **Lose** it and the capture goes through.
+- Each side starts with **2 Defenses** and earns **1 more for every 2 captures**.
+- A capture that gets a king **out of check** can't be blocked (otherwise a king could be left in check and captured).
+
+The rule is on in Story Mode and Local 1v1, off in Classic Chess, and your choice in Custom Game.
+
+---
+
 ## Features
 
 | Feature | Description |
 |:--------|:------------|
-| **Story Mode** | Battle 5 unique characters with personality-driven dialogue and escalating difficulty |
-| **Local 1v1** | Two players on the same machine with full chess rules |
-| **Classic Chess** | Play against the built-in AI engine with adjustable depth (10 difficulty levels) |
-| **Dynamic Themes** | 3+ visual styles (Space, Medieval, Ocean) with unique color palettes and unlockable themes |
-| **Character System** | Each opponent has unique dialogue, colors, and AI personality |
-| **Capture Minigames** | 14 skill-based minigames trigger on piece captures for bonus rewards |
-| **Portrait & Landscape** | Responsive layout with automatic orientation detection for mobile and desktop |
-| **PixiJS v8 Rendering** | GPU-accelerated home screen, board, and UI with GSAP animations |
-| **Heavy Background FX** | Parallax fog, themed particles (bubbles, embers, blossoms, shooting stars), pulsing glows |
-| **Save System** | Persistent settings, unlocked themes, and progress tracking via localStorage |
-| **Custom Engine** | Full legal move generation, check/checkmate detection, and AI search with alpha-beta pruning |
-| **Telegram Mini App** | Play on mobile via [@iglorm_chess_bot](https://t.me/iglorm_chess_bot?startapp=play) with haptic feedback and native back button |
-| **Fullscreen** | Toggle fullscreen mode with F11 |
+| **Story Mode** | Beat 10 characters in order, each with their own personality and dialogue, across 5 difficulty tiers and 3 save slots |
+| **Local 1v1** | Two players on the same screen, Chess 2.0 rules on |
+| **Classic Chess** | Standard chess against the computer, 200-2000 Elo, play as White or Black |
+| **Custom Game** | Pick the bot strength, your side, whether Defenses are on, and which mini-games can appear |
+| **Training** | 30 puzzles with stars, hints and a coach, plus a board editor |
+| **15 Capture Mini-Games** | Skill games that decide contested captures; practise any of them from Settings |
+| **Undo, flip, review** | Take back moves, flip the board, and step through the game's history |
+| **Resume** | An unfinished game is saved after every move and can be resumed from the home screen |
+| **Themes** | 11 visual themes that change the board, pieces, background and particles |
+| **Works offline** | All libraries and fonts are bundled; stronger bots use online engines when available and fall back to the built-in engine offline |
+| **Desktop, web & phone** | Electron app for Windows/macOS/Linux, and the same code runs in a browser and as a [Telegram Mini App](https://t.me/iglorm_chess_bot?startapp=play) with a portrait layout |
 
 ---
 
@@ -73,25 +85,28 @@
 
 ### Story Mode
 
-Face off against 5 themed opponents in order of difficulty:
+Face ten opponents in order. Pick a difficulty tier when starting a save; each win unlocks the next character.
 
-| Level | Character | Title | Personality |
-|:-----:|:----------|:------|:------------|
-| 1 | Pawnie | The Village Rookie | Nervous |
-| 2 | Bish-Bosh | The Diagonal Dreamer | Enthusiastic |
-| 3 | Rook-E | The Iron Tower | Stoic |
-| 4 | KnightShade | The Shadow Lancer | Mysterious |
-| 5 | Queenie | The Royal Tyrant | Arrogant |
-
-Each character greets you before battle and reacts to victory or defeat.
+| Level | Character | Title |
+|:-----:|:----------|:------|
+| 1 | Pawnie | The Village Rookie |
+| 2 | Bish-Bosh | The Diagonal Dreamer |
+| 3 | Rook-E | The Iron Tower |
+| 4 | KnightShade | The Shadow Lancer |
+| 5 | Queenie | The Royal Tyrant |
+| 6 | CastlE | The Unbreakable Fortress |
+| 7 | EndGamer | The Patient Scholar |
+| 8 | ForkMaster | The Tactician |
+| 9 | Checkmate | The Executioner |
+| 10 | Grandmaster X | The Absolute |
 
 ### Local 1v1
 
-Two players take turns on the same keyboard. Standard chess rules apply.
+Two players take turns on the same screen with Chess 2.0 rules. Player names can be set in Settings.
 
 ### Classic Chess
 
-Play against the AI with full control over search depth and difficulty. The AI uses alpha-beta pruning with piece-square tables and material evaluation across 10 difficulty levels.
+Standard chess against the computer. Choose a strength from 200 to 2000 Elo and play as White or Black.
 
 ---
 
@@ -113,46 +128,33 @@ Switch between visual themes that change the entire board, pieces, UI, and backg
 | `artdeco` | Golden Age | Geometric gold shapes |
 | `wildwest` | Dusty Trail | Blowing dust particles |
 
-Each theme has a matching title logo variant (original, magma, or ice). Themes affect board, pieces, UI, backgrounds, particles, and buttons. 12 themes total, unlockable through gameplay.
+Each theme has a matching title logo variant (original, magma, or ice). Themes affect board, pieces, UI, backgrounds, particles, and buttons. There are 11 themes plus a custom colour theme.
 
 ---
 
-## Capture Minigames
+## Capture Mini-Games
 
-When a piece is captured, a skill minigame may trigger (30% chance, toggleable in Settings). Win the minigame for bonus rewards:
+Quick Click, Memory Match, Timing Strike, Pattern Press, Reaction Test, Soul Dodge, Power Meter, Target Practice,
+Dodge Falling, Rhythm Tap, Number Guess, Coin Flip, Bar Balance, Shield Block and Whack-a-Mole.
 
-| Minigame | Skill Tested |
-|:---------|:-------------|
-| Quick Click | Speed clicking |
-| Memory Match | Pattern memory |
-| Timing Strike | Precise timing |
-| Pattern Press | Sequence input |
-| Reaction Test | Reflexes |
-| Undertale Dodge | Bullet dodging |
-| Power Meter | Charge control |
-| Target Practice | Aiming |
-| Dodge Falling | Avoidance |
-| Rhythm Tap | Rhythm timing |
-| Number Guess | Logic deduction |
-| Coin Flip | Chance |
-| Shield Block | Blocking defense |
-| Whack-a-Mole | Speed targeting |
-
-Difficulty scales based on the value of the captured piece.
+One is picked at random for each contested capture. Difficulty scales with the value of the threatened piece,
+and when the computer defends, it plays the mini-game at a skill matching its strength.
 
 ---
 
 ## Controls
 
-| Key | Action |
-|:---:|:-------|
-| `Arrow Keys` / `WASD` | Navigate menus, move cursor on board |
-| `Enter` / `Space` | Select / Confirm |
-| `Escape` | Back / Pause |
-| `F` | Flip board (in-game) |
-| `H` | Toggle move hints (in-game) |
-| `P` | Toggle particles (in-game) |
-| `F11` | Toggle fullscreen |
+| Input | Action |
+|:-----:|:-------|
+| Click / tap | Select a piece, then a highlighted square |
+| `U` or `Cmd/Ctrl+Z` | Undo your last move (against the computer, also undoes its reply) |
+| `F` | Flip the board |
+| `←` / `→` | Step back / forward through the game |
+| `Esc` | Pause menu (resign, settings, quit) / back in menus |
+| `Enter` | Confirm in menus |
+| `F11` | Toggle fullscreen (desktop) |
+
+The **UNDO**, **FLIP**, **<**, **>** and **LIVE** buttons under the board do the same things.
 
 ---
 
@@ -160,7 +162,7 @@ Difficulty scales based on the value of the captured piece.
 
 ### Download & Play (No Setup Required)
 
-Pre-built binaries are available on the [Releases](https://github.com/iGLORM/chess/releases) page:
+Pre-built binaries are published on the [Releases](https://github.com/iGLORM/CHESS2.0/releases) page when available:
 
 | Platform | Download | Notes |
 |:---------|:---------|:------|
@@ -173,38 +175,38 @@ Pre-built binaries are available on the [Releases](https://github.com/iGLORM/che
 #### Prerequisites
 
 - [Node.js](https://nodejs.org/) v20+
-- npm (comes with Node.js)
 
-#### Dependencies (auto-installed via npm)
-
-- **Electron** — Desktop app framework
-- **PixiJS v8** — GPU-accelerated 2D rendering (loaded via CDN)
-- **GSAP** — Animation library (loaded via CDN)
-- **@chenglou/pretext** — Accurate text measurement for Canvas 2D text fitting
-
-#### Run in Development
+#### Run
 
 ```bash
-git clone https://github.com/iGLORM/chess.git
-cd chess
+git clone https://github.com/iGLORM/CHESS2.0.git
+cd CHESS2.0
 npm install
 npm start
 ```
 
+If `npm start` says Electron failed to install, run `node node_modules/electron/install.js` once.
+
+To play in a browser instead, serve the repository root with any static web server
+(for example `python3 -m http.server`) and open `http://localhost:8000/src/index.html`.
+
+#### Test
+
+```bash
+npm test
+```
+
+Runs the chess-engine and Chess 2.0 rule tests (move generation, check, en passant, notation, capture defense).
+
 #### Build Distributable
 
 ```bash
-# Windows (creates NSIS installer + portable exe)
-npm run build:win
-
-# macOS (creates DMG)
-npm run build:mac
-
-# Linux (creates AppImage + deb)
-npm run build:linux
+npm run build:win     # Windows installer + portable exe
+npm run build:mac     # macOS DMG
+npm run build:linux   # Linux AppImage + deb
 ```
 
-Built files are output to the `dist/` directory.
+Built files are written to `dist/`.
 
 ### Platform Launchers
 
@@ -221,19 +223,21 @@ Built files are output to the `dist/` directory.
 src/
   audio/          Sound and music management (Web Audio API)
   characters/     Character definitions and manager
-  engine/         Chess engine (board, moves, rules, AI)
+  engine/         Chess engine (board, moves, rules, Chess 2.0 capture rules, notation, AI)
     ai/           Alpha-beta search, evaluation, difficulty controller
   input/          Keyboard input and keybindings
   layout/         Orientation detection and responsive layout (portrait/landscape)
-  minigames/      14 skill-based capture minigames
+  minigames/      15 skill-based capture mini-games
   pixi/           PixiJS v8 renderers (board, pieces, backgrounds, UI components)
   rendering/      Canvas 2D rendering (board, pieces, particles, UIHelpers, TextFit)
   screens/        UI screens (home, game, menus, settings)
   state/          Global reactive state store
   telegram/       Telegram Mini App compatibility layer
   themes/         Theme definitions and manager
+  vendor/         Bundled PixiJS, GSAP, fonts and pretext (no CDN needed)
   main.js         Game loop and screen router
   index.html      Entry point
+tests/            Node tests for the engine and rules (npm test)
 ```
 
 | File | Purpose |
@@ -250,9 +254,8 @@ Textures and sprites are procedurally generated at runtime using the `SpriteGen`
 ## Roadmap
 
 - [x] Mobile / touch support (Telegram Mini App with portrait mode)
+- [x] Undo, board flip and resuming unfinished games
 - [ ] Online multiplayer
-- [ ] More themes (Forest, Lava, Ice)
-- [ ] Additional characters with unique AI strategies
 - [ ] Game replay / PGN export
 - [ ] Elo rating system
 
@@ -260,7 +263,8 @@ Textures and sprites are procedurally generated at runtime using the `SpriteGen`
 
 ## License
 
-This project is open source. See [LICENSE](LICENSE) for details.
+No license file has been added yet. The bundled fonts (Pixelify Sans, Silkscreen) are under the SIL Open Font
+License 1.1; PixiJS is MIT; GSAP is under its own standard license.
 
 ---
 
