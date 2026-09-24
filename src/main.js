@@ -281,13 +281,14 @@ function initApp() {
     clearTimeout(resizeTimer);
     resizeTimer = setTimeout(() => {
       const previousScale = currentRenderScale;
-      Layout.detect();
+      const layoutChanged = Layout.detect();
       resizeCanvas();
       if (typeof PixiApp !== 'undefined') {
         PixiApp.resize();
       }
-      // Text is rasterised when a screen is built, so rebuild it at the new sharpness.
-      if (currentRenderScale !== previousScale) Layout._notify();
+      // Rebuild screens on rotation, and at the new sharpness since text is
+      // rasterised when a screen is built.
+      if (layoutChanged || currentRenderScale !== previousScale) Layout._notify();
     }, 150);
   });
 

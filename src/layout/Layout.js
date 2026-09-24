@@ -43,6 +43,34 @@ const Layout = {
   offChange(fn) { this._listeners = this._listeners.filter(f => f !== fn); },
   _notify() { for (const fn of this._listeners) fn(this); },
 
+  // Space available for the game after the body's safe-area padding.
+  _available() {
+    const body = document.body;
+    if (!body) return { w: window.innerWidth, h: window.innerHeight };
+    const cs = getComputedStyle(body);
+    return {
+      w: window.innerWidth - (parseFloat(cs.paddingLeft) || 0) - (parseFloat(cs.paddingRight) || 0),
+      h: window.innerHeight - (parseFloat(cs.paddingTop) || 0) - (parseFloat(cs.paddingBottom) || 0),
+    };
+  },
+
+  // Portrait is 800 wide and as tall as the phone's shape allows, so the game
+  // fills tall screens instead of leaving black bars.
+  _portraitHeight() {
+    const { w, h } = this._available();
+    return Math.max(1100, Math.min(1800, Math.round(800 * h / Math.max(1, w))));
+  },
+
+  // Size the game shell to the largest box of the game's aspect ratio that fits.
+  fitShell() {
+    const shell = document.getElementById('gameShell');
+    if (!shell) return;
+    const { w, h } = this._available();
+    const scale = Math.min(w / this.W, h / this.H);
+    shell.style.width = Math.floor(this.W * scale) + 'px';
+    shell.style.height = Math.floor(this.H * scale) + 'px';
+  },
+
   detect() {
     const vw = window.innerWidth;
     const vh = window.innerHeight;
@@ -54,15 +82,19 @@ const Layout = {
     } else if (ratio >= 1.10) {
       newOrientation = 'landscape';
     } else {
-      return false;
+      newOrientation = this.orientation;
     }
 
-    if (newOrientation === this.orientation) return false;
+    const newH = newOrientation === 'portrait' ? this._portraitHeight() : 800;
+    if (newOrientation === this.orientation && newH === this.H) {
+      this.fitShell();
+      return false;
+    }
 
     this.orientation = newOrientation;
     if (newOrientation === 'portrait') {
       this.W = 800;
-      this.H = 1280;
+      this.H = newH;
       this.SAFE_X = 32;
       this.SAFE_TOP = 64;
       this.SAFE_BOTTOM = 48;
@@ -73,19 +105,12 @@ const Layout = {
       this.SAFE_TOP = 48;
       this.SAFE_BOTTOM = 40;
     }
+    this.fitShell();
     return true;
   },
 
   init() {
+    // Resize handling (and notifying listeners) lives in main.js.
     this.detect();
-    let debounceTimer = null;
-    window.addEventListener('resize', () => {
-      clearTimeout(debounceTimer);
-      debounceTimer = setTimeout(() => {
-        if (this.detect()) {
-          this._notify();
-        }
-      }, 300);
-    });
   },
 };

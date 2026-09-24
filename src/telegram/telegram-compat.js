@@ -34,7 +34,7 @@
   }
 
   tg.onEvent('viewportChanged', function () {
-    if (typeof Layout !== 'undefined') Layout.detect();
+    if (typeof Layout !== 'undefined' && Layout.detect()) Layout._notify();
     if (typeof PixiApp !== 'undefined' && PixiApp.app && PixiApp.app.renderer) {
       PixiApp.app.renderer.resize(Layout.W, Layout.H);
     }

@@ -16,16 +16,18 @@ const HomeScreen = {
       const heroH = Math.round(97 * s);
       const mainH = Math.round(85 * s);
       const mainGap = grid;
-      const mainStartY = Math.round(291 * s);
+      // Centre the menu vertically on phones taller than the 800x1280 design.
+      const off = Math.max(0, Math.round((Layout.H - 1280) / 2));
+      const mainStartY = Math.round(291 * s) + off;
       const mainBlockEnd = mainStartY + heroH + 4 * (mainH + mainGap);
       const utilGap = Math.round(13 * s);
       const utilBtnW = Math.floor((contentW - utilGap * 2) / 3);
       const utilBtnH = Math.round(73 * s);
       return {
         W: Layout.W, H: Layout.H,
-        LOGO_Y: Math.round(110 * s),
+        LOGO_Y: Math.round(110 * s) + off,
         LOGO_MAX_W: 560,
-        HERO_Y: Math.round(150 * s),
+        HERO_Y: Math.round(150 * s) + off,
         MAIN_START_Y: mainStartY,
         MAIN_BTN_W: contentW,
         HERO_BTN_H: heroH,

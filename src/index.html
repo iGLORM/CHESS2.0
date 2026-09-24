@@ -41,15 +41,14 @@
       }
     }
     @media (orientation: portrait) {
-      /* Keep the 800x1280 game at its true shape instead of stretching it. */
+      /* Layout.fitShell() sizes the shell to the game's exact shape. */
       body {
         padding-top: env(safe-area-inset-top, 0px);
         padding-bottom: env(safe-area-inset-bottom, 0px);
       }
       #gameShell {
-        --avail-h: calc(100vh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
-        width: min(100vw, calc(var(--avail-h) * 0.625));
-        height: min(var(--avail-h), calc(100vw * 1.6));
+        width: 100vw;
+        height: calc(100vw * 1.6);
       }
     }
     #gameCanvas, #pixiCanvas, #miniGameOverlay {
