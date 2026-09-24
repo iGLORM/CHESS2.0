@@ -62,11 +62,16 @@ function _doSwitchScreen() {
   }
 }
 
+let currentRenderScale = 1;
+
 function resizeCanvas() {
-  canvas.width = Layout.W;
-  canvas.height = Layout.H;
-  miniCanvas.width = Layout.W;
-  miniCanvas.height = Layout.H;
+  currentRenderScale = Layout.renderScale;
+  canvas.width = Math.round(Layout.W * currentRenderScale);
+  canvas.height = Math.round(Layout.H * currentRenderScale);
+  miniCanvas.width = canvas.width;
+  miniCanvas.height = canvas.height;
+  ctx.imageSmoothingEnabled = false;
+  miniCtx.imageSmoothingEnabled = false;
 }
 
 function gameLoop(timestamp) {
@@ -275,11 +280,14 @@ function initApp() {
   window.addEventListener('resize', () => {
     clearTimeout(resizeTimer);
     resizeTimer = setTimeout(() => {
+      const previousScale = currentRenderScale;
       Layout.detect();
       resizeCanvas();
       if (typeof PixiApp !== 'undefined') {
         PixiApp.resize();
       }
+      // Text is rasterised when a screen is built, so rebuild it at the new sharpness.
+      if (currentRenderScale !== previousScale) Layout._notify();
     }, 150);
   });
 
@@ -306,6 +314,8 @@ function initApp() {
     ? Promise.race([
       Promise.all([
         document.fonts.load('16px "Pixelify Sans"'),
+        document.fonts.load('500 16px "Pixelify Sans"'),
+        document.fonts.load('600 16px "Pixelify Sans"'),
         document.fonts.load('bold 16px "Pixelify Sans"'),
         document.fonts.load('16px "Silkscreen"'),
         document.fonts.load('bold 16px "Silkscreen"'),

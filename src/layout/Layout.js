@@ -25,6 +25,15 @@ const Layout = {
     return 1.0;
   },
 
+  // Device pixels per game unit. The game is laid out at 1280x800 (or 800x1280)
+  // but drawn at the screen's real resolution so small pixel text stays sharp.
+  get renderScale() {
+    const shell = document.getElementById('gameShell');
+    const cssW = shell ? shell.getBoundingClientRect().width : window.innerWidth;
+    const px = (cssW || this.W) * (window.devicePixelRatio || 1) / this.W;
+    return Math.min(3, Math.max(1, Math.round(px * 4) / 4));
+  },
+
   scaledFont(baseSize) {
     return Math.round(baseSize * (this.uiScale || 1));
   },

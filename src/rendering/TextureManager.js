@@ -2,6 +2,11 @@ class TextureManager {
   static cache = {};
   static loaded = {};
 
+  // Optional art that only some themes ship with; other themes draw these
+  // procedurally, so we skip requesting files that do not exist.
+  static BOARD_THEMES = ['crystal'];
+  static BACKGROUND_FILES = { crystal: 'png', japanese: 'png', ocean: 'png', wildwest: 'webp' };
+
   static loadImage(src) {
     if (this.loaded[src]) {
       return Promise.resolve(this.cache[src] || null);
@@ -29,21 +34,27 @@ class TextureManager {
     return !!this.loaded[src];
   }
 
-  static buildPath(folder, name) {
-    return `../assets/textures/${folder}/${name}.png`;
+  static buildPath(folder, name, ext = 'png') {
+    return `../assets/textures/${folder}/${name}.${ext}`;
+  }
+
+  static backgroundPath(themeId) {
+    return this.buildPath('backgrounds', `${themeId}_bg`, this.BACKGROUND_FILES[themeId] || 'png');
   }
 
   static async preloadTheme(themeId) {
     const loads = [];
-    for (const color of ['light', 'dark']) {
-      loads.push(this.loadImage(this.buildPath('boards', `${themeId}_${color}`)));
+    if (this.BOARD_THEMES.includes(themeId)) {
+      for (const color of ['light', 'dark']) {
+        loads.push(this.loadImage(this.buildPath('boards', `${themeId}_${color}`)));
+      }
     }
     for (const color of ['white', 'black']) {
       for (const type of ['pawn', 'rook', 'knight', 'bishop', 'queen', 'king']) {
         loads.push(this.loadImage(this.buildPath('pieces', `${themeId}_${color}_${type}`)));
       }
     }
-    loads.push(this.loadImage(this.buildPath('backgrounds', `${themeId}_bg`)));
+    if (this.BACKGROUND_FILES[themeId]) loads.push(this.loadImage(this.backgroundPath(themeId)));
     await Promise.all(loads);
   }
 
@@ -63,7 +74,7 @@ class TextureManager {
   }
 
   static getBackgroundTexture(themeId) {
-    return this.getImage(this.buildPath('backgrounds', `${themeId}_bg`));
+    return this.getImage(this.backgroundPath(themeId));
   }
 
   static getCharacterTexture(characterId) {

@@ -1,22 +1,12 @@
-/* Pixelify Sans and Silkscreen, both SIL Open Font License 1.1 (Google Fonts). Bundled so the game works offline. */
-@font-face {
-  font-family: 'Pixelify Sans';
-  font-style: normal;
-  font-weight: 400 700;
-  font-display: block;
-  src: url(PixelifySans.woff2) format('woff2');
-}
-@font-face {
-  font-family: 'Silkscreen';
-  font-style: normal;
-  font-weight: 400;
-  font-display: block;
-  src: url(Silkscreen-Regular.woff2) format('woff2');
-}
-@font-face {
-  font-family: 'Silkscreen';
-  font-style: normal;
-  font-weight: 700;
-  font-display: block;
-  src: url(Silkscreen-Bold.woff2) format('woff2');
-}
+/*
+ * Pixelify Sans and Silkscreen, SIL Open Font License 1.1, bundled so the game
+ * works offline. Pixelify Sans is the static per-weight build; its "C" and "2"
+ * have been adjusted to open wider so they are not misread as "O" and "8" at
+ * small sizes (the original gaps are one pixel wide).
+ */
+@font-face { font-family: 'Pixelify Sans'; font-weight: 400; font-display: block; src: url(PixelifySans-400.woff2?v=2) format('woff2'); }
+@font-face { font-family: 'Pixelify Sans'; font-weight: 500; font-display: block; src: url(PixelifySans-500.woff2?v=2) format('woff2'); }
+@font-face { font-family: 'Pixelify Sans'; font-weight: 600; font-display: block; src: url(PixelifySans-600.woff2?v=2) format('woff2'); }
+@font-face { font-family: 'Pixelify Sans'; font-weight: 700 900; font-display: block; src: url(PixelifySans-700.woff2?v=2) format('woff2'); }
+@font-face { font-family: 'Silkscreen'; font-weight: 400; font-display: block; src: url(Silkscreen-Regular.woff2?v=2) format('woff2'); }
+@font-face { font-family: 'Silkscreen'; font-weight: 700; font-display: block; src: url(Silkscreen-Bold.woff2?v=2) format('woff2'); }

@@ -2,10 +2,16 @@ const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const path = require('path');
 const fs = require('fs');
 
+// CHESS2_HEADLESS=1 runs the game in a hidden window (for automated testing
+// over --remote-debugging-port) without pausing rendering in the background.
+const HEADLESS = !!process.env.CHESS2_HEADLESS;
+
 function createWindow() {
   const win = new BrowserWindow({
     width: 1280,
     height: 800,
+    show: !HEADLESS,
+    paintWhenInitiallyHidden: true,
     useContentSize: true,
     resizable: true,
     fullscreenable: true,
@@ -15,6 +21,7 @@ function createWindow() {
       contextIsolation: true,
       nodeIntegration: false,
       sandbox: true,
+      backgroundThrottling: !HEADLESS,
     },
     icon: path.join(__dirname, process.platform === 'win32' ? 'icon.ico' : 'icon.png'),
   });

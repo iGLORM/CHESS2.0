@@ -17,7 +17,7 @@ const PixiApp = {
       height: Layout.H,
       backgroundAlpha: 0,
       antialias: false,
-      resolution: 1,
+      resolution: Layout.renderScale,
       preference: 'webgl',
     }).then(() => {
       PIXI.TextureSource.defaultOptions.scaleMode = 'nearest';
@@ -29,8 +29,8 @@ const PixiApp = {
   },
 
   resize() {
-    if (!this.app) return;
-    this.app.renderer.resize(Layout.W, Layout.H);
+    if (!this.app || !this.app.renderer) return;
+    this.app.renderer.resize(Layout.W, Layout.H, Layout.renderScale);
   },
 
   clearStage() {
