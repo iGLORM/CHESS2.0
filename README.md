@@ -8,13 +8,13 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Electron-28-47848F?logo=electron&logoColor=white" alt="Electron" />
+  <img src="https://img.shields.io/badge/Electron-44-47848F?logo=electron&logoColor=white" alt="Electron" />
   <img src="https://img.shields.io/badge/Node.js-20%2B-339933?logo=node.js&logoColor=white" alt="Node.js" />
   <img src="https://img.shields.io/badge/JavaScript-Vanilla-F7DF1E?logo=javascript&logoColor=black" alt="JavaScript" />
   <img src="https://img.shields.io/badge/PixiJS-v8-E91E63?logo=webgl&logoColor=white" alt="PixiJS v8" />
   <img src="https://img.shields.io/badge/Canvas-2D-E34F26?logo=html5&logoColor=white" alt="HTML5 Canvas" />
   <img src="https://img.shields.io/badge/License-Open%20Source-88d8b0" alt="License" />
-  <img src="https://img.shields.io/badge/AI%20Engine-Alpha--Beta%20Pruning-fff5a0?logoColor=black" alt="AI Engine" />
+  <img src="https://img.shields.io/badge/AI-Stockfish%2018-fff5a0?logoColor=black" alt="Stockfish" />
   <br/>
   <img src="https://img.shields.io/badge/Windows-0078D6?logo=windows&logoColor=white" alt="Windows" />
   <img src="https://img.shields.io/badge/macOS-000000?logo=apple&logoColor=white" alt="macOS" />
@@ -24,7 +24,7 @@
 
 <p align="center">
   Chess with a twist: when a piece is about to be captured, its owner can fight back in a quick mini-game.<br/>
-  Challenge ten characters in Story Mode, play the computer, solve puzzles, or battle a friend on the same screen.
+  Cross eleven shattered worlds in Story Mode, play the computer, solve puzzles, or battle a friend on the same screen.
 </p>
 
 ---
@@ -33,17 +33,17 @@
 
 <p align="center">
 
-| Home Screen | Settings | Character Select |
+| Home Screen | World Map | World Missions |
 |:---:|:---:|:---:|
-| ![Home Screen](assets/screenshots/home_screen.png) | ![Settings](assets/screenshots/settings.png) | ![Character Select](assets/screenshots/character_select.png) |
+| ![Home Screen](assets/screenshots/home_screen.png) | ![World Map](assets/screenshots/world_map.png) | ![World Missions](assets/screenshots/world_missions.png) |
 
-| Bot Select | Custom Game | How to Play |
+| Story Fight | Mystery Piece in the Fog | Custom Game |
 |:---:|:---:|:---:|
-| ![Bot Select](assets/screenshots/bot_select.png) | ![Custom Game](assets/screenshots/custom_game.png) | ![How to Play](assets/screenshots/how_to_play.png) |
+| ![Story Fight](assets/screenshots/game_screen.png) | ![Mystery Piece](assets/screenshots/mystery_piece.png) | ![Custom Game](assets/screenshots/custom_game.png) |
 
-| Stats | Game Screen | Theme Select |
+| Settings | How to Play | Stats |
 |:---:|:---:|:---:|
-| ![Stats](assets/screenshots/stats.png) | ![Game Screen](assets/screenshots/game_screen.png) | ![Theme Select](assets/screenshots/theme_select.png) |
+| ![Settings](assets/screenshots/settings.png) | ![How to Play](assets/screenshots/how_to_play.png) | ![Stats](assets/screenshots/stats.png) |
 
 </p>
 
@@ -51,15 +51,16 @@
 
 ## The Chess 2.0 Rule
 
-Everything is normal chess, with one twist:
+Everything is normal chess, with one twist: **captures can be challenged with a quick 3D arcade mini-game.**
 
-- When one of your pieces is about to be captured, you can spend a **Defense** to play a quick skill mini-game.
-- **Win** it and the capture is cancelled: the attacking piece stays where it was and your opponent loses their turn.
-- **Lose** it and the capture goes through.
-- Each side starts with **2 Defenses** and earns **1 more for every 2 captures**.
-- A capture that gets a king **out of check** can't be blocked (otherwise a king could be left in check and captured).
+- **Local 1v1 and Custom Game (Defenses):** when one of your pieces is about to be captured, you can spend a
+  **Defense** to play a mini-game. Win it and the capture is cancelled and your opponent loses their turn.
+  Each side starts with **2 Defenses** and earns **1 more for every 2 captures**.
+- **Story Mode (Challenges):** any capture may start a challenge (about 1 in 3, and some bosses change the odds).
+  The **attacker** plays it: win and the capture goes through, lose and it is cancelled and that square locks.
+- A capture that gets a king **out of check** can never be blocked.
 
-The rule is on in Story Mode and Local 1v1, off in Classic Chess, and your choice in Custom Game.
+Classic Chess is plain chess with no mini-games.
 
 ---
 
@@ -67,78 +68,61 @@ The rule is on in Story Mode and Local 1v1, off in Classic Chess, and your choic
 
 | Feature | Description |
 |:--------|:------------|
-| **Story Mode** | Beat 10 characters in order, each with their own personality and dialogue, across 5 difficulty tiers and 3 save slots |
-| **Local 1v1** | Two players on the same screen, Chess 2.0 rules on |
-| **Classic Chess** | Standard chess against the computer, 200-2000 Elo, play as White or Black |
+| **Story Mode** | "The Shattered Board": 15 stages across 11 worlds, a world map, cutscenes, 45 missions and 9 guardians who each bend the rules |
+| **Local 1v1** | Two players on the same screen, with Defenses |
+| **Classic Chess** | Standard chess against the computer, 200-2000 Elo, as White or Black |
 | **Custom Game** | Pick the bot strength, your side, whether Defenses are on, and which mini-games can appear |
 | **Training** | 30 puzzles with stars, hints and a coach, plus a board editor |
-| **15 Capture Mini-Games** | Skill games that decide contested captures; practise any of them from Settings |
+| **18 3D Mini-Games** | Retro-styled Three.js arcade games that decide contested captures; practise any of them from Settings |
+| **Stockfish AI** | Every bot is the bundled Stockfish 18, from human-like beginner mistakes up to full strength |
 | **Undo, flip, review** | Take back moves, flip the board, and step through the game's history |
 | **Resume** | An unfinished game is saved after every move and can be resumed from the home screen |
-| **Themes** | 11 visual themes that change the board, pieces, background and particles |
-| **Works offline** | All libraries, fonts and the Stockfish engine are bundled; every bot runs on your computer, no internet needed |
+| **World themes** | 11 painted themes (board, piece set, animated background and song) plus a custom colour theme |
+| **Synthesised music** | Every theme has its own song, generated live with Web Audio, with a tense version during check |
+| **Works offline** | All libraries, fonts and the engine are bundled; no internet needed |
 | **Desktop, web & phone** | Electron app for Windows/macOS/Linux, and the same code runs in a browser and as a [Telegram Mini App](https://t.me/iglorm_chess_bot?startapp=play) with a portrait layout |
 
 ---
 
-## Game Modes
+## Story Mode: The Shattered Board
 
-### Story Mode
+You wake in Pawn Hollow with no memory, holding a glowing shard of the Great Board. The board was shattered
+the night you fell from the sky, and every world is fading. Nine guardians hold the other fragments, and each
+one you beat lets slip a clue about who you are.
 
-Face ten opponents in order. Pick a difficulty tier when starting a save; each win unlocks the next character.
+- **World map:** travel from world to world; beating a guardian restores its world, and your king walks on.
+- **The Training Camp:** five holographic trainers teach the moves, challenges, mini-games and twists.
+- **Missions:** every guardian world has five missions before its guardian: mate-in-one puzzles, challenge
+  trials, hunts, rule tasters and wild cards. Board missions are won by checkmate or by their goal:
+  **catch the Mystery Piece** (every enemy piece is a suspect and hints narrow it down), **capture every piece**,
+  **crown a pawn**, or **survive**.
+- **Difficulty:** six tiers (Rookie to Madness) and three save slots.
 
-| Level | Character | Title |
-|:-----:|:----------|:------|
-| 1 | Pawnie | The Village Rookie |
-| 2 | Bish-Bosh | The Diagonal Dreamer |
-| 3 | Rook-E | The Iron Tower |
-| 4 | KnightShade | The Shadow Lancer |
-| 5 | Queenie | The Royal Tyrant |
-| 6 | CastlE | The Unbreakable Fortress |
-| 7 | EndGamer | The Patient Scholar |
-| 8 | ForkMaster | The Tactician |
-| 9 | Checkmate | The Executioner |
-| 10 | Grandmaster X | The Absolute |
-
-### Local 1v1
-
-Two players take turns on the same screen with Chess 2.0 rules. Player names can be set in Settings.
-
-### Classic Chess
-
-Standard chess against the computer. Choose a strength from 200 to 2000 Elo and play as White or Black.
-
----
-
-## Themes
-
-Switch between visual themes that change the entire board, pieces, UI, and background:
-
-| Theme | Name | Description |
-|:-----:|:-----|:------------|
-| `space` | Cosmic Abyss | Twinkling stars, shooting stars, nebula glows |
-| `medieval` | King's Fortress | Floating embers, torch glow pulses |
-| `ocean` | Deep Blue | Rising bubbles, underwater light rays |
-| `japanese` | Cherry Blossom | Falling cherry blossoms with rotation |
-| `crystal` | Crystal Cavern | Sparkling crystal flashes |
-| `cyberpunk` | Neon Grid | Data streaks, digital rain |
-| `egypt` | Desert Sun | Drifting sand, heat shimmer |
-| `steampunk` | Brass Works | Rising steam wisps, rotating gears |
-| `prehistoric` | Lost World | Floating spores, mist banks |
-| `artdeco` | Golden Age | Geometric gold shapes |
-| `wildwest` | Dusty Trail | Blowing dust particles |
-
-Each theme has a matching title logo variant (original, magma, or ice). Themes affect board, pieces, UI, backgrounds, particles, and buttons. There are 11 themes plus a custom colour theme.
+| Stage | Opponent | World | Twist |
+|:-----:|:---------|:------|:------|
+| 1 | Pawnie | Pawn Hollow | A normal match |
+| 2-6 | Sergeant Square, Captain Capture, Joy Stick, The Rulekeeper, Sensei Tactic | The Training Camp | Lessons and tests |
+| 7 | Bish-Bosh | The Slanted Sands | Four bishops, no knights |
+| 8 | Rook-E | The Iron Keep | You start without rooks; taking his always starts a challenge |
+| 9 | The Knight of the Mist | The Misty Moors | Fog of war; glowing eyes in the mist |
+| 10 | Queenie | The Royal Palace | Two queens; her captures challenge you more often |
+| 11 | CastlE | The Clockwork Citadel | Gear walls in the centre; lost challenges lock squares |
+| 12 | EndGamer | The Grand Library | Starts in a random endgame that favours him |
+| 13 | ForkMaster | Forked Gulch | Double take: one fork takes two pieces |
+| 14 | Checkmate | The Obsidian Court | Mate him within 40 moves or lose |
+| 15 | Grandmaster X | Soulbound Pixel | Every capture is a challenge; checkmate him three times as time rewinds |
 
 ---
 
 ## Capture Mini-Games
 
-Quick Click, Memory Match, Timing Strike, Pattern Press, Reaction Test, Soul Dodge, Power Meter, Target Practice,
-Dodge Falling, Rhythm Tap, Number Guess, Coin Flip, Bar Balance, Shield Block and Whack-a-Mole.
+Checkmate Run, Lava Tilt, Rook Stack, Siege Cannon, Meteor Storm, Knight Collapse, Memory Match, Timing Strike,
+Pattern Press, Quick Draw, Soul Dodge, High Striker, Crossbow Gallery, Falling Sky, Rhythm Rush, Tightrope,
+Shield Wall and Whack-a-Pawn.
 
-One is picked at random for each contested capture. Difficulty scales with the value of the threatened piece,
-and when the computer defends, it plays the mini-game at a skill matching its strength.
+All are low-poly Three.js games with a retro pixel look, using chess pieces coloured by the current theme.
+Difficulty scales with the value of the piece at stake, and when the computer plays one, it plays at a skill
+matching its strength. Without WebGL, captures simply skip the challenge.
 
 ---
 
@@ -160,23 +144,13 @@ The **UNDO**, **FLIP**, **<**, **>** and **LIVE** buttons under the board do the
 
 ## Getting Started
 
-### Download & Play (No Setup Required)
+### Download & Play
 
-Pre-built binaries are published on the [Releases](https://github.com/iGLORM/CHESS2.0/releases) page when available:
-
-| Platform | Download | Notes |
-|:---------|:---------|:------|
-| **Windows** | `Chess-2.0-win-portable.zip` | Extract and run `Chess 2.0.exe` |
-| **macOS** | `Chess-2.0.dmg` | Open the DMG and drag to Applications |
-| **Linux** | `Chess-2.0.AppImage` | `chmod +x` and run |
+Pre-built binaries are published on the [Releases](https://github.com/iGLORM/CHESS2.0/releases) page when available.
 
 ### Build from Source
 
-#### Prerequisites
-
-- [Node.js](https://nodejs.org/) v20+
-
-#### Run
+Prerequisite: [Node.js](https://nodejs.org/) v20+.
 
 ```bash
 git clone https://github.com/iGLORM/CHESS2.0.git
@@ -187,18 +161,18 @@ npm start
 
 If `npm start` says Electron failed to install, run `node node_modules/electron/install.js` once.
 
-To play in a browser instead, serve the repository root with any static web server
+To play in a browser, serve the repository root with any static web server
 (for example `python3 -m http.server`) and open `http://localhost:8000/src/index.html`.
 
-#### Test
+### Test
 
 ```bash
 npm test
 ```
 
-Runs the chess-engine and Chess 2.0 rule tests (move generation, check, en passant, notation, capture defense).
+Runs the engine, Chess 2.0 rule, story boss-rule and mission tests (no extra dependencies).
 
-#### Build Distributable
+### Build Distributable
 
 ```bash
 npm run build:win     # Windows installer + portable exe
@@ -206,51 +180,42 @@ npm run build:mac     # macOS DMG
 npm run build:linux   # Linux AppImage + deb
 ```
 
-Built files are written to `dist/`.
-
-For Steam, `npm run build:steam:win` / `build:steam:mac` / `build:steam:linux` produce the unpacked
-app folders to upload. See [STEAM_RELEASE.md](STEAM_RELEASE.md) for the full release checklist.
-
-### Platform Launchers
-
-| Platform | Launcher | Usage |
-|:---------|:---------|:------|
-| **Windows** | `launch.bat` | Double-click or run from cmd |
-| **Linux / macOS** | `launch.sh` | `chmod +x launch.sh && ./launch.sh` |
+Built files are written to `dist/`. For Steam, `npm run build:steam:win` / `build:steam:mac` /
+`build:steam:linux` produce the unpacked app folders; see [STEAM_RELEASE.md](STEAM_RELEASE.md).
 
 ---
 
-## Architecture
+## Project Layout
 
 ```
 src/
-  audio/          Sound and music management (Web Audio API)
-  characters/     Character definitions and manager
-  engine/         Chess engine (board, moves, rules, Chess 2.0 capture rules, notation, AI)
-    ai/           Alpha-beta search, evaluation, difficulty controller
+  audio/          Web Audio synth, songs and music player (no audio files)
+  characters/     Story characters, trainers, worlds, missions, story script, dialogue
+  engine/         Chess engine, Chess 2.0 capture rules, story boss rules, notation
+    ai/           Stockfish controller, coach and bot personalities
+    stockfish/    Bundled Stockfish.js 18 (GPLv3)
   input/          Keyboard input and keybindings
-  layout/         Orientation detection and responsive layout (portrait/landscape)
-  minigames/      15 skill-based capture mini-games
-  pixi/           PixiJS v8 renderers (board, pieces, backgrounds, UI components)
-  rendering/      Canvas 2D rendering (board, pieces, particles, UIHelpers, TextFit)
-  screens/        UI screens (home, game, menus, settings)
-  state/          Global reactive state store
+  layout/         Portrait/landscape layout
+  minigames/      Mini-game manager
+  minigames3d/    The 18 Three.js mini-games and their shared renderer
+  pixi/           PixiJS v8 renderers and UI components
+  rendering/      Canvas 2D helpers and texture loading
+  screens/        Every screen (home, world map, missions, cutscenes, game, menus)
+  state/          Reactive store and save data
   telegram/       Telegram Mini App compatibility layer
-  themes/         Theme definitions and manager
-  vendor/         Bundled PixiJS, GSAP, fonts and pretext (no CDN needed)
-  main.js         Game loop and screen router
-  index.html      Entry point
-tests/            Node tests for the engine and rules (npm test)
+  themes/         World themes and animated background scenes
+  vendor/         Bundled PixiJS, GSAP, Three.js, fonts and pretext
+assets/           Painted backgrounds, boards, piece sets, character art
+scripts/          Art generators (backgrounds, theme art, trainer holograms, icons)
+tests/            Node tests (npm test)
 ```
 
-| File | Purpose |
-|:-----|:--------|
-| `main.js` | Electron main process |
-| `preload.js` | Secure preload script (context isolation) |
-| `src/main.js` | Game bootstrap, loop, and screen routing |
-| `src/index.html` | Module loader |
+## For Contributors and AI Agents
 
-Textures and sprites are procedurally generated at runtime using the `SpriteGen` and `TextureManager` modules. The `assets/textures/` folder supports custom texture packs.
+- **[AGENTS.md](AGENTS.md)**: architecture, conventions, testing tools and the rules for working together
+  (read by Codex; Claude Code reads it through [CLAUDE.md](CLAUDE.md)).
+- **[STORY_MODE_PLAN.md](STORY_MODE_PLAN.md)**: the Story Mode design, what is built and what is left.
+- **[STEAM_RELEASE.md](STEAM_RELEASE.md)**: the release checklist.
 
 ---
 
@@ -258,21 +223,17 @@ Textures and sprites are procedurally generated at runtime using the `SpriteGen`
 
 - [x] Mobile / touch support (Telegram Mini App with portrait mode)
 - [x] Undo, board flip and resuming unfinished games
+- [x] Story Mode rebuilt: world map, trainers, missions, cutscenes and boss twists
+- [ ] Story rewards: stars per fight, trophies, New Game+ and Great Board mode
 - [ ] Online multiplayer
 - [ ] Game replay / PGN export
-- [ ] Elo rating system
 
 ---
 
-## License
+## Credits and License
 
-No license file has been added yet. The bundled fonts (Pixelify Sans, Silkscreen) are under the SIL Open Font
-License 1.1; PixiJS is MIT; GSAP is under its own standard license.
+Created by iGLORM and Aymou.
 
----
-
-## Acknowledgments
-
-- Pixel art aesthetic inspired by retro arcade games
-- Chess piece values and evaluation based on standard engine principles
-- Built with love for the game of chess
+No license file has been added yet for the game itself. Bundled third-party code keeps its own license:
+Stockfish (GPLv3, see `src/engine/stockfish/`), PixiJS and Three.js (MIT), GSAP (its standard license),
+Pixelify Sans and Silkscreen fonts (SIL Open Font License 1.1).
