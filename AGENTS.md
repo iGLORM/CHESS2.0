@@ -208,6 +208,16 @@ Everything is synthesised with Web Audio (no audio files):
 | `GameScreen.js` | Hybrid | Board via PixiJS, side panels/status bar via Canvas 2D |
 | All others | Canvas 2D | Not yet migrated |
 
+## Promotional Video
+
+`marketing/chess-ad/` is a separate Remotion project for the 25-second, 1920×1080 game ad.
+It has its own dependencies and does not participate in the game runtime or Telegram deployment.
+Run `npm run dev` there for Studio, `npm run lint` for TypeScript/ESLint checks, and
+`npm run render` to export an MP4. See its README for the scene timings and asset workflow.
+`npm run capture` uses the root Electron dependency with a temporary user-data directory and
+an isolated session; it never loads the player's saves. Captured footage, music, artwork and
+local fonts are in its `public/` directory.
+
 ## Telegram Mini App
 
 The game runs as a **Telegram Mini App** at `https://game.altobolt.com` via bot `@iglorm_chess_bot`.

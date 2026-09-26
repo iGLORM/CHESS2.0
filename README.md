@@ -210,6 +210,12 @@ scripts/          Art generators (backgrounds, theme art, trainer holograms, ico
 tests/            Node tests (npm test)
 ```
 
+## Game Ad
+
+The [25-second widescreen ad](marketing/chess-ad/README.md) is an editable Remotion project
+using real gameplay footage, story artwork and the game's music. Its README covers previewing,
+editing and exporting the video.
+
 ## For Contributors and AI Agents
 
 - **[AGENTS.md](AGENTS.md)**: architecture, conventions, testing tools and the rules for working together
