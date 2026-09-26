@@ -127,7 +127,8 @@ const PixiGameOverOverlay = {
     let buttonY = panelY + 166;
     if (game.currentCharacter && game.gameResult) {
       const lines = game.currentCharacter.dialogue;
-      const dialogue = game.playerWon() ? lines.after
+      const dialogue = game.gameResult === 'draw' ? (lines.draw || 'A draw. Neither of us gave an inch. Again?')
+        : game.playerWon() ? lines.after
         : (game.gameStatus === 'timeout' && lines.timeout) || lines.win;
       const text = PixiPremiumUI.text(dialogue || '', {
         fontSize: 15,

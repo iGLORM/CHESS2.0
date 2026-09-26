@@ -129,7 +129,8 @@ const WorldMapScreen = {
     for (const world of WORLDS) this.nodes.push(this._buildWorld(world));
     this.stopNodes = L.STOP_X.map((x, i) => this._buildStop(i + 2, x));
 
-    this.token = PixiPieceRenderer.createSprite(store.get('theme') || 'pawnhollow', 'white', 'king');
+    // Your king wears the pieces of the world it stands in.
+    this.token = PixiPieceRenderer.createSprite(this._tokenArt(this.tokenStage), 'white', 'king');
     this.token.width = this.token.height = 52;
     this.token.anchor.set(0.5, 0.92);
     const p = this._stopPos(this.tokenStage);
@@ -295,7 +296,7 @@ const WorldMapScreen = {
     const portraitRing = new PIXI.Graphics().circle(portrait.x, portrait.y, portraitSize * 0.56).fill(0x120d18)
       .circle(portrait.x, portrait.y, portraitSize * 0.56).stroke({ color: 0xe9dcc0, width: 3 });
     if (showState === 'locked') portrait.tint = 0x000000;
-    const unknown = PixiPremiumScene.text('?', { fontFamily: PixiTextStyles.FONT_TITLE, fontSize: Math.round(r * 0.42), fill: '#8a8494' });
+    const unknown = PixiPremiumScene.text('?', { fontFamily: PixiTextStyles.FONT_BODY, fontWeight: 'bold', fontSize: Math.round(r * 0.42), fill: '#8a8494' });
     unknown.anchor.set(0.5);
     unknown.x = portrait.x;
     unknown.y = portrait.y + 2;
@@ -699,8 +700,17 @@ const WorldMapScreen = {
     tl.add(() => {
       this.token._baseY = prev.y;
       this.tokenStage = to;
+      const w = this.token.width, h = this.token.height;
+      this.token.texture = PixiPieceRenderer.getTexture(this._tokenArt(to), 'white', 'king');
+      this.token.width = w;
+      this.token.height = h;
       this._drawPath();
     });
+  },
+
+  _tokenArt(stage) {
+    const ch = STORY_STAGES[Math.min(STORY_STAGES.length, Math.max(1, stage)) - 1];
+    return PixiPieceRenderer.withArt(ch && ch.world ? ch.world.art : 'pawnhollow');
   },
 
   // The next world's cracks fade to "open" and its guardian steps out of shadow.

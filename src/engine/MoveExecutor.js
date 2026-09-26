@@ -47,7 +47,8 @@ class MoveExecutor {
     }
 
     if (move.promotion && piece.type === 'pawn') {
-      board.grid[move.to.row][move.to.col] = { type: move.promotion, color };
+      // A promoted piece keeps any story tags (the mystery piece stays itself).
+      board.grid[move.to.row][move.to.col] = { ...piece, type: move.promotion, color };
     }
 
     board.turn = color === 'white' ? 'black' : 'white';

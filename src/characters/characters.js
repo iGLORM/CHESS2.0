@@ -15,7 +15,7 @@ const CHARACTERS = [
         "O-okay, here we go! Don't be too mean...",
         "I'll try my best! Promise!",
         "The elder pawns believe in me... I think...",
-        "M-my first real match! I'm so nervous!"
+        "Your first game since you woke up! No pressure. For either of us!"
       ],
       bossCapture: [
         "I... I got your {piece}! Did you see that?!",
@@ -54,7 +54,7 @@ const CHARACTERS = [
       lowHealth: [
         "I only have {myPieces} pieces left...",
         "This isn't going well... {myPieces} pieces is not many...",
-        "M-maybe I should have stayed home today...",
+        "M-maybe I should have practised more with the elder pawns...",
         "The elder pawns are going to be so disappointed..."
       ],
       playerLowHealth: [
@@ -62,6 +62,14 @@ const CHARACTERS = [
         "The board is looking good for me! {theirPieces} pieces left for you!",
         "Wait until the other pawns hear about this!",
         "I have {myPieces} pieces and you only have {theirPieces}!"
+      ],
+      bossCaptureBig: [
+        "Y-your {piece}?! I took your {piece}! Is that allowed?!",
+        "A {piece}! The elder pawns will never believe this!",
+      ],
+      playerCaptureBig: [
+        "M-my {piece}! That was my best piece!",
+        "Nooo, not my {piece}! I needed that!",
       ],
     },
     personality: 'nervous',
@@ -82,7 +90,7 @@ const CHARACTERS = [
     gameDialogue: {
       gameStart: [
         "Let's see those diagonals fly!",
-        "Ready for the slash and the slash-back?",
+        "Four bishops, zero knights. Who needs horses anyway?",
         "The diagonal is calling!",
         "Heh heh... I've been sharpening my angles all day!"
       ],
@@ -93,7 +101,7 @@ const CHARACTERS = [
         "Your {piece} wandered onto my diagonal. Big mistake!"
       ],
       playerCapture: [
-        "Hey! That was my {piece}! My favorite diagonal piece!",
+        "Hey! That was my {piece}! I was going to slant it somewhere nice!",
         "You dare take my {piece}? You crossed MY diagonal!",
         "Okay okay, you got my {piece}... lucky shot...",
         "Down to {myPieces} pieces but my angles are still sharp!"
@@ -126,7 +134,15 @@ const CHARACTERS = [
       playerLowHealth: [
         "The diagonal dominates! Only {theirPieces} pieces left for you!",
         "See? Straight lines are overrated! You're down to {theirPieces}!",
-        "My bishop pair is unstoppable! {myPieces} vs your {theirPieces}!"
+        "Four bishops beat two every time! {myPieces} vs your {theirPieces}!"
+      ],
+      bossCaptureBig: [
+        "Your {piece}! Sliced clean off the board! Heh heh!",
+        "A whole {piece}! The diagonals feast tonight!",
+      ],
+      playerCaptureBig: [
+        "My {piece}?! Okay, THAT one hurt.",
+        "Not the {piece}! Who let you through my diagonals?!",
       ],
     },
     personality: 'enthusiastic',
@@ -149,7 +165,7 @@ const CHARACTERS = [
         "Straight lines. Let us begin.",
         "The rank and file await.",
         "Discipline wins battles.",
-        "No tricks. No angles. Only lines."
+        "You have no towers today. I have two. Begin."
       ],
       bossCapture: [
         "Your {piece}. Removed. Efficiently.",
@@ -191,6 +207,14 @@ const CHARACTERS = [
         "The wall advances. You retreat to {theirPieces} pieces.",
         "Discipline always wins. You have only {theirPieces} left.",
         "Your army scatters before the tower. {theirPieces} remain."
+      ],
+      bossCaptureBig: [
+        "Your {piece}. A tower falls. Mine stand.",
+        "Your {piece} is removed. That was your strength.",
+      ],
+      playerCaptureBig: [
+        "My {piece}. That is a real breach. Close ranks.",
+        "You took my {piece}. The keep shudders.",
       ],
     },
     personality: 'stoic',
@@ -257,6 +281,18 @@ const CHARACTERS = [
         "Darkness swallows all eventually. {theirPieces} pieces left.",
         "Your pieces fall like whispers into the void."
       ],
+      bossCaptureBig: [
+        "*a shape in the mist* ... Your {piece} is mine. You never saw the hand.",
+        "Your {piece} walked into the fog. It will not walk out.",
+      ],
+      playerCaptureBig: [
+        "*a hiss* ... My {piece}. You see more than you should.",
+        "My {piece}, pulled into the light. Clever.",
+      ],
+      eyes: [
+        "*two lights blink in the fog* ... Did you see me? Look again.",
+        "*eyes in the mist* ... I am closer than you think.",
+      ],
     },
     personality: 'mysterious',
     theme: 'mistymoors',
@@ -321,6 +357,14 @@ const CHARACTERS = [
         "The monarchy prevails! You cling to {theirPieces} pitiful pieces!",
         "Your army of {theirPieces} bows to the queen!",
         "This is the natural order, darling. {myPieces} royals vs your {theirPieces}."
+      ],
+      bossCaptureBig: [
+        "Your {piece}? Off with its head! Darling, how careless.",
+        "I'll have your {piece} bronzed for the ballroom!",
+      ],
+      playerCaptureBig: [
+        "My {piece}?! Do you know what that cost?!",
+        "You took my {piece}! GUARDS! Someone faint on my behalf!",
       ],
     },
     personality: 'dramatic',
@@ -387,6 +431,18 @@ const CHARACTERS = [
         "The fortress stands with {myPieces}. Your army of {theirPieces} does not.",
         "Impenetrable. As always. You have {theirPieces} left."
       ],
+      bossCaptureBig: [
+        "Your {piece} crumbles against my walls.",
+        "Your {piece}. The citadel keeps what it takes.",
+      ],
+      playerCaptureBig: [
+        "My {piece}. A wall has fallen. Tick... tock...",
+        "You broke my {piece}. The gears grind.",
+      ],
+      lock: [
+        "Locked. The gears turn against you for three turns.",
+        "Click. That square is mine now. Tick, tock.",
+      ],
     },
     personality: 'patient',
     theme: 'clockworkcitadel',
@@ -405,10 +461,10 @@ const CHARACTERS = [
     },
     gameDialogue: {
       gameStart: [
-        "The opening means nothing. Let us proceed.",
-        "I am waiting for the endgame.",
-        "Play your opening. I will play the ending.",
-        "Every move brings us closer to where I thrive."
+        "Page one of the ending. Equal material. Unequal knowledge.",
+        "No openings. No middlegame. Only the part that decides.",
+        "I have read this position a hundred times. Have you?",
+        "Every ending has one right path. Let us see if you find it."
       ],
       bossCapture: [
         "Your {piece}. One less piece for the endgame. Good.",
@@ -428,8 +484,8 @@ const CHARACTERS = [
         "Check. I have studied this pattern extensively."
       ],
       playerCheck: [
-        "A check. But the endgame has not begun.",
-        "Premature aggression. The scholar can wait."
+        "A check. The books list that one. Page forty.",
+        "Checks are loud. Endings are won quietly."
       ],
       bossTaunt: [
         "Studying the position at move {moveNum}. Every detail matters.",
@@ -438,19 +494,27 @@ const CHARACTERS = [
         "Patience. The position will simplify in time."
       ],
       milestone: [
-        "Move {moveNum}. We approach the middlegame. Almost there.",
-        "Move {moveNum}. Soon the pieces will simplify.",
-        "Move {moveNum}. The real game is about to begin."
+        "Move {moveNum}. Most readers have closed the book by now.",
+        "Move {moveNum}. You are writing in my margins.",
+        "Move {moveNum}. This ending is running long. Interesting."
       ],
       lowHealth: [
-        "Only {myPieces} pieces... but this is my strength.",
-        "The endgame is here with {myPieces} pieces. Finally.",
-        "With {myPieces} on the board, I see more clearly."
+        "Only {myPieces} pieces... this is not how the chapter ends.",
+        "You are rewriting my ending. I do not approve.",
+        "{myPieces} pieces. The books did not mention this line."
       ],
       playerLowHealth: [
         "You have {theirPieces} pieces. The position simplifies in my favor.",
         "Your army shrinks to {theirPieces}. My knowledge grows.",
         "The endgame belongs to the scholar. {theirPieces} pieces cannot save you."
+      ],
+      bossCaptureBig: [
+        "Your {piece}. That ending was decided three pages ago.",
+        "Without your {piece}, this is a theoretical win. For me.",
+      ],
+      playerCaptureBig: [
+        "My {piece}. The books did not list that line.",
+        "That {piece} was chapter and verse. Hm.",
       ],
     },
     personality: 'calm',
@@ -464,7 +528,7 @@ const CHARACTERS = [
     level: 8,
     dialogue: {
       before: "Welcome to Forked Gulch, partner. Out here one fork takes two. Line up any two of your queen, rooks, bishops or knights, and I'll shoot 'em both.",
-      after: "Not a single double take, and you rode right past every fork I drew. I'm impressed. The fragment's yours, fair and square.",
+      after: "You rode right past my forks, and the ones you couldn't dodge didn't slow you down. I'm impressed. The fragment's yours, fair and square.",
       win: "Bang, bang! Two pieces, one shot. That's how we do it in the Gulch. Holster up and come back when you can spot a fork.",
       rematch: "Back in town? Good. I've been polishing both barrels.",
     },
@@ -517,6 +581,19 @@ const CHARACTERS = [
         "Your army of {theirPieces} is my tactical buffet.",
         "See? Tactics always win. {myPieces} vs {theirPieces}. Game over."
       ],
+      bossCaptureBig: [
+        "Your {piece}! Easiest bounty in the Gulch.",
+        "Yee-haw! That {piece} was worth the ride!",
+      ],
+      playerCaptureBig: [
+        "My {piece}?! Somebody shot the sheriff!",
+        "Well I'll be. You got my {piece}, partner.",
+      ],
+      doubleTake: [
+        "Two for one! Yee-haw!",
+        "Bang, bang! Should've kept 'em apart, partner.",
+        "One shot, two pieces. That's the Gulch.",
+      ],
     },
     personality: 'smug',
     theme: 'forkedgulch',
@@ -529,7 +606,7 @@ const CHARACTERS = [
     level: 9,
     dialogue: {
       before: "The Obsidian Court. You have forty moves to mate me. When the sand in my hourglass runs out, the sentence is carried out. On you.",
-      after: "Checkmate... to the Executioner. The glass cracks. The sand stops. Take the fragment. You have earned your time.",
+      after: "Checkmate. To me, of all pieces. The glass cracks and the sand stops. Take the fragment. You have earned your time.",
       win: "Check. And mate. As foreseen. There was never enough sand for you.",
       timeout: "The sand ran out. It always does. Your forty moves are spent, and your king with them.",
       rematch: "The hourglass has been turned over. Forty moves again. Spend them better.",
@@ -583,6 +660,18 @@ const CHARACTERS = [
         "The execution proceeds on schedule. {theirPieces} pieces left.",
         "There is no escape from the executioner. {theirPieces} cannot save you."
       ],
+      bossCaptureBig: [
+        "Your {piece}. The sentence is carried out early.",
+        "Your {piece} is executed. The rest wait their turn.",
+      ],
+      playerCaptureBig: [
+        "My {piece}. A delay. Nothing more.",
+        "You took my {piece}. The sand keeps falling regardless.",
+      ],
+      clockLow: [
+        "{left} moves left. I can hear the sand.",
+        "{left} moves. The sentence is nearly due.",
+      ],
     },
     personality: 'ominous',
     theme: 'obsidiancourt',
@@ -604,7 +693,7 @@ const CHARACTERS = [
         "Make your first move. It will define you.",
         "The summit awaits. Begin.",
         "I am chess itself. Show me what you are.",
-        "Thirty years. A thousand victories. Let us see if you change that."
+        "An age alone on this board. Let us see if you change that."
       ],
       bossCapture: [
         "Your {piece}. Perfection requires sacrifice. Yours.",
@@ -640,13 +729,21 @@ const CHARACTERS = [
       ],
       lowHealth: [
         "{myPieces} pieces. You challenge the Absolute... and you succeed?",
-        "Down to {myPieces}. This has not happened in thirty years.",
+        "Down to {myPieces}. This has not happened in an age.",
         "Perhaps with {myPieces} pieces left... you ARE chess."
       ],
       playerLowHealth: [
         "The summit is mine. You cling to {theirPieces} pieces.",
         "{theirPieces} pieces. Potential without perfection is wasted.",
         "The Absolute remains absolute. {myPieces} vs {theirPieces}."
+      ],
+      bossCaptureBig: [
+        "Your {piece}. I took it the moment you learned to move it.",
+        "Your {piece}. The crystal remembers every mistake.",
+      ],
+      playerCaptureBig: [
+        "My {piece}. You are more than they said.",
+        "My {piece}... The crystal hums. It knows you.",
       ],
     },
     personality: 'serious',

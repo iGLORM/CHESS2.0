@@ -57,7 +57,7 @@ test('mission start positions are legal with White to move', () => {
 test('mission goals and trials are well formed', () => {
   for (const m of all) {
     const { goal, minigameTrial: trial } = m.rule;
-    if (goal) assert.ok(goal.captures > 0 || goal.promote || goal.survive > 0, m.id);
+    if (goal) assert.ok(goal.mystery || goal.captureAll || goal.promote || goal.survive > 0, m.id);
     if (trial) {
       assert.ok(trial.need <= trial.games, m.id);
       for (const name of trial.pool || []) assert.ok(GAMES.includes(name), `${m.id}: unknown challenge ${name}`);

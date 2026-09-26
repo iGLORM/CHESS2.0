@@ -63,7 +63,7 @@ Lesson pages beside a hologram, then a test. A failed test says "Try Again".
 - Sergeant Square: 3 mate-in-one puzzles (no challenges).
 - Captain Capture: every capture is a challenge; make 3 captures.
 - Joy Stick: 5 challenges in a row, win 3 (auto-pass without WebGL).
-- The Rulekeeper: mist over ranks 5–6; make 2 captures.
+- The Rulekeeper: mist over ranks 5–6; catch the Mystery Piece (hints every 2 moves).
 - Sensei Tactic: a full game vs a real bot; win it.
 
 ## Build steps
@@ -95,6 +95,11 @@ Lesson pages beside a hologram, then a test. A failed test says "Try Again".
    per world; minions with portraits from `PixiMinion`). New rule goals: `goal.promote`,
    `goal.survive`, `minigameTrial.pool` / `weakest`. Fragments are now broken board
    pieces (`PixiShard`).
+   Board missions are won by checkmate or by their goal (2026-09-26, no more "win N captures"):
+   `goal.mystery` (one enemy piece is secretly the target; every piece wears a "?", a hint
+   every 3 moves clears about half the suspects, the last one turns into a gold "!";
+   `BossRules.hideMystery/mysteryHint`, flags live on the piece objects) or `goal.captureAll`
+   (take every piece but the king).
 8. **Rewards** — TODO (theme unlocks and per-opponent `save.record` wins/losses already exist). Themes and songs unlock per world (new players start with
    Pawn Hollow + Custom; the Training Camp unlocks after training; existing
    players keep what they have). 1–3 stars per fight: 1 for winning + 2

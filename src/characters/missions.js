@@ -4,9 +4,12 @@
 // BossRules), registered in BOSS_RULES under the mission id.
 //
 //   kind   puzzle | trial | hunt | taster | wild  (the map icon)
-//   rule   BossRules fields; missions also use goal.promote (crown a pawn),
+//   rule   BossRules fields; missions also use goal.mystery (capture the
+//          hidden Mystery Piece; hints narrow it down), goal.captureAll (take
+//          every piece but the king), goal.promote (crown a pawn),
 //          goal.survive (don't lose for N of your moves) and
-//          minigameTrial.pool (which challenges the trial draws from)
+//          minigameTrial.pool (which challenges the trial draws from).
+//          Checkmate always wins a board mission too.
 //
 // Puzzle positions were found with the engine (a single mating move each);
 // tests/missions.test.js checks every position.
@@ -34,12 +37,12 @@ const MISSIONS = {
     {
       kind: 'hunt', name: 'Scarab Swarm',
       minion: { name: 'The Scarabs', title: 'Dune Diggers', piece: 'pawn' },
-      greet: '*clicking* ... Four bishops and a wall of us. Try to dig through.',
-      after: '*retreating clicks* ... The swarm scatters.',
+      greet: '*clicking* ... One of us carries the Sun Scarab. Which one? *click* Dig and find out.',
+      after: '*retreating clicks* ... You found the Scarab. The swarm scatters.',
       fail: '*triumphant clicking*',
       rule: {
-        title: 'Dig Them Out', lines: ['The Scarabs field four bishops behind their pawns.', 'Win 4 captures to clear the swarm.'],
-        fen: 'b1b1kb1b/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 0 1', goal: { captures: 4 },
+        title: 'The Sun Scarab', lines: ['Four bishops behind a wall of pawns. One of their pieces carries the Sun Scarab.', 'Hints narrow it down every 3 moves. Capture it, or checkmate, to win.'],
+        fen: 'b1b1kb1b/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 0 1', goal: { mystery: true },
       },
     },
     {
@@ -60,8 +63,8 @@ const MISSIONS = {
       after: 'I leaned the wrong way... Master will be furious.',
       fail: 'Diagonals forever! Tell Master I won!',
       rule: {
-        title: 'Only Bishops', lines: ['Both sides have just bishops, pawns and a king.', 'Win 3 captures.'],
-        fen: 'bb2k1bb/pppppppp/8/8/8/8/PPPPPPPP/BB2K1BB w - - 0 1', goal: { captures: 3 },
+        title: 'Only Bishops', lines: ['Both sides have just bishops, pawns and a king.', 'Checkmate him to win.'],
+        fen: 'bb2k1bb/pppppppp/8/8/8/8/PPPPPPPP/BB2K1BB w - - 0 1',
       },
     },
     {
@@ -103,12 +106,12 @@ const MISSIONS = {
     {
       kind: 'hunt', name: 'Iron Sentries',
       minion: { name: 'Sentry Towers', title: 'Four Rooks Strong', piece: 'rook' },
-      greet: 'Four rooks guard this wall. You will not take three of us.',
-      after: 'Three sentries down. The wall has a hole in it.',
+      greet: 'One of us holds the key to the keep. Guess wrong and the wall stays shut.',
+      after: 'You found the key. The wall has a hole in it now.',
       fail: 'The wall holds. It always holds.',
       rule: {
-        title: 'Four Rooks', lines: ['The sentries field four rooks and no minor pieces.', 'Win 3 captures.'],
-        fen: 'rr2k1rr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 0 1', goal: { captures: 3 },
+        title: 'The Gate Key', lines: ['Four rooks and a wall of pawns. One of their pieces holds the gate key.', 'Hints narrow it down every 3 moves. Capture it, or checkmate, to win.'],
+        fen: 'rr2k1rr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 0 1', goal: { mystery: true },
       },
     },
     {
@@ -118,8 +121,8 @@ const MISSIONS = {
       after: 'You did fine without them. Rook-E will not like that.',
       fail: 'See? Nobody wins without towers.',
       rule: {
-        title: 'No Rooks for You', lines: ['You start without rooks. Taking one of his rooks always starts a challenge.', 'Win 3 captures.'],
-        fen: 'r3k2r/pppppppp/8/8/8/8/PPPPPPPP/1NBQKBN1 w kq - 0 1', goal: { captures: 3 }, alwaysChallengeWhenTaking: ['rook'],
+        title: 'No Rooks for You', lines: ['You start without rooks. Taking one of his rooks always starts a challenge.', 'Checkmate him to win.'],
+        fen: 'r3k2r/pppppppp/8/8/8/8/PPPPPPPP/1NBQKBN1 w kq - 0 1', alwaysChallengeWhenTaking: ['rook'],
       },
     },
     {
@@ -139,12 +142,12 @@ const MISSIONS = {
     {
       kind: 'taster', name: 'Fogbank',
       minion: { name: 'Wisp', title: 'Light in the Mist', piece: 'pawn' },
-      greet: '*flickers* ... Follow me into the fog. If you can see me.',
-      after: '*fades* ... You see better than most.',
+      greet: '*flickers* ... One of my lights is the real me. Find it in the fog. If you can.',
+      after: '*fades* ... You found me. You see better than most.',
       fail: '*giggles from nowhere*',
       rule: {
-        title: 'The Mist', lines: ['Fog covers the board: you only see squares your pieces touch or attack.', 'Win 3 captures.'],
-        fog: true, goal: { captures: 3 },
+        title: 'The Real Wisp', lines: ['Fog covers the board: you only see squares your pieces touch or attack.', 'One of his pieces is the real Wisp. Hints every 3 moves. Capture it, or checkmate, to win.'],
+        fog: true, goal: { mystery: true },
       },
     },
     {
@@ -223,19 +226,19 @@ const MISSIONS = {
       after: 'The guard stands aside. Grudgingly.',
       fail: 'Escorted out. Please mind the marble.',
       rule: {
-        title: 'Guarded Halls', lines: ['His captures start a challenge 60% of the time.', 'Win 4 captures.'],
-        bossChallengeChance: 0.6, goal: { captures: 4 },
+        title: 'Guarded Halls', lines: ['His captures start a challenge 60% of the time.', 'Checkmate him to win.'],
+        bossChallengeChance: 0.6,
       },
     },
     {
       kind: 'taster', name: 'Two Crowns',
       minion: { name: 'Lady-in-Waiting', title: "Queenie's Shadow", piece: 'queen' },
-      greet: 'Her Majesty lent me her second crown. Two queens! Try not to faint.',
-      after: 'Oh dear. I shall have to return the crown.',
+      greet: 'Her Majesty lent me her second crown, and I hid it on one of my pieces. Two queens! Try not to faint.',
+      after: 'Oh dear. You found the crown. I shall have to return it.',
       fail: 'Two queens beat one, darling. Simple arithmetic.',
       rule: {
-        title: 'Two Queens', lines: ['She starts with two queens and no bishops.', 'Win 3 captures.'],
-        fen: 'rnq1kqnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1', goal: { captures: 3 },
+        title: 'The Hidden Crown', lines: ['She starts with two queens and no bishops. One of her pieces hides the crown.', 'Hints narrow it down every 3 moves. Capture it, or checkmate, to win.'],
+        fen: 'rnq1kqnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1', goal: { mystery: true },
       },
     },
     {
@@ -255,12 +258,12 @@ const MISSIONS = {
     {
       kind: 'taster', name: 'Gear Maze',
       minion: { name: 'Cog', title: 'Wall Winder', piece: 'pawn' },
-      greet: '*tick* Walls in the middle. *tock* Nothing goes through. *tick* Good luck.',
-      after: '*tick... tock...* Unwound.',
+      greet: '*tick* Walls in the middle. *tock* And one of my pieces holds my winding key. *tick* Find it.',
+      after: '*tick... tock...* You took my key. Unwound.',
       fail: '*tick tock tick tock* Wound up and won!',
       rule: {
-        title: 'Gear Walls', lines: ['Four gear walls stand in the centre. Nothing can stop on them or slide through; knights jump over.', 'Win 3 captures.'],
-        walls: [{ row: 4, col: 2 }, { row: 4, col: 5 }, { row: 3, col: 2 }, { row: 3, col: 5 }], goal: { captures: 3 },
+        title: 'The Winding Key', lines: ['Four gear walls stand in the centre: nothing stops on them or slides through; knights jump over.', 'One of his pieces holds the winding key. Capture it, or checkmate, to win.'],
+        walls: [{ row: 4, col: 2 }, { row: 4, col: 5 }, { row: 3, col: 2 }, { row: 3, col: 5 }], goal: { mystery: true },
       },
     },
     {
@@ -288,12 +291,12 @@ const MISSIONS = {
     {
       kind: 'hunt', name: 'Clockwork Rush',
       minion: { name: 'Tin Soldiers', title: 'Wound for Battle', piece: 'pawn' },
-      greet: 'We march for twenty moves, then our springs run down. Catch four of us before then.',
-      after: 'Four of us, unwound. Well played.',
+      greet: 'Ten tin soldiers march for twenty-five moves, then our springs run down. Catch every one of us before then.',
+      after: 'All of us, unwound. Well played.',
       fail: 'Tick... tock... time is up.',
       rule: {
-        title: 'Four in Twenty', lines: ['Win 4 captures within 20 of your moves.', 'If time runs out first, you lose.'],
-        goal: { captures: 4 }, moveLimit: 20,
+        title: 'Round Them Up', lines: ['Ten tin soldiers: two knights and eight pawns.', 'Capture all of them (or checkmate) within 25 of your moves.'],
+        fen: '1n2k1n1/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 0 1', goal: { captureAll: true }, moveLimit: 25,
       },
     },
     {
@@ -346,12 +349,12 @@ const MISSIONS = {
     {
       kind: 'hunt', name: 'Bookworms',
       minion: { name: 'Bookworms', title: 'Paper Eaters', piece: 'pawn' },
-      greet: '*munch munch* We are eating the shelves. Chase us off with your rooks!',
+      greet: '*munch munch* We are eating the shelves. Leave even one of us and we will be back!',
       after: '*scurrying* The shelves are safe. For now.',
       fail: '*munch* Delicious.',
       rule: {
-        title: 'Two Rooks vs Pawns', lines: ['Your rooks against a wall of eight pawns.', 'Win 5 captures.'],
-        fen: '4k3/pppppppp/8/8/8/8/8/R3K2R w KQ - 0 1', goal: { captures: 5 },
+        title: 'Clear the Shelves', lines: ['Your rooks against a wall of eight pawns.', 'Capture every one of them (or checkmate) to win.'],
+        fen: '4k3/pppppppp/8/8/8/8/8/R3K2R w KQ - 0 1', goal: { captureAll: true },
       },
     },
     {
@@ -397,19 +400,19 @@ const MISSIONS = {
       after: 'You never gave me a pair. Smart.',
       fail: 'Two for one! Yee-haw!',
       rule: {
-        title: 'Double Take', lines: ['If his capturing piece also attacks another of your queen, rooks, bishops or knights, he takes both.', 'Win 3 captures.'],
-        doubleTake: true, goal: { captures: 3 },
+        title: 'Double Take', lines: ['If his capturing piece also attacks another of your queen, rooks, bishops or knights, he takes both.', 'Checkmate him to win.'],
+        doubleTake: true,
       },
     },
     {
       kind: 'hunt', name: 'Tumbleweeds',
       minion: { name: 'Tumbleweeds', title: 'Rolling Through', piece: 'pawn' },
-      greet: '*rolls in* ... *rolls out* ... Two knights against eight of us? Catch four.',
-      after: '*rolls away*',
+      greet: '*rolls in* ... *rolls out* ... Two knights and a queen against eight of us? Round us all up.',
+      after: '*the last one rolls away*',
       fail: '*rolls over your king*',
       rule: {
-        title: 'Knights vs Pawns', lines: ['Two knights against a line of pawns.', 'Win 4 captures.'],
-        fen: '4k3/pppppppp/8/8/8/8/8/1N2K1N1 w - - 0 1', goal: { captures: 4 },
+        title: 'Round Em Up', lines: ['Two knights and a queen against a line of pawns.', 'Capture every one of them (or checkmate) to win.'],
+        fen: '4k3/pppppppp/8/8/8/8/8/1N1QK1N1 w - - 0 1', goal: { captureAll: true },
       },
     },
     {
@@ -462,12 +465,12 @@ const MISSIONS = {
     {
       kind: 'hunt', name: 'The Jury',
       minion: { name: 'The Jury', title: 'Twelve Grim Faces', piece: 'pawn' },
-      greet: 'Take five of us before the hourglass runs dry, and we find you not guilty.',
+      greet: 'Twelve of us sit in judgement. Dismiss the whole jury before the hourglass runs dry, and we find you not guilty.',
       after: 'Not guilty.',
       fail: 'Guilty.',
       rule: {
-        title: 'Five in Twenty', lines: ['Win 5 captures within 20 of your moves.', 'If time runs out first, you lose.'],
-        goal: { captures: 5 }, moveLimit: 20,
+        title: 'Dismiss the Jury', lines: ['Twelve jurors: four minor pieces and eight pawns, no queen or rooks.', 'Capture all of them (or checkmate) within 30 of your moves.'],
+        fen: '1nb1kbn1/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 0 1', goal: { captureAll: true }, moveLimit: 30,
       },
     },
     {
@@ -498,12 +501,12 @@ const MISSIONS = {
     {
       kind: 'taster', name: 'Everything Costs',
       minion: { name: 'Shardling', title: 'Splinter of the Crystal', piece: 'bishop' },
-      greet: 'Here every capture is a challenge. Every single one. Take three.',
+      greet: 'Here every capture is a challenge. Every single one. Pay your way to my king.',
       after: 'You pay your debts. Pass.',
       fail: 'Too expensive for you.',
       rule: {
-        title: 'Every Capture', lines: ['Every capture starts a challenge, for both of you.', 'Win 3 captures.'],
-        everyCapture: true, goal: { captures: 3 },
+        title: 'Every Capture', lines: ['Every capture starts a challenge, for both of you.', 'Checkmate him to win.'],
+        everyCapture: true,
       },
     },
     {
@@ -520,12 +523,12 @@ const MISSIONS = {
     {
       kind: 'hunt', name: 'Shattered Sight',
       minion: { name: 'Prism', title: 'Bends the Light', piece: 'knight' },
-      greet: 'Fog, and every capture a challenge. Take two pieces you cannot see.',
+      greet: 'Fog, and every capture a challenge. Somewhere in it is my true face. Find it.',
       after: 'You see clearly now.',
       fail: 'Refracted.',
       rule: {
-        title: 'Fog and Challenges', lines: ['Fog covers the board, and every capture starts a challenge.', 'Win 2 captures.'],
-        fog: true, everyCapture: true, goal: { captures: 2 },
+        title: 'The True Face', lines: ['Fog covers the board, and every capture starts a challenge.', 'One of his pieces is his true face. Capture it, or checkmate, to win.'],
+        fog: true, everyCapture: true, goal: { mystery: true },
       },
     },
     {
@@ -541,6 +544,29 @@ const MISSIONS = {
     },
   ],
 };
+
+// What a minion says during its fight, by the mission's goal.
+function minionLines(m) {
+  const goal = m.rule.goal || {};
+  const lines = {
+    bossCapture: ['Got your {piece}!', 'Your {piece} is mine now.', 'One {piece} fewer. Keep coming.'],
+    bossCheck: ['Check! Watch your king.', 'Check. Did not see that coming?'],
+    playerCheck: ['Hey! My king!', 'Check?! Not fair!'],
+  };
+  if (goal.mystery) {
+    lines.playerCapture = ['Wrong one! Keep guessing.', 'Not that one. Heh.', 'Close... or not. Who can say?'];
+    lines.mysteryHint = ['Stop reading the clues!', 'Who told you that?!', 'The clues are closing in...'];
+  } else if (goal.captureAll) {
+    lines.playerCapture = ['You got my {piece}. {myPieces} of us left!', 'That {piece} was one of the good ones!', 'Still {myPieces} of us. We scatter!'];
+    lines.lowHealth = ['Only {myPieces} left... run!', 'They are rounding us up!'];
+  } else if (goal.survive) {
+    lines.playerCapture = ['You bit back. Hold on while you can.', 'My {piece}? Fine. Still coming.'];
+    lines.milestone = ['Move {moveNum}. Still standing? Hm.', 'Move {moveNum}. You are stubborn.'];
+  } else {
+    lines.playerCapture = ['My {piece}! Hey!', 'Ow. That was my {piece}.', 'Lucky. Lucky, lucky.'];
+  }
+  return lines;
+}
 
 // Mission characters for GameScreen: a minion per mission, fighting one or
 // two levels below its world's guardian, in the world's theme.
@@ -563,7 +589,7 @@ for (const [worldId, list] of Object.entries(MISSIONS)) {
       world,
       theme: world.art,
       dialogue: { before: m.greet, after: m.after, win: m.fail },
-      gameDialogue: {},
+      gameDialogue: minionLines(m),
       personality: 'minion',
       colors: { ...boss.colors },
     });

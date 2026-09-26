@@ -12,8 +12,8 @@ const DialogueManager = {
   _playerLowHealthTriggered: false,
 
   MATERIAL_VALUES: { pawn: 1, knight: 3, bishop: 3, rook: 5, queen: 9 },
-  STARTING_MATERIAL: 39,
   LOW_HEALTH_THRESHOLD: 0.6,
+  MIN_GAP_MS: 2500,   // between any two bubbles, so a capture that checks says one thing
 
   init(character, onShowCallback) {
     this._character = character;
@@ -26,6 +26,8 @@ const DialogueManager = {
     this._triggeredMilestones = new Set();
     this._lowHealthTriggered = false;
     this._playerLowHealthTriggered = false;
+    this._startMaterial = null;
+    this._moveNum = 0;
   },
 
   destroy() {
@@ -46,6 +48,11 @@ const DialogueManager = {
     this._tryShow('gameStart');
   },
 
+  // A story twist just happened (doubleTake, clockLow, lock, eyes, mystery...).
+  onTwist(category, context) {
+    this._tryShow(category, context);
+  },
+
   onCapture(capturingColor, capturedPiece, aiColor, board) {
     if (!this._active) return;
     const pieceName = capturedPiece ? (capturedPiece.type || 'piece') : 'piece';
@@ -54,11 +61,11 @@ const DialogueManager = {
       ctx.myPieces = this._countPieces(board, aiColor);
       ctx.theirPieces = this._countPieces(board, aiColor === 'white' ? 'black' : 'white');
     }
-    if (capturingColor === aiColor) {
-      this._tryShow('bossCapture', ctx);
-    } else {
-      this._tryShow('playerCapture', ctx);
-    }
+    // Queens and rooks get their own lines where a character has them.
+    const big = pieceName === 'queen' || pieceName === 'rook';
+    const gd = (this._character && this._character.gameDialogue) || {};
+    const category = capturingColor === aiColor ? 'bossCapture' : 'playerCapture';
+    this._tryShow(big && gd[category + 'Big'] ? category + 'Big' : category, ctx);
   },
 
   onCheck(checkedColor, aiColor, board) {
@@ -75,22 +82,27 @@ const DialogueManager = {
     }
   },
 
-  onMoveComplete(moveNumber, board, aiColor) {
+  // `plies` counts half-moves; lines talk about full moves.
+  onMoveComplete(plies, board, aiColor) {
     if (!this._active) return;
+    const moveNumber = Math.ceil(plies / 2);
+    this._moveNum = moveNumber;
+    // Each side's own army at the start (story fights often begin uneven or in an endgame).
+    if (board && !this._startMaterial) {
+      const first = this._material(board, aiColor);
+      this._startMaterial = { boss: Math.max(first.boss, 1), player: Math.max(first.player, 1) };
+    }
     const ctx = { moveNum: moveNumber };
     if (board) {
       ctx.myPieces = this._countPieces(board, aiColor);
       ctx.theirPieces = this._countPieces(board, aiColor === 'white' ? 'black' : 'white');
     }
-    if (moveNumber === 10 && !this._triggeredMilestones.has(10)) {
-      this._triggeredMilestones.add(10);
-      this._tryShow('milestone', ctx);
-      return;
-    }
-    if (moveNumber === 20 && !this._triggeredMilestones.has(20)) {
-      this._triggeredMilestones.add(20);
-      this._tryShow('milestone', ctx);
-      return;
+    for (const at of [10, 20]) {
+      if (moveNumber === at && plies % 2 === 0 && !this._triggeredMilestones.has(at)) {
+        this._triggeredMilestones.add(at);
+        this._tryShow('milestone', ctx);
+        return;
+      }
     }
     if (board) this._checkMaterial(board, aiColor);
   },
@@ -98,7 +110,7 @@ const DialogueManager = {
   onAIThinkStart(board, aiColor) {
     if (!this._active) return;
     if (this._thinkTimer) clearTimeout(this._thinkTimer);
-    const ctx = {};
+    const ctx = { moveNum: Math.max(1, this._moveNum || 1) };
     if (board) {
       ctx.myPieces = this._countPieces(board, aiColor);
       ctx.theirPieces = this._countPieces(board, aiColor === 'white' ? 'black' : 'white');
@@ -116,30 +128,36 @@ const DialogueManager = {
     }
   },
 
-  _checkMaterial(board, aiColor) {
-    const playerColor = aiColor === 'white' ? 'black' : 'white';
-    let bossMat = 0;
-    let playerMat = 0;
-    for (let r = 0; r < 8; r++) {
-      for (let c = 0; c < 8; c++) {
-        const piece = board.grid[r][c];
+  _material(board, aiColor) {
+    const total = { boss: 0, player: 0 };
+    for (const row of board.grid) {
+      for (const piece of row) {
         if (!piece || piece.type === 'king') continue;
         const val = this.MATERIAL_VALUES[piece.type] || 0;
-        if (piece.color === aiColor) bossMat += val;
-        else if (piece.color === playerColor) playerMat += val;
+        if (piece.color === aiColor) total.boss += val;
+        else if (piece.color !== 'none') total.player += val;
       }
     }
+    return total;
+  },
 
+  // "Losing" lines fire once a side has lost 40% of what it started with,
+  // and only while the other side is actually ahead.
+  _checkMaterial(board, aiColor) {
+    const playerColor = aiColor === 'white' ? 'black' : 'white';
+    const now = this._material(board, aiColor);
+    const start = this._startMaterial || now;
     const ctx = {
       myPieces: this._countPieces(board, aiColor),
       theirPieces: this._countPieces(board, playerColor),
-      advantage: bossMat - playerMat,
+      advantage: now.boss - now.player,
     };
-
-    if (!this._lowHealthTriggered && bossMat < this.STARTING_MATERIAL * this.LOW_HEALTH_THRESHOLD) {
+    const bossLow = now.boss < start.boss * this.LOW_HEALTH_THRESHOLD && now.boss < now.player;
+    const playerLow = now.player < start.player * this.LOW_HEALTH_THRESHOLD && now.player < now.boss;
+    if (!this._lowHealthTriggered && bossLow) {
       this._lowHealthTriggered = true;
       this._tryShow('lowHealth', ctx);
-    } else if (!this._playerLowHealthTriggered && playerMat < this.STARTING_MATERIAL * this.LOW_HEALTH_THRESHOLD) {
+    } else if (!this._playerLowHealthTriggered && playerLow) {
       this._playerLowHealthTriggered = true;
       this._tryShow('playerLowHealth', ctx);
     }
@@ -164,6 +182,8 @@ const DialogueManager = {
       gameStart: 0,
       bossCapture: 5000,
       playerCapture: 5000,
+      bossCaptureBig: 0,
+      playerCaptureBig: 0,
       bossCheck: 3000,
       playerCheck: 3000,
       bossTaunt: 8000,
@@ -173,6 +193,9 @@ const DialogueManager = {
     const now = Date.now();
     const cooldownMs = cooldowns[category] != null ? cooldowns[category] : this._cooldownMs;
     if (now - (this._lastShownTimes[category] || 0) < cooldownMs) return;
+    // Twist reactions and the opening line always get through; the rest wait their turn.
+    const urgent = category === 'gameStart' || !(category in cooldowns) && category !== 'playerLowHealth';
+    if (!urgent && now - this._lastShownTime < this.MIN_GAP_MS) return;
 
     let line = this._pickLine(gd[category], category);
     if (!line) return;
@@ -183,6 +206,7 @@ const DialogueManager = {
       line = line.replace(/\{theirPieces\}/g, String(context.theirPieces || '?'));
       line = line.replace(/\{moveNum\}/g, String(context.moveNum || '?'));
       line = line.replace(/\{advantage\}/g, String(context.advantage || 0));
+      line = line.replace(/\{left\}/g, String(context.left != null ? context.left : '?'));
     }
 
     this._lastShownTimes[category] = now;

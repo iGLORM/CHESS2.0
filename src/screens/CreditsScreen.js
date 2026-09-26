@@ -6,7 +6,7 @@ const CreditsScreen = {
     {
       title: 'Chess 2.0',
       lines: [
-        'Created by iGLORM.',
+        'Created by iGLORM and Aymou.',
         'Thanks for playing!',
       ],
     },

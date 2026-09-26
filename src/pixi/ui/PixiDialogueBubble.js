@@ -24,7 +24,10 @@ class PixiDialogueBubble extends PIXI.Container {
     portrait.width = portraitSize;
     portrait.height = portraitSize;
 
-    if (characterId) {
+    if (characterId && typeof PixiMinion !== 'undefined' && PixiMinion.isMinion(characterId)) {
+      // Mission minions have no character art: use their piece portrait.
+      portrait.texture = PixiMinion.texture(characterId);
+    } else if (characterId) {
       const imgPath = `../assets/textures/characters/${characterId}.png`;
       PIXI.Assets.load(imgPath).then(tex => {
         if (!this.destroyed) {

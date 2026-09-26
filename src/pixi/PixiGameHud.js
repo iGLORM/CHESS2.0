@@ -73,6 +73,22 @@ const PixiGameHud = {
   // Landscape geometry around the 640px board at (320, 58): the frame spans 44-712.
   LANDSCAPE: { TOP: 44, LOWER_Y: 278, BOTTOM: 712, BAR_X: 306, BAR_W: 668, BAR_Y: 728, BAR_H: 54 },
 
+  _faces: {},
+
+  _storyFace(game, color) {
+    if (color !== game.aiColor) {
+      return PixiPieceRenderer.getTexture(PixiPieceRenderer.withArt(store.get('theme')), color, 'king');
+    }
+    const ch = game.currentCharacter;
+    if (!ch) return null;
+    if (typeof PixiMinion !== 'undefined' && PixiMinion.isMinion(ch.id)) return PixiMinion.texture(ch.id);
+    if (this._faces[ch.id]) return this._faces[ch.id];
+    const img = TextureManager.getCharacterTexture(ch.id);
+    if (!img) return null;
+    this._faces[ch.id] = PIXI.Texture.from({ resource: img, scaleMode: 'nearest' });
+    return this._faces[ch.id];
+  },
+
   _panel(x, y, w, h, cols, options = {}) {
     const g = new PIXI.Graphics();
     const accent = PixiColorUtil.hexToNum(options.accent || cols.accent);
@@ -121,9 +137,19 @@ const PixiGameHud = {
       .fill({ color: pieceColor, alpha: 0.95 })
       .roundRect(x + w - 66, y + 28, 44, 44, 8)
       .stroke({ color: pieceStroke, alpha: 0.72, width: 2 });
-    avatar.rect(x + w - 52, y + 39, 16, 22).fill({ color: color === 'white' ? 0x30244a : 0xf3e9c0, alpha: 0.95 });
-    avatar.rect(x + w - 57, y + 58, 26, 6).fill({ color: color === 'white' ? 0x30244a : 0xf3e9c0, alpha: 0.95 });
     this.container.addChild(avatar);
+    const face = game.mode === 'story' ? this._storyFace(game, color) : null;
+    if (face) {
+      // Story: the opponent's portrait, and your king in this world's pieces.
+      const img = new PIXI.Sprite(face);
+      img.x = x + w - 64;
+      img.y = y + 30;
+      img.width = img.height = 40;
+      this.container.addChild(img);
+    } else {
+      avatar.rect(x + w - 52, y + 39, 16, 22).fill({ color: color === 'white' ? 0x30244a : 0xf3e9c0, alpha: 0.95 });
+      avatar.rect(x + w - 57, y + 58, 26, 6).fill({ color: color === 'white' ? 0x30244a : 0xf3e9c0, alpha: 0.95 });
+    }
 
     const turnPill = new PIXI.Graphics();
     turnPill.roundRect(x + pad, y + 78, 124, 26, 6)

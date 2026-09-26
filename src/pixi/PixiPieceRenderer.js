@@ -38,12 +38,31 @@ const PixiPieceRenderer = {
     });
   },
 
+  // A theme with a painted piece set (Custom has none and uses the built-in
+  // sprites): for story figures that should always look the same.
+  withArt(themeId) {
+    const id = (typeof THEME_ALIASES !== 'undefined' && THEME_ALIASES[themeId]) || themeId;
+    return id && id !== 'custom' && THEMES.some(t => t.id === id) ? id : 'pawnhollow';
+  },
+
   createSprite(themeId, color, type) {
     const texture = this.getTexture(themeId, color, type);
     const sprite = new PIXI.Sprite(texture);
     sprite.anchor.set(0.5);
     sprite.width = 64;
     sprite.height = 64;
+    // Drawn with the built-in stand-in while the theme's art loads (the map
+    // token, story scenes, walk-ons): swap in the real art when it arrives,
+    // keeping whatever size the caller gave the sprite.
+    if (texture === this.textures['fallback_' + `${themeId}_${color}_${type}`]) {
+      TextureManager.preloadTheme(themeId).then(() => {
+        if (sprite.destroyed || !TextureManager.getPieceTexture(themeId, color, type)) return;
+        const w = sprite.width, h = sprite.height;
+        sprite.texture = this.getTexture(themeId, color, type);
+        sprite.width = w;
+        sprite.height = h;
+      });
+    }
     return sprite;
   },
 

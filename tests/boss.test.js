@@ -225,3 +225,47 @@ test('walls are left out of the FEN given to Stockfish and do not affect draws',
   bare.grid[4][2] = { type: 'wall', color: 'none' };
   assert.strictEqual(G.GameRules.isDraw(bare), true);
 });
+
+test('mystery piece: one hidden target, every other piece a suspect, never the king', () => {
+  for (let seed = 0; seed < 20; seed++) {
+    const b = new G.Board();
+    const target = G.BossRules.hideMystery(b, 'black', () => seed / 20);
+    assert.notStrictEqual(target.type, 'king');
+    const suspects = G.BossRules.suspects(b, 'black');
+    assert.strictEqual(suspects.length, 15);
+    assert.strictEqual(suspects.filter(s => s.piece.mystery).length, 1);
+  }
+});
+
+test('mystery hints always keep the target and narrow it down to one', () => {
+  for (let seed = 1; seed < 30; seed++) {
+    let x = seed;
+    const random = () => ((x = (x * 9301 + 49297) % 233280) / 233280);
+    const b = new G.Board();
+    G.BossRules.hideMystery(b, 'black', random);
+    let hints = 0;
+    while (G.BossRules.suspects(b, 'black').length > 1) {
+      const before = G.BossRules.suspects(b, 'black').length;
+      const hint = G.BossRules.mysteryHint(b, 'black', random);
+      assert.ok(hint && hint.cleared.length >= 1, 'a hint clears at least one suspect');
+      if (before - 1 > 2) assert.ok(hint.cleared.length < before - 1, 'never clears every other suspect at once');
+      for (const s of hint.cleared) {
+        assert.ok(!b.grid[s.row][s.col].mystery, 'the target is never cleared');
+        b.grid[s.row][s.col].suspect = false;
+      }
+      hints++;
+    }
+    assert.ok(G.BossRules.suspects(b, 'black')[0].piece.mystery);
+    assert.ok(hints <= 8, `took ${hints} hints`);
+  }
+});
+
+test('a promoted pawn keeps its mystery tag; armyLeft counts non-king pieces', () => {
+  const b = G.FEN.toBoard('4k3/P7/8/8/8/8/8/4K3 w - - 0 1');
+  b.grid[1][0].mystery = true;
+  G.MoveExecutor.executeMove(b, { from: { row: 1, col: 0 }, to: { row: 0, col: 0 }, promotion: 'queen' }, 'white');
+  assert.strictEqual(b.grid[0][0].type, 'queen');
+  assert.ok(b.grid[0][0].mystery);
+  assert.strictEqual(G.BossRules.armyLeft(b, 'white'), 1);
+  assert.strictEqual(G.BossRules.armyLeft(b, 'black'), 0);
+});

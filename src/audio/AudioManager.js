@@ -13,6 +13,7 @@ class AudioManager {
     this.suspenseActive = false;
     this.musicPlaying = false;
     this._musicVolume = 0.5;
+    this._matchDuck = false;
   }
 
   init() {
@@ -57,8 +58,23 @@ class AudioManager {
   _createMusicGain() {
     if (!this.ctx) return;
     this.musicGain = this.ctx.createGain();
-    this.musicGain.gain.value = this._musicVolume * 0.7;
+    this.musicGain.gain.value = this._musicLevel();
     this.musicGain.connect(this.masterGain);
+  }
+
+  // Music sits lower during a match so moves and captures come through.
+  _musicLevel() {
+    return this._musicVolume * 0.7 * (this._matchDuck ? 0.45 : 1);
+  }
+
+  setMatchDuck(active) {
+    this._matchDuck = !!active;
+    if (!this.musicGain || !this.ctx) return;
+    const g = this.musicGain.gain;
+    const now = this.ctx.currentTime;
+    g.cancelScheduledValues(now);
+    g.setValueAtTime(g.value, now);
+    g.linearRampToValueAtTime(this._musicLevel(), now + 0.8);
   }
 
   _ready() {
@@ -134,10 +150,14 @@ class AudioManager {
     const next = !!active;
     if (this.suspenseActive === next) return;
     this.suspenseActive = next;
-    if (this.musicPlaying) {
-      this.stopMusic();
-      this.startMusic();
-    }
+    if (!this.musicPlaying || !this.player) return;
+    // Hand over to the other version at the next bar, keeping the song's
+    // place, so a check (often right after a capture challenge) never
+    // restarts the song. The old player's already-scheduled notes play out.
+    const old = this.player;
+    this.player = new MusicPlayer(this.ctx, this.musicGain);
+    this.player.play(Songs.get(this._getMusicThemeId(), next), Math.max(old.nextBar, this.ctx.currentTime + 0.05));
+    this.player.barIndex = old.barIndex;
   }
 
   _getMusicThemeId() {
@@ -320,7 +340,10 @@ class AudioManager {
 
   setMusicVolume(vol) {
     this._musicVolume = Math.max(0, Math.min(1, vol));
-    if (this.musicGain) this.musicGain.gain.value = this._musicVolume * 0.7;
+    if (this.musicGain) {
+      this.musicGain.gain.cancelScheduledValues(0);
+      this.musicGain.gain.value = this._musicLevel();
+    }
   }
 
   setSFXVolume(vol) {

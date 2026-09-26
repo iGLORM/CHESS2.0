@@ -266,7 +266,7 @@ const WorldMissionsScreen = {
         .poly([-s * 0.28, -s * 0.2, s * 0.28, -s * 0.2, s * 0.45, s * 0.6, -s * 0.45, s * 0.6]).fill(col)
         .rect(-s * 0.7, s * 0.6, s * 1.4, s * 0.3).fill(col);
     } else {
-      const t = PixiPremiumScene.text(kind === 'puzzle' ? '?' : '!', { fontFamily: PixiTextStyles.FONT_TITLE, fontSize: Math.round(r * 1.05), fontWeight: 'bold', fill: this.cols.accent });
+      const t = PixiPremiumScene.text(kind === 'puzzle' ? '?' : '!', { fontFamily: PixiTextStyles.FONT_BODY, fontSize: Math.round(r * 1.05), fontWeight: 'bold', fill: this.cols.accent });
       t.anchor.set(0.5);
       t.y = 2;
       return t;

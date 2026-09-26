@@ -203,7 +203,7 @@ const StoryScene = {
         .circle(L.PORTRAIT_W / 2, L.PORTRAIT_H * 0.6, 70).fill({ color: 0xfff4c8, alpha: 0.18 });
       c.addChild(glow);
       gsap.to(glow, { alpha: 0.6, duration: 1.2, yoyo: true, repeat: -1, ease: 'sine.inOut' });
-      const piece = PixiPieceRenderer.createSprite(store.get('theme'), 'white', speaker.piece);
+      const piece = PixiPieceRenderer.createSprite(PixiPieceRenderer.withArt(store.get('theme')), 'white', speaker.piece);
       piece.anchor.set(0.5, 1);
       piece.width = piece.height = 200;
       piece.x = L.PORTRAIT_W / 2;

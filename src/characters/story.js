@@ -71,7 +71,7 @@ const STORY_SCENES = {
     beats: [
       { who: 'knightsade', text: '*the mist parts* ... I saw it happen. You were three ranks from the far edge when the board broke under your feet.' },
       { who: 'queenie', text: 'Three ranks? Nobody gets that close, darling. Nobody except...' },
-      { who: 'queenie', text: '...oh. Oh no. It is YOU. Guards! Polish the floors! Hide the fragment! Somebody tell him!' },
+      { who: 'queenie', text: '...oh. Oh no. It is YOU. Guards! Hide the fragment! And somebody warn the Grandmaster!' },
     ],
   },
   after10: {
@@ -108,7 +108,7 @@ const STORY_SCENES = {
   after14: {
     bg: 'crystal',
     beats: [
-      { who: 'checkmate', text: 'The sand stopped for you. Twice now. Go. He is waiting.' },
+      { who: 'checkmate', text: 'The sand has never stopped for anyone. It stopped for you. Go. He is waiting.' },
       { who: 'grandmasterx', text: 'You. I broke the whole world to stop you, and you walked straight back into it.' },
       { who: 'grandmasterx', text: 'One square from the edge. That is where you were. Come and finish it, if you can.' },
     ],

@@ -29,8 +29,9 @@ const PixiBossFX = {
     this.wallLayer = new PIXI.Container();
     this.lockLayer = new PIXI.Container();
     this.eyeLayer = new PIXI.Container();
+    this.suspectLayer = new PIXI.Container();
     this.fxLayer = new PIXI.Container();
-    this.boardLayer.addChild(this.lockLayer, this.wallLayer, this.fogLayer, this.eyeLayer, this.fxLayer);
+    this.boardLayer.addChild(this.lockLayer, this.wallLayer, this.fogLayer, this.eyeLayer, this.suspectLayer, this.fxLayer);
     this.panelLayer = new PIXI.Container();
     this.bannerLayer = new PIXI.Container();
     this.hudLayer.addChild(this.panelLayer, this.bannerLayer);
@@ -40,6 +41,8 @@ const PixiBossFX = {
     this._lockKey = null;
     this._wallKey = null;
     this._panelKey = null;
+    this._suspectKey = null;
+    this._badges = [];
     this._gears = [];
     this.initialized = true;
   },
@@ -62,6 +65,7 @@ const PixiBossFX = {
     this._mistA = this._mistB = null;
     this._sand = this._glow = this._crystal = null;
     this._gears = [];
+    this._badges = [];
     this.initialized = false;
   },
 
@@ -90,7 +94,102 @@ const PixiBossFX = {
 
     this._updateFog(hidden, layoutKey, dt);
     this._applyPieceVisibility(hidden);
+    if (rule && rule.goal && rule.goal.mystery) this._updateSuspects(game, hidden, layoutKey);
     this._updatePanel(game, dt);
+  },
+
+  /* ------------------------------------------------------------------ */
+  /*  Mystery piece: "?" badges on the suspects, hints clear them         */
+  /* ------------------------------------------------------------------ */
+
+  _updateSuspects(game, hidden, layoutKey) {
+    const list = game.gameOver ? [] : BossRules.suspects(game.board, game.aiColor);
+    const found = list.length === 1;
+    const key = layoutKey + '|' + list.map(s => `${s.row}${s.col}`).join(',') + '|' +
+      (hidden ? list.map(s => (hidden[s.row][s.col] ? 1 : 0)).join('') : '');
+    if (key !== this._suspectKey) {
+      this._suspectKey = key;
+      this.suspectLayer.removeChildren().forEach(c => { gsap.killTweensOf(c); gsap.killTweensOf(c.scale); c.destroy({ children: true }); });
+      this._badges = [];
+      for (const s of list) {
+        if (hidden && hidden[s.row][s.col]) continue;
+        const b = this._badge(found);
+        const x = PixiBoardRenderer.squareX(s.col), y = PixiBoardRenderer.squareY(s.row);
+        const sq = PixiBoardRenderer.squareSize;
+        b.x = x + sq - sq * 0.2;
+        b.y = y + sq * 0.2;
+        b.phase = (s.row * 3 + s.col) * 0.7;
+        b.found = found;
+        if (found) {
+          const ring = new PIXI.Graphics().rect(x + 3, y + 3, sq - 6, sq - 6).stroke({ color: 0xffd35a, width: 3, alpha: 0.9 });
+          ring.isRing = true;
+          this.suspectLayer.addChild(ring);
+          this._badges.push(ring);
+        }
+        this.suspectLayer.addChild(b);
+        this._badges.push(b);
+      }
+    }
+    for (const b of this._badges) {
+      if (b.isRing) b.alpha = 0.55 + Math.sin(this._time * 5) * 0.35;
+      else b.pivot.y = Math.sin(this._time * 3 + b.phase) * 2.5;
+    }
+  },
+
+  // A small pixel "?" tag (gold "!" once the real piece is known).
+  _badge(found) {
+    const sq = PixiBoardRenderer.squareSize;
+    const r = Math.max(9, Math.round(sq * 0.16));
+    const c = new PIXI.Container();
+    const g = new PIXI.Graphics();
+    g.circle(0, 0, r + 3).fill({ color: found ? 0xffd35a : 0xb48cff, alpha: 0.25 });
+    g.circle(0, 0, r).fill(found ? 0x5a3a00 : 0x2a1450).stroke({ color: found ? 0xffd35a : 0xc9a6ff, width: 2 });
+    c.addChild(g);
+    const t = new PIXI.Text({ text: found ? '!' : '?', style: { fontFamily: PixiTextStyles.FONT_BODY, fontSize: Math.round(r * 1.5), fontWeight: 'bold', fill: found ? '#ffe9a8' : '#efe4ff' } });
+    t.anchor.set(0.5);
+    t.y = 1;
+    c.addChild(t);
+    return c;
+  },
+
+  // A hint came in: the cleared suspects' tags pop away, then the panel shows the text.
+  mysteryHint(hint) {
+    if (!this.initialized) return;
+    this.banner('HINT', '#c9a6ff');
+    const sq = PixiBoardRenderer.squareSize;
+    for (const s of hint.cleared) {
+      const x = PixiBoardRenderer.squareX(s.col) + sq - sq * 0.2, y = PixiBoardRenderer.squareY(s.row) + sq * 0.2;
+      const t = new PIXI.Text({ text: '?', style: { fontFamily: PixiTextStyles.FONT_BODY, fontSize: Math.round(sq * 0.3), fontWeight: 'bold', fill: '#efe4ff' } });
+      t.anchor.set(0.5);
+      t.x = x;
+      t.y = y;
+      this.fxLayer.addChild(t);
+      gsap.timeline({ onComplete: () => t.destroy() })
+        .to(t.scale, { x: 1.8, y: 1.8, duration: 0.3, ease: 'back.out(3)' })
+        .to(t, { alpha: 0, y: y - sq * 0.5, rotation: 0.6, duration: 0.5 }, '-=0.05');
+    }
+  },
+
+  // The mystery piece is caught: a golden burst where it stood.
+  mysteryFound(at, piece) {
+    if (!this.initialized) return;
+    this.banner('GOT IT!', '#ffd35a');
+    const { x, y } = PixiBoardRenderer.squareCenter(at.row, at.col);
+    const sq = PixiBoardRenderer.squareSize;
+    for (let i = 0; i < 14; i++) {
+      const a = (i / 14) * Math.PI * 2;
+      const spark = new PIXI.Graphics().rect(-4, -4, 8, 8).fill(i % 2 ? 0xffd35a : 0xffffff);
+      spark.x = x;
+      spark.y = y;
+      this.fxLayer.addChild(spark);
+      gsap.to(spark, { x: x + Math.cos(a) * sq * 1.3, y: y + Math.sin(a) * sq * 1.3, alpha: 0, rotation: 2, duration: 0.8, ease: 'power2.out', onComplete: () => spark.destroy() });
+    }
+    const label = new PIXI.Text({ text: piece.type.toUpperCase(), style: { fontFamily: PixiTextStyles.FONT_TITLE, fontSize: 20, fill: '#ffe9a8', stroke: { color: '#1a0d05', width: 5 } } });
+    label.anchor.set(0.5);
+    label.x = x;
+    label.y = y;
+    this.fxLayer.addChild(label);
+    gsap.to(label, { y: y - sq * 0.8, alpha: 0, duration: 1.6, delay: 0.3, onComplete: () => label.destroy() });
   },
 
   /* ------------------------------------------------------------------ */
@@ -304,7 +403,11 @@ const PixiBossFX = {
     const cols = ThemeManager.getCurrentColors();
     const progress = game.trainingProgress();
     let key;
-    if (progress) {
+    if (rule.goal && rule.goal.mystery) {
+      const n = game.gameOver ? 0 : BossRules.suspects(game.board, game.aiColor).length;
+      key = `mystery|${n}|${game._fogCache ? game._fogCache.key : ''}|${game.bossState.hint}|${game.mysteryHintIn()}|${game.movesLeft()}|${game.gameOver}|${Layout.orientation}`;
+      if (key !== this._panelKey) this._drawMysteryPanel(cols, game, n);
+    } else if (progress) {
       key = `progress|${progress.label}|${progress.done}|${progress.failed || 0}|${Layout.orientation}`;
       if (key !== this._panelKey) this._drawProgressPanel(cols, progress);
     } else if (rule.moveLimit) {
@@ -342,6 +445,36 @@ const PixiBossFX = {
       else pips.circle(cx, py, r).stroke({ color: 0x6fe3ff, alpha: 0.6, width: 2 });
     }
     this.panelLayer.addChild(pips);
+  },
+
+  _drawMysteryPanel(cols, game, n) {
+    const violet = '#c9a6ff', gold = '#ffd35a';
+    const found = n === 1;
+    const p = this._panelFrame(cols, found ? gold : violet);
+    const small = Layout.isPortrait;
+    const x = p.X + (small ? 12 : 20);
+    const won = game.gameOver && game.playerWon() && game.gameStatus === 'mystery';
+    if (!small) this._panelText('MYSTERY PIECE', x, p.Y + 14, { fontSize: 13, fontWeight: '900', fill: PixiColorUtil.alpha(cols.text, '88') });
+    const big = won ? 'CAUGHT' : found ? 'FOUND IT' : `${n} suspects`;
+    this._panelText(big, x, p.Y + (small ? 6 : 32), { fontFamily: PixiTextStyles.FONT_TITLE, fontSize: small ? 18 : 24, fill: found || won ? gold : violet });
+    if (small) {
+      const left = game.movesLeft();
+      this._panelText(Number.isFinite(left) ? `${left} moves left` : found ? 'Take it!' : `Hint in ${game.mysteryHintIn()}`, x, p.Y + 36, { fontSize: 14, fontWeight: '700', fill: cols.text });
+      return;
+    }
+    const hint = game.bossState.hint || 'Every enemy piece is a suspect. Take one, or wait for a hint.';
+    const t = new PIXI.Text({ text: hint, style: { fontFamily: PixiTextStyles.FONT_BODY, fontSize: 15, fontWeight: '700', fill: cols.text, wordWrap: true, wordWrapWidth: p.W - 40, lineHeight: 18 } });
+    t.x = x;
+    t.y = p.Y + 66;
+    this.panelLayer.addChild(t);
+    const left = game.movesLeft();
+    const foot = [];
+    if (!found && !game.gameOver) foot.push(`Next hint in ${game.mysteryHintIn()}`);
+    const hidden = game._hiddenSquares();
+    const fogged = hidden && !game.gameOver ? BossRules.suspects(game.board, game.aiColor).filter(s => hidden[s.row][s.col]).length : 0;
+    if (fogged) foot.push(`${fogged} in the fog`);
+    if (Number.isFinite(left)) foot.push(`${Math.max(0, left)} moves left`);
+    if (foot.length) this._panelText(foot.join('  ·  '), x, p.Y + p.H - 24, { fontSize: 13, fontWeight: '900', fill: Number.isFinite(left) && left <= 5 ? '#ff5a5a' : violet });
   },
 
   _panelFrame(cols, accent) {

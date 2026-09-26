@@ -13,11 +13,24 @@ const PixiMinion = {
     const ch = StoryMissions.character(id);
     const img = TextureManager.getPieceTexture(ch.theme, 'black', ch.piece);
     const ready = img && (img.naturalWidth || img.width);
-    if (this._cache[key] && (this._cache[key]._ready || !ready)) return this._cache[key];
-    const canvas = this.draw(ch, ready ? img : null, card ? 238 : 160, card ? 292 : 160);
+    if (this._cache[key]) return this._cache[key];
+    const w = card ? 238 : 160, h = card ? 292 : 160;
+    const canvas = this.draw(ch, ready ? img : null, w, h);
     const tex = PIXI.Texture.from({ resource: canvas, scaleMode: 'nearest' });
-    tex._ready = !!ready;
     this._cache[key] = tex;
+    // The world's pieces were not loaded yet: repaint this same texture with
+    // the real piece once they are, so every sprite already using it updates.
+    if (!ready) {
+      TextureManager.preloadTheme(ch.theme).then(() => {
+        const real = TextureManager.getPieceTexture(ch.theme, 'black', ch.piece);
+        if (!real || tex.destroyed) return;
+        const fresh = this.draw(ch, real, w, h);
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, w, h);
+        ctx.drawImage(fresh, 0, 0);
+        tex.source.update();
+      });
+    }
     return tex;
   },
 

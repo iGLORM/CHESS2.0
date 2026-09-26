@@ -110,18 +110,23 @@ const TRAINERS = [
       ] },
       { title: 'Kinds of Twists', lines: [
         'Some twists change the board. Some change the challenges. Some hide things from you.',
-        'Let us practise with a small one: a band of mist across the middle.',
+        'And some ask for more than checkmate: take every piece, or hunt down one hidden piece.',
+      ] },
+      { title: 'The Mystery Piece', lines: [
+        'One enemy piece is secretly the target. At first every one of them wears a "?".',
+        'Every few moves a hint clears some suspects. Taking a suspect clears it too. When one "!" is left, strike.',
       ] },
     ],
     dialogue: {
-      before: 'A rule you have read is a rule you can beat. Here is a gentle twist: mist over the middle of the board. Make two captures through it.',
-      after: 'You read the rule and bent it back. The guardians will not find you so easy to fool.',
-      win: 'The mist hid more than you thought. Read the rule again, and look where your pieces can see.',
+      before: 'A rule you have read is a rule you can beat. One of my pieces is the Mystery Piece, and there is mist over the middle. Find it. Take it.',
+      after: 'You read the clues and caught it. The guardians will not find you so easy to fool.',
+      win: 'The clues were there. Read them again, and watch where the "?" marks go.',
     },
     gameDialogue: {
       gameStart: ['Mind the mist.', 'Read the board, not just the pieces.'],
       bossCapture: ['Out of the mist, and your {piece} is gone.'],
-      playerCapture: ['You saw through it. My {piece} falls.'],
+      playerCapture: ['My {piece} falls. But was it the one?', 'A {piece}. Check your clues.'],
+      mysteryHint: ['A clue. Read it twice.', 'The truth narrows. Watch where the "?" marks remain.'],
     },
     personality: 'calm',
     theme: 'trainingcamp',

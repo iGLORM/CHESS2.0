@@ -39,14 +39,14 @@ const BOSS_RULES = {
     minigameTrial: { games: 5, need: 3 },
   },
   rulekeeper: {
-    title: 'Mist in the Middle',
+    title: 'The Mystery Piece',
     lines: [
-      'Ranks 5 and 6 are covered in mist. You only see squares there that your pieces attack.',
-      'Make 2 captures to pass.',
+      'One of his pieces is the Mystery Piece. Every "?" is a suspect; every 2 moves a hint clears some.',
+      'Ranks 5 and 6 are misted over. Capture the Mystery Piece (or checkmate) to pass.',
     ],
     fog: true,
     fogRows: [2, 3],
-    goal: { captures: 2 },
+    goal: { mystery: true, hintEvery: 2 },
   },
   senseitactic: {
     title: 'The Final Exam',
@@ -355,6 +355,83 @@ const BossRules = {
       }
     }
     return null;
+  },
+
+  /* Mystery piece (goal.mystery): one of `color`'s pieces is secretly the
+     target. Every other piece starts as a suspect too; hints clear suspects
+     until only the real one is left. Flags live on the piece objects
+     (`suspect`, `mystery`) so they travel with the piece as it moves. */
+
+  hideMystery(board, color, random = Math.random) {
+    const pieces = [];
+    for (const row of board.grid) {
+      for (const p of row) {
+        if (p && p.color === color && p.type !== 'king') pieces.push(p);
+      }
+    }
+    if (!pieces.length) return null;
+    pieces.forEach(p => { p.suspect = true; });
+    // Pawns make dull targets: they are half as likely to be the one.
+    const weight = p => (p.type === 'pawn' ? 1 : 2);
+    let roll = random() * pieces.reduce((s, p) => s + weight(p), 0);
+    const target = pieces.find(p => (roll -= weight(p)) < 0) || pieces[pieces.length - 1];
+    target.mystery = true;
+    return target;
+  },
+
+  // Squares of `color`'s pieces still under suspicion: [{ row, col, piece }].
+  suspects(board, color) {
+    const list = [];
+    for (let r = 0; r < 8; r++) {
+      for (let c = 0; c < 8; c++) {
+        const p = board.grid[r][c];
+        if (p && p.color === color && p.suspect) list.push({ row: r, col: c, piece: p });
+      }
+    }
+    return list;
+  },
+
+  // One true fact about the mystery piece that clears some of the other
+  // suspects (about half; never all of them while three or more are left).
+  // Returns { text, cleared: [{ row, col }] } without changing the board, or null.
+  mysteryHint(board, color, random = Math.random) {
+    const list = this.suspects(board, color);
+    const t = list.find(s => s.piece.mystery);
+    const others = list.filter(s => !s.piece.mystery);
+    if (!t || !others.length) return null;
+    const files = 'abcdefgh';
+    const light = s => (s.row + s.col) % 2 === 0;
+    const facts = [
+      { text: `It is a ${t.piece.type}.`, keep: s => s.piece.type === t.piece.type },
+      { text: `It stands on a ${light(t) ? 'light' : 'dark'} square.`, keep: s => light(s) === light(t) },
+      { text: `It is on the ${t.col >= 4 ? 'kingside' : 'queenside'} (files ${t.col >= 4 ? 'e to h' : 'a to d'}).`, keep: s => (s.col >= 4) === (t.col >= 4) },
+      { text: `It stands on rank ${8 - t.row}.`, keep: s => s.row === t.row },
+      { text: `It stands on the ${files[t.col]}-file.`, keep: s => s.col === t.col },
+    ];
+    for (const type of new Set(others.map(s => s.piece.type))) {
+      if (type !== t.piece.type) facts.push({ text: `It is not a ${type}.`, keep: s => s.piece.type !== type });
+    }
+    const goal = Math.max(1, Math.round(others.length * 0.5));
+    let best = [];
+    let bestScore = Infinity;
+    for (const f of facts) {
+      const cleared = others.filter(s => !f.keep(s));
+      if (!cleared.length || (cleared.length === others.length && others.length > 2)) continue;
+      const score = Math.abs(cleared.length - goal);
+      if (score < bestScore) { best = []; bestScore = score; }
+      if (score === bestScore) best.push({ text: f.text, cleared: cleared.map(s => ({ row: s.row, col: s.col })) });
+    }
+    if (!best.length) return null;
+    return best[Math.floor(random() * best.length)];
+  },
+
+  // Pieces of `color` other than the king (goal.captureAll is won at zero).
+  armyLeft(board, color) {
+    let n = 0;
+    for (const row of board.grid) {
+      for (const p of row) if (p && p.color === color && p.type !== 'king') n++;
+    }
+    return n;
   },
 
   // The minigames the player loses most (at least one loss), worst first.

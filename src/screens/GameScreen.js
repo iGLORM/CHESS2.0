@@ -148,7 +148,13 @@ const GameScreen = {
       const tier = save ? save.difficultyTier : 'beginner';
       this.bossRule = this.currentCharacter ? BossRules.get(this.currentCharacter.id) : null;
       this.characterLevel = BossRules.aiLevel(this.bossRule, DifficultyScaler.getAiLevel(tier, charLevel));
-      if (!(data && data.restore)) this.board = BossRules.startBoard(this.bossRule);
+      if (!(data && data.restore)) {
+        this.board = BossRules.startBoard(this.bossRule);
+        if (this.bossRule && this.bossRule.goal && this.bossRule.goal.mystery) {
+          BossRules.hideMystery(this.board, this.aiColor);
+          this.bossState.hint = null;
+        }
+      }
     } else if (this.mode === 'classic') {
       this.currentCharacter = null;
       this.characterLevel = store.get('classicDifficulty') || 5;
@@ -176,6 +182,7 @@ const GameScreen = {
       audioManager.setSuspense(false);
     }
     audioManager.startMusic();
+    audioManager.setMatchDuck(true);
 
     this._initVisuals();
 
@@ -248,7 +255,7 @@ const GameScreen = {
     const shade = new PIXI.Graphics().rect(0, 0, Layout.W, Layout.H).fill({ color: 0x000000, alpha: 0.66 });
     c.addChild(shade);
     const portraitId = card && card.portraitId;
-    const PORTRAIT_W = portraitId ? 150 : 0;   // hologram column on trainer cards
+    const PORTRAIT_W = portraitId ? 190 : 0;   // portrait column (the card art is ~165px wide) plus a gap
     const w = Math.min(660 + PORTRAIT_W, Layout.W - 60);
     const PAD_X = 38, TOP = 34, KICKER_GAP = 34, TITLE_GAP = 62, PARA_GAP = 16, BTN_W = 200, BTN_H = 52, BTN_PAD = 26;
     const paragraphs = card ? card.lines : [
@@ -502,6 +509,7 @@ const GameScreen = {
     if (canvas) canvas.style.pointerEvents = 'auto';
     audioManager.init();
     audioManager.startMusic();
+    audioManager.setMatchDuck(true);
     this._initVisuals();
     this._dialogueBubble = null;
     this._initDialogue();
@@ -517,6 +525,7 @@ const GameScreen = {
       this._aiTimeout = null;
     }
     audioManager.stopMusic();
+    audioManager.setMatchDuck(false);
     if (typeof audioManager.setSuspense === 'function') {
       audioManager.setSuspense(false);
     }
@@ -561,7 +570,7 @@ const GameScreen = {
 
   saveSnapshot() {
     const snap = {
-      grid: this.board.grid.map(row => row.map(cell => cell ? { type: cell.type, color: cell.color } : null)),
+      grid: this.board.grid.map(row => row.map(cell => cell ? { ...cell } : null)),   // keeps story tags (mystery piece)
       turn: this.turn,
       castlingRights: JSON.parse(JSON.stringify(this.board.castlingRights)),
       enPassantTarget: this.board.enPassantTarget ? { ...this.board.enPassantTarget } : null,
@@ -592,7 +601,7 @@ const GameScreen = {
   restoreSnapshot(snap) {
     for (let r = 0; r < 8; r++) {
       for (let c = 0; c < 8; c++) {
-        this.board.grid[r][c] = snap.grid[r][c];
+        this.board.grid[r][c] = snap.grid[r][c] ? { ...snap.grid[r][c] } : null;
       }
     }
     this.board.castlingRights = snap.castlingRights;
@@ -741,7 +750,10 @@ const GameScreen = {
             if (hidden[r][c] && p && p.type === 'knight' && p.color === this.aiColor) knights.push({ row: r, col: c });
           }
         }
-        if (knights.length) setTimeout(() => PixiBossFX.showEyes(knights), 350);
+        if (knights.length) {
+          setTimeout(() => PixiBossFX.showEyes(knights), 350);
+          this._twistLine('eyes');
+        }
       }
     }
     const goal = rule.goal || {};
@@ -749,6 +761,11 @@ const GameScreen = {
       this._endTraining(true, 'goal');
       return;
     }
+    if (goal.captureAll && !bossMoved && BossRules.armyLeft(this.board, this.aiColor) === 0) {
+      this._endTraining(true, 'cleared');
+      return;
+    }
+    if (goal.mystery && !bossMoved && this._mysteryMove(move)) return;
     if (goal.promote && !bossMoved && move.promotion) {
       this._endTraining(true, 'crowned');
       return;
@@ -756,6 +773,9 @@ const GameScreen = {
     if (goal.survive && bossMoved && this._playerMoves() >= goal.survive) {
       this._endTraining(true, 'survived');
       return;
+    }
+    if (rule.moveLimit && !bossMoved && (this.movesLeft() === 10 || this.movesLeft() === 5)) {
+      this._twistLine('clockLow', { left: this.movesLeft() });
     }
     if (rule.moveLimit && !bossMoved && this.movesLeft() <= 0) {
       this.gameOver = true;
@@ -770,6 +790,51 @@ const GameScreen = {
     if (this.lockedTiles.length) this.checkForLockedTileGameEnd();
   },
 
+  // The opponent reacts to its own twist (lines in gameDialogue[category]).
+  _twistLine(category, context) {
+    if (this.mode === 'story' && typeof DialogueManager !== 'undefined') DialogueManager.onTwist(category, context);
+  },
+
+  // Mystery piece, after each of your moves: taking it wins, taking a
+  // suspect clears it, and every few moves a hint clears more. Returns true
+  // when the game is over.
+  _mysteryMove(move) {
+    const fx = typeof PixiBossFX !== 'undefined' ? PixiBossFX : null;
+    const taken = move.captured;
+    if (taken && taken.mystery) {
+      if (fx) fx.mysteryFound(move.to, taken);
+      this._endTraining(true, 'mystery');
+      return true;
+    }
+    if (taken && taken.suspect) {
+      if (fx) fx.banner('NOT THIS ONE', '#ffb347');
+      audioManager.playTileLock();
+    }
+    const every = this.bossRule.goal.hintEvery || 3;
+    const left = BossRules.suspects(this.board, this.aiColor);
+    if (left.length > 1 && this._playerMoves() % every === 0) {
+      const hint = BossRules.mysteryHint(this.board, this.aiColor);
+      if (hint) {
+        for (const s of hint.cleared) this.board.grid[s.row][s.col].suspect = false;
+        this.bossState = { ...this.bossState, hint: hint.text, hints: (this.bossState.hints || 0) + 1 };
+        if (fx) fx.mysteryHint(hint);
+        audioManager.playSelect();
+        this._twistLine('mysteryHint');
+      }
+    }
+    if (BossRules.suspects(this.board, this.aiColor).length === 1 && !this.bossState.found) {
+      this.bossState = { ...this.bossState, found: true, hint: 'Only one suspect left. That is the one!' };
+      if (fx) setTimeout(() => fx.banner('FOUND IT!', '#ffd35a'), 900);
+    }
+    return false;
+  },
+
+  // Moves until the next mystery hint.
+  mysteryHintIn() {
+    const every = (this.bossRule && this.bossRule.goal && this.bossRule.goal.hintEvery) || 3;
+    return every - (this._playerMoves() % every);
+  },
+
   // ForkMaster: the second forked piece is taken along with the first.
   _applyDoubleTake(move, captured) {
     const v = move.doubleTake;
@@ -781,6 +846,7 @@ const GameScreen = {
     this.board.grid[v.row][v.col] = null;
     this.capturedPieces[this.turn].push(v.piece);
     move.san = (move.san || '?') + ' x2';
+    this._twistLine('doubleTake');
     if (typeof PixiBossFX !== 'undefined') {
       PixiBossFX.doubleTake(move.from, [
         { row: move.to.row, col: move.to.col, piece: captured },
@@ -813,6 +879,11 @@ const GameScreen = {
     if (rule.goal && rule.goal.captures) {
       const n = Math.min(rule.goal.captures, this.capturedPieces[this.playerColor].length);
       return { label: 'CAPTURES WON', done: n, total: rule.goal.captures, slots: rule.goal.captures };
+    }
+    if (rule.goal && rule.goal.captureAll) {
+      const taken = this.capturedPieces[this.playerColor].length;
+      const total = taken + BossRules.armyLeft(this.board, this.aiColor);
+      return { label: 'PIECES TAKEN', done: taken, total, slots: Math.min(total, 9) };
     }
     if (rule.goal && rule.goal.survive) {
       const n = Math.min(rule.goal.survive, this._playerMoves());
@@ -1066,6 +1137,8 @@ const GameScreen = {
       case 'goal': return this.currentCharacter && this.currentCharacter.mission ? 'Goal reached' : 'Lesson complete';
       case 'crowned': return 'Your pawn was crowned';
       case 'survived': return 'You held out';
+      case 'cleared': return 'Every piece taken';
+      case 'mystery': return 'You caught the mystery piece';
       case 'trial': return this.playerWon() ? 'Trial passed' : 'Not enough wins';
       default: return 'Game Over';
     }
@@ -1549,12 +1622,14 @@ const GameScreen = {
 
   revertMoveAndLockTile(move) {
     const lockPlies = this.bossRule && this.bossRule.lockPlies;
+    if (lockPlies && this.turn === this.playerColor) this._twistLine('lock');
     // A timed lock (CastlE) lasts `lockPlies` plies after the replacement move:
     // with 4, the square stays shut for 3 of that side's turns, this one included.
     this.lockedTiles.push(lockPlies
       ? { row: move.to.row, col: move.to.col, until: this.moveHistory.length + 1 + lockPlies }
       : { row: move.to.row, col: move.to.col });
     audioManager.playTileLock();
+    this.pendingRevertMove = null;
     this.selectedSquare = null;
     this.legalMoves = [];
     store.update({ board: this.board });
