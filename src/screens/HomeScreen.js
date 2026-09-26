@@ -5,7 +5,7 @@ const HomeScreen = {
   _tickerFn: null,
   _titlePulse: 0,
   _btnContainers: [],
-  _selectedIndex: 0,
+  _selectedIndex: -1,
 
   get LAYOUT() {
     const s = Layout.uiScale || 1;
@@ -26,8 +26,7 @@ const HomeScreen = {
       return {
         W: Layout.W, H: Layout.H,
         LOGO_Y: Math.round(110 * s) + off,
-        LOGO_MAX_W: 560,
-        HERO_Y: Math.round(150 * s) + off,
+        LOGO_MAX_W: 700,
         MAIN_START_Y: mainStartY,
         MAIN_BTN_W: contentW,
         HERO_BTN_H: heroH,
@@ -51,9 +50,8 @@ const HomeScreen = {
     const utilBtnH = Math.round(33 * s);
     return {
       W: Layout.W, H: Layout.H,
-      LOGO_Y: 160,
-      LOGO_MAX_W: 610,
-      HERO_Y: 200,
+      LOGO_Y: 190,
+      LOGO_MAX_W: 720,
       MAIN_START_Y: mainStartY,
       MAIN_BTN_W: Math.min(Math.round(500 * s), Layout.W - 40),
       HERO_BTN_H: heroH,
@@ -88,13 +86,13 @@ const HomeScreen = {
 
     this.pixiContainer = new PIXI.Container();
     this._btnContainers = [];
-    this._selectedIndex = 0;
+    this._selectedIndex = -1;
     this._titlePulse = 0;
 
     // --- Background ---
     if (typeof PixiBackgroundRenderer !== 'undefined') {
       PixiBackgroundRenderer.init(this.pixiContainer);
-      PixiBackgroundRenderer.render(store.get('theme') || 'space');
+      PixiBackgroundRenderer.render(store.get('theme') || 'pawnhollow');
     }
 
     // Vignette overlay
@@ -102,17 +100,6 @@ const HomeScreen = {
     vignette.rect(0, 0, L.W, L.H).fill({ color: 0x000000, alpha: 0.3 });
     this.pixiContainer.addChild(vignette);
 
-    // --- Premium animated title aura ---
-    const heroContainer = new PIXI.Container();
-    heroContainer.x = L.W / 2;
-    heroContainer.y = L.HERO_Y;
-    heroContainer.label = 'premiumHero';
-    const heroAura = new PIXI.Graphics();
-    heroAura.ellipse(0, 28, 500, 124).fill({ color: PixiColorUtil.hexToNum(cols.accent), alpha: 0.065 });
-    heroAura.ellipse(0, 42, 390, 74).stroke({ color: PixiColorUtil.hexToNum(cols.text), alpha: 0.075, width: 4 });
-    heroContainer.addChild(heroAura);
-    this.pixiContainer.addChild(heroContainer);
-    this._heroContainer = heroContainer;
 
     // --- Floating particles ---
     this._particles = [];
@@ -135,60 +122,25 @@ const HomeScreen = {
     }
     this.pixiContainer.addChild(particleContainer);
 
-    // --- Decorative accent lines container ---
-    const decoLines = new PIXI.Graphics();
-    decoLines.label = 'decoLines';
-    this.pixiContainer.addChild(decoLines);
-    this._decoLines = decoLines;
-
-    // --- Title logo ---
-    const accentNum = PixiColorUtil.hexToNum(cols.accent);
+    // --- Title logo (drawn in code, coloured by the theme) ---
     const titleContainer = new PIXI.Container();
     titleContainer.x = L.W / 2;
     titleContainer.y = L.LOGO_Y;
     titleContainer.label = 'titleGroup';
-
-    const logoFile = this._getLogoVariant(store.get('theme'));
-    TextureManager.loadImage(`../assets/textures/${logoFile}`).then(img => {
-      if (!img || !titleContainer.parent) return;
-      titleContainer.removeChildren();
-
-      const texture = PIXI.Texture.from(img);
-      const logoScale = Math.min(1, L.LOGO_MAX_W / texture.width);
-
-      // Glow layer (tinted accent, blurred)
-      const glow = new PIXI.Sprite(texture);
-      glow.anchor.set(0.5);
-      glow.scale.set(logoScale);
-      glow.alpha = 0.2;
-      glow.tint = accentNum;
-      glow.filters = [new PIXI.BlurFilter({ strength: 8, quality: 3 })];
-      titleContainer.addChild(glow);
-
-      // Main logo sprite
-      const logo = new PIXI.Sprite(texture);
-      logo.anchor.set(0.5);
-      logo.scale.set(logoScale);
-      logo.label = 'mainTitle';
-      titleContainer.addChild(logo);
-    });
-
-    // Text fallback while image loads
-    const titleFallback = new PIXI.Text({
-      text: 'CHESS 2.0',
-      style: {
-        fontFamily: PixiTextStyles.FONT_TITLE,
-        fontSize: 64, fontWeight: 'bold',
-        fill: cols.text, letterSpacing: 0, padding: 30,
-        stroke: { color: '#000000', width: 4 },
-        dropShadow: { color: cols.accent, blur: 6, distance: 0, alpha: 0.4 },
-      },
-    });
-    titleFallback.anchor.set(0.5);
-    titleContainer.addChild(titleFallback);
+    const buildLogo = () => {
+      if (this._logo) this._logo.destroy();
+      this._logo = PixiTitleLogo.create(cols, L.LOGO_MAX_W);
+      titleContainer.addChild(this._logo.container);
+    };
+    buildLogo();
+    // Rebuild once the pixel fonts are ready so letters are measured correctly.
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(() => { if (titleContainer.parent) buildLogo(); });
+    }
 
     this.pixiContainer.addChild(titleContainer);
     this._titleContainer = titleContainer;
+
 
     // Separator above main buttons
     const sep1 = new PixiSeparator({ width: 340, cols: cols });
@@ -225,7 +177,7 @@ const HomeScreen = {
       const by = L.UTIL_Y;
       const container = this._createUtilButton(btn, bx, by, L.UTIL_BTN_W, L.UTIL_BTN_H, cols, 5 + i);
       this.pixiContainer.addChild(container);
-      this._btnContainers.push({ container, index: 4 + i, bounds: { x: bx, y: by, w: L.UTIL_BTN_W, h: L.UTIL_BTN_H } });
+      this._btnContainers.push({ container, index: 5 + i, bounds: { x: bx, y: by, w: L.UTIL_BTN_W, h: L.UTIL_BTN_H } });
     }
 
     const footerHint = (window.Telegram && window.Telegram.WebApp)
@@ -257,27 +209,8 @@ const HomeScreen = {
         p.gfx.alpha = p.baseAlpha * (0.5 + 0.5 * Math.sin(p.twinklePhase));
       }
 
-      // Title glow breathing
-      if (this._titleContainer && this._titleContainer.children.length > 1) {
-        const glowChild = this._titleContainer.children[0];
-        if (glowChild) glowChild.alpha = 0.15 + Math.sin(this._titlePulse * 0.8) * 0.08;
-      }
+      if (this._logo) this._logo.update(dt);
 
-      if (this._heroContainer) {
-        this._heroContainer.y = L.HERO_Y + Math.sin(this._titlePulse * 0.55) * 5;
-        this._heroContainer.scale.set(1 + Math.sin(this._titlePulse * 0.35) * 0.006);
-        this._heroContainer.alpha = 0.88 + Math.sin(this._titlePulse * 0.7) * 0.05;
-      }
-
-      // Animated accent lines below logo
-      const dg = this._decoLines;
-      dg.clear();
-      for (let i = 0; i < 2; i++) {
-        const ly = L.LOGO_Y + 80 + i * 5 + Math.sin(this._titlePulse + i * 1.5) * 1.5;
-        const halfW = 160 - i * 30;
-        dg.moveTo(L.W / 2 - halfW, ly).lineTo(L.W / 2 + halfW, ly)
-          .stroke({ width: 1, color: accentNum, alpha: 0.1 - i * 0.03 });
-      }
     };
     PixiApp.app.ticker.add(this._tickerFn);
 
@@ -389,7 +322,7 @@ const HomeScreen = {
     });
     container.on('pointerout', () => {
       if (this._selectedIndex === index) {
-        this._selectedIndex = 0;
+        this._selectedIndex = -1;
         this._updateSelection();
       }
     });
@@ -485,7 +418,7 @@ const HomeScreen = {
     });
     container.on('pointerout', () => {
       if (this._selectedIndex === index) {
-        this._selectedIndex = 0;
+        this._selectedIndex = -1;
         this._updateSelection();
       }
     });
@@ -559,14 +492,6 @@ const HomeScreen = {
     }
   },
 
-  _getLogoVariant(themeId) {
-    const warm = ['medieval', 'egypt', 'wildwest', 'steampunk', 'prehistoric'];
-    const cool = ['ocean', 'crystal'];
-    if (warm.includes(themeId)) return 'title_logo_magma.png';
-    if (cool.includes(themeId)) return 'title_logo_ice.png';
-    return 'title_logo_original.png';
-  },
-
   destroy() {
     if (this._tickerFn && PixiApp.app) {
       PixiApp.app.ticker.remove(this._tickerFn);
@@ -574,6 +499,10 @@ const HomeScreen = {
     }
     if (typeof PixiBackgroundRenderer !== 'undefined') {
       PixiBackgroundRenderer.destroy();
+    }
+    if (this._logo) {
+      this._logo.destroy();
+      this._logo = null;
     }
     if (this.pixiContainer) {
       PixiScreenManager.setScreenContainer(null);
@@ -583,10 +512,18 @@ const HomeScreen = {
     this._particles = [];
     this._btnContainers = [];
     this._titleContainer = null;
-    this._heroContainer = null;
   },
 
   handleKeyDown(e) {
+    // Nothing highlighted yet (mouse not over a button): the first arrow key selects Story Mode.
+    if (this._selectedIndex < 0) {
+      if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+        e.preventDefault();
+        this._selectedIndex = 0;
+        this._updateSelection();
+      }
+      return;
+    }
     const btn = this.BUTTONS[this._selectedIndex];
     if (e.key === 'ArrowUp') {
       e.preventDefault();

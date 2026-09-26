@@ -4,8 +4,14 @@ class TextureManager {
 
   // Optional art that only some themes ship with; other themes draw these
   // procedurally, so we skip requesting files that do not exist.
-  static BOARD_THEMES = ['crystal'];
-  static BACKGROUND_FILES = { crystal: 'png', japanese: 'png', ocean: 'png', wildwest: 'webp' };
+  static BOARD_THEMES = ['pawnhollow', 'trainingcamp', 'slantedsands', 'ironkeep', 'mistymoors',
+    'royalpalace', 'clockworkcitadel', 'grandlibrary', 'forkedgulch', 'obsidiancourt', 'crystal'];
+  static BACKGROUND_FILES = {
+    crystal: 'png', trainingcamp: 'png', forkedgulch: 'webp',
+    // Painted by scripts/generate_backgrounds.py
+    pawnhollow: 'png', slantedsands: 'png', ironkeep: 'png', mistymoors: 'png',
+    royalpalace: 'png', clockworkcitadel: 'png', grandlibrary: 'png', obsidiancourt: 'png',
+  };
 
   static loadImage(src) {
     if (this.loaded[src]) {
@@ -45,9 +51,7 @@ class TextureManager {
   static async preloadTheme(themeId) {
     const loads = [];
     if (this.BOARD_THEMES.includes(themeId)) {
-      for (const color of ['light', 'dark']) {
-        loads.push(this.loadImage(this.buildPath('boards', `${themeId}_${color}`)));
-      }
+      loads.push(this.loadImage(this.buildPath('boards', `${themeId}_board`)));
     }
     for (const color of ['white', 'black']) {
       for (const type of ['pawn', 'rook', 'knight', 'bishop', 'queen', 'king']) {
@@ -55,18 +59,25 @@ class TextureManager {
       }
     }
     if (this.BACKGROUND_FILES[themeId]) loads.push(this.loadImage(this.backgroundPath(themeId)));
+    if (typeof PixiBackgroundScene !== 'undefined') loads.push(PixiBackgroundScene.load(themeId));
     await Promise.all(loads);
   }
 
   static async preloadCharacters() {
-    if (typeof CHARACTERS === 'undefined') return;
-    const loads = CHARACTERS.map(ch => this.loadImage(this.buildPath('characters', ch.id)));
+    const all = typeof STORY_STAGES !== 'undefined' ? STORY_STAGES : typeof CHARACTERS !== 'undefined' ? CHARACTERS : [];
+    const loads = all.map(ch => this.loadImage(this.buildPath('characters', ch.id)));
     await Promise.all(loads);
   }
 
+  // Legacy per-square textures (no longer shipped; the Canvas 2D board falls
+  // back to flat colours).
   static getBoardTexture(themeId, isLight) {
-    const color = isLight ? 'light' : 'dark';
-    return this.getImage(this.buildPath('boards', `${themeId}_${color}`));
+    return null;
+  }
+
+  // Whole-board texture (8x8 squares, a1 dark) made by scripts/generate_theme_art.py.
+  static getBoardImage(themeId) {
+    return this.getImage(this.buildPath('boards', `${themeId}_board`));
   }
 
   static getPieceTexture(themeId, color, type) {

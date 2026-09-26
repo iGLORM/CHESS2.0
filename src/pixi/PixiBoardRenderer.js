@@ -62,7 +62,10 @@ const PixiBoardRenderer = {
     this.markersContainer = new PIXI.Container();
 
     this.container.addChild(this.frameContainer);
+    this.coordsContainer = new PIXI.Container();
+    this.coordsContainer.eventMode = 'none';
     this.container.addChild(this.boardContainer);
+    this.container.addChild(this.coordsContainer);
     this.container.addChild(this.markersContainer);
     this.container.addChild(this.piecesContainer);
     this.container.addChild(this.overlayContainer);
@@ -80,6 +83,7 @@ const PixiBoardRenderer = {
     const cols = theme.colors;
     this.boardContainer.removeChildren();
     this.frameContainer.removeChildren();
+    if (this.coordsContainer) this.coordsContainer.removeChildren();
 
     const bx = this.boardOffsetX;
     const by = this.boardOffsetY;
@@ -115,24 +119,61 @@ const PixiBoardRenderer = {
     // Coordinate labels (a-h, 1-8)
     this.frameContainer.addChild(frame);
 
+    // Coordinates sit inside the edge squares' corners: files along the bottom
+    // row (bottom-right), ranks down the left column (top-left).
+    const coordStyle = {
+      fontFamily: '"Pixelify Sans", sans-serif', fontSize: 13, fontWeight: '700',
+      fill: '#ffffff', stroke: { color: 0x000000, width: 3 },
+    };
+    const inset = 4;
     for (let i = 0; i < 8; i++) {
       const file = String.fromCharCode(97 + (this.flipped ? 7 - i : i));
       const rank = String(this.flipped ? i + 1 : 8 - i);
-      const labelStyle = { fontFamily: '"Pixelify Sans", sans-serif', fontSize: 14, fill: PixiColorUtil.alpha(cols.text, '55') };
+      const fileLabel = new PIXI.Text({ text: file, style: coordStyle });
+      fileLabel.anchor.set(1, 1);
+      fileLabel.x = bx + (i + 1) * this.squareSize - inset;
+      fileLabel.y = by + boardPx - inset + 2;
+      fileLabel.alpha = 0.7;
+      const rankLabel = new PIXI.Text({ text: rank, style: coordStyle });
+      rankLabel.x = bx + inset;
+      rankLabel.y = by + i * this.squareSize + inset - 2;
+      rankLabel.alpha = 0.7;
+      if (this.coordsContainer) this.coordsContainer.addChild(fileLabel, rankLabel);
+    }
 
-      // File labels (bottom)
-      const fileLabel = new PIXI.Text({ text: file, style: labelStyle });
-      fileLabel.anchor.set(0.5);
-      fileLabel.x = bx + i * this.squareSize + this.squareSize / 2;
-      fileLabel.y = by + boardPx + fp - 1;
-      this.frameContainer.addChild(fileLabel);
+    // --- Board squares: the theme's painted board if it has one ---
+    const boardImg = TextureManager.getBoardImage(themeId);
+    if (boardImg) {
+      if (!this._boardTextures) this._boardTextures = {};
+      if (!this._boardTextures[themeId]) {
+        this._boardTextures[themeId] = PIXI.Texture.from({ resource: boardImg, scaleMode: 'nearest' });
+      }
+      const sprite = new PIXI.Sprite(this._boardTextures[themeId]);
+      sprite.x = bx;
+      sprite.y = by;
+      sprite.width = boardPx;
+      sprite.height = boardPx;
+      this.boardContainer.addChild(sprite);
 
-      // Rank labels (left)
-      const rankLabel = new PIXI.Text({ text: rank, style: labelStyle });
-      rankLabel.anchor.set(0.5);
-      rankLabel.x = bx - fp + 1;
-      rankLabel.y = by + i * this.squareSize + this.squareSize / 2;
-      this.frameContainer.addChild(rankLabel);
+      // Soft bevel so the squares read as inlaid tiles.
+      const bevel = new PIXI.Graphics();
+      for (let i = 0; i <= 8; i++) {
+        const p = i * this.squareSize;
+        bevel.rect(bx + p, by, 1, boardPx).fill({ color: 0x000000, alpha: 0.10 });
+        bevel.rect(bx, by + p, boardPx, 1).fill({ color: 0x000000, alpha: 0.10 });
+      }
+      bevel.rect(bx, by, boardPx, boardPx).stroke({ color: 0x000000, alpha: 0.35, width: 2 });
+      this.boardContainer.addChild(bevel);
+      return;
+    }
+    if (TextureManager.BOARD_THEMES.includes(themeId)) {
+      // Still loading: draw flat squares now, the painted board once it arrives.
+      TextureManager.preloadTheme(themeId).then(() => {
+        if (TextureManager.getBoardImage(themeId) && this.boardContainer && !this.boardContainer.destroyed &&
+            store.get('theme') === themeId) {
+          this.drawBoard(themeId);
+        }
+      });
     }
 
     // --- Board squares (single Graphics for all 64 squares) ---
@@ -171,7 +212,7 @@ const PixiBoardRenderer = {
     for (let row = 0; row < 8; row++) {
       for (let col = 0; col < 8; col++) {
         const piece = board.getPiece(row, col);
-        if (piece) {
+        if (piece && piece.type !== 'wall') {   // walls are drawn by PixiBossFX
           const key = `${col},${row}`;
           const sprite = PixiPieceRenderer.createSprite(themeId, piece.color, piece.type);
           sprite.width = this.PIECE_SIZE;

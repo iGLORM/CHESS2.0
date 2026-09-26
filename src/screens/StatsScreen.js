@@ -66,37 +66,42 @@ const StatsScreen = {
         this.statCard(grid, col * (gridCardW + gridGapX), row * (gridCardH + gridGapY), gridCardW, gridCardH, card, cols, s);
       });
     } else {
-      PixiPremiumScene.panel(this.pixiContainer, 76, 132, 1128, 524, { accentAlpha: 0.42 });
+      // Outer panel; snapshot column on the left, 2x4 stat grid on the right.
+      const L = { X: 60, Y: 150, PAD: 32, PAD_TOP: 40, SUMMARY_W: 360, COL_GAP: 28, GAP_X: 20, GAP_Y: 16 };
+      const panelW = Layout.W - L.X * 2;
+      const panelH = PixiPremiumScene.contentBottom - L.Y;
+      PixiPremiumScene.panel(this.pixiContainer, L.X, L.Y, panelW, panelH, { accentAlpha: 0.42 });
+      const innerY = L.Y + L.PAD_TOP;
+      const innerH = panelH - L.PAD_TOP - L.PAD;
 
-      const summary = this.summaryPanel(118, 174, 344, 392, stats, storyLevel, cols, s);
+      const summary = this.summaryPanel(L.X + L.PAD, innerY, L.SUMMARY_W, innerH, stats, storyLevel, cols, s);
       this.pixiContainer.addChild(summary);
 
+      const gridX = L.X + L.PAD + L.SUMMARY_W + L.COL_GAP;
+      const gridW = L.X + panelW - L.PAD - gridX;
+      const cardW = Math.floor((gridW - L.GAP_X) / 2);
+      const cardH = Math.floor((innerH - 3 * L.GAP_Y) / 4);
       const grid = new PIXI.Container();
-      grid.x = 504;
-      grid.y = 174;
+      grid.x = gridX;
+      grid.y = innerY;
       this.pixiContainer.addChild(grid);
       cards.forEach((card, i) => {
-        const col = i % 2;
-        const row = Math.floor(i / 2);
-        this.statCard(grid, col * 318, row * 96, 286, 76, card, cols, s);
+        this.statCard(grid, (i % 2) * (cardW + L.GAP_X), Math.floor(i / 2) * (cardH + L.GAP_Y), cardW, cardH, card, cols, s);
       });
     }
 
-    const btnY = Layout.isPortrait ? Layout.H - Layout.SAFE_BOTTOM - 48 : 718;
+    const btnY = PixiPremiumScene.bottomButtonY();
     PixiPremiumScene.button(this.pixiContainer, 36, btnY, 160, 44, 'Back', () => switchScreen('home'), { icon: 'back' });
   },
 
   summaryPanel(x, y, w, h, stats, storyLevel, cols, s) {
     const group = new PIXI.Container();
     PixiPremiumScene.panel(group, x, y, w, h, { accentAlpha: 0.58, alpha: 0.70 });
+    const pad = 30;
 
-    const title = PixiPremiumScene.text('Career Snapshot', {
-      fontSize: Math.round(25 * s),
-      fontWeight: '900',
-      fill: cols.text,
-    });
-    title.x = x + 34;
-    title.y = y + Math.round(30 * s);
+    const title = PixiPremiumScene.text('Career Snapshot', { fontSize: Math.round(25 * s), fontWeight: '900', fill: cols.text });
+    title.x = x + pad;
+    title.y = y + 38;
     group.addChild(title);
 
     const games = stats.gamesPlayed || 0;
@@ -106,70 +111,74 @@ const StatsScreen = {
     const miniWins = stats.miniGamesWon || 0;
     const miniRate = miniGames ? Math.round((miniWins / miniGames) * 100) : 0;
 
-    const rowGap = Math.min(Math.round(72 * s), (h - Math.round(150 * s)) / 3);
-    const rowStart = y + Math.min(Math.round(112 * s), h * 0.28);
+    // Three rows evenly spaced between the title and the story bar, label and value on one line.
+    const barH = Math.round(16 * s);
+    const barY = y + h - pad - barH;
+    const top = title.y + title.height + 16;
+    const bottom = barY - 40;
     const rows = [
       ['Win Rate', `${winRate}%`],
       ['Mini-Game Rate', `${miniRate}%`],
       ['Story Progress', `${storyLevel}/10`],
     ];
+    const step = (bottom - top) / rows.length;
     rows.forEach((row, i) => {
-      const yy = rowStart + i * rowGap;
-      const label = PixiPremiumScene.text(row[0], { fontSize: Math.round(16 * s), fontWeight: '700', fill: PixiPremiumScene.alpha(cols.text, '88') });
-      label.x = x + 34;
-      label.y = yy;
+      const cy = Math.round(top + step * (i + 0.5));
+      const label = PixiPremiumScene.text(row[0], { fontSize: Math.round(17 * s), fontWeight: '700', fill: PixiPremiumScene.alpha(cols.text, '99') });
+      label.anchor.set(0, 0.5);
+      label.x = x + pad;
+      label.y = cy;
       group.addChild(label);
       const value = PixiPremiumScene.text(row[1], { fontSize: Math.round(28 * s), fontWeight: '900', fill: cols.accent });
-      value.anchor.set(1, 0);
-      value.x = x + w - 34;
-      value.y = yy - Math.round(6 * s);
+      value.anchor.set(1, 0.5);
+      value.x = x + w - pad;
+      value.y = cy;
       group.addChild(value);
+      if (i > 0) group.addChild(new PIXI.Graphics().rect(x + pad, Math.round(top + step * i), w - pad * 2, 2).fill({ color: PixiPremiumScene.color(cols.text), alpha: 0.1 }));
     });
 
-    const barY = y + h - Math.round(44 * s);
-    this.bar(group, x + 34, barY, w - 68, Math.round(16 * s), Math.min(1, storyLevel / 10), cols);
+    const barLabel = PixiPremiumScene.text('Story completion', { fontSize: Math.round(14 * s), fontWeight: '700', fill: PixiPremiumScene.alpha(cols.text, '88') });
+    barLabel.x = x + pad;
+    barLabel.y = barY - barLabel.height - 8;
+    group.addChild(barLabel);
+    this.bar(group, x + pad, barY, w - pad * 2, barH, Math.min(1, storyLevel / 10), cols);
     return group;
   },
 
+  // Icon, label and value on one row; cards with a ratio add a bar underneath.
   statCard(parent, x, y, w, h, item, cols, s) {
     PixiPremiumScene.card(parent, x, y, w, h, {
       interactive: false,
       activeColor: item.accent,
       alpha: 0.68,
+      accentStrip: false,
       draw: (card) => {
-        const iconSize = Math.round(40 * s);
+        const pad = 20;
+        const iconSize = Math.min(Math.round(44 * s), h - 30);
         const icon = new PIXI.Sprite(PixiPremiumAssets.icon(item.icon));
         icon.width = iconSize;
         icon.height = iconSize;
-        icon.x = Math.round(18 * s);
-        icon.y = Math.round(18 * s);
+        icon.x = pad;
+        icon.y = Math.round((h - iconSize) / 2);
         card.addChild(icon);
 
-        const labelX = Math.round(74 * s);
-        const label = PixiPremiumScene.text(item.label, {
-          fontSize: Math.round(15 * s),
-          fontWeight: '700',
-          fill: PixiPremiumScene.alpha(cols.text, '88'),
-        });
-        label.x = labelX;
-        label.y = Math.round(17 * s);
-        PixiPremiumScene.fit(label, Math.round(126 * s), 0.65);
+        const hasBar = item.ratio !== undefined;
+        const barH = Math.round(8 * s);
+        const rowY = hasBar ? Math.round(h / 2 - 10) : Math.round(h / 2);
+        const textX = pad + iconSize + 16;
+        const value = PixiPremiumScene.text(String(item.value), { fontSize: Math.round(26 * s), fontWeight: '900', fill: item.accent });
+        value.anchor.set(1, 0.5);
+        value.x = w - pad;
+        value.y = rowY;
+        card.addChild(value);
+        const label = PixiPremiumScene.text(item.label, { fontSize: Math.round(16 * s), fontWeight: '700', fill: PixiPremiumScene.alpha(cols.text, 'aa') });
+        label.anchor.set(0, 0.5);
+        label.x = textX;
+        label.y = rowY;
+        PixiPremiumScene.fit(label, value.x - value.width - 12 - textX, 0.7);
         card.addChild(label);
 
-        const value = PixiPremiumScene.text(String(item.value), {
-          fontSize: Math.round(25 * s),
-          fontWeight: '900',
-          fill: item.accent,
-        });
-        value.anchor.set(1, 0);
-        value.x = w - Math.round(22 * s);
-        value.y = Math.round(24 * s);
-        PixiPremiumScene.fit(value, Math.round(66 * s), 0.58);
-        card.addChild(value);
-
-        if (item.ratio !== undefined) {
-          this.bar(card, labelX, Math.round(52 * s), w - labelX - Math.round(26 * s), Math.round(8 * s), item.ratio, cols, item.accent);
-        }
+        if (hasBar) this.bar(card, textX, rowY + 20, w - pad - textX, barH, item.ratio, cols, item.accent);
       },
     });
   },

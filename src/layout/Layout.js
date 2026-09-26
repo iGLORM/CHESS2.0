@@ -18,7 +18,11 @@ const Layout = {
   get safeWidth() { return this.W - this.SAFE_X * 2; },
   get safeHeight() { return this.H - this.SAFE_TOP - this.SAFE_BOTTOM; },
 
+  // Larger text for phones. Not on desktop: there the CSS width is the screen
+  // width divided by display scaling (1280px at 150% gives 853), so a normal
+  // fullscreen laptop would get phone-sized text that overlaps the layout.
   get uiScale() {
+    if (window.electron && window.electron.isDesktop) return 1.0;
     const vw = window.innerWidth;
     if (vw <= 480) return 1.4;
     if (vw <= 1024) return 1.2;
@@ -27,11 +31,14 @@ const Layout = {
 
   // Device pixels per game unit. The game is laid out at 1280x800 (or 800x1280)
   // but drawn at the screen's real resolution so small pixel text stays sharp.
+  // The canvas must match the screen's pixels exactly: the page scales it with
+  // image-rendering: pixelated, so any leftover stretch (1920x1080 needs 1.35)
+  // doubles or drops whole pixel columns and makes letters uneven.
   get renderScale() {
     const shell = document.getElementById('gameShell');
     const cssW = shell ? shell.getBoundingClientRect().width : window.innerWidth;
     const px = (cssW || this.W) * (window.devicePixelRatio || 1) / this.W;
-    return Math.min(3, Math.max(1, Math.round(px * 4) / 4));
+    return Math.min(3, Math.max(0.5, Math.round(px * 1000) / 1000));
   },
 
   scaledFont(baseSize) {

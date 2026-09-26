@@ -126,9 +126,9 @@ const PixiGameOverOverlay = {
 
     let buttonY = panelY + 166;
     if (game.currentCharacter && game.gameResult) {
-      const dialogue = game.playerWon()
-        ? game.currentCharacter.dialogue.after
-        : game.currentCharacter.dialogue.win;
+      const lines = game.currentCharacter.dialogue;
+      const dialogue = game.playerWon() ? lines.after
+        : (game.gameStatus === 'timeout' && lines.timeout) || lines.win;
       const text = PixiPremiumUI.text(dialogue || '', {
         fontSize: 15,
         fontWeight: '600',
@@ -150,13 +150,12 @@ const PixiGameOverOverlay = {
       buttonY = panelY + 158 + Math.min(text.height, maxTextH) + 12;
     }
 
-    const actions = [
-      { text: 'Play Again', action: 'rematch', x: Layout.cx - 214, y: buttonY, width: 200 },
-      { text: 'Main Menu', action: 'menu', x: Layout.cx + 14, y: buttonY, width: 200 },
-    ];
-    if (game.mode === 'story' && game.playerWon() && game.currentCharacter && game.currentCharacter.level < 10) {
-      actions.push({ text: 'Next Level', action: 'next', x: Layout.cx - 100, y: buttonY + 70, width: 200 });
-    }
+    // Story games lead back to the world map (which plays the reward after a win).
+    const story = game.mode === 'story';
+    const labels = !story ? [['Play Again', 'rematch'], ['Main Menu', 'menu']]
+      : game.playerWon() ? [['Continue', 'map'], ['Play Again', 'rematch']]
+        : [['Try Again', 'rematch'], ['Back to Map', 'map']];
+    const actions = labels.map(([text, action], i) => ({ text, action, x: Layout.cx + (i === 0 ? -214 : 14), y: buttonY, width: 200 }));
     this.buttonRects = actions.map(a => ({ action: a.action, x: a.x, y: a.y, w: a.width, h: 56 }));
 
     for (const item of actions) {

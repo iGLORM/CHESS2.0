@@ -14,8 +14,8 @@ const SettingsScreen = {
   init(data) {
     // Opened from the pause menu: Back returns to the paused game.
     if (data && data.returnTo === 'game') this._returnTo = 'game';
-    else if (!this._visitingThemes) this._returnTo = 'home';
-    this._visitingThemes = false;
+    else if (!this._visitingSubscreen) this._returnTo = 'home';
+    this._visitingSubscreen = false;
     this.settings = { ...store.get('settings') };
     if (this.settings.musicVolume == null) this.settings.musicVolume = 0.5;
     if (this.settings.sfxVolume == null) this.settings.sfxVolume = 0.5;
@@ -38,6 +38,18 @@ const SettingsScreen = {
 
   pixiUpdate(dt) {
     PixiPremiumScene.update(this.pixiContainer, dt);
+    if (this._caret && !this._caret.destroyed) {
+      this._caretTime += dt;
+      this._caret.visible = this._caretTime % 1 < 0.5;
+    }
+  },
+
+  // Landscape layout: two columns on top, Game Tools across the bottom.
+  LAYOUT: { X: 60, Y: 150, COL_W: 572, GAP: 16, TOP_H: 332, PAD: 32, TITLE_Y: 26, RULE_Y: 248, ROW1_Y: 272, ROW2_Y: 306 },
+
+  portraitGeom() {
+    const w = Math.min(720, Layout.W - 80);
+    return { x: Math.round((Layout.W - w) / 2), w, audioY: 150, playersY: 496, toolsY: 774 };
   },
 
   saveSettings() {
@@ -59,9 +71,11 @@ const SettingsScreen = {
     this.buildProfilePanel();
     this.buildActionPanel();
 
-    const btnY = Layout.isPortrait ? Layout.H - Layout.SAFE_BOTTOM - 48 : 718;
+    const btnY = PixiPremiumScene.bottomButtonY();
     PixiPremiumScene.button(this.pixiContainer, 36, btnY, 160, 44, 'Back', () => this.goBack(), { icon: 'back' });
-    PixiPremiumScene.button(this.pixiContainer, Layout.W - 196, btnY, 160, 44, 'Themes', () => { this._visitingThemes = true; switchScreen('themeSelect', { returnTo: 'settings' }); }, { icon: 'spark' });
+    PixiPremiumScene.button(this.pixiContainer, Layout.W - 196, btnY, 160, 44, 'Themes', () => { this._visitingSubscreen = true; switchScreen('themeSelect', { returnTo: 'settings' }); }, { icon: 'spark' });
+    const creditsX = Layout.isPortrait ? Layout.W / 2 - 80 : Layout.W - 372;
+    PixiPremiumScene.button(this.pixiContainer, creditsX, btnY, 160, 44, 'Credits', () => { this._visitingSubscreen = true; switchScreen('credits'); }, { icon: 'progress' });
     if (this.feedbackOpen) this.buildFeedbackModal();
     if (this.confirmReset) this.buildResetModal();
   },
@@ -70,98 +84,39 @@ const SettingsScreen = {
     const cols = ThemeManager.getCurrentColors();
     const s = Layout.uiScale || 1;
     if (Layout.isPortrait) {
-      const panelW = Math.min(720, Layout.W - 80);
-      const panelX = (Layout.W - panelW) / 2;
-      PixiPremiumScene.panel(this.pixiContainer, panelX, 132, panelW, 330, { accentAlpha: 0.48 });
-      this.sectionTitle(panelX + 32, 160, 'Audio Mix', 'Music and sound effects');
-
-      const sliderW = panelW - 160;
-      this.addSlider(panelX + 40, 236, sliderW, 'Music Volume', this.settings.musicVolume, (value) => {
-        this.settings.musicVolume = value;
-        this.saveSettings();
-      });
-      this.addSlider(panelX + 40, 326, sliderW, 'SFX Volume', this.settings.sfxVolume, (value) => {
-        this.settings.sfxVolume = value;
-        this.saveSettings();
-      });
-
-      const toggleLabel = PixiPremiumScene.text('Audio Enabled', { fontSize: Math.round(17 * s), fontWeight: '800', fill: cols.text });
-      toggleLabel.x = panelX + panelW - 260;
-      toggleLabel.y = 158;
-      PixiPremiumScene.fit(toggleLabel, 130, 0.62);
-      this.pixiContainer.addChild(toggleLabel);
-      const toggle = new PixiToggle({ width: 58, height: 24, value: this.settings.audioEnabled !== false, cols });
-      toggle.x = panelX + panelW - 100;
-      toggle.y = 160;
-      toggle.onChange((value) => {
-        this.settings.audioEnabled = value;
-        this.saveSettings();
-      });
-      this.pixiContainer.addChild(toggle);
-
-      const bossLabel = PixiPremiumScene.text('Boss World Theme', { fontSize: Math.round(17 * s), fontWeight: '800', fill: cols.text });
-      bossLabel.x = panelX + 40;
-      bossLabel.y = 400;
-      PixiPremiumScene.fit(bossLabel, 200, 0.62);
-      this.pixiContainer.addChild(bossLabel);
-      const bossToggle = new PixiToggle({ width: 58, height: 24, value: this.settings.bossThemeEnabled !== false, cols });
-      bossToggle.x = panelX + panelW - 100;
-      bossToggle.y = 400;
-      bossToggle.onChange((value) => {
-        this.settings.bossThemeEnabled = value;
-        this.saveSettings();
-      });
-      this.pixiContainer.addChild(bossToggle);
-      const bossHint = PixiPremiumScene.text('Auto-switch theme when fighting a boss', { fontSize: Math.round(14 * s), fill: PixiPremiumScene.alpha(cols.text, '77') });
-      bossHint.x = panelX + 40;
-      bossHint.y = 430;
-      PixiPremiumScene.fit(bossHint, panelW - 120, 0.55);
-      this.pixiContainer.addChild(bossHint);
+      const P = this.portraitGeom();
+      const inX = P.x + 32;
+      const inR = P.x + P.w - 32;
+      PixiPremiumScene.panel(this.pixiContainer, P.x, P.audioY, P.w, 330, { accentAlpha: 0.48 });
+      this.sectionTitle(inX, P.audioY + 26, 'Audio Mix', 'Music and sound effects');
+      this.addSlider(inX, P.audioY + 140, inR - inX, 'Music Volume', this.settings.musicVolume, (value) => { this.settings.musicVolume = value; this.saveSettings(); });
+      this.addSlider(inX, P.audioY + 204, inR - inX, 'SFX Volume', this.settings.sfxVolume, (value) => { this.settings.sfxVolume = value; this.saveSettings(); });
+      this.toggleRow(inX, P.audioY + 262, inR, 'Audio Enabled', this.settings.audioEnabled !== false, (value) => { this.settings.audioEnabled = value; this.saveSettings(); });
+      this.toggleRow(inX, P.audioY + 298, inR, 'Boss World Theme', this.settings.bossThemeEnabled !== false, (value) => { this.settings.bossThemeEnabled = value; this.saveSettings(); }, 'switch theme vs bosses');
     } else {
-      PixiPremiumScene.panel(this.pixiContainer, 76, 132, 552, 330, { accentAlpha: 0.48 });
-      this.sectionTitle(108, 160, 'Audio Mix', 'Music and sound effects');
-
-      this.addSlider(116, 236, 472, 'Music Volume', this.settings.musicVolume, (value) => {
+      const L = this.LAYOUT;
+      const x = L.X;
+      const inX = x + L.PAD;
+      const inR = x + L.COL_W - L.PAD;
+      PixiPremiumScene.panel(this.pixiContainer, x, L.Y, L.COL_W, L.TOP_H, { accentAlpha: 0.48 });
+      this.sectionTitle(inX, L.Y + L.TITLE_Y, 'Audio Mix', 'Music and sound effects');
+      this.addSlider(inX, L.Y + 140, inR - inX, 'Music Volume', this.settings.musicVolume, (value) => {
         this.settings.musicVolume = value;
         this.saveSettings();
       });
-      this.addSlider(116, 326, 472, 'SFX Volume', this.settings.sfxVolume, (value) => {
+      this.addSlider(inX, L.Y + 204, inR - inX, 'SFX Volume', this.settings.sfxVolume, (value) => {
         this.settings.sfxVolume = value;
         this.saveSettings();
       });
-
-      const toggleLabel = PixiPremiumScene.text('Audio Enabled', { fontSize: Math.round(17 * s), fontWeight: '800', fill: cols.text });
-      toggleLabel.x = 386;
-      toggleLabel.y = 158;
-      PixiPremiumScene.fit(toggleLabel, 130, 0.62);
-      this.pixiContainer.addChild(toggleLabel);
-      const toggle = new PixiToggle({ width: 58, height: 24, value: this.settings.audioEnabled !== false, cols });
-      toggle.x = 548;
-      toggle.y = 160;
-      toggle.onChange((value) => {
+      this.pixiContainer.addChild(new PIXI.Graphics().rect(inX, L.Y + L.RULE_Y, inR - inX, 2).fill({ color: PixiPremiumScene.color(cols.text), alpha: 0.1 }));
+      this.toggleRow(inX, L.Y + L.ROW1_Y, inR, 'Audio Enabled', this.settings.audioEnabled !== false, (value) => {
         this.settings.audioEnabled = value;
         this.saveSettings();
       });
-      this.pixiContainer.addChild(toggle);
-
-      const bossLabel = PixiPremiumScene.text('Boss World Theme', { fontSize: Math.round(17 * s), fontWeight: '800', fill: cols.text });
-      bossLabel.x = 116;
-      bossLabel.y = 400;
-      PixiPremiumScene.fit(bossLabel, 200, 0.62);
-      this.pixiContainer.addChild(bossLabel);
-      const bossToggle = new PixiToggle({ width: 58, height: 24, value: this.settings.bossThemeEnabled !== false, cols });
-      bossToggle.x = 548;
-      bossToggle.y = 400;
-      bossToggle.onChange((value) => {
+      this.toggleRow(inX, L.Y + L.ROW2_Y, inR, 'Boss World Theme', this.settings.bossThemeEnabled !== false, (value) => {
         this.settings.bossThemeEnabled = value;
         this.saveSettings();
-      });
-      this.pixiContainer.addChild(bossToggle);
-      const bossHint = PixiPremiumScene.text('Auto-switch theme when fighting a boss', { fontSize: Math.round(14 * s), fill: PixiPremiumScene.alpha(cols.text, '77') });
-      bossHint.x = 116;
-      bossHint.y = 430;
-      PixiPremiumScene.fit(bossHint, 400, 0.55);
-      this.pixiContainer.addChild(bossHint);
+      }, 'switch theme vs bosses');
     }
   },
 
@@ -169,74 +124,68 @@ const SettingsScreen = {
     const cols = ThemeManager.getCurrentColors();
     const s = Layout.uiScale || 1;
     if (Layout.isPortrait) {
-      const panelW = Math.min(720, Layout.W - 80);
-      const panelX = (Layout.W - panelW) / 2;
-      const panelY = 492;
-      PixiPremiumScene.panel(this.pixiContainer, panelX, panelY, panelW, 270, { accentAlpha: 0.48 });
-      this.sectionTitle(panelX + 32, panelY + 28, 'Players', 'Names shown in Local 1v1 games');
-      this.nameRow(panelX + 40, panelY + 98, 'Player 1 Name', 'whitePlayer', store.get('whitePlayer') || 'Player 1', panelW - 80);
-      this.nameRow(panelX + 40, panelY + 178, 'Player 2 Name', 'blackPlayer', store.get('blackPlayer') || 'Player 2', panelW - 80);
-
-      const note = PixiPremiumScene.text('Click a name to edit it. Enter saves, Escape cancels.', {
-        fontSize: Math.round(15 * s),
-        fill: PixiPremiumScene.alpha(cols.text, '77'),
-      });
-      note.x = panelX + 44;
-      note.y = panelY + 234;
-      PixiPremiumScene.fit(note, panelW - 100);
+      const P = this.portraitGeom();
+      const inX = P.x + 32;
+      const inW = P.w - 64;
+      PixiPremiumScene.panel(this.pixiContainer, P.x, P.playersY, P.w, 262, { accentAlpha: 0.48 });
+      this.sectionTitle(inX, P.playersY + 26, 'Players', 'Names shown in Local 1v1 games');
+      this.nameRow(inX, P.playersY + 98, 'Player 1 Name', 'whitePlayer', store.get('whitePlayer') || 'Player 1', inW);
+      this.nameRow(inX, P.playersY + 158, 'Player 2 Name', 'blackPlayer', store.get('blackPlayer') || 'Player 2', inW);
+      const note = PixiPremiumScene.text('Click a name to edit it. Enter saves, Escape cancels.', { fontSize: Math.round(14 * s), fill: PixiPremiumScene.alpha(cols.text, '88') });
+      note.anchor.set(0, 0.5);
+      note.x = inX + 2;
+      note.y = P.playersY + 230;
+      PixiPremiumScene.fit(note, inW);
       this.pixiContainer.addChild(note);
     } else {
-      PixiPremiumScene.panel(this.pixiContainer, 660, 132, 544, 330, { accentAlpha: 0.48 });
-      this.sectionTitle(692, 160, 'Players', 'Names shown in Local 1v1 games');
-      this.nameRow(700, 230, 'Player 1 Name', 'whitePlayer', store.get('whitePlayer') || 'Player 1');
-      this.nameRow(700, 310, 'Player 2 Name', 'blackPlayer', store.get('blackPlayer') || 'Player 2');
+      const L = this.LAYOUT;
+      const x = L.X + L.COL_W + L.GAP;
+      const inX = x + L.PAD;
+      const inW = L.COL_W - L.PAD * 2;
+      PixiPremiumScene.panel(this.pixiContainer, x, L.Y, L.COL_W, L.TOP_H, { accentAlpha: 0.48 });
+      this.sectionTitle(inX, L.Y + L.TITLE_Y, 'Players', 'Names shown in Local 1v1 games');
+      this.nameRow(inX, L.Y + 98, 'Player 1 Name', 'whitePlayer', store.get('whitePlayer') || 'Player 1', inW);
+      this.nameRow(inX, L.Y + 158, 'Player 2 Name', 'blackPlayer', store.get('blackPlayer') || 'Player 2', inW);
 
       const note = PixiPremiumScene.text('Click a name to edit it. Enter saves, Escape cancels.', {
-        fontSize: Math.round(15 * s),
-        fill: PixiPremiumScene.alpha(cols.text, '77'),
+        fontSize: Math.round(14 * s),
+        fill: PixiPremiumScene.alpha(cols.text, '88'),
       });
-      note.x = 704;
-      note.y = 366;
-      PixiPremiumScene.fit(note, 450);
+      note.anchor.set(0, 0.5);
+      note.x = inX + 2;
+      note.y = L.Y + 226;
+      PixiPremiumScene.fit(note, inW);
       this.pixiContainer.addChild(note);
-      this.buildFullscreenRow(700, 412, 1140);
+      this.pixiContainer.addChild(new PIXI.Graphics().rect(inX, L.Y + L.RULE_Y, inW, 2).fill({ color: PixiPremiumScene.color(cols.text), alpha: 0.1 }));
+      this.buildFullscreenRow(inX, L.Y + L.ROW1_Y, inX + inW);
     }
   },
 
   // Fullscreen switch (desktop and desktop browsers; phones are always full screen).
-  buildFullscreenRow(labelX, y, toggleX) {
-    const cols = ThemeManager.getCurrentColors();
-    const s = Layout.uiScale || 1;
-    const label = PixiPremiumScene.text('Fullscreen (F11)', { fontSize: Math.round(17 * s), fontWeight: '800', fill: cols.text });
-    label.x = labelX;
-    label.y = y - 2;
-    this.pixiContainer.addChild(label);
+  buildFullscreenRow(labelX, y, rightX) {
     const isOn = () => (window.electron && window.electron.isDesktop)
       ? window.electron.isFullscreen()
       : Promise.resolve(!!document.fullscreenElement);
-    const toggle = new PixiToggle({ width: 58, height: 24, value: false, cols });
-    toggle.x = toggleX;
-    toggle.y = y;
+    const toggle = this.toggleRow(labelX, y, rightX, 'Fullscreen', false, () => {
+      if (window.electron && window.electron.toggleFullscreen) window.electron.toggleFullscreen();
+    }, 'F11');
     // Reflect the real window state without firing the change handler.
     isOn().then((on) => { toggle._value = on; toggle._draw(); });
-    toggle.onChange(() => {
-      if (window.electron && window.electron.toggleFullscreen) window.electron.toggleFullscreen();
-    });
-    this.pixiContainer.addChild(toggle);
   },
 
   buildActionPanel() {
     const s = Layout.uiScale || 1;
     if (Layout.isPortrait) {
-      const panelW = Math.min(720, Layout.W - 80);
-      const panelX = (Layout.W - panelW) / 2;
-      const panelY = 780;
+      const P = this.portraitGeom();
+      const panelW = P.w;
+      const panelX = P.x;
+      const panelY = P.toolsY;
       const cardW = panelW - 60;
-      const cardH = 64;
-      const cardGap = 10;
-      const panelH = 70 + (cardH + cardGap) * 4;
+      const cardH = 72;
+      const cardGap = 12;
+      const panelH = 104 + (cardH + cardGap) * 4 - cardGap + 28;
       PixiPremiumScene.panel(this.pixiContainer, panelX, panelY, panelW, panelH, { accentAlpha: 0.42 });
-      this.sectionTitle(panelX + 32, panelY + 22, 'Game Tools', 'Practice, controls, and save maintenance');
+      this.sectionTitle(panelX + 32, panelY + 26, 'Game Tools', 'Practice, controls, and save maintenance');
       const actions = [
         { label: 'Practice Mini-Games', sub: 'Try every capture challenge', icon: 'play', action: () => switchScreen('miniGamePractice') },
         { label: 'Controls', sub: 'Tune mini-game sensitivity', icon: 'settings', action: () => switchScreen('controls') },
@@ -245,62 +194,74 @@ const SettingsScreen = {
       ];
       actions.forEach((action, i) => {
         const cardX = panelX + 30;
-        const cardY = panelY + 66 + i * (cardH + cardGap);
+        const cardY = panelY + 104 + i * (cardH + cardGap);
         PixiPremiumScene.card(this.pixiContainer, cardX, cardY, cardW, cardH, {
           onClick: action.action,
+          accentStrip: false,
           activeColor: action.label === 'Reset Progress' ? '#ff6578' : ThemeManager.getCurrentColors().accent,
           draw: (card) => {
             const cols = ThemeManager.getCurrentColors();
             const icon = new PIXI.Sprite(PixiPremiumAssets.icon(action.icon));
-            icon.width = 40;
-            icon.height = 40;
-            icon.x = 14;
-            icon.y = 12;
+            icon.width = 44;
+            icon.height = 44;
+            icon.x = 16;
+            icon.y = Math.round((cardH - 44) / 2);
             card.addChild(icon);
             const label = PixiPremiumScene.text(action.label, { fontSize: Math.round(18 * s), fontWeight: '900', fill: cols.text });
-            label.x = 66;
-            label.y = 10;
+            const sub = PixiPremiumScene.text(action.sub, { fontSize: Math.round(14 * s), fill: PixiPremiumScene.alpha(cols.text, '99') });
             PixiPremiumScene.fit(label, cardW - 100);
-            card.addChild(label);
-            const sub = PixiPremiumScene.text(action.sub, { fontSize: Math.round(12 * s), fill: PixiPremiumScene.alpha(cols.text, '88') });
-            sub.x = 66;
-            sub.y = 36;
-            PixiPremiumScene.fit(sub, cardW - 120, 0.55);
-            card.addChild(sub);
+            PixiPremiumScene.fit(sub, cardW - 100, 0.7);
+            const blockH = label.height + 4 + sub.height;
+            label.x = 76;
+            label.y = Math.round((cardH - blockH) / 2);
+            sub.x = 76;
+            sub.y = label.y + label.height + 4;
+            card.addChild(label, sub);
           },
         });
       });
     } else {
-      PixiPremiumScene.panel(this.pixiContainer, 76, 492, 1128, 230, { accentAlpha: 0.42 });
-      this.sectionTitle(108, 520, 'Game Tools', 'Practice, controls, and save maintenance');
+      const L = this.LAYOUT;
+      const y = L.Y + L.TOP_H + L.GAP;
+      const w = L.COL_W * 2 + L.GAP;
+      const h = PixiPremiumScene.contentBottom - y;
+      PixiPremiumScene.panel(this.pixiContainer, L.X, y, w, h, { accentAlpha: 0.42 });
+      this.sectionTitle(L.X + L.PAD, y + L.TITLE_Y, 'Game Tools', 'Practice, controls, and save maintenance');
       const actions = [
-        { x: 120, label: 'Practice Mini-Games', sub: 'Try every capture challenge', icon: 'play', action: () => switchScreen('miniGamePractice') },
-        { x: 380, label: 'Controls', sub: 'Tune mini-game sensitivity', icon: 'settings', action: () => switchScreen('controls') },
-        { x: 640, label: 'Send Feedback', sub: 'Suggest or report', icon: 'spark', action: () => { this.feedbackOpen = true; this.feedbackCategory = 'feature'; this.feedbackSending = false; this.feedbackDone = false; this.build(); this._createTextarea(); } },
-        { x: 900, label: 'Reset Progress', sub: 'Clear story slots and stats', icon: 'lock', action: () => { this.confirmReset = true; this.build(); } },
+        { label: 'Mini-Games', sub: 'Practise every challenge', icon: 'play', action: () => switchScreen('miniGamePractice') },
+        { label: 'Controls', sub: 'Mini-game sensitivity', icon: 'settings', action: () => switchScreen('controls') },
+        { label: 'Send Feedback', sub: 'Suggest or report', icon: 'spark', action: () => { this.feedbackOpen = true; this.feedbackCategory = 'feature'; this.feedbackSending = false; this.feedbackDone = false; this.build(); this._createTextarea(); } },
+        { label: 'Reset Progress', sub: 'Clear saves and stats', icon: 'lock', action: () => { this.confirmReset = true; this.build(); } },
       ];
-      actions.forEach(action => {
-        PixiPremiumScene.card(this.pixiContainer, action.x, 582, 244, 92, {
+      const gap = 16;
+      const cardY = y + 104;
+      const cardH = Math.min(92, y + h - L.PAD + 4 - cardY);
+      const cardW = Math.floor((w - L.PAD * 2 - gap * (actions.length - 1)) / actions.length);
+      actions.forEach((action, i) => {
+        PixiPremiumScene.card(this.pixiContainer, L.X + L.PAD + i * (cardW + gap), cardY, cardW, cardH, {
           onClick: action.action,
+          accentStrip: false,
           activeColor: action.label === 'Reset Progress' ? '#ff6578' : ThemeManager.getCurrentColors().accent,
           draw: (card) => {
             const cols = ThemeManager.getCurrentColors();
+            const iconSize = 48;
             const icon = new PIXI.Sprite(PixiPremiumAssets.icon(action.icon));
-            icon.width = 52;
-            icon.height = 52;
+            icon.width = iconSize;
+            icon.height = iconSize;
             icon.x = 18;
-            icon.y = 20;
+            icon.y = Math.round((cardH - iconSize) / 2);
             card.addChild(icon);
-            const label = PixiPremiumScene.text(action.label, { fontSize: Math.round(20 * s), fontWeight: '900', fill: cols.text });
-            label.x = 84;
-            label.y = 20;
-            PixiPremiumScene.fit(label, 140);
-            card.addChild(label);
-            const sub = PixiPremiumScene.text(action.sub, { fontSize: Math.round(14 * s), fill: PixiPremiumScene.alpha(cols.text, '88') });
-            sub.x = 84;
-            sub.y = 50;
-            PixiPremiumScene.fit(sub, 140, 0.55);
-            card.addChild(sub);
+            const textX = 18 + iconSize + 14;
+            const label = PixiPremiumScene.text(action.label, { fontSize: Math.round(19 * s), fontWeight: '900', fill: cols.text });
+            const sub = PixiPremiumScene.text(action.sub, { fontSize: Math.round(14 * s), fill: PixiPremiumScene.alpha(cols.text, '99') });
+            PixiPremiumScene.fit(label, cardW - textX - 12, 0.8);
+            PixiPremiumScene.fit(sub, cardW - textX - 12, 0.8);
+            const blockH = label.height + 4 + sub.height;
+            label.x = textX;
+            label.y = Math.round((cardH - blockH) / 2);
+            sub.x = textX;
+            sub.y = label.y + label.height + 4;
+            card.addChild(label, sub);
           },
         });
       });
@@ -321,8 +282,10 @@ const SettingsScreen = {
     this.pixiContainer.addChild(sub);
   },
 
+  // Label on the left and percentage on the right, on one row above the track.
   addSlider(x, y, width, label, value, onChange) {
     const cols = ThemeManager.getCurrentColors();
+    const sc = Layout.uiScale || 1;
     const slider = new PixiSlider({
       width,
       height: 18,
@@ -331,8 +294,7 @@ const SettingsScreen = {
       step: 0.01,
       value,
       cols,
-      label,
-      unit: '',
+      showValue: false,
       gradientStops: [
         { pos: 0, color: PixiColorUtil.alpha(cols.text, '66') },
         { pos: 0.55, color: cols.accent },
@@ -341,11 +303,16 @@ const SettingsScreen = {
     });
     slider.x = x;
     slider.y = y;
-    const sc = Layout.uiScale || 1;
+    const rowY = y - 20;
+    const name = PixiPremiumScene.text(label, { fontSize: Math.round(17 * sc), fontWeight: '800', fill: cols.text });
+    name.anchor.set(0, 0.5);
+    name.x = x;
+    name.y = rowY;
+    this.pixiContainer.addChild(name);
     const percent = PixiPremiumScene.text(`${Math.round(value * 100)}%`, { fontSize: Math.round(18 * sc), fontWeight: '900', fill: cols.accent });
-    percent.anchor.set(1, 0);
+    percent.anchor.set(1, 0.5);
     percent.x = x + width;
-    percent.y = y - 34;
+    percent.y = rowY;
     this.pixiContainer.addChild(percent);
     slider.onChange((v) => {
       percent.text = `${Math.round(v * 100)}%`;
@@ -354,27 +321,68 @@ const SettingsScreen = {
     this.pixiContainer.addChild(slider);
   },
 
+  // A label on the left and a toggle flush with the right edge, centred on y.
+  toggleRow(x, y, rightX, label, value, onChange, hint) {
+    const cols = ThemeManager.getCurrentColors();
+    const sc = Layout.uiScale || 1;
+    const t = PixiPremiumScene.text(label, { fontSize: Math.round(17 * sc), fontWeight: '800', fill: cols.text });
+    t.anchor.set(0, 0.5);
+    t.x = x;
+    t.y = y;
+    this.pixiContainer.addChild(t);
+    if (hint) {
+      const h = PixiPremiumScene.text(hint, { fontSize: Math.round(14 * sc), fill: PixiPremiumScene.alpha(cols.text, '88') });
+      h.anchor.set(0, 0.5);
+      h.x = x + t.width + 14;
+      h.y = y + 1;
+      PixiPremiumScene.fit(h, rightX - 58 - 20 - h.x, 0.7);
+      this.pixiContainer.addChild(h);
+    }
+    const toggle = new PixiToggle({ width: 58, height: 24, value, cols });
+    toggle.x = rightX - 58;
+    toggle.y = Math.round(y - 12);
+    if (onChange) toggle.onChange(onChange);
+    this.pixiContainer.addChild(toggle);
+    return toggle;
+  },
+
   nameRow(x, y, label, key, value, cardWidth) {
     const w = cardWidth || 440;
+    const h = 50;
     const sc = Layout.uiScale || 1;
-    PixiPremiumScene.card(this.pixiContainer, x, y, w, 54, {
+    PixiPremiumScene.card(this.pixiContainer, x, y, w, h, {
+      accentStrip: false,
+      active: this.editingOption === key,
       onClick: () => {
         this._openNameInput(key, store.get(key) || value);
       },
       draw: (card) => {
         const cols = ThemeManager.getCurrentColors();
-        const l = PixiPremiumScene.text(label, { fontSize: Math.round(18 * sc), fontWeight: '800', fill: cols.text });
+        const midY = h / 2;
+        const l = PixiPremiumScene.text(label, { fontSize: Math.round(17 * sc), fontWeight: '800', fill: cols.text });
+        l.anchor.set(0, 0.5);
         l.x = 18;
-        l.y = 16;
+        l.y = midY;
         card.addChild(l);
-        const display = this.editingOption === key
-          ? `${this.editText}${Math.floor(Date.now() / 500) % 2 === 0 ? '|' : ''}`
-          : value;
-        const v = PixiPremiumScene.text(display, { fontSize: Math.round(18 * sc), fill: this.editingOption === key ? cols.accent : PixiPremiumScene.alpha(cols.text, 'aa') });
+        const editing = this.editingOption === key;
+        const v = PixiPremiumScene.text(editing ? this.editText : value, { fontSize: Math.round(18 * sc), fill: editing ? cols.accent : PixiPremiumScene.alpha(cols.text, 'bb') });
         v.anchor.set(1, 0.5);
-        v.x = w - 20;
-        v.y = 29;
-        PixiPremiumScene.fit(v, 180);
+        v.y = midY;
+        PixiPremiumScene.fit(v, w - l.width - 60);
+        if (editing) {
+          // Blinking text cursor after the last letter (blinked in pixiUpdate).
+          const caretH = Math.round(22 * sc);
+          const caretX = w - 20 - 2;
+          v.x = caretX - 3;
+          const caret = new PIXI.Graphics().rect(0, 0, 2, caretH).fill({ color: PixiPremiumScene.color(cols.accent) });
+          caret.x = caretX;
+          caret.y = Math.round(midY - caretH / 2);
+          card.addChild(caret);
+          this._caret = caret;
+          this._caretTime = 0;
+        } else {
+          v.x = w - 20;
+        }
         card.addChild(v);
       },
     });

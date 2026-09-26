@@ -17,7 +17,7 @@ const PixiGameScreen = {
 
     PixiParticleFX.update(dt);
 
-    const currentTheme = store.get('theme') || 'space';
+    const currentTheme = store.get('theme') || 'pawnhollow';
     if (this._lastTheme !== currentTheme) {
       PixiBackgroundRenderer.render(currentTheme);
       if (gameState.board) {

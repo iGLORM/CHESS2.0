@@ -70,6 +70,9 @@ const PixiGameHud = {
     return t;
   },
 
+  // Landscape geometry around the 640px board at (320, 58): the frame spans 44-712.
+  LANDSCAPE: { TOP: 44, LOWER_Y: 278, BOTTOM: 712, BAR_X: 306, BAR_W: 668, BAR_Y: 728, BAR_H: 54 },
+
   _panel(x, y, w, h, cols, options = {}) {
     const g = new PIXI.Graphics();
     const accent = PixiColorUtil.hexToNum(options.accent || cols.accent);
@@ -77,7 +80,7 @@ const PixiGameHud = {
     g.roundRect(x + 6, y + 6, w, h, 10).fill({ color: 0x000000, alpha: 0.30 });
     g.roundRect(x, y, w, h, 10).fill({ color: fill, alpha: options.alpha ?? 0.68 });
     g.roundRect(x, y, w, h, 10).stroke({ color: accent, alpha: options.active ? 0.82 : 0.34, width: options.active ? 3 : 2 });
-    g.roundRect(x + 14, y + 12, w - 28, 4, 2).fill({ color: accent, alpha: options.active ? 0.92 : 0.38 });
+    if (options.strip !== false) g.roundRect(x + 14, y + 12, w - 28, 4, 2).fill({ color: accent, alpha: options.active ? 0.92 : 0.38 });
     this.container.addChild(g);
     return g;
   },
@@ -89,7 +92,8 @@ const PixiGameHud = {
     }
     const isLeft = side === 'left';
     const x = isLeft ? 34 : 1006;
-    const y = 116;
+    // Tops line up with the board frame; lower panels fill down to its bottom.
+    const y = this.LANDSCAPE.TOP;
     const w = 240;
     const h = 218;
     const pad = 18;
@@ -101,7 +105,14 @@ const PixiGameHud = {
       fontWeight: '900',
       fill: isTurn ? cols.accent : cols.text,
     });
-    PixiPremiumUI.fitText(nameText, w - pad * 2 - 58);
+    const nameMaxW = w - pad * 2 - 58;
+    PixiPremiumUI.fitText(nameText, nameMaxW);
+    if (nameText.width > nameMaxW) {
+      // Long names (The Knight of the Mist) wrap onto two lines instead of overflowing.
+      nameText.scale.set(1);
+      Object.assign(nameText.style, { fontSize: 18, lineHeight: 20, wordWrap: true, wordWrapWidth: nameMaxW });
+      nameText.y -= 10;
+    }
 
     const avatar = new PIXI.Graphics();
     const pieceColor = color === 'white' ? 0xf2ead8 : 0x211b2f;
@@ -182,29 +193,30 @@ const PixiGameHud = {
     }
 
     if (game.mode === 'story' && color === game.aiColor && game.currentCharacter) {
-      this._panel(x, 350, w, 112, cols, { accent: game.currentCharacter.colors.primary, alpha: 0.68 });
-      this._text(game.currentCharacter.name, x + pad, 380, {
+      this._panel(x, this.LANDSCAPE.LOWER_Y, w, 112, cols, { accent: game.currentCharacter.colors.primary, alpha: 0.68 });
+      this._text(game.currentCharacter.name, x + pad, this.LANDSCAPE.LOWER_Y + 34, {
         fontSize: 16,
         fontWeight: '900',
         fill: game.currentCharacter.colors.primary,
       });
-      this._text(game.currentCharacter.title || ('Level ' + game.currentCharacter.level), x + pad, 404, {
+      this._text(game.currentCharacter.title || ('Level ' + game.currentCharacter.level), x + pad, this.LANDSCAPE.LOWER_Y + 60, {
         fontSize: 14,
         fill: PixiColorUtil.alpha(cols.text, '66'),
       });
     }
 
     if (isLeft && game.moveHistory.length > 0) {
-      this._panel(x, 350, w, 284, cols, { alpha: 0.68 });
-      this._text('MOVE HISTORY', x + pad, 380, {
+      const L = this.LANDSCAPE;
+      this._panel(x, L.LOWER_Y, w, L.BOTTOM - L.LOWER_Y, cols, { alpha: 0.68 });
+      this._text('MOVE HISTORY', x + pad, L.LOWER_Y + 32, {
         fontSize: 13,
         fontWeight: '900',
         fill: PixiColorUtil.alpha(cols.text, '66'),
       });
-      const rows = this.historyRows(game.moveHistory).slice(-11);
+      const rows = this.historyRows(game.moveHistory).slice(-Math.floor((L.BOTTOM - L.LOWER_Y - 80) / 20));
       rows.forEach((row, i) => {
         const isLast = i === rows.length - 1;
-        this._text(row.text, x + pad, 408 + i * 18, {
+        this._text(row.text, x + pad, L.LOWER_Y + 62 + i * 20, {
           fontSize: 15,
           fill: row.blocked ? (cols.checkHighlight || '#ff6677') : (isLast ? cols.accent : PixiColorUtil.alpha(cols.text, '99')),
         });
@@ -218,7 +230,8 @@ const PixiGameHud = {
     return history.map((m, i) => {
       const num = Math.floor(i / 2) + 1;
       const prefix = i % 2 === 0 ? num + '. ' : num + '... ';
-      const san = m.san || '?';
+      // Moves he made inside the Knight of the Mist's fog stay secret.
+      const san = m.hidden ? '???' : (m.san || '?');
       return m.defended
         ? { text: prefix + san.replace(/[+#]$/, '') + '  blocked', blocked: true }
         : { text: prefix + san, blocked: false };
@@ -298,11 +311,12 @@ const PixiGameHud = {
 
   _drawStatusBar(game, cols) {
     const portrait = Layout.isPortrait;
-    const x = portrait ? 60 : 368;
-    const y = portrait ? (Layout.H - 90) : 724;
-    const w = portrait ? (Layout.W - 120) : 544;
-    const h = portrait ? 70 : 58;
-    this._panel(x, y, w, h, cols, { active: game.gameStatus === 'check', alpha: 0.68 });
+    const L = this.LANDSCAPE;
+    const x = portrait ? 60 : L.BAR_X;
+    const y = portrait ? (Layout.H - 90) : L.BAR_Y;
+    const w = portrait ? (Layout.W - 120) : L.BAR_W;
+    const h = portrait ? 70 : L.BAR_H;
+    this._panel(x, y, w, h, cols, { active: game.gameStatus === 'check', alpha: 0.68, strip: false });
 
     let turnText;
     if (game.reviewingAt !== null) turnText = 'Reviewing move ' + game.reviewingAt;
@@ -317,25 +331,25 @@ const PixiGameHud = {
     status.anchor.set(0.5);
     status.x = x + w / 2;
     status.y = y + Math.floor(h / 2);
-    PixiPremiumUI.fitText(status, w - (portrait ? 420 : 300));
+    PixiPremiumUI.fitText(status, w - (portrait ? 420 : 420));
     this.container.addChild(status);
 
-    const btnH = portrait ? 40 : 28;
+    const btnH = portrait ? 40 : 36;
     const btnY = y + Math.floor((h - btnH) / 2);
-    const fs = portrait ? 16 : 11;
+    const fs = portrait ? 16 : 14;
     const navEnabled = game.boardSnapshots.length > 1;
     const left = [
       { label: '<', action: 'back', w: btnH, enabled: navEnabled && game.reviewingAt !== 0 },
       { label: '>', action: 'forward', w: btnH, enabled: game.reviewingAt !== null },
-      { label: 'LIVE', action: 'live', w: portrait ? 64 : 44, enabled: game.reviewingAt !== null },
+      { label: 'LIVE', action: 'live', w: portrait ? 64 : 62, enabled: game.reviewingAt !== null },
     ];
     const right = [
-      { label: 'UNDO', action: 'undo', w: portrait ? 80 : 52, enabled: game.canUndo() },
-      { label: 'FLIP', action: 'flip', w: portrait ? 72 : 46, enabled: true },
+      { label: 'UNDO', action: 'undo', w: portrait ? 80 : 72, enabled: game.canUndo() },
+      { label: 'FLIP', action: 'flip', w: portrait ? 72 : 64, enabled: true },
     ];
-    let bx = x + 18;
+    let bx = x + 12;
     for (const b of left) { this._button(b, bx, btnY, btnH, fs, cols); bx += b.w + 6; }
-    bx = x + w - 18;
+    bx = x + w - 12;
     for (const b of right.slice().reverse()) { bx -= b.w; this._button(b, bx, btnY, btnH, fs, cols); bx -= 6; }
   },
 

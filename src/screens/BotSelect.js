@@ -64,25 +64,27 @@ const BotSelect = {
     const cols = ThemeManager.getCurrentColors();
     const portrait = Layout.isPortrait;
     const cx = Layout.cx;
-    const panelW = portrait ? 700 : 760;
+    // One panel: rating, tier, description, slider, then the colour choice.
+    const L = { PAD_TOP: 34, ELO_H: 64, CAPTION_Y: 102, NAME_Y: 136, DESC_Y: 178, SLIDER_Y: 238, RULE_Y: 294, SIDE_Y: 342, H: 396 };
+    const panelW = portrait ? Math.min(700, Layout.W - 80) : 760;
     const panelX = Math.round(cx - panelW / 2);
-    const panelY = portrait ? 190 : 168;
-    const panelH = 300;
-    PixiPremiumScene.panel(this.pixiContainer, panelX, panelY, panelW, panelH, { accentAlpha: 0.5 });
+    const top = 150;
+    const panelY = Math.round(top + (PixiPremiumScene.contentBottom - top - L.H) / 2);
+    PixiPremiumScene.panel(this.pixiContainer, panelX, panelY, panelW, L.H, { accentAlpha: 0.5 });
 
-    const centered = (text, y, style) => {
+    const centered = (text, y, style, anchorY = 0) => {
       const t = PixiPremiumScene.text(text, style);
-      t.anchor.set(0.5, 0);
+      t.anchor.set(0.5, anchorY);
       t.x = cx;
       t.y = y;
       this.pixiContainer.addChild(t);
       return t;
     };
 
-    const elo = centered(String(this.eloValue), panelY + 34, { fontFamily: PixiTextStyles.FONT_TITLE, fontSize: 56, fontWeight: 'bold', fill: cols.accent });
-    centered('ELO', panelY + 100, { fontSize: 16, fontWeight: '700', fill: PixiPremiumScene.alpha(cols.text, '88') });
-    const name = centered(this.eloToName(this.eloValue), panelY + 128, { fontSize: 28, fontWeight: '800', fill: cols.text });
-    const desc = centered(this.eloToDescription(this.eloValue), panelY + 166, { fontSize: 20, fill: PixiPremiumScene.alpha(cols.text, 'aa') });
+    const elo = centered(String(this.eloValue), panelY + L.PAD_TOP, { fontFamily: PixiTextStyles.FONT_TITLE, fontSize: 56, fontWeight: 'bold', fill: cols.accent });
+    centered('ELO RATING', panelY + L.CAPTION_Y, { fontSize: 16, fontWeight: '800', letterSpacing: 3, fill: PixiPremiumScene.alpha(cols.text, '99') });
+    const name = centered(this.eloToName(this.eloValue), panelY + L.NAME_Y, { fontSize: 28, fontWeight: '800', fill: cols.text });
+    const desc = centered(this.eloToDescription(this.eloValue), panelY + L.DESC_Y, { fontSize: 20, fill: PixiPremiumScene.alpha(cols.text, 'aa') });
 
     const sliderW = panelW - 120;
     const slider = new PixiSlider({
@@ -93,6 +95,7 @@ const BotSelect = {
       step: 50,
       value: this.eloValue,
       cols,
+      showValue: false,
       gradientStops: [
         { pos: 0, color: '#7dea99' },
         { pos: 0.45, color: cols.accent },
@@ -102,7 +105,7 @@ const BotSelect = {
       tickInterval: 300,
     });
     slider.x = Math.round(cx - sliderW / 2);
-    slider.y = panelY + 222;
+    slider.y = panelY + L.SLIDER_Y;
     slider.onChange((value) => {
       this.eloValue = value;
       elo.text = String(value);
@@ -112,20 +115,31 @@ const BotSelect = {
     this.pixiContainer.addChild(slider);
     this._slider = slider;
 
-    const sideY = panelY + panelH + 34;
-    centered('Play as', sideY, { fontSize: 20, fontWeight: '700', fill: PixiPremiumScene.alpha(cols.text, 'aa') });
+    const rule = new PIXI.Graphics().rect(panelX + 40, panelY + L.RULE_Y, panelW - 80, 2).fill({ color: PixiPremiumScene.color(cols.text), alpha: 0.12 });
+    this.pixiContainer.addChild(rule);
+
+    // "Play as" label and the two colour buttons, centred as one row.
     const sideBtnW = 150;
+    const sideBtnH = 48;
+    const label = PixiPremiumScene.text('Play as', { fontSize: 20, fontWeight: '700', fill: PixiPremiumScene.alpha(cols.text, 'bb') });
+    const rowW = label.width + 24 + sideBtnW * 2 + 16;
+    const rowX = Math.round(cx - rowW / 2);
+    const rowY = panelY + L.SIDE_Y;
+    label.anchor.set(0, 0.5);
+    label.x = rowX;
+    label.y = rowY;
+    this.pixiContainer.addChild(label);
     ['white', 'black'].forEach((color, i) => {
-      const x = i === 0 ? cx - sideBtnW - 10 : cx + 10;
-      PixiPremiumScene.button(this.pixiContainer, x, sideY + 36, sideBtnW, 48, color === 'white' ? 'White' : 'Black', () => {
+      const x = rowX + label.width + 24 + i * (sideBtnW + 16);
+      PixiPremiumScene.button(this.pixiContainer, x, rowY - sideBtnH / 2, sideBtnW, sideBtnH, color === 'white' ? 'White' : 'Black', () => {
         this.playAs = color;
         this.build();
       }, { primary: this.playAs === color, fontSize: 18 });
     });
 
-    const btnY = Layout.H - 82;
+    const btnY = PixiPremiumScene.bottomButtonY();
     PixiPremiumScene.button(this.pixiContainer, 36, btnY, 160, 44, 'Back', () => switchScreen('home'), { icon: 'back' });
-    PixiPremiumScene.button(this.pixiContainer, Layout.W - 260, btnY - 8, 220, 58, 'Start Game', () => this.startGame(), { primary: true, icon: 'play', fontSize: 22 });
+    PixiPremiumScene.button(this.pixiContainer, Layout.W - 256, PixiPremiumScene.bottomButtonY(52), 220, 52, 'Start Game', () => this.startGame(), { primary: true, icon: 'play', fontSize: 22 });
   },
 
   startGame() {

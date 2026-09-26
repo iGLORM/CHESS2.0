@@ -26,7 +26,7 @@ class GameRules {
     for (let r = 0; r < 8; r++) {
       for (let c = 0; c < 8; c++) {
         const p = board.grid[r][c];
-        if (p && p.type !== 'king') {
+        if (p && p.type !== 'king' && p.type !== 'wall') {
           nonKingPieces.push({ type: p.type, color: p.color, squareColor: (r + c) % 2 });
         }
       }

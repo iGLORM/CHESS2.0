@@ -4,7 +4,7 @@ class Store {
       screen: 'home',
       mode: null,
       subScreen: null,
-      theme: 'space',
+      theme: 'pawnhollow',
       board: null,
       selectedSquare: null,
       legalMoves: [],
@@ -23,9 +23,9 @@ class Store {
       maxUnlockedLevel: 1,
       activeSaveSlot: 1,
       storySaves: [
-        { storyLevel: 1, maxUnlockedLevel: 1, selectedCharacter: null, difficultyTier: null, completed: false },
-        { storyLevel: 1, maxUnlockedLevel: 1, selectedCharacter: null, difficultyTier: null, completed: false },
-        { storyLevel: 1, maxUnlockedLevel: 1, selectedCharacter: null, difficultyTier: null, completed: false },
+        { storyLevel: 1, maxUnlockedLevel: 1, selectedCharacter: null, difficultyTier: null, completed: false, stages: 15 },
+        { storyLevel: 1, maxUnlockedLevel: 1, selectedCharacter: null, difficultyTier: null, completed: false, stages: 15 },
+        { storyLevel: 1, maxUnlockedLevel: 1, selectedCharacter: null, difficultyTier: null, completed: false, stages: 15 },
       ],
       madnessUnlocked: false,
       settings: {
@@ -41,8 +41,11 @@ class Store {
       customPlayAs: 'white',
       customMinigames: {},
       customThemeColors: {},
-      customMusicTheme: 'space',
-      customBgTheme: 'space',
+      customMusicTheme: 'pawnhollow',
+      customBgTheme: 'pawnhollow',
+      // Themes kept from before the story worlds (world themes unlock by
+      // restoring worlds; see ThemeManager.isThemeUnlocked).
+      unlockedThemes: [],
       whitePlayer: 'Player 1',
       blackPlayer: 'Player 2',
       p1IsWhite: true,
@@ -124,6 +127,7 @@ class Store {
         customThemeColors: this.state.customThemeColors,
         customMusicTheme: this.state.customMusicTheme,
         customBgTheme: this.state.customBgTheme,
+        unlockedThemes: this.state.unlockedThemes,
         stats: this.state.stats,
         trainingProgress: this.state.trainingProgress,
         // Player names and last-used Classic/Custom game options.
@@ -132,24 +136,48 @@ class Store {
     } catch (e) { console.warn('Store: failed to save progress', e.message); }
   }
 
+  // Saves from before the Training Camp counted 10 levels. Five trainer stages
+  // now sit after Pawnie, so level n (n > 1) becomes stage n + 5.
+  static migrateSave(save) {
+    if (!save || save.stages === 15) return save;
+    const toStage = level => (level <= 1 ? 1 : level + 5);
+    return {
+      ...save,
+      storyLevel: toStage(save.storyLevel || 1),
+      maxUnlockedLevel: toStage(save.maxUnlockedLevel || 1),
+      stages: 15,
+    };
+  }
+
+  // Saves from before the story worlds unlocked themes by story level. Keep
+  // what they had open, under the worlds' new ids.
+  static legacyThemeUnlocks(saves) {
+    const reqs = { space: 1, medieval: 1, ocean: 1, crystal: 1, egypt: 2, cyberpunk: 4, japanese: 5, artdeco: 6, wildwest: 7, prehistoric: 8, steampunk: 9 };
+    const level = Math.max(...saves.map(save => {
+      const stage = (save && save.maxUnlockedLevel) || 1;
+      return stage > 6 ? stage - 5 : 1;
+    }));
+    return Object.keys(reqs).filter(id => level >= reqs[id]).map(id => THEME_ALIASES[id] || id);
+  }
+
   loadProgress() {
     try {
       const data = JSON.parse(localStorage.getItem('chess2_progress'));
       if (data) {
         // Migrate old flat save format into slot 1
         if (!data.storySaves && data.maxUnlockedLevel) {
-          this.state.storySaves[0] = {
+          this.state.storySaves[0] = Store.migrateSave({
             storyLevel: data.storyLevel || 1,
             maxUnlockedLevel: data.maxUnlockedLevel || 1,
             selectedCharacter: data.selectedCharacter || null,
             difficultyTier: null,
             completed: (data.maxUnlockedLevel || 1) >= 10,
-          };
+          });
         }
         if (data.storySaves) {
           for (let i = 0; i < 3; i++) {
             if (data.storySaves[i]) {
-              this.state.storySaves[i] = { ...this.state.storySaves[i], ...data.storySaves[i] };
+              this.state.storySaves[i] = { ...this.state.storySaves[i], ...Store.migrateSave(data.storySaves[i]) };
             }
           }
         }
@@ -161,10 +189,11 @@ class Store {
         }
         this.state.settings = { ...this.state.settings, ...data.settings };
         this.state.controls = data.controls || this.state.controls;
-        this.state.theme = data.theme || 'space';
+        this.state.theme = ThemeManager.resolveId(data.theme);
         this.state.customThemeColors = data.customThemeColors || {};
-        this.state.customMusicTheme = data.customMusicTheme || 'space';
-        this.state.customBgTheme = data.customBgTheme || 'space';
+        this.state.customMusicTheme = ThemeManager.resolveId(data.customMusicTheme);
+        this.state.customBgTheme = ThemeManager.resolveId(data.customBgTheme);
+        this.state.unlockedThemes = data.unlockedThemes || Store.legacyThemeUnlocks(this.state.storySaves);
         this.state.stats = { ...this.state.stats, ...data.stats };
         if (data.prefs) {
           for (const k of Store.PREF_KEYS) {
@@ -180,11 +209,12 @@ class Store {
 
   resetProgress() {
     this.state.storySaves = [
-      { storyLevel: 1, maxUnlockedLevel: 1, selectedCharacter: null, difficultyTier: null, completed: false },
-      { storyLevel: 1, maxUnlockedLevel: 1, selectedCharacter: null, difficultyTier: null, completed: false },
-      { storyLevel: 1, maxUnlockedLevel: 1, selectedCharacter: null, difficultyTier: null, completed: false },
+      { storyLevel: 1, maxUnlockedLevel: 1, selectedCharacter: null, difficultyTier: null, completed: false, stages: 15 },
+      { storyLevel: 1, maxUnlockedLevel: 1, selectedCharacter: null, difficultyTier: null, completed: false, stages: 15 },
+      { storyLevel: 1, maxUnlockedLevel: 1, selectedCharacter: null, difficultyTier: null, completed: false, stages: 15 },
     ];
     this.state.madnessUnlocked = false;
+    this.state.unlockedThemes = [];
     this.state.activeSaveSlot = 1;
     this._syncStoryKeys();
     localStorage.removeItem('chess2_progress');

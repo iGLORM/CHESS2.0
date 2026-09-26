@@ -3,32 +3,33 @@ const CustomGameScreen = {
   pixiContainer: null,
   eloValue: 1000,
   playAs: 'white',
-  gameplayMode: true,
   minigameToggles: {},
 
   minigameList: [
-    { key: 'quickClick', name: 'Quick Click' },
+    { key: 'checkmateRun', name: 'Checkmate Run' },
+    { key: 'lavaTilt', name: 'Lava Tilt' },
+    { key: 'rookStack', name: 'Rook Stack' },
+    { key: 'siegeCannon', name: 'Siege Cannon' },
+    { key: 'meteorStorm', name: 'Meteor Storm' },
+    { key: 'knightCollapse', name: 'Knight Collapse' },
     { key: 'memoryMatch', name: 'Memory Match' },
     { key: 'timingStrike', name: 'Timing Strike' },
     { key: 'patternPress', name: 'Pattern Press' },
-    { key: 'reactionTest', name: 'Reaction Test' },
+    { key: 'reactionTest', name: 'Quick Draw' },
     { key: 'undertaleDodge', name: 'Soul Dodge' },
-    { key: 'powerMeter', name: 'Power Meter' },
-    { key: 'targetPractice', name: 'Target Practice' },
-    { key: 'dodgeFalling', name: 'Dodge Falling' },
-    { key: 'rhythmTap', name: 'Rhythm Tap' },
-    { key: 'numberGuess', name: 'Number Guess' },
-    { key: 'coinFlip', name: 'Coin Flip' },
-    { key: 'barBalance', name: 'Bar Balance' },
-    { key: 'shieldBlock', name: 'Shield Block' },
-    { key: 'whackMole', name: 'Whack-a-Mole' },
+    { key: 'powerMeter', name: 'High Striker' },
+    { key: 'targetPractice', name: 'Crossbow Gallery' },
+    { key: 'dodgeFalling', name: 'Falling Sky' },
+    { key: 'rhythmTap', name: 'Rhythm Rush' },
+    { key: 'barBalance', name: 'Tightrope' },
+    { key: 'shieldBlock', name: 'Shield Wall' },
+    { key: 'whackMole', name: 'Whack-a-Pawn' },
   ],
 
   init() {
     const stored = store.get('customElo');
     this.eloValue = stored || (200 + ((store.get('customDifficulty') || 5) - 1) * 200);
     this.playAs = store.get('customPlayAs') || 'white';
-    this.gameplayMode = store.get('customGameplayMode') !== false;
     this.minigameToggles = { ...(store.get('customMinigames') || {}) };
     for (const game of this.minigameList) {
       if (this.minigameToggles[game.key] === undefined) this.minigameToggles[game.key] = true;
@@ -63,39 +64,54 @@ const CustomGameScreen = {
 
   build() {
     if (this.pixiContainer) this.pixiContainer.destroy({ children: true });
-    this.pixiContainer = PixiPremiumScene.root('Custom Game', 'Tune the bot and capture challenges', { footerHint: `${this.eloValue} ELO | ${this.eloToName(this.eloValue)} | ${this.enabledCount()} minigames active | ${this.gameplayMode ? 'Defensive' : 'Classic'} mode` });
+    this.pixiContainer = PixiPremiumScene.root('Custom Game', 'Tune the bot and capture challenges', { footerHint: `${this.eloValue} ELO | ${this.eloToName(this.eloValue)} | ${this.enabledCount()} minigames active` });
     PixiScreenManager.setScreenContainer(this.pixiContainer);
 
     this.buildConfigPanel();
     this.buildMinigameGrid();
-    const btnY = Layout.H - 82;
+    const btnY = PixiPremiumScene.bottomButtonY();
     PixiPremiumScene.button(this.pixiContainer, 36, btnY, 160, 44, 'Back', () => switchScreen('home'), { icon: 'back' });
-    PixiPremiumScene.button(this.pixiContainer, Layout.W - 260, btnY - 8, 220, 58, 'Start Game', () => this.startGame(), { primary: true, icon: 'play', fontSize: 22 });
+    PixiPremiumScene.button(this.pixiContainer, Layout.W - 256, PixiPremiumScene.bottomButtonY(52), 220, 52, 'Start Game', () => this.startGame(), { primary: true, icon: 'play', fontSize: 22 });
+  },
+
+  // Landscape layout; portrait stacks the same pieces.
+  LAYOUT: {
+    PANEL_X: 60,
+    CONFIG_Y: 150,
+    CONFIG_H: 164,
+    PANEL_GAP: 16,
+    INNER: 34,        // panel edge to content
+    RIGHT_W: 330,     // colour column
+    HEADING_H: 72,    // mini-game panel heading row
+    CARD_GAP: 12,
   },
 
   buildConfigPanel() {
+    const L = this.LAYOUT;
     const cols = ThemeManager.getCurrentColors();
     const portrait = Layout.isPortrait;
-    const panelX = portrait ? 40 : 78;
-    const panelW = portrait ? 720 : 1124;
-    const panelH = portrait ? 210 : 154;
-    PixiPremiumScene.panel(this.pixiContainer, panelX, 132, panelW, panelH, { accentAlpha: 0.45 });
+    const panelX = portrait ? 40 : L.PANEL_X;
+    const panelW = Layout.W - panelX * 2;
+    const panelY = L.CONFIG_Y;
+    const panelH = portrait ? 230 : L.CONFIG_H;
+    PixiPremiumScene.panel(this.pixiContainer, panelX, panelY, panelW, panelH, { accentAlpha: 0.45 });
+    const innerX = panelX + L.INNER;
+    const mid = panelY + 16 + Math.round((panelH - 16) / 2);   // below the accent strip
 
-    const innerX = panelX + 38;
     const label = PixiPremiumScene.text('Bot Difficulty', { fontSize: 23, fontWeight: '900', fill: cols.text });
+    label.anchor.set(0, 1);
     label.x = innerX;
-    label.y = 164;
+    label.y = portrait ? panelY + 70 : mid - 4;
     this.pixiContainer.addChild(label);
-    const elo = PixiPremiumScene.text(`${this.eloValue} ELO`, { fontSize: 24, fontWeight: '900', fill: cols.accent });
+    const elo = PixiPremiumScene.text(`${this.eloValue} ELO  ·  ${this.eloToName(this.eloValue)}`, { fontSize: 18, fontWeight: '800', fill: cols.accent });
+    elo.anchor.set(0, 0);
     elo.x = innerX;
-    elo.y = 202;
+    elo.y = label.y + 8;
     this.pixiContainer.addChild(elo);
-    const name = PixiPremiumScene.text(this.eloToName(this.eloValue), { fontSize: 16, fill: PixiPremiumScene.alpha(cols.text, 'aa') });
-    name.x = innerX + 132;
-    name.y = 208;
-    this.pixiContainer.addChild(name);
 
-    const sliderW = portrait ? panelW - 100 : 560;
+    const rightX = portrait ? innerX : panelX + panelW - L.INNER - L.RIGHT_W;
+    const sliderX = portrait ? innerX : innerX + 290;
+    const sliderW = portrait ? panelW - L.INNER * 2 : rightX - 48 - sliderX;
     const slider = new PixiSlider({
       width: sliderW,
       height: 18,
@@ -104,6 +120,7 @@ const CustomGameScreen = {
       step: 50,
       value: this.eloValue,
       cols,
+      showValue: false,
       gradientStops: [
         { pos: 0, color: '#7dea99' },
         { pos: 0.45, color: cols.accent },
@@ -112,92 +129,104 @@ const CustomGameScreen = {
       showTicks: true,
       tickInterval: 300,
     });
-    slider.x = portrait ? innerX : 400;
-    slider.y = portrait ? 244 : 202;
+    slider.x = sliderX;
+    slider.y = portrait ? panelY + 124 : mid - 9;
     slider.onChange((value) => {
       this.eloValue = value;
-      elo.text = `${value} ELO`;
-      name.text = this.eloToName(value);
+      elo.text = `${value} ELO  ·  ${this.eloToName(value)}`;
     });
     this.pixiContainer.addChild(slider);
 
-    // Landscape: side buttons and the rules toggle stack at the panel's right edge.
-    const btnAreaX = portrait ? (innerX + sliderW - 360) : 1000;
-    const btnAreaY = portrait ? 288 : 160;
+    // Colour choice. Custom games always use random capture challenges (no Defenses).
+    const btnH = 40;
+    const btnGap = 10;
+    const blockY = portrait ? panelY + 164 : mid - btnH / 2;
+    const halfW = Math.floor((L.RIGHT_W - btnGap) / 2);
     ['white', 'black'].forEach((color, i) => {
-      PixiPremiumScene.button(this.pixiContainer, btnAreaX + i * 92, btnAreaY, 84, 40, color === 'white' ? 'White' : 'Black', () => {
+      PixiPremiumScene.button(this.pixiContainer, rightX + i * (halfW + btnGap), blockY, halfW, btnH, color === 'white' ? 'Play White' : 'Play Black', () => {
         this.playAs = color;
         this.build();
       }, { primary: this.playAs === color, fontSize: 16 });
     });
-
-    const rulesX = portrait ? btnAreaX + 194 : btnAreaX;
-    const rulesY = portrait ? btnAreaY + 3 : btnAreaY + 52;
-    PixiPremiumScene.button(this.pixiContainer, rulesX, rulesY, 176, 40, this.gameplayMode ? 'Defenses: ON' : 'Defenses: OFF', () => {
-      this.gameplayMode = !this.gameplayMode;
-      this.build();
-    }, { primary: this.gameplayMode, fontSize: 14 });
+    this._configBottom = panelY + panelH;
   },
 
   buildMinigameGrid() {
+    const L = this.LAYOUT;
     const cols = ThemeManager.getCurrentColors();
     const portrait = Layout.isPortrait;
     const gridCols = portrait ? 3 : 5;
     const gridRows = Math.ceil(this.minigameList.length / gridCols);
-    const panelX = portrait ? 40 : 78;
-    const panelW = portrait ? 720 : 1124;
-    const panelStartY = portrait ? 370 : 316;
-    const panelH = portrait ? (gridRows * 88 + 80) : 368;
-    PixiPremiumScene.panel(this.pixiContainer, panelX, panelStartY, panelW, panelH, { accentAlpha: 0.35 });
+    const panelX = portrait ? 40 : L.PANEL_X;
+    const panelW = Layout.W - panelX * 2;
+    const panelY = this._configBottom + L.PANEL_GAP;
+    const panelH = portrait
+      ? L.HEADING_H + gridRows * 84 + (gridRows - 1) * L.CARD_GAP + 22
+      : PixiPremiumScene.contentBottom - panelY;
+    PixiPremiumScene.panel(this.pixiContainer, panelX, panelY, panelW, panelH, { accentAlpha: 0.35 });
+
+    const headingY = panelY + 16 + Math.round((L.HEADING_H - 16) / 2);
     const heading = PixiPremiumScene.text('Capture Mini-Games', { fontSize: 22, fontWeight: '900', fill: cols.text });
-    heading.x = panelX + 34;
-    heading.y = panelStartY + 24;
+    heading.anchor.set(0, 0.5);
+    const gridInset = 24;
+    heading.x = panelX + gridInset;
+    heading.y = headingY;
     this.pixiContainer.addChild(heading);
 
-    const allOnX = portrait ? (panelX + panelW - 210) : 968;
-    PixiPremiumScene.button(this.pixiContainer, allOnX, panelStartY + 20, 86, 30, 'All On', () => {
+    const toggleW = 96;
+    const toggleH = 34;
+    const allOffX = panelX + panelW - gridInset - toggleW;
+    PixiPremiumScene.button(this.pixiContainer, allOffX - toggleW - 10, headingY - toggleH / 2, toggleW, toggleH, 'All On', () => {
       this.minigameList.forEach(game => { this.minigameToggles[game.key] = true; });
       this.build();
-    }, { fontSize: 13 });
-    PixiPremiumScene.button(this.pixiContainer, allOnX + 96, panelStartY + 20, 86, 30, 'All Off', () => {
+    }, { fontSize: 15 });
+    PixiPremiumScene.button(this.pixiContainer, allOffX, headingY - toggleH / 2, toggleW, toggleH, 'All Off', () => {
       this.minigameList.forEach(game => { this.minigameToggles[game.key] = false; });
       this.build();
-    }, { fontSize: 13 });
+    }, { fontSize: 15 });
 
-    const cardW = portrait ? Math.floor((panelW - 80 - (gridCols - 1) * 22) / gridCols) : 192;
-    const cardGapX = portrait ? 22 : 22;
-    const gridStartX = panelX + 34;
-    const gridStartY = panelStartY + 70;
+    const gridX = panelX + gridInset;
+    const gridY = panelY + L.HEADING_H;
+    const gridW = panelW - gridInset * 2;
+    const cardW = Math.floor((gridW - (gridCols - 1) * L.CARD_GAP) / gridCols);
+    const cardH = Math.min(84, Math.floor((panelY + panelH - 22 - gridY - (gridRows - 1) * L.CARD_GAP) / gridRows));
+    const thumbH = Math.min(36, cardH - 24);
+    const thumbW = Math.round(thumbH * 1.8);
+    const textX = 12 + thumbW + 10;
+    const textW = cardW - textX - 8;
+
+    // Every name on one line at the same size (sized for the longest, "Target Practice").
+    const titleSize = 14;
+
     this.minigameList.forEach((game, i) => {
-      const col = i % gridCols;
-      const row = Math.floor(i / gridCols);
-      const x = gridStartX + col * (cardW + cardGapX);
-      const y = gridStartY + row * 88;
+      const x = gridX + (i % gridCols) * (cardW + L.CARD_GAP);
+      const y = gridY + Math.floor(i / gridCols) * (cardH + L.CARD_GAP);
       const on = this.minigameToggles[game.key] !== false;
-      PixiPremiumScene.card(this.pixiContainer, x, y, cardW, 72, {
+      PixiPremiumScene.card(this.pixiContainer, x, y, cardW, cardH, {
         active: on,
         activeColor: on ? cols.accent : '#ff6578',
+        accentStrip: false,
         onClick: () => {
           this.minigameToggles[game.key] = !on;
           this.build();
         },
         draw: (card) => {
           const thumb = new PIXI.Sprite(PixiPremiumAssets.minigame(game.key));
-          thumb.width = 74;
-          thumb.height = 44;
-          thumb.x = 14;
-          thumb.y = 14;
+          thumb.width = thumbW;
+          thumb.height = thumbH;
+          thumb.x = 12;
+          thumb.y = Math.round((cardH - thumbH) / 2);
           thumb.alpha = on ? 1 : 0.42;
           card.addChild(thumb);
-          const title = PixiPremiumScene.text(game.name, { fontSize: 15, fontWeight: '900', fill: on ? cols.text : PixiPremiumScene.alpha(cols.text, '66') });
-          title.x = 100;
-          title.y = 18;
-          PixiPremiumScene.fit(title, 76, 0.55);
-          card.addChild(title);
+          const title = PixiPremiumScene.text(game.name, { fontSize: titleSize, fontWeight: '900', fill: on ? cols.text : PixiPremiumScene.alpha(cols.text, '66') });
+          PixiPremiumScene.fit(title, textW, 0.85);
           const state = PixiPremiumScene.text(on ? 'ON' : 'OFF', { fontSize: 13, fontWeight: '900', fill: on ? cols.accent : '#ff6578' });
-          state.x = 100;
-          state.y = 44;
-          card.addChild(state);
+          const blockH = title.height + 6 + state.height;
+          title.x = textX;
+          title.y = Math.round((cardH - blockH) / 2);
+          state.x = textX;
+          state.y = title.y + title.height + 6;
+          card.addChild(title, state);
         },
       });
     });
@@ -211,7 +240,6 @@ const CustomGameScreen = {
     store.set('customElo', this.eloValue);
     store.set('customDifficulty', this.eloToDifficulty(this.eloValue));
     store.set('customPlayAs', this.playAs);
-    store.set('customGameplayMode', this.gameplayMode);
     store.set('customMinigames', { ...this.minigameToggles });
     store.set('mode', 'custom');
     store.set('p1IsWhite', this.playAs === 'white');

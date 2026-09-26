@@ -231,7 +231,7 @@ class BackgroundRenderer {
   _getBgThemeId() {
     const themeId = store.get('theme');
     if (themeId === 'custom') {
-      return store.get('customBgTheme') || 'space';
+      return store.get('customBgTheme') || 'pawnhollow';
     }
     return themeId;
   }

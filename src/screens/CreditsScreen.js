@@ -13,9 +13,8 @@ const CreditsScreen = {
     {
       title: 'Chess engine',
       lines: [
-        'Stockfish 18 (stockfish.js lite build) - GNU General Public License v3.',
-        'Stockfish runs as a separate program; its source code is available at',
-        'github.com/official-stockfish/Stockfish and github.com/nmrugg/stockfish.js',
+        'Stockfish 18 (Stockfish.js lite build, unmodified) - GNU GPL v3, with NO WARRANTY.',
+        'It runs as a separate program. Its full source code ships in the "licenses" folder and is at github.com/nmrugg/stockfish.js (commit 32d4b5a) and github.com/official-stockfish.',
       ],
     },
     {
@@ -23,6 +22,7 @@ const CreditsScreen = {
       lines: [
         'PixiJS - MIT License.   GSAP - GreenSock standard license.',
         'Pretext text layout - MIT License.   Electron - MIT License.',
+        'Three.js (3D mini-games) - MIT License.',
       ],
     },
     {
@@ -34,49 +34,56 @@ const CreditsScreen = {
     },
   ],
 
-  init() {
+  init(data) {
+    this.returnTo = (data && data.returnTo) || 'settings';
     this.build();
   },
 
   build() {
     if (this.pixiContainer) this.pixiContainer.destroy({ children: true });
     this.pixiContainer = PixiPremiumScene.root('Credits', 'The people and projects behind the game', {
-      footerHint: 'Full licence texts are included with the game files',
+      footerHint: 'Full licence texts are in the "licenses" folder next to the game',
     });
     PixiScreenManager.setScreenContainer(this.pixiContainer);
 
     const cols = ThemeManager.getCurrentColors();
     const panelW = Math.min(1000, Layout.W - 80);
     const panelX = Math.round((Layout.W - panelW) / 2);
-    const panelY = 160;
-    const panelH = Layout.H - panelY - 130;
-    PixiPremiumScene.panel(this.pixiContainer, panelX, panelY, panelW, panelH, { accentAlpha: 0.45 });
+    const pad = 44;
+    const textW = panelW - pad * 2;
 
-    let y = panelY + 40;
-    for (const section of this.SECTIONS) {
+    // Lay the text out first so the panel can be sized to it and centred.
+    const body = new PIXI.Container();
+    let y = 0;
+    this.SECTIONS.forEach((section, si) => {
       const title = PixiPremiumScene.text(section.title, { fontSize: 22, fontWeight: '900', fill: cols.accent });
-      title.x = panelX + 40;
       title.y = y;
-      this.pixiContainer.addChild(title);
-      y += 34;
+      body.addChild(title);
+      y += title.height + 8;
       for (const line of section.lines) {
         const t = PixiPremiumScene.text(line, {
           fontSize: 17,
           fill: PixiPremiumScene.alpha(cols.text, 'cc'),
           wordWrap: true,
-          wordWrapWidth: panelW - 80,
+          wordWrapWidth: textW,
           lineHeight: 24,
         });
-        t.x = panelX + 40;
         t.y = y;
-        this.pixiContainer.addChild(t);
+        body.addChild(t);
         y += t.height + 4;
       }
-      y += 20;
-    }
+      if (si < this.SECTIONS.length - 1) y += 18;
+    });
+    const top = 150;
+    const panelH = Math.min(PixiPremiumScene.contentBottom - top, Math.round(y) + 40 + pad);
+    const panelY = Math.round(top + (PixiPremiumScene.contentBottom - top - panelH) / 2);
+    PixiPremiumScene.panel(this.pixiContainer, panelX, panelY, panelW, panelH, { accentAlpha: 0.45 });
+    body.x = panelX + pad;
+    body.y = panelY + 40 + Math.round((panelH - 40 - pad - y) / 2);
+    this.pixiContainer.addChild(body);
 
-    const btnY = Layout.isPortrait ? Layout.H - Layout.SAFE_BOTTOM - 48 : 718;
-    PixiPremiumScene.button(this.pixiContainer, 36, btnY, 160, 44, 'Back', () => switchScreen('howToPlay'), { icon: 'back' });
+    const btnY = PixiPremiumScene.bottomButtonY();
+    PixiPremiumScene.button(this.pixiContainer, 36, btnY, 160, 44, 'Back', () => switchScreen(this.returnTo), { icon: 'back' });
   },
 
   pixiUpdate(dt) {
@@ -88,6 +95,6 @@ const CreditsScreen = {
   },
 
   handleKeyDown(e) {
-    if (e.key === 'Escape') switchScreen('howToPlay');
+    if (e.key === 'Escape') switchScreen(this.returnTo);
   },
 };

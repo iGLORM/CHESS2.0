@@ -5,9 +5,10 @@ const CHARACTERS = [
     title: 'The Village Rookie',
     level: 1,
     dialogue: {
-      before: "H-hi there! I'm Pawnie, and this is my very first real battle! The elder pawns told me to always move forward, never look back. I hope I don't mess this up too badly... Please be gentle with me!",
-      after: "Wow... you really are strong! I gave it my best shot, but I still have so much to learn. Maybe one day I'll make it to the other side and become a queen too! Thanks for the lesson!",
-      win: "I-I won?! I actually won! Wait until the other pawns hear about this! The littlest piece on the board just beat a real challenger! This is the happiest day of my life!",
+      before: "One normal game, no tricks! Let's see what your hands remember, even if your head doesn't.",
+      after: "You play like you've done this a thousand times. Maybe you have! The Training Camp is just up the hill.",
+      win: "I won?! Huh. Maybe your memory needs a few more games to wake up. Again?",
+      rematch: "You came back! Okay, okay. Same deal: one normal game. I'll try to be less lucky this time.",
     },
     gameDialogue: {
       gameStart: [
@@ -64,7 +65,7 @@ const CHARACTERS = [
       ],
     },
     personality: 'nervous',
-    theme: 'space',
+    theme: 'pawnhollow',
     colors: { primary: '#88ccff', secondary: '#4488cc', skin: '#ffcc99', eye: '#ffffff', pupil: '#224466' },
   },
   {
@@ -73,9 +74,10 @@ const CHARACTERS = [
     title: 'The Diagonal Dreamer',
     level: 2,
     dialogue: {
-      before: "Heh heh heh... welcome to my domain of diagonals! You think you can handle the slash and the slash-back? I have been training on the light squares my entire life. Prepare yourself!",
-      after: "Impressive... you navigated my diagonals better than I expected. Most challengers get lost in the cross-pattern. You have a sharp eye. Perhaps the straight paths are not so boring after all.",
-      win: "Ha! Did you see that fork? That pin? My bishop pair controlled the whole board! The diagonal is the true path to victory, my friend. Come back when you understand the power of the slash!",
+      before: "Heh heh heh... welcome to the Slanted Sands, where everything leans my way! Four bishops, no knights. And... hm. Have we met before?",
+      after: "You walked my diagonals like you were born on them. Maybe straight lines have their uses after all... Take the fragment. Carefully. It rolls.",
+      win: "Ha! Four bishops, four diagonals, zero escape! The sand always slides toward me. Come back when you've learned to lean!",
+      rematch: "Back for more slanting? Good! I've tilted the dunes an extra degree, just for you.",
     },
     gameDialogue: {
       gameStart: [
@@ -128,7 +130,7 @@ const CHARACTERS = [
       ],
     },
     personality: 'enthusiastic',
-    theme: 'egypt',
+    theme: 'slantedsands',
     colors: { primary: '#ff9966', secondary: '#cc6633', skin: '#ffcc99', eye: '#ffffff', pupil: '#663322' },
   },
   {
@@ -137,9 +139,10 @@ const CHARACTERS = [
     title: 'The Iron Tower',
     level: 3,
     dialogue: {
-      before: "Straight lines. No shortcuts. No fancy diagonal tricks. That is how we do things on the rank and file. I have stood guard on this corner for a thousand games. Show me if you have the discipline to break through.",
-      after: "Solid play. You respected the fundamentals and outmaneuvered my fortress. A tower can be toppled by patience and precision. You have both. I salute your technique.",
-      win: "As I said: straight lines win games. You tried to dance around the board, but you cannot outrun the iron tower. When the seventh rank opens, it is already too late. Better luck next time.",
+      before: "Halt. I know your step. You will not pass my gate a second time. You enter without your rooks, and taking one of mine will cost you a challenge.",
+      after: "The gate is open. You broke a fortress with half an army. I will not forget it. The fragment is yours, by right of siege.",
+      win: "As expected. A keep does not fall to an army without towers. Rebuild your discipline and knock again.",
+      rematch: "You return to my gate. Good. Persistence is the first rule of any siege.",
     },
     gameDialogue: {
       gameStart: [
@@ -191,18 +194,19 @@ const CHARACTERS = [
       ],
     },
     personality: 'stoic',
-    theme: 'medieval',
+    theme: 'ironkeep',
     colors: { primary: '#aabbcc', secondary: '#667788', skin: '#ddbb99', eye: '#ffffff', pupil: '#334455' },
   },
   {
     id: 'knightsade',
-    name: 'KnightShade',
+    name: 'The Knight of the Mist',
     title: 'The Shadow Lancer',
     level: 4,
     dialogue: {
-      before: "*silence* ... You cannot see me coming. No piece on this board moves like I do. I leap over walls, strike from behind, and vanish before you know what happened. Do not bother predicting me.",
-      after: "*low whistle* ... You actually saw through my shadows. That knight fork you avoided in the middlegame? Nobody avoids that. You are not like the others. I respect that. Until we meet again.",
-      win: "*chuckle* ... Did you feel that? The moment your queen was forked and your king was exposed? That is the sound of the shadows claiming another victim. The Lancer always strikes true.",
+      before: "*from the fog* ... You cannot see me. On the Moors you see only what your pieces touch. I see everything. Watch for my eyes.",
+      after: "*the mist lifts* ... You found me in my own fog. Few ever do. Take the shard, and take the path out while the air is clear.",
+      win: "*a whisper at your shoulder* ... The mist keeps what it takes. Your army wandered in and did not wander out.",
+      rematch: "*somewhere to your left* ... Back in the fog so soon? The eyes remember you.",
     },
     gameDialogue: {
       gameStart: [
@@ -255,7 +259,7 @@ const CHARACTERS = [
       ],
     },
     personality: 'mysterious',
-    theme: 'cyberpunk',
+    theme: 'mistymoors',
     colors: { primary: '#6644aa', secondary: '#442288', skin: '#ccbbdd', eye: '#ffcc00', pupil: '#221144' },
   },
   {
@@ -264,9 +268,10 @@ const CHARACTERS = [
     title: 'The Royal Tyrant',
     level: 5,
     dialogue: {
-      before: "Oh my, another challenger? How adorable. Do you know who I am? I am the most powerful piece on this board, darling. I move in every direction, any distance. Bow before your queen!",
-      after: "Not bad! Not bad at all! You actually managed to outplay me! I have not been defeated in fifty games. You have earned a curtsy from the queen herself. Consider this an honor!",
-      win: "Did you really think you could defeat the queen? I am the sun around which this board revolves. Every piece bows to my movement. Off with your king! That is how the monarchy works, darling.",
+      before: "Welcome to MY palace, darling. Two queens on my back rank, and both of them are me. When I capture, you had better be good at games.",
+      after: "Outplayed in my own ballroom?! How scandalous. Fine, darling, you may keep the fragment. And the curtsy. Once.",
+      win: "Did you really think you could win in my palace? Every tile here is marble and every move is mine. Off you go, sweetie!",
+      rematch: "Back again? How flattering. The court does love a rerun. Try not to trip on the marble this time.",
     },
     gameDialogue: {
       gameStart: [
@@ -319,7 +324,7 @@ const CHARACTERS = [
       ],
     },
     personality: 'dramatic',
-    theme: 'japanese',
+    theme: 'royalpalace',
     colors: { primary: '#ff66aa', secondary: '#cc4488', skin: '#ffddcc', eye: '#ffffff', pupil: '#661144' },
   },
   {
@@ -328,9 +333,10 @@ const CHARACTERS = [
     title: 'The Unbreakable Fortress',
     level: 6,
     dialogue: {
-      before: "I am the wall. I am the shield. I am the fortress that has never fallen. You can throw your strongest pieces at me, but they will break against my defenses. Patience is my weapon. Come, test the wall.",
-      after: "The wall has fallen. You breached my defenses with a patience that matched my own. I have not seen such methodical dismantling in centuries. You are a true siege master. Well fought.",
-      win: "The fortress stands. Your attacks were predictable, your sacrifices wasteful. A true defender knows that the best offense is a perfect defense. My pawns are your tombstones. Impenetrable!",
+      before: "The Clockwork Citadel. Four gear walls stand at the heart of the board. Nothing passes through them. Lose a challenge and the square locks. Begin your siege.",
+      after: "The gears have stopped. You broke a siege that has held for centuries. Take the fragment. The Citadel will need a long time to wind back up.",
+      win: "The walls held. They always hold. Patience is a gear that never slips. Wind yourself up and try again.",
+      rematch: "Tick. Tock. You have returned to my walls. They have not moved. Neither have I.",
     },
     gameDialogue: {
       gameStart: [
@@ -383,7 +389,7 @@ const CHARACTERS = [
       ],
     },
     personality: 'patient',
-    theme: 'steampunk',
+    theme: 'clockworkcitadel',
     colors: { primary: '#88aa88', secondary: '#557755', skin: '#ccbb99', eye: '#ffffff', pupil: '#224422' },
   },
   {
@@ -392,9 +398,10 @@ const CHARACTERS = [
     title: 'The Patient Scholar',
     level: 7,
     dialogue: {
-      before: "The opening is merely a handshake. The middlegame is just conversation. The TRUE battle happens in the endgame, when only a handful of pieces remain. I have studied every endgame position known to chess. I will see you there.",
-      after: "You outplayed me in the endgame. That is not supposed to happen. I have memorized Lucena, Philidor, and the Vancura. Yet you found a path I did not see. You are a scholar as well as a warrior.",
-      win: "As I predicted. You played aggressively in the opening, burned your advantages in the middlegame, and arrived at the endgame with nothing. The endgame is where preparation meets opportunity. I had both.",
+      before: "Welcome to the Grand Library. Openings are a handshake, middlegames are small talk. I have skipped them for you. Here is an ending. Solve it.",
+      after: "You found a path my books did not list. Remarkable. I shall add a new chapter under your name. The fragment is yours.",
+      win: "As the books predicted. An ending is a question with one right answer, and I have read every answer. Study, and return.",
+      rematch: "Back to the stacks? I have pulled a new ending off the shelf. Same equal material. Different trap.",
     },
     gameDialogue: {
       gameStart: [
@@ -447,7 +454,7 @@ const CHARACTERS = [
       ],
     },
     personality: 'calm',
-    theme: 'ocean',
+    theme: 'grandlibrary',
     colors: { primary: '#5599cc', secondary: '#3377aa', skin: '#ccddcc', eye: '#ffffff', pupil: '#113355' },
   },
   {
@@ -456,9 +463,10 @@ const CHARACTERS = [
     title: 'The Tactician',
     level: 8,
     dialogue: {
-      before: "Can you spot the fork? I can. I see three of them right now, and we have not even started. Tactics flow like water through my mind. Every piece you place is a target. Every move you make is a mistake waiting to happen.",
-      after: "You avoided my forks. You sidestepped my pins. You escaped my skewers. That is rare. Most opponents are tactical roadkill by move fifteen. You must have trained specifically for me. I am impressed.",
-      win: "Forked again! Your queen and rook were lined up like dominoes. Did you not see it coming? Tactics, my friend. Tactics win games. You can have all the strategy in the world, but one fork ends it all.",
+      before: "Welcome to Forked Gulch, partner. Out here one fork takes two. Line up any two of your queen, rooks, bishops or knights, and I'll shoot 'em both.",
+      after: "Not a single double take, and you rode right past every fork I drew. I'm impressed. The fragment's yours, fair and square.",
+      win: "Bang, bang! Two pieces, one shot. That's how we do it in the Gulch. Holster up and come back when you can spot a fork.",
+      rematch: "Back in town? Good. I've been polishing both barrels.",
     },
     gameDialogue: {
       gameStart: [
@@ -511,7 +519,7 @@ const CHARACTERS = [
       ],
     },
     personality: 'smug',
-    theme: 'wildwest',
+    theme: 'forkedgulch',
     colors: { primary: '#dd8844', secondary: '#bb6622', skin: '#ffcc99', eye: '#ffffff', pupil: '#553311' },
   },
   {
@@ -520,9 +528,11 @@ const CHARACTERS = [
     title: 'The Executioner',
     level: 9,
     dialogue: {
-      before: "Every move brings you closer to your end. I do not play chess. I orchestrate checkmates. Your king is already marked. The only question is how many moves until the final blow. Let us begin the countdown.",
-      after: "You... you dodged my traps. You survived the mating net. You found resources where there should have been none. I have executed a thousand kings, but you... you are different. The Executioner bows to you.",
-      win: "Check. And mate. As foreseen. Your king is surrounded, your army scattered, your hopes crushed. There was never any doubt. The Executioner does not miss. Your soul belongs to the board now.",
+      before: "The Obsidian Court. You have forty moves to mate me. When the sand in my hourglass runs out, the sentence is carried out. On you.",
+      after: "Checkmate... to the Executioner. The glass cracks. The sand stops. Take the fragment. You have earned your time.",
+      win: "Check. And mate. As foreseen. There was never enough sand for you.",
+      timeout: "The sand ran out. It always does. Your forty moves are spent, and your king with them.",
+      rematch: "The hourglass has been turned over. Forty moves again. Spend them better.",
     },
     gameDialogue: {
       gameStart: [
@@ -575,7 +585,7 @@ const CHARACTERS = [
       ],
     },
     personality: 'ominous',
-    theme: 'crystal',
+    theme: 'obsidiancourt',
     colors: { primary: '#882222', secondary: '#551111', skin: '#ddbbbb', eye: '#ff4444', pupil: '#220000' },
   },
   {
@@ -584,9 +594,10 @@ const CHARACTERS = [
     title: 'The Absolute',
     level: 10,
     dialogue: {
-      before: "You have climbed the mountain. You have defeated nine challengers. But reaching the summit and conquering it are different things entirely. I am not merely a chess player. I am chess itself. Make your first move. It will also be your last.",
-      after: "Impossible... IMPOSSIBLE! I have not lost a game in thirty years. I have faced grandmasters, computers, and champions. Yet you... you found the truth within the lies. Chess 2.0 is yours. The throne is empty. Take it.",
-      win: "You were strong. Stronger than the others. But strength without perfection is merely potential. And potential, my friend, is wasted on the dead. I am the Absolute. I was before chess, and I will be after. Rest now.",
+      before: "You came back. Of course you did. Here every capture is a test, and I know exactly which tests you fail. Mate me if you can. You will have to do it more than once.",
+      after: "Three times... You checkmated me three times. The crystal cannot hold. Nothing can hold forever. Perhaps nothing should.",
+      win: "Stay down this time. The board stays broken. Broken, it cannot choose anyone. Broken, it is safe.",
+      rematch: "You return. They always return... no. None of them ever came back. Only you. Very well. Again.",
     },
     gameDialogue: {
       gameStart: [
@@ -639,7 +650,7 @@ const CHARACTERS = [
       ],
     },
     personality: 'serious',
-    theme: 'artdeco',
+    theme: 'crystal',
     colors: { primary: '#ffcc00', secondary: '#cc9900', skin: '#ffdd99', eye: '#ff6600', pupil: '#332200' },
   },
 ];

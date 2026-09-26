@@ -14,3 +14,4 @@ _test_*
 deploy.sh
 nginx-game.conf
 .playwright-mcp/
+third_party/

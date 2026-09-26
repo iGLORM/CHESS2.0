@@ -3,6 +3,31 @@ const PixiPremiumScene = {
   get H() { return typeof Layout !== 'undefined' ? Layout.H : 800; },
   get safe() { return { x: 64, top: 104, bottom: this.H - 56 }; },
 
+  // Bottom bar shared by every menu screen: navigation buttons sit inside it,
+  // vertically centred, with the hint text between them.
+  get FOOTER_H() { return Layout.isPortrait ? Layout.SAFE_BOTTOM + 72 : 72; },
+  FOOTER_SIDE: 36,          // screen edge to the first/last bar button
+  FOOTER_HINT_CLEAR: 250,   // space kept free for buttons on each side of the hint
+  get footerY() { return this.H - this.FOOTER_H; },
+  // Top of the content area's free space: panels should end above this.
+  get contentBottom() { return Layout.isPortrait ? this.H - Layout.SAFE_BOTTOM - 64 : this.footerY - 14; },
+  // Landscape board screens: panels either side of the board, as tall as it,
+  // with the action buttons in the strip under them.
+  sidePanels() {
+    const bx = PixiBoardRenderer.boardOffsetX;
+    const by = PixiBoardRenderer.boardOffsetY;
+    const size = PixiBoardRenderer.squareSize * 8;
+    const margin = 24;
+    const gutter = 30;
+    const w = bx - gutter - margin;
+    return { leftX: margin, rightX: bx + size + gutter, top: by - 14, w, h: size + 28, buttonY: by + size + 28 };
+  },
+
+  bottomButtonY(h = 44) {
+    if (Layout.isPortrait) return this.H - Layout.SAFE_BOTTOM - 48;
+    return Math.round(this.footerY + (this.FOOTER_H - h) / 2);
+  },
+
   cols() {
     return ThemeManager.getCurrentColors();
   },
@@ -23,7 +48,7 @@ const PixiPremiumScene = {
     root._premiumDrift = [];
     root._premiumTime = 0;
 
-    this.background(root, options.themeId || store.get('theme') || 'space');
+    this.background(root, options.themeId || store.get('theme') || 'pawnhollow');
     this.header(root, title, subtitle, options);
     if (options.footer !== false) this.footer(root, cols, options.footerHint);
     return root;
@@ -34,13 +59,31 @@ const PixiPremiumScene = {
     bg.label = 'premiumBackground';
     root.addChild(bg);
 
-    const back = new PIXI.Sprite(PixiPremiumAssets.background(themeId));
-    back.width = this.W + 48;
-    back.height = this.H + 32;
-    back.x = -24;
-    back.y = -16;
-    bg.addChild(back);
-    root._premiumDrift.push({ obj: back, baseX: -24, baseY: -16, ampX: 8, ampY: 4, speed: 0.12 });
+    // The theme's painted, animated scene (same as Home and the game); the
+    // generic backdrop only for Custom or while the scene is still loading.
+    const scene = new PIXI.Container();
+    bg.addChild(scene);
+    if (!this._paintedScene(scene, themeId)) {
+      const back = new PIXI.Sprite(PixiPremiumAssets.background(themeId));
+      back.width = this.W + 48;
+      back.height = this.H + 32;
+      back.x = -24;
+      back.y = -16;
+      scene.addChild(back);
+      root._premiumDrift.push({ obj: back, baseX: -24, baseY: -16, ampX: 8, ampY: 4, speed: 0.12 });
+      if (TextureManager.BACKGROUND_FILES[themeId]) {
+        TextureManager.preloadTheme(themeId).then(() => {
+          if (scene.destroyed) return;
+          const old = scene.removeChildren();
+          if (this._paintedScene(scene, themeId)) {
+            root._premiumDrift = root._premiumDrift.filter(d => !old.includes(d.obj));
+            old.forEach(o => o.destroy());
+          } else {
+            scene.addChild(...old);
+          }
+        });
+      }
+    }
 
     const cols = this.cols();
     const wash = new PIXI.Graphics()
@@ -72,6 +115,31 @@ const PixiPremiumScene = {
     vignette.rect(this.W - 54, 0, 54, this.H).fill({ color: 0x01030a, alpha: 0.30 });
     bg.addChild(vignette);
     return bg;
+  },
+
+  // Fills `holder` with the theme's painted background and its moving layers.
+  // Returns false if the art isn't available (yet).
+  _paintedScene(holder, themeId) {
+    const img = TextureManager.getBackgroundTexture(themeId);
+    if (!img || typeof PixiBackgroundScene === 'undefined' || !PixiBackgroundScene.ready(themeId)) return false;
+    const back = PIXI.Sprite.from(img);
+    back.width = this.W;
+    back.height = this.H;
+    holder.addChild(back);
+    const layers = new PIXI.Container();
+    holder.addChild(layers);
+    const update = PixiBackgroundScene.build(themeId, layers, back.texture);
+    if (update && PixiApp.app) {
+      let time = 0;
+      const tick = (ticker) => {
+        const dt = ticker.deltaTime / 60;
+        time += dt;
+        update(time, dt);
+      };
+      PixiApp.app.ticker.add(tick);
+      holder.once('destroyed', () => PixiApp.app && PixiApp.app.ticker.remove(tick));
+    }
+    return true;
   },
 
   header(root, title, subtitle, options = {}) {
@@ -122,18 +190,19 @@ const PixiPremiumScene = {
     const footer = new PIXI.Container();
     footer.label = 'premiumFooter';
     root.addChild(footer);
-    const footerY = this.H - 58;
+    const footerY = this.footerY;
     const line = new PIXI.Graphics()
-      .rect(0, footerY, this.W, 58)
-      .fill({ color: 0x020712, alpha: 0.42 })
+      .rect(0, footerY, this.W, this.FOOTER_H)
+      .fill({ color: 0x020712, alpha: 0.5 })
       .rect(0, footerY, this.W, 2)
       .fill({ color: this.color(cols.accent), alpha: 0.22 });
     footer.addChild(line);
-    if (hint) {
-      const text = this.text(hint, { fontSize: 24, fill: this.alpha(cols.text, '77') });
+    if (hint && !Layout.isPortrait) {
+      const text = this.text(hint, { fontSize: 20, fill: this.alpha(cols.text, '88') });
       text.anchor.set(0.5);
       text.x = this.W / 2;
-      text.y = footerY + 29;
+      text.y = footerY + this.FOOTER_H / 2;
+      this.fit(text, this.W - this.FOOTER_HINT_CLEAR * 2, 0.6);
       footer.addChild(text);
     }
     return footer;
@@ -198,7 +267,8 @@ const PixiPremiumScene = {
       this.panel(local, 0, 0, w, h, {
         fill: options.fill,
         border: options.active || hover ? (options.activeColor || this.cols().accent) : this.cols().text,
-        accent: options.active || hover ? (options.activeColor || this.cols().accent) : this.cols().accent,
+        accent: options.accentStrip === false ? false
+          : (options.active || hover ? (options.activeColor || this.cols().accent) : this.cols().accent),
         borderAlpha: options.active || hover ? 0.80 : 0.30,
         accentAlpha: options.active || hover ? 0.80 : 0.40,
         alpha: options.disabled ? 0.43 : (options.alpha ?? 0.68),
@@ -234,6 +304,7 @@ const PixiPremiumScene = {
       activeColor: options.color || cols.accent,
       alpha: options.primary ? 0.92 : 0.68,
       radius: 10,
+      accentStrip: false,
       onClick: options.disabled ? null : onClick,
       draw: (c) => {
         let icon = null;
@@ -284,6 +355,7 @@ const PixiPremiumScene = {
     if (!root || !root._premiumDrift) return;
     root._premiumTime = (root._premiumTime || 0) + dt / 60;
     for (const item of root._premiumDrift) {
+      if (item.obj.destroyed) continue;
       item.obj.x = item.baseX + Math.sin(root._premiumTime * item.speed) * item.ampX;
       item.obj.y = item.baseY + Math.cos(root._premiumTime * item.speed * 0.8) * item.ampY;
     }

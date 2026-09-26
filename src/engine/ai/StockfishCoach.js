@@ -9,16 +9,7 @@ class StockfishCoach {
 
   static async evaluatePosition(fen, depth = 12) {
     const result = await BotPersonality.analyse(fen, depth);
-    return result || this._fallbackEval(fen);
-  }
-
-  static _fallbackEval(fen) {
-    const board = FEN.toBoard(fen);
-    const color = fen.split(' ')[1] === 'w' ? 'white' : 'black';
-    const bestMove = Search.findBestMove(board, color, 3);
-    const score = Evaluate.evaluate(board, color);
-    const uci = bestMove ? this._moveToUci(bestMove) : null;
-    return { bestMove: uci, scoreCp: score, mate: null, pv: uci ? [uci] : [] };
+    return result || { bestMove: null, scoreCp: null, mate: null, pv: [] };
   }
 
   static async evaluateMove(fen, playerMoveUci, depth = 10) {
@@ -85,19 +76,5 @@ class StockfishCoach {
     if (pvMatch) pv = pvMatch[1].trim().split(/\s+/);
 
     return { scoreCp, mate, pv };
-  }
-
-  static _moveToUci(move) {
-    if (!move) return null;
-    const fromFile = String.fromCharCode(97 + move.from.col);
-    const fromRank = 8 - move.from.row;
-    const toFile = String.fromCharCode(97 + move.to.col);
-    const toRank = 8 - move.to.row;
-    let uci = `${fromFile}${fromRank}${toFile}${toRank}`;
-    if (move.promotion) {
-      const promoMap = { queen: 'q', rook: 'r', bishop: 'b', knight: 'n' };
-      uci += promoMap[move.promotion] || 'q';
-    }
-    return uci;
   }
 }

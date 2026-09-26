@@ -21,7 +21,7 @@ const PixiMenuBackground = {
     this.container = new PIXI.Container();
     PixiApp.stage.addChildAt(this.container, 0);
 
-    const theme = ThemeManager.getTheme(store.get('theme') || 'space');
+    const theme = ThemeManager.getTheme(store.get('theme') || 'pawnhollow');
     this.themeId = theme.id;
     this.colors = theme.colors;
 
@@ -43,7 +43,7 @@ const PixiMenuBackground = {
     const id = theme.id;
 
     // --- Space / default: stars + floating particles + shooting stars ---
-    if (id === 'space' || id === 'cyberpunk' || id === 'artdeco') {
+    if (id === 'grandlibrary' || id === 'trainingcamp' || id === 'royalpalace') {
       for (let i = 0; i < 60; i++) {
         const s = this._createStar();
         this.stars.push(s);
@@ -56,22 +56,17 @@ const PixiMenuBackground = {
       }
     }
 
-    // --- Ocean: bubbles + light rays ---
-    if (id === 'ocean') {
+    // --- Misty Moors: drifting motes ---
+    if (id === 'mistymoors') {
       for (let i = 0; i < 40; i++) {
-        const b = this._createBubble();
-        this.bubbles.push(b);
-        this.container.addChild(b.sprite);
-      }
-      for (let i = 0; i < 20; i++) {
         const p = this._createParticle();
         this.particles.push(p);
         this.container.addChild(p.sprite);
       }
     }
 
-    // --- Japanese: sakura petals ---
-    if (id === 'japanese') {
+    // --- Pawn Hollow: orchard petals ---
+    if (id === 'pawnhollow') {
       for (let i = 0; i < 35; i++) {
         const p = this._createPetal();
         this.petals.push(p);
@@ -79,8 +74,8 @@ const PixiMenuBackground = {
       }
     }
 
-    // --- Medieval / wildwest / egyptian: embers / dust ---
-    if (id === 'medieval' || id === 'wildwest' || id === 'egypt' || id === 'prehistoric' || id === 'steampunk') {
+    // --- Embers / dust ---
+    if (id === 'ironkeep' || id === 'forkedgulch' || id === 'slantedsands' || id === 'obsidiancourt' || id === 'clockworkcitadel') {
       for (let i = 0; i < 45; i++) {
         const e = this._createEmber();
         this.embers.push(e);
@@ -314,7 +309,7 @@ const PixiMenuBackground = {
     }
 
     // Theme change detection
-    const currentTheme = store.get('theme') || 'space';
+    const currentTheme = store.get('theme') || 'pawnhollow';
     if (this.themeId !== currentTheme) {
       this.destroy();
       this.init();

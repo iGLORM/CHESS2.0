@@ -12,15 +12,30 @@ const PixiPieceRenderer = {
       return texture;
     }
 
-    // Fallback: generate procedural sprite via SpriteGen, then create texture
-    const canvas = document.createElement('canvas');
-    canvas.width = 64;
-    canvas.height = 64;
-    const ctx = canvas.getContext('2d');
-    SpriteGen.drawPiece(ctx, type, color, 0, 0, 64, themeId);
-    const texture = PIXI.Texture.from({ resource: canvas, scaleMode: 'nearest' });
-    this.textures[key] = texture;
-    return texture;
+    // The theme's art is still loading (Story mode switches theme just before
+    // a game starts). Draw the built-in sprite for now, and rebuild the board
+    // with the real art once it arrives.
+    const fallbackKey = 'fallback_' + key;
+    if (!this.textures[fallbackKey]) {
+      const sprite = PieceRenderer.getSprite(type, color, ThemeManager.getTheme(themeId));
+      this.textures[fallbackKey] = PIXI.Texture.from({ resource: sprite, scaleMode: 'nearest' });
+    }
+    this._rebuildWhenLoaded(themeId);
+    return this.textures[fallbackKey];
+  },
+
+  _pending: {},
+
+  _rebuildWhenLoaded(themeId) {
+    if (this._pending[themeId]) return;
+    this._pending[themeId] = TextureManager.preloadTheme(themeId).then(() => {
+      delete this._pending[themeId];
+      if (!TextureManager.getPieceTexture(themeId, 'white', 'pawn')) return; // no art for this theme
+      if (store.get('screen') === 'game' && store.get('theme') === themeId &&
+          typeof GameScreen !== 'undefined' && GameScreen.rebuildVisuals) {
+        GameScreen.rebuildVisuals();
+      }
+    });
   },
 
   createSprite(themeId, color, type) {

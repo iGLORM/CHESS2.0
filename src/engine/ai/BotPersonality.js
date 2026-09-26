@@ -1,25 +1,20 @@
 /**
- * BotPersonality - runs the game's two chess engines off the main thread so
- * the game never freezes while the computer thinks:
+ * BotPersonality - runs the bundled Stockfish (WebAssembly) in a Web Worker,
+ * spoken to over UCI, so the game never freezes while the computer thinks.
  *
- *   - Stockfish (bundled WebAssembly build) in a Web Worker, spoken to over UCI.
- *   - The built-in alpha-beta engine (Search.js) in its own worker, used for
- *     the weakest levels where human-like mistakes matter more than strength.
+ * Strong levels use Stockfish's own skill setting. Easy levels ask Stockfish to
+ * score many moves at once (MultiPV) and then sometimes pick a worse one, so the
+ * bot makes human-sized mistakes instead of random ones.
  *
  * Everything is local; nothing is sent over the network.
  */
 class BotPersonality {
   static STOCKFISH_PATH = 'engine/stockfish/stockfish-18-lite-single.js';
-  static SEARCH_WORKER_PATH = 'engine/ai/searchWorker.js';
 
   static _sf = null;          // Stockfish worker
   static _sfReady = null;     // Promise<boolean>
   static _sfQueue = Promise.resolve();
   static _sfListener = null;
-
-  static _search = null;      // built-in engine worker
-  static _searchId = 0;
-  static _searchPending = new Map();
 
   /* ------------------------------------------------------------------ */
   /*  Stockfish                                                          */
@@ -65,6 +60,7 @@ class BotPersonality {
       if (!(await this.init())) return null;
       return new Promise((resolve) => {
         let lastInfo = '';
+        const lines = [];
         const finish = (result) => {
           clearTimeout(timer);
           this._sfListener = null;
@@ -76,10 +72,10 @@ class BotPersonality {
           setTimeout(() => finish(null), 1000);
         }, timeoutMs);
         this._sfListener = (line) => {
-          if (line.startsWith('info') && line.includes(' pv ')) lastInfo = line;
+          if (line.startsWith('info') && line.includes(' pv ')) { lastInfo = line; lines.push(line); }
           if (line.startsWith('bestmove')) {
             const uci = line.split(/\s+/)[1];
-            finish({ bestMove: uci && uci !== '(none)' ? uci : null, info: lastInfo });
+            finish({ bestMove: uci && uci !== '(none)' ? uci : null, info: lastInfo, lines });
           }
         };
         for (const cmd of commands) this._sf.postMessage(cmd);
@@ -95,9 +91,11 @@ class BotPersonality {
    */
   static async bestMove(fen, opts = {}) {
     const skill = Math.max(0, Math.min(20, opts.skill ?? 20));
-    const go = opts.movetime ? `go movetime ${opts.movetime}` : `go depth ${opts.depth || 10}`;
+    const go = (opts.movetime ? `go movetime ${opts.movetime}` : `go depth ${opts.depth || 10}`) +
+      this._searchMoves(opts);
     const result = await this._runSearch([
       'ucinewgame',
+      'setoption name MultiPV value 1',
       `setoption name Skill Level value ${skill}`,
       `position fen ${fen}`,
       go,
@@ -108,6 +106,7 @@ class BotPersonality {
   /** Evaluation for the coach: { bestMove, scoreCp, mate, pv } or null. */
   static async analyse(fen, depth = 12) {
     const result = await this._runSearch([
+      'setoption name MultiPV value 1',
       'setoption name Skill Level value 20',
       `position fen ${fen}`,
       `go depth ${depth}`,
@@ -124,39 +123,56 @@ class BotPersonality {
     };
   }
 
-  /* ------------------------------------------------------------------ */
-  /*  Built-in engine                                                    */
-  /* ------------------------------------------------------------------ */
+  /**
+   * Move for the easy levels as a UCI string, or null. Stockfish scores up to
+   * `multipv` moves at `depth`; with probability `noise` the bot then picks one
+   * at random, weighted so small slips are far more likely than big blunders.
+   * opts: { depth, noise 0-1, multipv? }
+   */
+  static async humanMove(fen, opts = {}) {
+    const noise = opts.noise || 0;
+    const result = await this._runSearch([
+      'ucinewgame',
+      `setoption name MultiPV value ${opts.multipv || 40}`,
+      'setoption name Skill Level value 20',
+      `position fen ${fen}`,
+      `go depth ${opts.depth || 4}` + this._searchMoves(opts),
+    ], 10000);
+    if (!result) return null;
+    if (Math.random() >= noise) return result.bestMove;
 
-  /** Best move from the built-in engine as { from, to, promotion }, or null. */
-  static searchMove(fen, color, depth, noise, timeoutMs = 8000) {
-    if (!this._search) {
-      try {
-        this._search = new Worker(this.SEARCH_WORKER_PATH);
-        this._search.onmessage = (e) => {
-          const pending = this._searchPending.get(e.data.id);
-          if (pending) {
-            this._searchPending.delete(e.data.id);
-            pending(e.data.move);
-          }
-        };
-        this._search.onerror = (e) => console.warn('Search worker error:', e.message);
-      } catch (e) {
-        return Promise.resolve(null);
-      }
+    // Latest line per MultiPV slot = that move's score at the deepest depth reached.
+    const byMove = new Map();
+    for (const line of result.lines) {
+      const move = line.match(/\bpv\s+(\S+)/);
+      const cp = line.match(/score cp (-?\d+)/);
+      const mate = line.match(/score mate (-?\d+)/);
+      if (!move) continue;
+      const score = cp ? parseInt(cp[1], 10) : mate ? (parseInt(mate[1], 10) > 0 ? 3000 : -3000) : 0;
+      byMove.set(move[1], Math.max(-3000, Math.min(3000, score)));
     }
-    const id = ++this._searchId;
-    return new Promise((resolve) => {
-      const timer = setTimeout(() => {
-        this._searchPending.delete(id);
-        resolve(null);
-      }, timeoutMs);
-      this._searchPending.set(id, (move) => {
-        clearTimeout(timer);
-        resolve(move);
-      });
-      this._search.postMessage({ id, fen, color, depth, noise });
-    });
+    if (byMove.size === 0) return result.bestMove;
+
+    const best = Math.max(...byMove.values());
+    const temperature = 30 + 450 * noise;
+    const weighted = [...byMove].map(([move, score]) => [move, Math.exp((score - best) / temperature)]);
+    let r = Math.random() * weighted.reduce((sum, [, w]) => sum + w, 0);
+    for (const [move, w] of weighted) {
+      r -= w;
+      if (r <= 0) return move;
+    }
+    return result.bestMove;
+  }
+
+  // opts.searchmoves: UCI moves Stockfish may choose from (e.g. when tiles are locked).
+  static _searchMoves(opts) {
+    return opts.searchmoves && opts.searchmoves.length ? ` searchmoves ${opts.searchmoves.join(' ')}` : '';
+  }
+
+  static moveToUci(move) {
+    const promo = { queen: 'q', rook: 'r', bishop: 'b', knight: 'n' };
+    return 'abcdefgh'[move.from.col] + (8 - move.from.row) + 'abcdefgh'[move.to.col] + (8 - move.to.row) +
+      (move.promotion ? promo[move.promotion] : '');
   }
 
   /* ------------------------------------------------------------------ */

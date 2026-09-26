@@ -1,0 +1,167 @@
+// The Training Camp: five holographic trainers between Pawnie and the bosses.
+// Each teaches with a few lesson pages, then sets a test (its rule lives in
+// BossRules under the same id). They share the character shape so the game
+// screen, dialogue and story progress treat them like any opponent.
+// Each trainer projects in their own colour (matches scripts/generate_trainer_art.js).
+const holo = (primary, secondary) => ({ primary, secondary, skin: '#e8fbff', eye: '#ffffff', pupil: '#0b1a2a' });
+
+const TRAINERS = [
+  {
+    id: 'sergeantsquare',
+    name: 'Sergeant Square',
+    title: 'Drill Instructor',
+    level: 1,
+    trainer: true,
+    hologram: 'rook',
+    lesson: [
+      { title: 'How Pieces Move', lines: [
+        'Listen up, recruit! Every piece moves its own way.',
+        'Pawns march forward and capture diagonally. Knights jump in an L. Bishops slide diagonally, rooks in straight lines, the queen does both, and the king steps one square.',
+      ] },
+      { title: 'Check and Mate', lines: [
+        'Attack the enemy king: that is CHECK. He must escape, block, or take the attacker.',
+        'If he cannot do any of that, it is CHECKMATE and the game is yours. That is the only goal that matters.',
+      ] },
+    ],
+    dialogue: {
+      before: 'Recruit! Before you face a single guardian, you will learn to finish a king. Three positions. One move each. Find the mate.',
+      after: 'Three for three! You can finish a king. Dismissed, recruit. Report to Captain Capture.',
+      win: 'That was not mate, recruit. Reset and try again. The drill does not end until you get it right.',
+    },
+    gameDialogue: {
+      gameStart: ['Eyes on the king, recruit!', 'One move. Make it count.'],
+      playerCheck: ['Check is not mate! Look again!'],
+    },
+    personality: 'stern',
+    theme: 'trainingcamp',
+    colors: holo('#56d8ff', '#1f7fa8'),
+  },
+  {
+    id: 'captaincapture',
+    name: 'Captain Capture',
+    title: 'Master of Challenges',
+    level: 1,
+    trainer: true,
+    hologram: 'knight',
+    lesson: [
+      { title: 'Captures Are Not Free', lines: [
+        'In Chess 2.0, taking a piece can start a CHALLENGE: a quick minigame.',
+        'The ATTACKER plays it. Win, and the capture goes through.',
+      ] },
+      { title: 'Losing a Challenge', lines: [
+        'Lose, and your capture is cancelled. That square locks and you must choose another move.',
+        'Out there, about one capture in three starts a challenge. In my camp, EVERY capture does.',
+      ] },
+    ],
+    dialogue: {
+      before: 'Ahoy! Out there, grabbing a piece means earning it. In here, every single capture is a challenge. Make three captures and you pass.',
+      after: 'Three prizes, all fairly won! You have the stomach for challenges. On to Joy Stick!',
+      win: 'Ha! My crew held the line. Captures are earned, not taken. Try again!',
+    },
+    gameDialogue: {
+      gameStart: ['Every capture is a challenge today!', 'Hands on the controls, sailor!'],
+      bossCapture: ['Your {piece} walks the plank!', 'Earned that {piece} fair and square!'],
+      playerCapture: ['You won my {piece}! Well played!', 'Ooh, my {piece}! Nice challenge!'],
+    },
+    personality: 'cheerful',
+    theme: 'trainingcamp',
+    colors: holo('#5dffb9', '#1f9a6b'),
+  },
+  {
+    id: 'joystick',
+    name: 'Joy Stick',
+    title: 'Arcade Coach',
+    level: 1,
+    trainer: true,
+    hologram: 'pawn',
+    lesson: [
+      { title: 'The Challenges', lines: [
+        'Challenges are short arcade games: dodge, aim, time, remember.',
+        'Each one explains itself on the READY screen, so read it before GO.',
+      ] },
+      { title: 'How to Win Them', lines: [
+        'Watch the first second, then commit. Most challenges are lost by hesitating, not by missing.',
+        'Five challenges in a row. Win three and you pass.',
+      ] },
+    ],
+    dialogue: {
+      before: 'Player one, ready? Five challenges, back to back. Win three of them and you are cleared for the real world!',
+      after: 'HIGH SCORE! Your reflexes are ready. The Rulekeeper is waiting for you.',
+      win: 'Game over, man! But in my arcade you always get another credit. Insert coin and try again!',
+    },
+    gameDialogue: {
+      gameStart: ['Get ready!', 'Hands on the controls!'],
+    },
+    personality: 'hyper',
+    theme: 'trainingcamp',
+    colors: holo('#ff6fd8', '#a8307f'),
+  },
+  {
+    id: 'rulekeeper',
+    name: 'The Rulekeeper',
+    title: 'Keeper of the Twists',
+    level: 1,
+    trainer: true,
+    hologram: 'bishop',
+    lesson: [
+      { title: 'Every Guardian Cheats', lines: [
+        'Each guardian out there bends the rules of chess in their own way.',
+        'Before every fight you will see a BOSS RULE card. Read it. It is the key to the whole fight.',
+      ] },
+      { title: 'Kinds of Twists', lines: [
+        'Some twists change the board. Some change the challenges. Some hide things from you.',
+        'Let us practise with a small one: a band of mist across the middle.',
+      ] },
+    ],
+    dialogue: {
+      before: 'A rule you have read is a rule you can beat. Here is a gentle twist: mist over the middle of the board. Make two captures through it.',
+      after: 'You read the rule and bent it back. The guardians will not find you so easy to fool.',
+      win: 'The mist hid more than you thought. Read the rule again, and look where your pieces can see.',
+    },
+    gameDialogue: {
+      gameStart: ['Mind the mist.', 'Read the board, not just the pieces.'],
+      bossCapture: ['Out of the mist, and your {piece} is gone.'],
+      playerCapture: ['You saw through it. My {piece} falls.'],
+    },
+    personality: 'calm',
+    theme: 'trainingcamp',
+    colors: holo('#a98bff', '#5b3fb0'),
+  },
+  {
+    id: 'senseitactic',
+    name: 'Sensei Tactic',
+    title: 'The Final Exam',
+    level: 2,
+    trainer: true,
+    hologram: 'king',
+    lesson: [
+      { title: 'Forks and Pins', lines: [
+        'A FORK is one piece attacking two at once. A PIN freezes a piece in front of a bigger one.',
+        'Every move, ask: what does this attack? What is standing in a line?',
+      ] },
+      { title: 'The Endgame', lines: [
+        'When the board empties, bring your king forward. It becomes a fighter.',
+        'Push passed pawns. A pawn that reaches the last rank becomes a queen.',
+      ] },
+    ],
+    dialogue: {
+      before: 'Your last lesson has no pages. A full game, against a real opponent. Win it, and Pawnie will trust you with the fragment.',
+      after: 'You are ready. The student has become a player. Go now. The shattered worlds are waiting.',
+      win: 'A good game, but not yet a winning one. Breathe, reset, and play again. I will be here.',
+    },
+    gameDialogue: {
+      gameStart: ['Show me what you have learned.', 'Begin.'],
+      bossCheck: ['Check. What will you do?'],
+      playerCheck: ['A fine check. Continue.'],
+      bossCapture: ['Your {piece}. Did you see it coming?'],
+      playerCapture: ['Good. You took my {piece}.'],
+    },
+    personality: 'wise',
+    theme: 'trainingcamp',
+    colors: holo('#ffd166', '#a8801f'),
+  },
+];
+
+// The story in order: Pawnie, the Training Camp, then the nine guardians.
+const STORY_STAGES = [CHARACTERS[0], ...TRAINERS, ...CHARACTERS.slice(1)];
+STORY_STAGES.forEach((ch, i) => { ch.stage = i + 1; });

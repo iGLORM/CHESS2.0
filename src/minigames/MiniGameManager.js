@@ -1,11 +1,6 @@
 class MiniGameManager {
   static INTRO_SECONDS = 0.9;
 
-  // Games laid out for a ~360px-tall area; they are drawn at that height,
-  // centred in the play area, instead of being stretched thin.
-  static COMPACT_GAMES = ['QuickClick', 'TimingStrike', 'PatternPress', 'ReactionTest', 'PowerMeter', 'RhythmTap', 'NumberGuess', 'CoinFlip'];
-  static COMPACT_HEIGHT = 360;
-
   constructor() {
     this.currentGame = null;
     this.active = false;
@@ -23,28 +18,21 @@ class MiniGameManager {
     this.doneTime = 0;
     this.fadeDuration = 1900;
 
-    this.allGames = [
-      { type: QuickClick, weight: 1 },
-      { type: MemoryMatch, weight: 1 },
-      { type: TimingStrike, weight: 1 },
-      { type: PatternPress, weight: 1 },
-      { type: ReactionTest, weight: 1 },
-      { type: UndertaleDodge, weight: 1 },
-      { type: PowerMeter, weight: 1 },
-      { type: TargetPractice, weight: 1 },
-      { type: DodgeFalling, weight: 1 },
-      { type: RhythmTap, weight: 1 },
-      { type: NumberGuess, weight: 1 },
-      { type: CoinFlip, weight: 1 },
-      { type: BarBalance, weight: 1 },
-      { type: ShieldBlock, weight: 1 },
-      { type: WhackMole, weight: 1 },
-    ];
+    // Every mini-game is 3D; with no WebGL, captures simply skip the challenge.
+    this.allGames = MiniGameManager.GAMES_3D().map(type => ({ type, weight: 1, needs3D: true }));
 
     this.overlayCtx = null;
     this.animFrame = null;
 
     this._calcOverlayBounds();
+  }
+
+  static GAMES_3D() {
+    return [
+      CheckmateRun, LavaTilt, RookStack, SiegeCannon, MeteorStorm, KnightCollapse,
+      MemoryMatch, TimingStrike, PatternPress, ReactionTest, UndertaleDodge, PowerMeter,
+      TargetPractice, DodgeFalling, RhythmTap, BarBalance, ShieldBlock, WhackMole,
+    ];
   }
 
   _calcOverlayBounds() {
@@ -91,11 +79,12 @@ class MiniGameManager {
     const customMg = store.get('customMinigames');
     if (!customMg) return true;
     const gameKeyMap = {
-      QuickClick: 'quickClick', MemoryMatch: 'memoryMatch', TimingStrike: 'timingStrike',
+      MemoryMatch: 'memoryMatch', TimingStrike: 'timingStrike',
       PatternPress: 'patternPress', ReactionTest: 'reactionTest', UndertaleDodge: 'undertaleDodge',
       PowerMeter: 'powerMeter', TargetPractice: 'targetPractice', DodgeFalling: 'dodgeFalling',
-      RhythmTap: 'rhythmTap', NumberGuess: 'numberGuess', CoinFlip: 'coinFlip',
-      BarBalance: 'barBalance', ShieldBlock: 'shieldBlock', WhackMole: 'whackMole',
+      RhythmTap: 'rhythmTap', BarBalance: 'barBalance', ShieldBlock: 'shieldBlock', WhackMole: 'whackMole',
+      CheckmateRun: 'checkmateRun', LavaTilt: 'lavaTilt', RookStack: 'rookStack',
+      SiegeCannon: 'siegeCannon', MeteorStorm: 'meteorStorm', KnightCollapse: 'knightCollapse',
     };
     const key = gameKeyMap[gameType.name];
     return key ? customMg[key] !== false : true;
@@ -106,7 +95,7 @@ class MiniGameManager {
   }
 
   static getAllowedGames(allGames) {
-    return allGames.filter(g => MiniGameManager.isMinigameAllowed(g.type));
+    return allGames.filter(g => MiniGameManager.isMinigameAllowed(g.type) && (!g.needs3D || Mini3D.available()));
   }
 
   startDefensiveMiniGame(options, callback) {
@@ -135,15 +124,21 @@ class MiniGameManager {
     this.botTimer = 0;
     this.nextBotAction = 0.3 + Math.random() * 0.3;
 
-    const totalWeight = allowedGames.reduce((s, g) => s + g.weight, 0);
+    // A story boss's signature games come up more often (3x by default).
+    const signature = options.signature || [];
+    const boost = options.signatureWeight || 3;
+    const weightOf = g => g.weight * (signature.includes(g.type.name) ? boost : 1);
+    const totalWeight = allowedGames.reduce((s, g) => s + weightOf(g), 0);
     let r = Math.random() * totalWeight;
     let selected = allowedGames[0];
     for (const g of allowedGames) {
-      r -= g.weight;
+      r -= weightOf(g);
       if (r <= 0) { selected = g; break; }
     }
 
     this.currentGame = new selected.type();
+    this.currentGame.botControlled = challengePlayerIsAI;
+    this.currentGame.botSkill = this.botSkillLevel;
     this.currentGame.init(defender, attacker, difficulty, this.isDuel);
     this.active = true;
     this.callback = callback;
@@ -171,13 +166,15 @@ class MiniGameManager {
     return true;
   }
 
-  startMiniGame(attacker, defender, boardPos, isAIAttacking, callback, botSkillLevel) {
+  startMiniGame(attacker, defender, boardPos, isAIAttacking, callback, botSkillLevel, signature, signatureWeight) {
     const started = this.startDefensiveMiniGame({
       attacker: defender,
       defender: attacker,
       boardPos,
       challengePlayerIsAI: isAIAttacking,
       botSkillLevel: botSkillLevel || 5,
+      signature,
+      signatureWeight,
     }, (result) => {
       if (callback) callback(result === 'defended' ? 'attacker' : 'defender');
     });
@@ -186,14 +183,19 @@ class MiniGameManager {
   }
 
 
-  startPracticeMiniGame(gameType, callback) {
+  startPracticeMiniGame(gameType, callback, options = {}) {
     audioManager.init();
+    this.practiceFailText = options.failText || null;
 
     const difficulty = 2;
     this.isDuel = false;
     this.isAIAttacking = false;
-    this.attackerPiece = { type: 'pawn', color: 'white' };
-    this.defenderPiece = { type: 'pawn', color: 'black' };
+    // No real capture in practice, so play as a random piece each time.
+    const types = ['pawn', 'knight', 'bishop', 'rook', 'queen', 'king'];
+    const pick = () => types[(Math.random() * types.length) | 0];
+    const color = Math.random() < 0.5 ? 'white' : 'black';
+    this.attackerPiece = { type: pick(), color };
+    this.defenderPiece = { type: pick(), color: color === 'white' ? 'black' : 'white' };
     this.challengePiece = this.attackerPiece;
     this.threatPiece = this.defenderPiece;
     this.challengeResult = null;
@@ -202,6 +204,7 @@ class MiniGameManager {
     this.botTimer = 0;
     this.nextBotAction = 0;
 
+    if (typeof Mini3D === 'undefined' || !Mini3D.available()) return;
     this.currentGame = new gameType();
     this.currentGame.init(this.attackerPiece, this.defenderPiece, difficulty, false);
     this.active = true;
@@ -349,12 +352,7 @@ class MiniGameManager {
   }
 
   _gameRect() {
-    const compact = MiniGameManager.COMPACT_GAMES.includes(this.currentGame.constructor.name);
-    if (!compact || this.gameH <= MiniGameManager.COMPACT_HEIGHT + 40) {
-      return { x: this.gameX, y: this.gameY, w: this.gameW, h: this.gameH };
-    }
-    const h = MiniGameManager.COMPACT_HEIGHT;
-    return { x: this.gameX, y: this.gameY + Math.round((this.gameH - h) / 2), w: this.gameW, h };
+    return { x: this.gameX, y: this.gameY, w: this.gameW, h: this.gameH };
   }
 
   // A mini-game bug must never freeze a chess game: end it and let the capture stand.
@@ -539,7 +537,7 @@ class MiniGameManager {
     const practice = this.challengeIsPractice;
     const title = practice ? (defended ? 'CLEARED!' : 'FAILED') : (defended ? 'SAVED!' : 'CAPTURED!');
     const sub = practice
-      ? (defended ? 'You beat the challenge' : 'Try again from the practice menu')
+      ? (defended ? 'You beat the challenge' : (this.practiceFailText || 'Try again from the practice menu'))
       : (defended ? 'The capture is cancelled' : 'The capture goes through');
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
@@ -589,6 +587,14 @@ class MiniGameManager {
         const stats = store.get('stats');
         stats.miniGamesPlayed++;
         if (winner === 'attacker') stats.miniGamesWon++;
+        // Per-game record, so Grandmaster X can pick the games you lose most.
+        const name = this.currentGame && this.currentGame.constructor.name;
+        if (name) {
+          stats.miniGameByType = stats.miniGameByType || {};
+          const rec = stats.miniGameByType[name] || (stats.miniGameByType[name] = { played: 0, won: 0 });
+          rec.played++;
+          if (winner === 'attacker') rec.won++;
+        }
         store.set('stats', stats);
       }
       this.challengeResult = result;
@@ -621,6 +627,18 @@ class MiniGameManager {
     if (this.currentGame.handleKey) {
       this.currentGame.handleKey(key);
     }
+  }
+
+  handleKeyUp(key) {
+    if (this.active && this.currentGame && this.currentGame.handleKeyUp) this.currentGame.handleKeyUp(key);
+  }
+
+  // Pointer down/move/up for games that steer or aim with the mouse.
+  handlePointer(type, x, y) {
+    if (!this.active || !this.currentGame || !this.currentGame.handlePointer) return;
+    if (this.challengePlayerIsAI && !this.currentGame.done) return;
+    if (type === 'down' && this.inIntro) return;
+    this.currentGame.handlePointer(type, x, y);
   }
 }
 

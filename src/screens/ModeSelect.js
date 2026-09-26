@@ -31,7 +31,7 @@ const ModeSelect = {
     this._cards = [];
     this.buildSideCards();
 
-    const btnY = Layout.isPortrait ? Layout.H - Layout.SAFE_BOTTOM - 48 : 718;
+    const btnY = PixiPremiumScene.bottomButtonY();
     PixiPremiumScene.button(this.pixiContainer, 36, btnY, Math.round(160 * s), 44, 'Home', () => {
       if (typeof audioManager !== 'undefined' && audioManager.playButton) audioManager.playButton();
       switchScreen('home');
@@ -48,27 +48,29 @@ const ModeSelect = {
     const s = Layout.uiScale || 1;
     const portrait = Layout.isPortrait;
     const cardW = portrait ? Math.round(620 * s) : 500;
-    const cardH = Math.round(76 * s);
+    const cardH = Math.round(84 * s);
     const gap = Math.round(14 * s);
-    const iconSize = Math.round(40 * s);
+    const iconSize = Math.round(44 * s);
     const totalH = sides.length * cardH + (sides.length - 1) * gap;
     const panelPad = 24;
+    const panelTop = 40;   // clears the panel's accent strip
     const panelW = Math.min(cardW + panelPad * 2, Layout.W - 80);
-    const panelH = totalH + panelPad * 2;
+    const panelH = totalH + panelTop + panelPad;
     const panelX = (Layout.W - panelW) / 2;
-    const panelY = portrait ? 180 : 200;
+    const panelY = Math.round(150 + (PixiPremiumScene.contentBottom - 150 - panelH) / 2);
     const effectiveCardW = panelW - panelPad * 2;
 
     PixiPremiumScene.panel(this.pixiContainer, panelX, panelY, panelW, panelH, { accentAlpha: 0.45 });
 
     const cardX = (Layout.W - effectiveCardW) / 2;
-    const startY = panelY + panelPad;
+    const startY = panelY + panelTop;
 
     sides.forEach((side, i) => {
       const cardY = startY + i * (cardH + gap);
       const card = PixiPremiumScene.card(this.pixiContainer, cardX, cardY, effectiveCardW, cardH, {
         active: i === this.selectedButton,
         alpha: 0.68,
+        accentStrip: false,
         onClick: () => this.startGame(side.action),
         draw: (c) => {
           const cols = ThemeManager.getCurrentColors();
@@ -76,29 +78,29 @@ const ModeSelect = {
             : side.iconColor === 'dark' ? cols.darkPiece
             : cols.accent;
           const iconSprite = PixiIconCache.createSprite(side.icon, iconSize, cols, { color: iconColor });
-          iconSprite.x = 20;
+          iconSprite.x = 22;
           iconSprite.y = (cardH - iconSize) / 2;
           c.addChild(iconSprite);
 
-          const textX = 20 + iconSize + 16;
+          const textX = 22 + iconSize + 18;
           const t = PixiPremiumScene.text(side.title, {
             fontSize: Math.round(22 * s),
             fontWeight: '900',
             fill: cols.text,
           });
-          t.x = textX;
-          t.y = cardH * 0.28;
           PixiPremiumScene.fit(t, effectiveCardW - textX - 20);
-          c.addChild(t);
 
           const sub = PixiPremiumScene.text(side.subtitle, {
             fontSize: Math.round(16 * s),
             fontWeight: '600',
             fill: PixiPremiumScene.alpha(cols.text, '77'),
           });
+          const blockH = t.height + 4 + sub.height;
+          t.x = textX;
+          t.y = Math.round((cardH - blockH) / 2);
           sub.x = textX;
-          sub.y = cardH * 0.60;
-          c.addChild(sub);
+          sub.y = t.y + t.height + 4;
+          c.addChild(t, sub);
         },
       });
       this._cards.push(card);

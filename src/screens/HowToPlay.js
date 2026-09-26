@@ -38,7 +38,7 @@ const HowToPlay = {
         'Click a piece, then a highlighted square. Esc pauses.',
         'U undoes your last move, F flips the board.',
         'Arrow keys step back and forward through the game.',
-        'F11 toggles fullscreen.',
+        'F11 or Alt+Enter toggles fullscreen.',
       ],
     },
   ],
@@ -66,97 +66,110 @@ const HowToPlay = {
 
       PixiPremiumScene.panel(this.pixiContainer, 30, 132, Layout.W - 60, totalH + 40, { accentAlpha: 0.42 });
 
+      const size = Math.min(...this.sections.map(sec => this.fitSize(sec, cardW, cardH)));
       this.sections.forEach((section, i) => {
-        this.sectionCard(section, startX, startY + i * (cardH + gapY), cardW, cardH);
+        this.sectionCard(section, startX, startY + i * (cardH + gapY), cardW, cardH, size);
       });
 
       const btnY = Layout.H - Layout.SAFE_BOTTOM - 48;
       PixiPremiumScene.button(this.pixiContainer, 36, btnY, 160, 44, 'Back', () => switchScreen('home'), { icon: 'back' });
       PixiPremiumScene.button(this.pixiContainer, Layout.W - 196, btnY, 160, 44, 'Practice', () => switchScreen('miniGamePractice'), { icon: 'play' });
-      PixiPremiumScene.button(this.pixiContainer, Layout.W / 2 - 80, btnY, 160, 44, 'Credits', () => switchScreen('credits'), { icon: 'spark' });
     } else {
-      PixiPremiumScene.panel(this.pixiContainer, 76, 132, 1128, 524, { accentAlpha: 0.42 });
-
-      const cardW = 520;
-      const cardH = 190;
-      const startX = 100;
-      const startY = 172;
-      const gapX = 40;
-      const gapY = 42;
+      const L = { X: 60, Y: 150, PAD: 28, PAD_TOP: 40, GAP: 24 };
+      const panelW = Layout.W - L.X * 2;
+      const panelH = PixiPremiumScene.contentBottom - L.Y;
+      PixiPremiumScene.panel(this.pixiContainer, L.X, L.Y, panelW, panelH, { accentAlpha: 0.42 });
+      const cardW = Math.floor((panelW - L.PAD * 2 - L.GAP) / 2);
+      const cardH = Math.floor((panelH - L.PAD_TOP - L.PAD - L.GAP) / 2);
+      // One text size for all four cards: the largest at which the fullest card fits.
+      const size = Math.min(...this.sections.map(sec => this.fitSize(sec, cardW, cardH)));
       this.sections.forEach((section, i) => {
-        const col = i % 2;
-        const row = Math.floor(i / 2);
-        this.sectionCard(section, startX + col * (cardW + gapX), startY + row * (cardH + gapY), cardW, cardH);
+        const x = L.X + L.PAD + (i % 2) * (cardW + L.GAP);
+        const y = L.Y + L.PAD_TOP + Math.floor(i / 2) * (cardH + L.GAP);
+        this.sectionCard(section, x, y, cardW, cardH, size);
       });
 
-      PixiPremiumScene.button(this.pixiContainer, 36, 718, 160, 44, 'Back', () => switchScreen('home'), { icon: 'back' });
-      PixiPremiumScene.button(this.pixiContainer, 1084, 718, 160, 44, 'Practice', () => switchScreen('miniGamePractice'), { icon: 'play' });
-      PixiPremiumScene.button(this.pixiContainer, 908, 718, 160, 44, 'Credits', () => switchScreen('credits'), { icon: 'spark' });
+      PixiPremiumScene.button(this.pixiContainer, 36, PixiPremiumScene.bottomButtonY(), 160, 44, 'Back', () => switchScreen('home'), { icon: 'back' });
+      PixiPremiumScene.button(this.pixiContainer, Layout.W - 196, PixiPremiumScene.bottomButtonY(), 160, 44, 'Practice', () => switchScreen('miniGamePractice'), { icon: 'play' });
     }
   },
 
-  sectionCard(section, x, y, w, h, scale) {
-    const ps = scale || 1;
+  CARD: { PAD: 20, ICON: 52, TITLE_H: 30, BULLET_GAP: 8 },
+
+  // Builds the bullet list at a font size; returns the container and its height.
+  bulletList(section, width, size, cols) {
+    const box = new PIXI.Container();
+    const dotSize = Math.max(4, Math.round(size * 0.36));
+    const indent = dotSize + 10;
+    let y = 0;
+    section.lines.forEach((line, i) => {
+      const text = PixiPremiumScene.text(line, {
+        fontSize: size,
+        fontWeight: '600',
+        fill: cols ? PixiPremiumScene.alpha(cols.text, 'cc') : '#ffffff',
+        wordWrap: true,
+        wordWrapWidth: width - indent,
+        lineHeight: Math.round(size * 1.3),
+      });
+      text.x = indent;
+      text.y = y;
+      const dot = new PIXI.Graphics().rect(0, 0, dotSize, dotSize).fill({ color: cols ? PixiColorUtil.hexToNum(cols.accent) : 0xffffff, alpha: 0.9 });
+      dot.y = Math.round(y + size * 0.65 - dotSize / 2);
+      box.addChild(dot, text);
+      y += text.height + (i < section.lines.length - 1 ? this.CARD.BULLET_GAP : 0);
+    });
+    return { box, height: y };
+  },
+
+  textArea(w, h) {
+    const C = this.CARD;
+    const textLeft = C.PAD + C.ICON + 18;
+    return { x: textLeft, y: C.PAD + C.TITLE_H + 12, w: w - textLeft - C.PAD, h: h - (C.PAD + C.TITLE_H + 12) - C.PAD };
+  },
+
+  fitSize(section, w, h) {
+    const area = this.textArea(w, h);
+    for (let size = 21; size > 12; size--) {
+      const { box, height } = this.bulletList(section, area.w, size);
+      box.destroy({ children: true });
+      if (height <= area.h) return size;
+    }
+    return 12;
+  },
+
+  sectionCard(section, x, y, w, h, size) {
+    const C = this.CARD;
     const fs = Layout.uiScale || 1;
-    const p = h / 190;
+    size = size || Math.round(16 * fs);
     PixiPremiumScene.card(this.pixiContainer, x, y, w, h, {
       interactive: false,
       alpha: 0.72,
+      accentStrip: false,
       draw: (card) => {
         const cols = ThemeManager.getCurrentColors();
-        const iconSize = Math.round(56 * p);
-        const iconSpriteSize = Math.round(40 * p);
-        const iconX = Math.round(20 * p);
-        const iconY = Math.round(24 * p);
-        const iconBox = new PIXI.Graphics();
-        iconBox.roundRect(iconX, iconY, iconSize, iconSize, Math.round(8 * p)).fill({ color: PixiColorUtil.hexToNum(cols.buttonBg), alpha: 0.74 });
-        iconBox.roundRect(iconX, iconY, iconSize, iconSize, Math.round(8 * p)).stroke({ color: PixiColorUtil.hexToNum(cols.accent), alpha: 0.62, width: 2 });
+        const iconBox = new PIXI.Graphics()
+          .roundRect(C.PAD, C.PAD, C.ICON, C.ICON, 8).fill({ color: PixiColorUtil.hexToNum(cols.buttonBg), alpha: 0.74 })
+          .roundRect(C.PAD, C.PAD, C.ICON, C.ICON, 8).stroke({ color: PixiColorUtil.hexToNum(cols.accent), alpha: 0.62, width: 2 });
         card.addChild(iconBox);
-
         const icon = new PIXI.Sprite(PixiPremiumAssets.icon(section.icon));
-        icon.width = iconSpriteSize;
-        icon.height = iconSpriteSize;
-        icon.x = iconX + Math.round(8 * p);
-        icon.y = iconY + Math.round(8 * p);
+        icon.width = C.ICON - 14;
+        icon.height = C.ICON - 14;
+        icon.x = C.PAD + 7;
+        icon.y = C.PAD + 7;
         card.addChild(icon);
 
-        const textLeft = iconX + iconSize + Math.round(16 * p);
-        const title = PixiPremiumScene.text(section.title, {
-          fontSize: Math.round(20 * fs),
-          fontWeight: '900',
-          fill: cols.text,
-        });
-        title.x = textLeft;
-        title.y = Math.round(20 * p);
-        PixiPremiumScene.fit(title, w - textLeft - Math.round(16 * p), 0.7);
+        const area = this.textArea(w, h);
+        const title = PixiPremiumScene.text(section.title, { fontSize: Math.round(21 * fs), fontWeight: '900', fill: cols.text });
+        title.anchor.set(0, 0.5);
+        title.x = area.x;
+        title.y = C.PAD + C.TITLE_H / 2;
+        PixiPremiumScene.fit(title, area.w, 0.7);
         card.addChild(title);
 
-        let lineY = Math.round(56 * p);
-        const dotSize = Math.round(6 * fs);
-        const dotX = textLeft + 2;
-        const lineX = dotX + Math.round(14 * fs);
-        const maxLineY = h - Math.round(12 * p);
-        section.lines.forEach((line) => {
-          if (lineY >= maxLineY) return;
-          const dot = new PIXI.Graphics();
-          dot.rect(0, 0, dotSize, dotSize).fill({ color: PixiColorUtil.hexToNum(cols.accent), alpha: 0.88 });
-          dot.x = dotX;
-          dot.y = lineY + Math.round(7 * p);
-          card.addChild(dot);
-
-          const text = PixiPremiumScene.text(line, {
-            fontSize: Math.round(16 * fs),
-            fontWeight: '600',
-            fill: PixiPremiumScene.alpha(cols.text, 'bb'),
-            wordWrap: true,
-            wordWrapWidth: w - lineX - Math.round(16 * p),
-            lineHeight: Math.round(20 * fs),
-          });
-          text.x = lineX;
-          text.y = lineY;
-          card.addChild(text);
-          lineY += Math.max(Math.round(24 * p), text.height + Math.round(6 * p));
-        });
+        const { box } = this.bulletList(section, area.w, size, cols);
+        box.x = area.x;
+        box.y = area.y;
+        card.addChild(box);
       },
     });
   },

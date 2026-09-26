@@ -26,7 +26,7 @@ const BoardEditorScreen = {
     const H = PixiPremiumScene.H;
     const s = Layout.uiScale || 1;
     const isPortrait = Layout.isPortrait;
-    const themeId = store.get('theme') || 'space';
+    const themeId = store.get('theme') || 'pawnhollow';
 
     this.pixiContainer = PixiPremiumScene.root('Board Editor', 'Create custom positions', {
       footer: false,
@@ -55,96 +55,62 @@ const BoardEditorScreen = {
   },
 
   _buildLandscapeUI(cols, s, W, H, themeId) {
-    const bx = PixiBoardRenderer.boardOffsetX;
-    const boardRight = bx + PixiBoardRenderer.squareSize * 8 + 24;
-    const panelTop = PixiBoardRenderer.boardOffsetY;
-    const boardBottom = panelTop + PixiBoardRenderer.squareSize * 8;
+    const G = PixiPremiumScene.sidePanels();
+    const pad = 22;
+    const heading = (card, text, y) => {
+      const t = PixiPremiumScene.text(text, { fontFamily: PixiTextStyles.FONT_TITLE, fontSize: 14, fill: cols.accent });
+      t.x = pad;
+      t.y = y;
+      card.addChild(t);
+    };
 
-    // --- Left: Piece palette card ---
-    const leftW = Math.max(180, bx - 38);
-    const leftH = boardBottom - panelTop;
-    PixiPremiumScene.card(this.pixiContainer, 15, panelTop, leftW, leftH, {
+    // --- Left: piece palette ---
+    PixiPremiumScene.card(this.pixiContainer, G.leftX, G.top, G.w, G.h, {
       interactive: false,
-      alpha: 0.55,
+      alpha: 0.6,
       draw: (card) => {
-        const title = PixiPremiumScene.text('Pieces', {
-          fontFamily: PixiTextStyles.FONT_TITLE,
-          fontSize: Math.round(13 * s),
-          fill: cols.accent,
-        });
-        title.x = 14;
-        title.y = 14;
-        card.addChild(title);
-
-        this._buildPaletteInCard(card, 14, 42, cols, s, themeId, leftW - 28);
+        heading(card, 'Pieces', 36);
+        this._buildPaletteInCard(card, pad, 70, cols, 1, themeId, G.w - pad * 2);
       },
     });
 
-    // --- Right: FEN + Actions card ---
-    const rightX = boardRight;
-    const rightW = Math.max(180, W - boardRight - 15);
-    const rightH = boardBottom - panelTop;
-    PixiPremiumScene.card(this.pixiContainer, rightX, panelTop, rightW, rightH, {
+    // --- Right: FEN and actions ---
+    PixiPremiumScene.card(this.pixiContainer, G.rightX, G.top, G.w, G.h, {
       interactive: false,
-      alpha: 0.55,
+      alpha: 0.6,
       draw: (card) => {
-        const fenLabel = PixiPremiumScene.text('FEN', {
-          fontFamily: PixiTextStyles.FONT_TITLE,
-          fontSize: Math.round(13 * s),
-          fill: cols.accent,
-        });
-        fenLabel.x = 14;
-        fenLabel.y = 14;
-        card.addChild(fenLabel);
-
+        heading(card, 'FEN', 36);
         this._fenText = PixiPremiumScene.text('8/8/8/8/8/8/8/8 w - - 0 1', {
-          fontFamily: PixiTextStyles.FONT_BODY,
-          fontSize: Math.round(11 * s),
-          fill: PixiColorUtil.alpha(cols.text, 'aa'),
-          wordWrap: true, wordWrapWidth: rightW - 32,
+          fontSize: 14, lineHeight: 19, fill: PixiColorUtil.alpha(cols.text, 'bb'),
+          wordWrap: true, wordWrapWidth: G.w - pad * 2, breakWords: true,
         });
-        this._fenText.x = 14;
-        this._fenText.y = 36;
+        this._fenText.x = pad;
+        this._fenText.y = 64;
         card.addChild(this._fenText);
-
-        this._statusText = PixiPremiumScene.text('', {
-          fontFamily: PixiTextStyles.FONT_BODY,
-          fontSize: Math.round(12 * s),
-          fill: cols.accent,
-        });
-        this._statusText.x = 14;
-        this._statusText.y = 72;
+        this._statusText = PixiPremiumScene.text('', { fontSize: 14, fontWeight: '700', fill: cols.accent });
+        this._statusText.x = pad;
+        this._statusText.y = 110;
         card.addChild(this._statusText);
       },
     });
 
-    // Action buttons on the right below the card
-    const actionBtnW = rightW;
-    const actionBtnH = 44;
-    const actionGap = 6;
-    let actionY = panelTop + 100;
-
     const actions = [
       { text: 'Import FEN', action: () => this._importFen() },
       { text: 'Copy FEN', action: () => this._exportFen() },
-      { text: 'Standard', action: () => this._loadStandardPosition(themeId) },
+      { text: 'Standard Setup', action: () => this._loadStandardPosition(themeId) },
       { text: 'Clear Board', action: () => this._clearBoard(themeId) },
-      { text: 'Play From Here', action: () => this._playFromHere(), primary: true },
     ];
-
+    const btnH = 46;
+    const btnGap = 12;
+    const btnW = G.w - pad * 2;
+    let y = G.top + 150;
     actions.forEach((act) => {
-      PixiPremiumScene.button(this.pixiContainer, rightX, actionY, actionBtnW, actionBtnH, act.text, act.action, {
-        primary: act.primary || false,
-        fontSize: Math.round(14 * s),
-      });
-      actionY += 68 + actionGap;
+      PixiPremiumScene.button(this.pixiContainer, G.rightX + pad, y, btnW, btnH, act.text, act.action, { fontSize: 16 });
+      y += btnH + btnGap;
     });
+    PixiPremiumScene.button(this.pixiContainer, G.rightX + pad, G.top + G.h - pad - 54, btnW, 54, 'Play From Here', () => this._playFromHere(), { primary: true, icon: 'play', fontSize: 18 });
 
-    // Back button
-    PixiPremiumScene.button(this.pixiContainer, 15, H - 72, 140, 44, 'Back', () => {
-      if (typeof audioManager !== 'undefined' && typeof audioManager.playButton === 'function') audioManager.playButton();
-      switchScreen('trainingHub');
-    }, { fontSize: Math.round(16 * s) });
+    PixiPremiumScene.button(this.pixiContainer, G.leftX, G.buttonY, 160, 44, 'Back', () => switchScreen('trainingHub'), { icon: 'back' });
   },
 
   _buildPortraitUI(cols, s, W, H, themeId) {
@@ -173,9 +139,9 @@ const BoardEditorScreen = {
     this._statusText.y = boardBottom + 28;
     this.pixiContainer.addChild(this._statusText);
 
-    const btnY = H - 60;
-    const btnW = Math.round((W - 50) / 4);
-    let bx = 10;
+    const btnY = PixiPremiumScene.bottomButtonY(42);
+    const btnW = Math.floor((W - 72 - 30) / 4);
+    let bx = 36;
     const portActions = [
       { text: 'Back', action: () => { if (typeof audioManager !== 'undefined' && typeof audioManager.playButton === 'function') audioManager.playButton(); switchScreen('trainingHub'); } },
       { text: 'Import', action: () => this._importFen() },
@@ -193,8 +159,8 @@ const BoardEditorScreen = {
 
   _buildPaletteInCard(card, startX, startY, cols, s, themeId, availW) {
     const types = ['king', 'queen', 'rook', 'bishop', 'knight', 'pawn'];
-    const pieceSize = Math.round(44 * s);
-    const gap = Math.round(6 * s);
+    const gap = 10;
+    const pieceSize = Math.min(72, Math.floor((availW - gap * 2) / 3));
     this._paletteSprites = [];
 
     types.forEach((type, i) => {
@@ -240,17 +206,17 @@ const BoardEditorScreen = {
     });
 
     // Color toggle below palette
-    const toggleY = startY + 2 * (pieceSize + gap) + Math.round(12 * s);
-    const toggleW = 3 * pieceSize + 2 * gap;
+    const toggleY = startY + 2 * (pieceSize + gap) + 14;
+    const toggleW = availW;
 
-    const colorBtn = this._makeInCardButton(card, startX, toggleY, toggleW, Math.round(34 * s),
+    const colorBtn = this._makeInCardButton(card, startX, toggleY, toggleW, 42,
       `Color: ${this._selectedPieceColor}`, cols, s, () => {
         this._selectedPieceColor = this._selectedPieceColor === 'white' ? 'black' : 'white';
         colorBtn._label.text = `Color: ${this._selectedPieceColor}`;
         this._refreshPalette(themeId);
       });
 
-    const eraseBtn = this._makeInCardButton(card, startX, toggleY + Math.round(42 * s), toggleW, Math.round(34 * s),
+    const eraseBtn = this._makeInCardButton(card, startX, toggleY + 54, toggleW, 42,
       'Erase Mode: OFF', cols, s, () => {
         this._eraseMode = !this._eraseMode;
         eraseBtn._label.text = `Erase Mode: ${this._eraseMode ? 'ON' : 'OFF'}`;
@@ -330,7 +296,8 @@ const BoardEditorScreen = {
 
     const label = PixiPremiumScene.text(text, {
       fontFamily: PixiTextStyles.FONT_BODY,
-      fontSize: Math.round(13 * s),
+      fontSize: 16,
+      fontWeight: '700',
       fill: cols.text,
     });
     label.anchor.set(0.5);
@@ -410,7 +377,7 @@ const BoardEditorScreen = {
     if (!sq) return;
 
     const { row, col } = sq;
-    const themeId = store.get('theme') || 'space';
+    const themeId = store.get('theme') || 'pawnhollow';
 
     if (this._eraseMode) {
       this._board.removePiece(row, col);
@@ -446,7 +413,7 @@ const BoardEditorScreen = {
       try {
         this._board = FEN.toBoard(fen);
         this._selectedPieceColor = fen.split(' ')[1] === 'b' ? 'black' : 'white';
-        const themeId = store.get('theme') || 'space';
+        const themeId = store.get('theme') || 'pawnhollow';
         PixiBoardRenderer.setPieces(this._board, themeId);
         this._updateFenDisplay();
         this._setStatus('FEN imported');

@@ -1,18 +1,22 @@
 class CharacterManager {
+  static STAGE_COUNT = 15;
+
   static getCharacter(id) {
-    return CHARACTERS.find(c => c.id === id) || CHARACTERS[0];
+    return STORY_STAGES.find(c => c.id === id) ||
+      (typeof StoryMissions !== 'undefined' && StoryMissions.character(id)) || STORY_STAGES[0];
   }
 
-  static getCharacterByLevel(level) {
-    return CHARACTERS.find(c => c.level === level) || CHARACTERS[level - 1] || CHARACTERS[0];
+  // Story progress counts stages: Pawnie, five trainers, nine guardians.
+  static getCharacterByStage(stage) {
+    return STORY_STAGES[stage - 1] || STORY_STAGES[0];
   }
 
   static getAllCharacters() {
-    return CHARACTERS;
+    return STORY_STAGES;
   }
 
-  static getUnlockedCharacters(maxLevel) {
-    return CHARACTERS.filter(c => c.level <= maxLevel);
+  static getUnlockedCharacters(maxStage) {
+    return STORY_STAGES.filter(c => c.stage <= maxStage);
   }
 
   static getCharacterSprite(character, size) {

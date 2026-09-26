@@ -118,18 +118,26 @@ const GameScreen = {
     const canvas = document.getElementById('gameCanvas');
     if (canvas) canvas.style.pointerEvents = 'auto';
 
+    this.bossRule = null;
+    this.bossState = { rewindsUsed: 0, puzzle: 0 };
+    this.trial = null;
+    this._introQueue = null;
+    this._introDone = null;
+    this.bossEvent = false;
+    this._fogCache = null;
     this.mode = store.get('mode');
     this.isAIMode = this.mode === 'story' || this.mode === 'classic' || this.mode === 'custom';
     // Every mode sets its own options so nothing leaks over from the last mode played.
     if (this.mode === 'story') {
       store.set('p1IsWhite', true);
-      store.set('miniGamesEnabled', (store.get('settings') || {}).miniGamesEnabled !== false);
+      // Challenges are part of the story, whatever the minigame setting says.
+      store.set('miniGamesEnabled', true);
     }
     const p1IsWhite = store.get('p1IsWhite') !== false;
     this.playerColor = p1IsWhite ? 'white' : 'black';
     this.aiColor = p1IsWhite ? 'black' : 'white';
     this.flipped = this.isAIMode && this.playerColor === 'black';
-    this.gameplayMode = this.mode === 'custom' ? store.get('customGameplayMode') !== false : true;
+    this.gameplayMode = !this.usesRandomChallenges(this.mode);
     if (this.mode === 'story') {
       this.currentCharacter = store.get('selectedCharacter');
       if (typeof this.currentCharacter === 'string') {
@@ -138,7 +146,9 @@ const GameScreen = {
       const charLevel = this.currentCharacter ? this.currentCharacter.level : 1;
       const save = store.getActiveSave();
       const tier = save ? save.difficultyTier : 'beginner';
-      this.characterLevel = DifficultyScaler.getAiLevel(tier, charLevel);
+      this.bossRule = this.currentCharacter ? BossRules.get(this.currentCharacter.id) : null;
+      this.characterLevel = BossRules.aiLevel(this.bossRule, DifficultyScaler.getAiLevel(tier, charLevel));
+      if (!(data && data.restore)) this.board = BossRules.startBoard(this.bossRule);
     } else if (this.mode === 'classic') {
       this.currentCharacter = null;
       this.characterLevel = store.get('classicDifficulty') || 5;
@@ -177,10 +187,45 @@ const GameScreen = {
       const saved = data.restore;
       this._lastInitData = null;
       this.characterLevel = saved.characterLevel;
-      this.gameplayMode = saved.gameplayMode !== false;
+      this.gameplayMode = !this.usesRandomChallenges(saved.mode) && saved.gameplayMode !== false;
       this.boardSnapshots = saved.snapshots;
       this.restoreSnapshot(this.boardSnapshots[this.boardSnapshots.length - 1]);
       store.update({ board: this.board, turn: this.turn, gameStatus: this.gameStatus });
+      return;
+    }
+
+    // Story fights open with the boss's rule; trainers teach a lesson first.
+    if (this.bossRule) {
+      const ch = this.currentCharacter;
+      const name = ch.name.toUpperCase();
+      const lesson = ch.trainer ? ch.lesson || [] : [];
+      const tested = ch.trainer || ch.mission;   // a pass/fail test rather than a boss fight
+      const pages = lesson.map((page, i) => ({
+        kicker: `LESSON ${i + 1} / ${lesson.length}  ·  ${name}`,
+        title: page.title,
+        lines: page.lines,
+        portraitId: ch.id,
+        button: 'Next',
+      }));
+      pages.push({
+        kicker: ch.mission ? `MISSION ${ch.mission.index + 1} / ${StoryMissions.COUNT}  ·  ${ch.world.name.toUpperCase()}`
+          : ch.trainer ? `YOUR TEST  ·  ${name}` : `BOSS RULE  ·  ${name}`,
+        title: this.bossRule.title,
+        lines: this.bossRule.lines,
+        portraitId: ch.trainer ? ch.id : null,
+        button: tested ? 'Start' : 'Fight!',
+      });
+      // The opponent greets you first; after a loss, with a rematch line.
+      const record = (store.getActiveSave().record || {})[ch.id] || {};
+      const greeting = record.losses && ch.dialogue.rematch ? ch.dialogue.rematch : ch.dialogue.before;
+      if (greeting) {
+        pages.unshift({ kicker: (ch.title || '').toUpperCase(), title: ch.name, lines: [greeting], portraitId: ch.id, button: 'Continue' });
+      }
+      this._introQueue = pages.slice(1);
+      this._introDone = () => this._startTraining();
+      this.introVisible = true;
+      this._introButton = null;
+      this._walkOn(ch, () => this._showRulesIntro(pages[0]));
       return;
     }
 
@@ -191,39 +236,74 @@ const GameScreen = {
     }
   },
 
-  _showRulesIntro() {
+  // The pre-game card: the Chess 2.0 rules once, or the Boss Rule before a story fight.
+  // card: { kicker, title, lines, portraitId?, button? } (omit for the Chess 2.0 rules).
+  // Further cards can wait in this._introQueue; this._introDone runs after the last.
+  _showRulesIntro(card = null) {
     this.introVisible = true;
+    this._introMarksSeen = !card;
     const cols = ThemeManager.getCurrentColors();
     const c = new PIXI.Container();
     c.zIndex = 950;
     const shade = new PIXI.Graphics().rect(0, 0, Layout.W, Layout.H).fill({ color: 0x000000, alpha: 0.66 });
     c.addChild(shade);
-    const w = Math.min(660, Layout.W - 60);
-    const h = 440;
-    const x = Math.round(Layout.cx - w / 2);
-    const y = Math.round(Layout.cy - h / 2);
-    PixiPremiumScene.panel(c, x, y, w, h, { alpha: 0.96, accentAlpha: 0.9 });
-    const title = PixiPremiumScene.text('CHESS 2.0 RULES', { fontFamily: PixiTextStyles.FONT_TITLE, fontSize: 30, fontWeight: 'bold', fill: cols.accent });
-    title.anchor.set(0.5, 0);
-    title.x = Layout.cx;
-    title.y = y + 34;
-    c.addChild(title);
-    const paragraphs = [
+    const portraitId = card && card.portraitId;
+    const PORTRAIT_W = portraitId ? 150 : 0;   // hologram column on trainer cards
+    const w = Math.min(660 + PORTRAIT_W, Layout.W - 60);
+    const PAD_X = 38, TOP = 34, KICKER_GAP = 34, TITLE_GAP = 62, PARA_GAP = 16, BTN_W = 200, BTN_H = 52, BTN_PAD = 26;
+    const paragraphs = card ? card.lines : [
       'Normal chess, with one twist.',
       'When one of your pieces is about to be captured, you can spend a Defense to play a quick mini-game. Win it and the capture is cancelled: your opponent loses their turn.',
       'You start with 2 Defenses and earn 1 more for every 2 captures. A capture that gets a king out of check cannot be blocked.',
     ];
-    let ty = y + 96;
-    for (const para of paragraphs) {
-      const t = PixiPremiumScene.text(para, { fontSize: 19, fill: cols.text, lineHeight: 27, wordWrap: true, wordWrapWidth: w - 76 });
-      t.x = x + 38;
+    const textW = w - PAD_X * 2 - PORTRAIT_W;
+    const texts = paragraphs.map(para => PixiPremiumScene.text(para, { fontSize: 19, fill: cols.text, lineHeight: 27, wordWrap: true, wordWrapWidth: textW }));
+    const kickerH = card && card.kicker ? KICKER_GAP : 0;
+    const textH = texts.reduce((sum, t) => sum + t.height + PARA_GAP, 0);
+    const h = Math.max(300, TOP + kickerH + TITLE_GAP + textH + BTN_H + BTN_PAD * 2);
+    const x = Math.round(Layout.cx - w / 2);
+    const y = Math.round(Layout.cy - h / 2);
+    PixiPremiumScene.panel(c, x, y, w, h, { alpha: 0.96, accentAlpha: 0.9 });
+    if (kickerH) {
+      const kicker = PixiPremiumScene.text(card.kicker, { fontSize: 16, fontWeight: '800', fill: cols.text, letterSpacing: 2 });
+      kicker.anchor.set(0.5, 0);
+      kicker.alpha = 0.75;
+      kicker.x = Layout.cx;
+      kicker.y = y + TOP;
+      c.addChild(kicker);
+      this._introKicker = kicker;
+    }
+    const title = PixiPremiumScene.text(card ? card.title.toUpperCase() : 'CHESS 2.0 RULES', { fontFamily: PixiTextStyles.FONT_TITLE, fontSize: 30, fontWeight: 'bold', fill: cols.accent });
+    title.anchor.set(0.5, 0);
+    title.x = Layout.cx;
+    title.y = y + TOP + kickerH;
+    c.addChild(title);
+    if (portraitId) {
+      // The opponent's portrait beside the text; a trainer's hologram bobs and flickers.
+      const isHolo = typeof TRAINERS !== 'undefined' && TRAINERS.some(t => t.id === portraitId);
+      const holo = new PIXI.Sprite(PixiPremiumAssets.characterCard(portraitId));
+      const hh = Math.min(h - TOP * 2, 200);
+      holo.height = hh;
+      holo.width = Math.round(hh * 238 / 292);
+      holo.x = x + PAD_X - 6;
+      holo.y = y + Math.round((h - hh) / 2) - 10;
+      c.addChild(holo);
+      if (isHolo) {
+        gsap.to(holo, { y: holo.y - 6, duration: 1.4, yoyo: true, repeat: -1, ease: 'sine.inOut' });
+        gsap.to(holo, { alpha: 0.72, duration: 0.07, yoyo: true, repeat: -1, repeatDelay: 1.8 });
+      }
+      title.x = x + PAD_X + PORTRAIT_W + textW / 2;
+      if (c.children.includes(this._introKicker)) this._introKicker.x = title.x;
+    }
+    let ty = y + TOP + kickerH + TITLE_GAP;
+    for (const t of texts) {
+      t.x = x + PAD_X + PORTRAIT_W;
       t.y = ty;
       c.addChild(t);
-      ty += t.height + 16;
+      ty += t.height + PARA_GAP;
     }
-    const bw = 200, bh = 52;
-    const bx = Math.round(Layout.cx - bw / 2), by = y + h - bh - 26;
-    const btn = PixiPremiumScene.button(c, bx, by, bw, bh, "Let's play", () => this._dismissRulesIntro(), { primary: true, fontSize: 20 });
+    const bx = Math.round(Layout.cx - BTN_W / 2), by = y + h - BTN_H - BTN_PAD;
+    const btn = PixiPremiumScene.button(c, bx, by, BTN_W, BTN_H, card ? (card.button || 'Fight!') : "Let's play", () => this._dismissRulesIntro(), { primary: true, fontSize: 20 });
     // Clicks arrive via the Canvas 2D layer, so mirror the button's real (scaled) size.
     this._introButton = { x: bx, y: by, w: btn.hitArea.width, h: btn.hitArea.height };
     PixiApp.stage.addChild(c);
@@ -231,12 +311,159 @@ const GameScreen = {
     this._introContainer = c;
   },
 
+  // The opponent walks onto the board before the fight (trainers flicker in
+  // as holograms), then the intro cards follow.
+  _walkOn(ch, done) {
+    this._walkingOn = true;
+    const c = new PIXI.Container();
+    c.zIndex = 940;
+    PixiApp.stage.addChild(c);
+    PixiApp.stage.sortableChildren = true;
+    this._walkOnContainer = c;
+    const B = PixiBoardRenderer;
+    const sq = B.squareSize;
+    const cx = B.boardOffsetX + sq * 4, floor = B.boardOffsetY + sq * 4.6;
+    const cols = ThemeManager.getCurrentColors();
+    const shade = new PIXI.Graphics().rect(0, 0, Layout.W, Layout.H).fill({ color: 0x000000, alpha: 0.35 });
+    shade.alpha = 0;
+    const shadow = new PIXI.Graphics().ellipse(0, 0, sq * 0.8, sq * 0.2).fill({ color: 0x000000, alpha: 0.45 });
+    shadow.x = cx;
+    shadow.y = floor;
+    c.addChild(shade, shadow);
+    let actor;
+    const tl = gsap.timeline({ onComplete: () => this._endWalkOn(done) });
+    this._walkOnTimeline = tl;
+    tl.to(shade, { alpha: 1, duration: 0.3 });
+
+    if (ch.trainer) {
+      // The trainer's hologram figure (scripts/generate_trainer_art.js), no card frame.
+      const img = TextureManager.getCharacterTexture(ch.id);
+      actor = new PIXI.Sprite(img ? PIXI.Texture.from({ resource: img, scaleMode: 'nearest' }) : PixiPremiumAssets.character(ch.id));
+      actor.anchor.set(0.5, 0.9);   // the projector disc, not the image edge, stands on the floor
+      actor.height = sq * 3.4;
+      actor.width = actor.height;
+      actor.x = cx;
+      actor.y = floor;
+      actor.alpha = 0;
+      c.addChild(actor);
+      // Materialise: a few stuttering flickers, then steady.
+      [0.6, 0.1, 0.8, 0.3, 1].forEach((a, i) => tl.to(actor, { alpha: a, duration: 0.07 }, 0.3 + i * 0.09));
+      tl.from(actor.scale, { y: actor.scale.y * 0.05, duration: 0.35, ease: 'power2.out' }, 0.3);
+      tl.add(() => audioManager.playMiniGameStart(), 0.3);
+    } else {
+      actor = PixiPieceRenderer.createSprite(store.get('theme'), this.aiColor, STORY_PIECES[ch.id] || ch.piece || 'king');
+      actor.anchor.set(0.5, 1);
+      actor.width = actor.height = sq * 2.2;
+      actor.x = Layout.W + sq * 2;
+      actor.y = floor;
+      shadow.x = actor.x;
+      c.addChild(actor);
+      // Hops across from the right edge to the middle of the board.
+      const hops = 6;
+      const startX = actor.x;
+      for (let i = 1; i <= hops; i++) {
+        const t = { v: 0 };
+        const x0 = startX + (cx - startX) * (i - 1) / hops, x1 = startX + (cx - startX) * i / hops;
+        tl.to(t, {
+          v: 1, duration: 0.2, ease: 'none',
+          onUpdate: () => {
+            actor.x = shadow.x = x0 + (x1 - x0) * t.v;
+            actor.y = floor - Math.sin(Math.PI * t.v) * sq * 0.45;
+            actor.rotation = Math.sin(Math.PI * 2 * t.v) * 0.06;
+          },
+          onComplete: () => audioManager.playMove(STORY_PIECES[ch.id] || ch.piece),
+        });
+      }
+      tl.add(() => {
+        actor.rotation = 0;
+        for (let i = 0; i < 12; i++) {
+          const dust = new PIXI.Graphics().rect(-3, -3, 6, 6).fill({ color: 0xe8dcc8, alpha: 0.8 });
+          dust.x = cx;
+          dust.y = floor;
+          c.addChild(dust);
+          const a = Math.PI + (i / 11) * Math.PI;
+          gsap.to(dust, { x: cx + Math.cos(a) * sq * 1.2, y: floor + Math.sin(a) * sq * 0.3, alpha: 0, duration: 0.5, ease: 'power2.out' });
+        }
+        this._shakeStage(6);
+      });
+      tl.fromTo(actor.scale, { y: actor.scale.y * 0.8 }, { y: actor.scale.y, duration: 0.3, ease: 'back.out(3)' });
+    }
+
+    const nameText = PixiPremiumScene.text(ch.name.toUpperCase(), {
+      fontFamily: PixiTextStyles.FONT_TITLE, fontSize: 40, fontWeight: 'bold', fill: cols.accent, stroke: { color: '#000000', width: 6 },
+    });
+    nameText.anchor.set(0.5, 0);
+    nameText.x = cx;
+    nameText.y = floor + 16;
+    nameText.alpha = 0;
+    const titleText = PixiPremiumScene.text(ch.title || '', { fontSize: 20, fontWeight: '800', fill: cols.text, stroke: { color: '#000000', width: 4 } });
+    titleText.anchor.set(0.5, 0);
+    titleText.x = cx;
+    titleText.y = nameText.y + 52;
+    titleText.alpha = 0;
+    c.addChild(nameText, titleText);
+    tl.to(nameText, { alpha: 1, duration: 0.25 })
+      .from(nameText.scale, { x: 1.8, y: 1.8, duration: 0.3, ease: 'back.out(2)' }, '<')
+      .to(titleText, { alpha: 1, duration: 0.3 }, '-=0.1')
+      .to({}, { duration: 1.0 })
+      .to(c, { alpha: 0, duration: 0.35 });
+  },
+
+  _endWalkOn(done) {
+    if (!this._walkingOn) return;
+    this._walkingOn = false;
+    if (this._walkOnTimeline) { this._walkOnTimeline.kill(); this._walkOnTimeline = null; }
+    if (this._walkOnContainer) {
+      const all = [];
+      const walk = node => { all.push(node, node.scale); (node.children || []).forEach(walk); };
+      walk(this._walkOnContainer);
+      all.forEach(o => gsap.killTweensOf(o));
+      this._walkOnContainer.destroy({ children: true });
+      this._walkOnContainer = null;
+    }
+    if (done) done();
+  },
+
+  _shakeStage(strength) {
+    const st = PixiApp.stage;
+    const t = { v: 0 };
+    gsap.to(t, {
+      v: 1, duration: 0.3,
+      onUpdate: () => { st.x = (Math.random() - 0.5) * strength * (1 - t.v); st.y = (Math.random() - 0.5) * strength * (1 - t.v); },
+      onComplete: () => { st.x = 0; st.y = 0; },
+    });
+  },
+
   _dismissRulesIntro() {
+    if (this._walkingOn) {
+      // Skipping the walk-on goes straight to the first card.
+      if (this._walkOnTimeline) this._walkOnTimeline.progress(1);
+      return;
+    }
     if (!this.introVisible) return;
     this.introVisible = false;
-    if (this._introContainer) { this._introContainer.destroy({ children: true }); this._introContainer = null; }
-    store.set('settings', { ...(store.get('settings') || {}), seenRulesIntro: true });
-    store.saveProgress();
+    if (this._introContainer) {
+      // Stop the hologram's bob/flicker (and any button tweens) before destroying.
+      const all = [];
+      const walk = node => { all.push(node, node.scale); (node.children || []).forEach(walk); };
+      walk(this._introContainer);
+      all.forEach(o => gsap.killTweensOf(o));   // an array of mixed targets is not matched
+      this._introContainer.destroy({ children: true });
+      this._introContainer = null;
+    }
+    if (this._introQueue && this._introQueue.length) {
+      this._showRulesIntro(this._introQueue.shift());
+      return;
+    }
+    if (this._introDone) {
+      const done = this._introDone;
+      this._introDone = null;
+      done();
+    }
+    if (this._introMarksSeen) {
+      store.set('settings', { ...(store.get('settings') || {}), seenRulesIntro: true });
+      store.saveProgress();
+    }
     this.aiCooldown = 400;
   },
 
@@ -244,13 +471,16 @@ const GameScreen = {
     if (typeof PixiGameScreen !== 'undefined') {
       PixiGameScreen.init();
       PixiBoardRenderer.flipped = !!this.flipped;
-      PixiGameScreen.renderBoard(this.board, store.get('theme') || 'space');
+      PixiGameScreen.renderBoard(this.board, store.get('theme') || 'pawnhollow');
     }
     if (typeof PixiGameHud !== 'undefined') {
       PixiGameHud.init();
     }
     if (typeof PixiGameOverOverlay !== 'undefined') {
       PixiGameOverOverlay.init(this);
+    }
+    if (typeof PixiBossFX !== 'undefined' && this.bossRule) {
+      PixiBossFX.init(this);
     }
   },
 
@@ -280,6 +510,7 @@ const GameScreen = {
   destroy() {
     this._aiToken = (this._aiToken || 0) + 1;
     this.introVisible = false;
+    this._endWalkOn(null);
     if (this._introContainer) { this._introContainer.destroy({ children: true }); this._introContainer = null; }
     if (this._aiTimeout) {
       clearTimeout(this._aiTimeout);
@@ -289,6 +520,7 @@ const GameScreen = {
     if (typeof audioManager.setSuspense === 'function') {
       audioManager.setSuspense(false);
     }
+    if (typeof PixiBossFX !== 'undefined') PixiBossFX.destroy();
     if (typeof PixiGameScreen !== 'undefined') {
       PixiGameScreen.destroy();
     }
@@ -298,6 +530,8 @@ const GameScreen = {
     if (typeof PixiGameOverOverlay !== 'undefined') {
       PixiGameOverOverlay.destroy();
     }
+    this.bossEvent = false;
+    this.trial = null;
     if (typeof DialogueManager !== 'undefined') {
       DialogueManager.destroy();
     }
@@ -311,6 +545,7 @@ const GameScreen = {
 
   rebuildVisuals() {
     // Tear down only the visual layer (PixiJS components), preserve all game state
+    if (typeof PixiBossFX !== 'undefined') PixiBossFX.destroy();
     if (typeof PixiGameScreen !== 'undefined') {
       PixiGameScreen.destroy();
     }
@@ -346,6 +581,7 @@ const GameScreen = {
       captureRewardProgress: { ...this.captureRewardProgress },
       gameplayMode: this.gameplayMode,
       inCheck: this.board.inCheck,
+      bossState: { ...this.bossState },
     };
     // Keep only last 200 snapshots
     if (this.boardSnapshots.length > 200) this.boardSnapshots.shift();
@@ -378,7 +614,8 @@ const GameScreen = {
     this.lockedTiles = snap.lockedTiles.map(t => ({ ...t }));
     this.defensiveMiniGames = { ...(snap.defensiveMiniGames || { white: 2, black: 2 }) };
     this.captureRewardProgress = { ...(snap.captureRewardProgress || { white: 0, black: 0 }) };
-    this.gameplayMode = snap.gameplayMode !== false;
+    this.gameplayMode = !this.usesRandomChallenges(this.mode) && snap.gameplayMode !== false;
+    this.bossState = { ...(snap.bossState || { rewindsUsed: 0 }) };
   },
 
   goToMove(index) {
@@ -415,14 +652,17 @@ const GameScreen = {
     const last = this.boardSnapshots.length - 1;
     if (last < 1) return -1;
     if (!this.isAIMode) return last - 1;
+    const rewinds = this.bossState.rewindsUsed || 0;
     for (let i = last - 1; i >= 0; i--) {
+      // Undo cannot reach back past one of Grandmaster X's rewinds.
+      if (((this.boardSnapshots[i].bossState || {}).rewindsUsed || 0) < rewinds) return -1;
       if (this.boardSnapshots[i].turn === this.playerColor) return i;
     }
     return -1;
   },
 
   canUndo() {
-    return !this.gameOver && this.reviewingAt === null && !this.promotionPending &&
+    return !this.gameOver && !this.bossEvent && this.reviewingAt === null && !this.promotionPending &&
       !store.get('miniGameActive') && this._undoTargetIndex() !== -1;
   },
 
@@ -446,6 +686,340 @@ const GameScreen = {
   flipBoard() {
     this.flipped = !this.flipped;
     if (typeof PixiBoardRenderer !== 'undefined') PixiBoardRenderer.flipped = this.flipped;
+  },
+
+  /* ------------------------------------------------------------------ */
+  /*  Story boss twists (rules live in BossRules, visuals in PixiBossFX)  */
+  /* ------------------------------------------------------------------ */
+
+  // Squares locked by a lost challenge. (CastlE's walls are real blockers on the board.)
+  _isLockedSquare(row, col) {
+    return this.lockedTiles.some(t => t.row === row && t.col === col);
+  },
+
+  // Plain locks last for the rest of one turn; timed ones until their ply.
+  _expireLocks() {
+    this.lockedTiles = this.lockedTiles.filter(t => t.until && t.until > this.moveHistory.length);
+  },
+
+  // The Knight of the Mist: 8x8 booleans (true = hidden from you), or null.
+  _hiddenSquares() {
+    if (!this.bossRule || !this.bossRule.fog || this.gameOver) return null;
+    const key = PixiGameScreen._getBoardKey(this.board);
+    if (!this._fogCache || this._fogCache.key !== key) {
+      const seen = BossRules.visibleSquares(this.board, this.playerColor);
+      const rows = this.bossRule.fogRows;   // a band of mist (the Rulekeeper), or the whole board
+      this._fogCache = { key, hidden: seen.map((row, r) => row.map(v => !v && (!rows || rows.includes(r)))) };
+    }
+    return this._fogCache.hidden;
+  },
+
+  _playerMoves() {
+    return Math.floor((this.moveHistory.length + (this.playerColor === 'white' ? 1 : 0)) / 2);
+  },
+
+  // The Clock: how many of your moves are left.
+  movesLeft() {
+    const limit = this.bossRule && this.bossRule.moveLimit;
+    return limit ? limit - Math.ceil(this.moveHistory.length / 2) : Infinity;
+  },
+
+  // Boss-rule checks after every completed turn.
+  _afterBossMoveChecks(move) {
+    const rule = this.bossRule;
+    if (!rule || this.bossEvent) return;
+    const bossMoved = this.turn === this.playerColor;
+    if (rule.fog && bossMoved) {
+      const hidden = this._hiddenSquares();
+      if (hidden && hidden[move.to.row][move.to.col]) move.hidden = true;
+      // Every third move of his, his hidden knights' eyes glow in the mist.
+      if (hidden && Math.floor(this.moveHistory.length / 2) % 3 === 0 && typeof PixiBossFX !== 'undefined') {
+        const knights = [];
+        for (let r = 0; r < 8; r++) {
+          for (let c = 0; c < 8; c++) {
+            const p = this.board.grid[r][c];
+            if (hidden[r][c] && p && p.type === 'knight' && p.color === this.aiColor) knights.push({ row: r, col: c });
+          }
+        }
+        if (knights.length) setTimeout(() => PixiBossFX.showEyes(knights), 350);
+      }
+    }
+    const goal = rule.goal || {};
+    if (goal.captures && !bossMoved && this.capturedPieces[this.playerColor].length >= goal.captures) {
+      this._endTraining(true, 'goal');
+      return;
+    }
+    if (goal.promote && !bossMoved && move.promotion) {
+      this._endTraining(true, 'crowned');
+      return;
+    }
+    if (goal.survive && bossMoved && this._playerMoves() >= goal.survive) {
+      this._endTraining(true, 'survived');
+      return;
+    }
+    if (rule.moveLimit && !bossMoved && this.movesLeft() <= 0) {
+      this.gameOver = true;
+      this.gameStatus = 'timeout';
+      this.gameResult = this.aiColor;
+      this.handleGameEnd();
+      audioManager.playGameOver();
+      store.update({ gameStatus: this.gameStatus, gameOver: true, gameResult: this.gameResult });
+      return;
+    }
+    // Timed locks can leave a side with no move that normal chess would allow.
+    if (this.lockedTiles.length) this.checkForLockedTileGameEnd();
+  },
+
+  // ForkMaster: the second forked piece is taken along with the first.
+  _applyDoubleTake(move, captured) {
+    const v = move.doubleTake;
+    const still = this.board.grid[v.row][v.col];
+    if (!still || still.color !== v.piece.color || still.type !== v.piece.type) {
+      move.doubleTake = null;
+      return;
+    }
+    this.board.grid[v.row][v.col] = null;
+    this.capturedPieces[this.turn].push(v.piece);
+    move.san = (move.san || '?') + ' x2';
+    if (typeof PixiBossFX !== 'undefined') {
+      PixiBossFX.doubleTake(move.from, [
+        { row: move.to.row, col: move.to.col, piece: captured },
+        { row: v.row, col: v.col, piece: v.piece },
+      ], store.get('theme'));
+    }
+    audioManager.playCapture();
+  },
+
+  // Minigames a boss favours: his signature games, or for Grandmaster X the
+  // ones you lose most.
+  _bossSignature() {
+    const rule = this.bossRule;
+    if (!rule) return null;
+    if (rule.weakestGames) {
+      if (!this._weakestGames) this._weakestGames = BossRules.weakestGames((store.get('stats') || {}).miniGameByType);
+      return this._weakestGames;
+    }
+    return rule.signature || null;
+  },
+
+  // What a trainer's test panel shows, or null outside the Training Camp.
+  trainingProgress() {
+    const rule = this.bossRule;
+    if (!rule) return null;
+    if (rule.puzzles) {
+      const solved = this.gameOver && this.playerWon() ? rule.puzzles.length : (this.bossState.puzzle || 0);
+      return { label: 'PUZZLES SOLVED', done: solved, total: rule.puzzles.length, slots: rule.puzzles.length };
+    }
+    if (rule.goal && rule.goal.captures) {
+      const n = Math.min(rule.goal.captures, this.capturedPieces[this.playerColor].length);
+      return { label: 'CAPTURES WON', done: n, total: rule.goal.captures, slots: rule.goal.captures };
+    }
+    if (rule.goal && rule.goal.survive) {
+      const n = Math.min(rule.goal.survive, this._playerMoves());
+      return { label: 'MOVES SURVIVED', done: n, total: rule.goal.survive, slots: Math.min(rule.goal.survive, 15) };
+    }
+    if (rule.goal && rule.goal.promote) {
+      return { label: 'PAWN CROWNED', done: this.gameOver && this.playerWon() ? 1 : 0, total: 1, slots: 1 };
+    }
+    if (rule.minigameTrial) {
+      const t = this.trial || { played: 0, won: 0 };
+      return { label: 'CHALLENGES WON', done: t.won, failed: t.played - t.won, total: rule.minigameTrial.need, slots: rule.minigameTrial.games };
+    }
+    return null;
+  },
+
+  // Puzzle drills and the minigame trial have no opponent moving pieces.
+  _noOpponent() {
+    const rule = this.bossRule;
+    return !!(rule && (rule.puzzles || rule.minigameTrial));
+  },
+
+  // Called once the lesson cards are dismissed.
+  _startTraining() {
+    const rule = this.bossRule;
+    if (rule && rule.minigameTrial && !this.gameOver) this._runTrial();
+  },
+
+  // Ends a trainer's test with a pass (player wins) or a fail.
+  _endTraining(passed, status) {
+    if (this.gameOver) return;
+    this.gameOver = true;
+    this.gameStatus = status;
+    this.gameResult = passed ? this.playerColor : this.aiColor;
+    this.handleGameEnd();
+    if (passed) {
+      audioManager.playVictory();
+      if (typeof PixiGameScreen !== 'undefined' && PixiGameScreen.initialized) {
+        PixiGameScreen.spawnFireworks(Layout.cx, Layout.cy, [0x6fe3ff, 0xbff4ff, 0xffffff, 0x2a8fb8]);
+      }
+    } else {
+      audioManager.playGameOver();
+    }
+    store.update({ gameStatus: this.gameStatus, gameOver: true, gameResult: this.gameResult });
+  },
+
+  // Sergeant Square's drill: after the player's move, a mate moves on to the
+  // next puzzle (or passes); anything else resets the puzzle. Returns true when
+  // it has taken over from the normal end-of-turn handling.
+  _puzzleMoveMade(status) {
+    const rule = this.bossRule;
+    const index = this.bossState.puzzle || 0;
+    const solved = status.status === 'checkmate' && status.winner === this.playerColor;
+    if (solved && index >= rule.puzzles.length - 1) return false;   // last one: a normal win
+    this.bossEvent = true;
+    if (typeof PixiBossFX !== 'undefined') {
+      PixiBossFX.banner(solved ? 'CHECKMATE!' : 'NOT MATE', solved ? '#7dea99' : '#ff6b6b');
+    }
+    if (solved) audioManager.playVictory(); else audioManager.playTileLock();
+    setTimeout(() => {
+      if (this.mode !== 'story' || !this.bossRule || !this.bossRule.puzzles) return;
+      this._loadPuzzle(solved ? index + 1 : index);
+      this.bossEvent = false;
+    }, 1300);
+    return true;
+  },
+
+  _loadPuzzle(index) {
+    this.board = FEN.toBoard(this.bossRule.puzzles[index]);
+    this.turn = this.board.turn;
+    this.bossState = { ...this.bossState, puzzle: index };
+    this.moveHistory = [];
+    this.capturedPieces = { white: [], black: [] };
+    this.lastMove = null;
+    this.lockedTiles = [];
+    this.selectedSquare = null;
+    this.legalMoves = [];
+    this.gameStatus = 'playing';
+    this.boardSnapshots = [];
+    this.saveSnapshot();
+    store.update({ board: this.board, turn: this.turn, gameStatus: this.gameStatus });
+  },
+
+  // Joy Stick's trial: a run of practice minigames; win `need` of `games` to pass.
+  _runTrial() {
+    const spec = this.bossRule.minigameTrial;
+    let games = MiniGameManager.getAllowedGames(miniGameManager.allGames).map(g => g.type);
+    // Missions draw from a themed pool, or from the games you lose most.
+    const pool = spec.weakest ? BossRules.weakestGames((store.get('stats') || {}).miniGameByType, 5) : spec.pool;
+    if (pool && pool.length) {
+      const picked = games.filter(g => pool.includes(g.name));
+      if (picked.length) games = picked;
+    }
+    if (!games.length || typeof Mini3D === 'undefined' || !Mini3D.available()) {
+      this._endTraining(true, 'trial');   // No WebGL: challenges cannot run, so the lesson is waived.
+      return;
+    }
+    const order = games.sort(() => Math.random() - 0.5);
+    this.trial = { played: 0, won: 0, games: spec.games, need: spec.need };
+    const next = () => {
+      if (this.gameOver || !this.trial) return;
+      const type = order[this.trial.played % order.length];
+      miniGameManager.startPracticeMiniGame(type, (result) => {
+        if (!this.trial) return;
+        this.trial.played++;
+        if (result === 'defended') this.trial.won++;
+        const left = this.trial.games - this.trial.played;
+        if (this.trial.won >= this.trial.need) this._endTraining(true, 'trial');
+        else if (this.trial.won + left < this.trial.need) this._endTraining(false, 'trial');
+        else setTimeout(next, 700);
+      }, { failText: this.currentCharacter && this.currentCharacter.mission ? 'Keep going!' : 'Joy Stick: keep going!' });
+    };
+    setTimeout(next, 400);
+  },
+
+  REWIND_LINES: [
+    'Not yet. Time bends for me.',
+    'Again? The crystal remembers every move.',
+    'You found the mate. Find it twice.',
+  ],
+
+  // Grandmaster X: checkmate him and time rewinds two full rounds (4 plies);
+  // he gains a bishop or knight. Returns true if the rewind started.
+  _tryBossRewind() {
+    const rule = this.bossRule;
+    if (!rule || !rule.rewinds || this.bossEvent) return false;
+    if ((this.bossState.rewindsUsed || 0) >= rule.rewinds) return false;
+    const used = this.bossState.rewindsUsed || 0;
+    const len = this.moveHistory.length;
+    const snapFor = n => {
+      for (let i = this.boardSnapshots.length - 1; i >= 0; i--) {
+        if (this.boardSnapshots[i].moveHistory.length === n) return i;
+      }
+      return -1;
+    };
+    // Never rewind past the previous rewind (that would take back his last gift).
+    let target = Math.max(0, len - 4);
+    while (target < len && (snapFor(target) === -1 ||
+      ((this.boardSnapshots[snapFor(target)].bossState || {}).rewindsUsed || 0) < used)) target++;
+    if (target >= len) return false;
+
+    this.bossEvent = true;
+    this.gameStatus = 'playing';
+    this.selectedSquare = null;
+    this.legalMoves = [];
+    this._aiToken = (this._aiToken || 0) + 1;
+    this.aiThinking = false;
+    const theme = store.get('theme');
+    const setPieces = () => {
+      if (typeof PixiBoardRenderer !== 'undefined' && PixiBoardRenderer.container) {
+        PixiBoardRenderer.setPieces(this.board, theme);
+        PixiGameScreen._lastBoardKey = PixiGameScreen._getBoardKey(this.board);
+      }
+    };
+    const steps = [];
+    for (let n = len - 1; n >= target; n--) {
+      const move = this.moveHistory[n];
+      const moved = move && !move.defended;
+      steps.push({
+        from: moved ? move.from : move.to,
+        to: move.to,
+        apply: () => { this.restoreSnapshot(this.boardSnapshots[snapFor(n)]); setPieces(); },
+      });
+    }
+    const gift = BossRules.rewindPiece(this._boardAt(snapFor(target)), this.aiColor);
+
+    const finish = () => {
+      if (this.mode !== 'story') return;
+      this.boardSnapshots.length = snapFor(target) + 1;
+      if (gift) {
+        this.board.grid[gift.row][gift.col] = { type: gift.type, color: this.aiColor };
+        this.board.positionHistory[this.board.positionHistory.length - 1] = this.board.posKey();
+      }
+      this.bossState = { rewindsUsed: used + 1 };
+      this.updateCheckStateForTurn();
+      this.gameStatus = this.board.inCheck ? 'check' : 'playing';
+      setPieces();
+      this.saveSnapshot();
+      this.bossEvent = false;
+      this.aiCooldown = 900;
+      store.update({ board: this.board, turn: this.turn, gameStatus: this.gameStatus });
+      const line = this.REWIND_LINES[(this.bossState.rewindsUsed - 1) % this.REWIND_LINES.length];
+      if (this.currentCharacter) this._showDialogueBubble(line, this.currentCharacter);
+    };
+    if (typeof PixiBossFX !== 'undefined' && PixiBossFX.initialized) {
+      PixiBossFX.rewind(steps, gift, theme, finish);
+    } else {
+      steps.forEach(s => s.apply());
+      finish();
+    }
+    return true;
+  },
+
+  // A Board rebuilt from a snapshot (used to plan the rewind gift ahead of time).
+  _boardAt(index) {
+    const snap = this.boardSnapshots[index];
+    const b = Board.createEmpty();
+    b.grid = snap.grid.map(row => row.map(cell => cell ? { ...cell } : null));
+    b.castlingRights = JSON.parse(JSON.stringify(snap.castlingRights));
+    b.enPassantTarget = snap.enPassantTarget ? { ...snap.enPassantTarget } : null;
+    b.halfMoveClock = snap.halfMoveClock;
+    b.fullMoveNumber = snap.fullMoveNumber || 1;
+    return b;
+  },
+
+  // Story and Custom games use random capture challenges, never Defenses.
+  usesRandomChallenges(mode) {
+    return mode === 'story' || mode === 'custom';
   },
 
   // Defenses only exist when the Chess 2.0 capture mini-games are on
@@ -475,6 +1049,9 @@ const GameScreen = {
 
   resultTitle() {
     if (!this.gameResult || this.gameResult === 'draw') return 'Draw!';
+    const ch = this.currentCharacter;
+    if (ch && (ch.trainer || ch.mission) && !this.playerWon()) return 'Try Again';
+    if (ch && ch.mission && this.playerWon()) return 'Mission Clear!';
     if (this.isAIMode) return this.playerWon() ? 'You Win!' : 'You Lose';
     return this.getPlayerName(this.gameResult) + ' Wins!';
   },
@@ -485,6 +1062,11 @@ const GameScreen = {
       case 'stalemate': return 'by Stalemate';
       case 'draw': return this.drawReason || 'by Draw';
       case 'resigned': return 'by Resignation';
+      case 'timeout': return 'The sand ran out';
+      case 'goal': return this.currentCharacter && this.currentCharacter.mission ? 'Goal reached' : 'Lesson complete';
+      case 'crowned': return 'Your pawn was crowned';
+      case 'survived': return 'You held out';
+      case 'trial': return this.playerWon() ? 'Trial passed' : 'Not enough wins';
       default: return 'Game Over';
     }
   },
@@ -502,24 +1084,27 @@ const GameScreen = {
       this.aiCooldown -= dt * 1000;
       if (this.aiCooldown < 0) this.aiCooldown = 0;
     }
-    const isLive = this.reviewingAt === null && !this.introVisible && !PauseMenu.visible;
+    const isLive = this.reviewingAt === null && !this.introVisible && !PauseMenu.visible && !this.bossEvent && !this._noOpponent();
     if (isLive && this.isAIMode && this.turn === this.aiColor && !this.aiThinking && !this.gameOver && this.aiCooldown <= 0) {
       this.doAIMove();
     }
 
     // Pixi handles board, pieces, backgrounds, particles
     if (typeof PixiGameScreen !== 'undefined' && PixiGameScreen.initialized) {
-      const filteredMoves = this.legalMoves.filter(m =>
-        !this.lockedTiles.some(t => t.row === m.to.row && t.col === m.to.col)
-      );
+      const filteredMoves = this.legalMoves.filter(m => !this._isLockedSquare(m.to.row, m.to.col));
       const inCheck = this.gameStatus === 'check' || this.gameStatus === 'checkmate';
+      const hidden = this._hiddenSquares();
+      // In the mist, his last move is only marked where you can see it.
+      const lm = this.lastMove;
+      const lastMove = hidden && lm && (hidden[lm.from.row][lm.from.col] || hidden[lm.to.row][lm.to.col]) ? null : lm;
       PixiGameScreen.update(dt, {
         board: this.board,
         selectedSquare: this.selectedSquare,
         legalMoves: filteredMoves,
-        lastMove: this.lastMove,
+        lastMove,
         checkSquare: inCheck ? this.board.findKing(this.turn) : null,
       });
+      if (typeof PixiBossFX !== 'undefined' && this.bossRule) PixiBossFX.update(dt, this, hidden);
     }
 
     if (typeof PixiGameHud !== 'undefined') {
@@ -664,7 +1249,7 @@ const GameScreen = {
 
     // Don't allow moves while reviewing
     if (this.reviewingAt !== null) return;
-    if (this.aiThinking) return;
+    if (this.aiThinking || this.bossEvent || this.trial) return;
 
     let boardPos = null;
     if (typeof PixiGameScreen !== 'undefined' && PixiGameScreen.initialized) {
@@ -674,7 +1259,7 @@ const GameScreen = {
     const row = boardPos.row;
     const col = boardPos.col;
 
-    if (this.lockedTiles.some(t => t.row === row && t.col === col)) {
+    if (this._isLockedSquare(row, col)) {
       audioManager.playTileLock();
       return;
     }
@@ -709,7 +1294,7 @@ const GameScreen = {
       this.selectedSquare = { row, col };
       audioManager.playSelect();
       let moves = GameRules.getLegalMoves(this.board, this.turn);
-      moves = moves.filter(m => !this.lockedTiles.some(t => t.row === m.to.row && t.col === m.to.col));
+      moves = moves.filter(m => !this._isLockedSquare(m.to.row, m.to.col));
       this.legalMoves = moves.filter(m => m.from.row === row && m.from.col === col);
     } else {
       this.selectedSquare = null;
@@ -810,8 +1395,14 @@ const GameScreen = {
       return true;
     }
 
-    // Legacy "locked tile" rules (Custom Game with Chess 2.0 rules off).
-    if (captured && !this.gameplayMode && Math.random() < 0.3 && MiniGameManager.shouldTriggerMiniGame() &&
+    // Random capture challenges (Story and Custom): the attacker plays; losing
+    // cancels the capture and locks that square for the rest of the turn.
+    const bossIsAttacker = this.mode === 'story' && isAIMove;
+    if (captured && bossIsAttacker && this.bossRule && this.bossRule.doubleTake) {
+      move.doubleTake = BossRules.doubleTakeVictim(this.board, move);
+    }
+    const challengeChance = BossRules.challengeChance(this.bossRule, captured || {}, bossIsAttacker);
+    if (captured && !this.gameplayMode && Math.random() < challengeChance && MiniGameManager.shouldTriggerMiniGame() &&
         CaptureRules.isChallengeable(this.board, move)) {
       const token = this._aiToken;
       this.pendingRevertMove = { move, piece, captured };
@@ -830,7 +1421,9 @@ const GameScreen = {
             this.aiCooldown = 600;
           }
         },
-        this.characterLevel
+        this.bossRule && this.bossRule.maxBotSkill ? 10 : this.characterLevel,
+        this._bossSignature(),
+        this.bossRule && this.bossRule.weakestGames ? 6 : 3
       );
       if (started) return true;
     }
@@ -890,10 +1483,11 @@ const GameScreen = {
     this.board.positionHistory.push(this.board.posKey());
     this.selectedSquare = null;
     this.legalMoves = [];
-    this.lockedTiles = [];
+    this._expireLocks();
     this.pendingRevertMove = null;
     this.updateCheckStateForTurn();
     this.finishTurnStatus();
+    if (!this.gameOver) this._afterBossMoveChecks(move);
     this.saveSnapshot();
     audioManager.playTileLock();
   },
@@ -948,12 +1542,18 @@ const GameScreen = {
 
     move.piece = piece;
     move.captured = captured;
+    if (captured && move.doubleTake) this._applyDoubleTake(move, captured);
     MoveExecutor.executeMove(this.board, move, this.turn);
     this.afterMove(move);
   },
 
   revertMoveAndLockTile(move) {
-    this.lockedTiles.push({ row: move.to.row, col: move.to.col });
+    const lockPlies = this.bossRule && this.bossRule.lockPlies;
+    // A timed lock (CastlE) lasts `lockPlies` plies after the replacement move:
+    // with 4, the square stays shut for 3 of that side's turns, this one included.
+    this.lockedTiles.push(lockPlies
+      ? { row: move.to.row, col: move.to.col, until: this.moveHistory.length + 1 + lockPlies }
+      : { row: move.to.row, col: move.to.col });
     audioManager.playTileLock();
     this.selectedSquare = null;
     this.legalMoves = [];
@@ -965,14 +1565,13 @@ const GameScreen = {
 
   checkForLockedTileGameEnd() {
     const legalMoves = GameRules.getLegalMoves(this.board, this.turn);
-    const availableMoves = legalMoves.filter(m =>
-      !this.lockedTiles.some(t => t.row === m.to.row && t.col === m.to.col)
-    );
+    const availableMoves = legalMoves.filter(m => !this._isLockedSquare(m.to.row, m.to.col));
 
     if (availableMoves.length === 0) {
       // No legal moves that avoid locked tiles
       if (this.board.inCheck) {
         // In check with no escape = checkmate
+        if (this.turn === this.aiColor && this.isAIMode && this._tryBossRewind()) return;
         this.gameOver = true;
         this.gameStatus = 'checkmate';
         this.gameResult = this.turn === 'white' ? 'black' : 'white';
@@ -992,6 +1591,8 @@ const GameScreen = {
   finishTurnStatus() {
     const status = GameRules.getGameStatus(this.board, this.turn);
     this.gameStatus = status.status;
+    if (status.status === 'checkmate' && status.winner === this.playerColor && this._tryBossRewind()) return;
+    if (this.bossRule && this.bossRule.puzzles && this._puzzleMoveMade(status)) return;
 
     if (status.status === 'checkmate' || status.status === 'stalemate') {
       this.gameOver = true;
@@ -1048,9 +1649,11 @@ const GameScreen = {
     this.turn = this.turn === 'white' ? 'black' : 'white';
     this.selectedSquare = null;
     this.legalMoves = [];
-    this.lockedTiles = [];
+    this._expireLocks();
     this.pendingRevertMove = null;
     this.finishTurnStatus();
+    if (this.bossEvent) return;
+    if (!this.gameOver) this._afterBossMoveChecks(move);
     this.saveSnapshot();
 
     if (this.mode === 'story' && typeof DialogueManager !== 'undefined') {
@@ -1095,8 +1698,7 @@ const GameScreen = {
   },
 
   _aiLegalMoves() {
-    return GameRules.getLegalMoves(this.board, this.aiColor).filter(m =>
-      !this.lockedTiles.some(t => t.row === m.to.row && t.col === m.to.col));
+    return GameRules.getLegalMoves(this.board, this.aiColor).filter(m => !this._isLockedSquare(m.to.row, m.to.col));
   },
 
   _playAIMove(move) {
@@ -1106,6 +1708,7 @@ const GameScreen = {
       if (legalMoves.length === 0) {
         this.aiThinking = false;
         // Only reachable with locked tiles; normal mates are caught after the previous move.
+        if (this.board.inCheck && this._tryBossRewind()) return;
         this.gameOver = true;
         this.gameStatus = this.board.inCheck ? 'checkmate' : 'stalemate';
         this.gameResult = this.board.inCheck ? this.playerColor : 'draw';
@@ -1187,15 +1790,36 @@ const GameScreen = {
     else stats.losses++;
     store.set('stats', stats);
 
-    if (this.mode === 'story' && this.playerWon()) {
+    if (this.mode === 'story' && this.currentCharacter && this.gameResult && this.gameResult !== 'draw') {
+      // Per-opponent record: rematch lines after a loss, stars after a win.
       const save = store.getActiveSave();
-      const charLevel = this.currentCharacter ? this.currentCharacter.level : 1;
-      if (charLevel >= save.maxUnlockedLevel && charLevel < 10) {
-        save.maxUnlockedLevel = charLevel + 1;
-        save.storyLevel = charLevel + 1;
+      const id = this.currentCharacter.id;
+      const r = { wins: 0, losses: 0, ...((save.record || {})[id] || {}) };
+      if (this.playerWon()) r.wins++;
+      else r.losses++;
+      store.setActiveSave({ record: { ...(save.record || {}), [id]: r } });
+    }
+
+    const mission = this.currentCharacter && this.currentCharacter.mission;
+    if (this.mode === 'story' && mission && this.playerWon()) {
+      // The world map plays the next step of the path.
+      if (StoryMissions.markCleared(mission.world.id, mission.index)) {
+        store.set('missionEvent', { world: mission.world.id, index: mission.index });
+      }
+    } else if (this.mode === 'story' && this.playerWon()) {
+      const save = store.getActiveSave();
+      const stage = this.currentCharacter ? this.currentCharacter.stage : 1;
+      // A first win here plays the reward on the world map (restore, fragment, travel).
+      if (stage >= save.maxUnlockedLevel && !save.completed) {
+        store.set('storyMapEvent', { stage, fragment: stage >= 6 });
+        store.set('storyScenePending', StoryScenes.after(stage));
+      }
+      if (stage >= save.maxUnlockedLevel && stage < CharacterManager.STAGE_COUNT) {
+        save.maxUnlockedLevel = stage + 1;
+        save.storyLevel = stage + 1;
         store.setActiveSave(save);
-      } else if (charLevel >= save.maxUnlockedLevel) {
-        save.storyLevel = charLevel;
+      } else if (stage >= save.maxUnlockedLevel) {
+        save.storyLevel = stage;
         save.completed = true;
         if (save.difficultyTier === 'expert' && !store.get('madnessUnlocked')) {
           store.set('madnessUnlocked', true);
@@ -1219,23 +1843,26 @@ const GameScreen = {
       case 'menu':
         switchScreen('home');
         break;
-      case 'next':
-        if (this.mode === 'story' && this.currentCharacter) {
-          const nextLevel = this.currentCharacter.level + 1;
-          if (nextLevel <= 10) {
-            const nextChar = CharacterManager.getCharacterByLevel(nextLevel);
-            const save = store.getActiveSave();
-            save.selectedCharacter = nextChar;
-            save.storyLevel = nextLevel;
-            store.set('selectedCharacter', nextChar);
-            store.setActiveSave(save);
-            this.destroy();
-            this.init(this._lastInitData);
-          } else {
-            switchScreen('home');
-          }
+      case 'map': {
+        // A first win plays its story scene on the way back to the map; the
+        // ending leads into the Credits instead.
+        if (this.currentCharacter && this.currentCharacter.mission) {
+          switchScreen('worldMissions', { world: this.currentCharacter.world.id });
+          break;
         }
+        // Losing to a guardian goes back to its world's path.
+        const home = this.currentCharacter && this.currentCharacter.world;
+        if (home && StoryMissions.forWorld(home.id) && !this.playerWon()) {
+          switchScreen('worldMissions', { world: home.id });
+          break;
+        }
+        const scene = store.get('storyScenePending');
+        store.set('storyScenePending', null);
+        if (scene === 'ending') switchScreen('storyScene', { scene, next: 'credits', nextData: { returnTo: 'worldMap' } });
+        else if (scene) switchScreen('storyScene', { scene, next: 'worldMap' });
+        else switchScreen('worldMap');
         break;
+      }
     }
   },
 };

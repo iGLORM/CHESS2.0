@@ -107,6 +107,10 @@ if (!app.requestSingleInstanceLock()) {
   });
 
   app.whenReady().then(() => {
+    // Running from source uses Electron's own bundle, so give the Dock our icon.
+    if (process.platform === 'darwin' && !app.isPackaged && app.dock) {
+      app.dock.setIcon(path.join(__dirname, 'icon_1024.png'));
+    }
     mainWin = createWindow();
     if (!app.isPackaged) setupDevScreenshot(mainWin);
   });

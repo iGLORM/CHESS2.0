@@ -70,7 +70,7 @@ const PuzzleScreen = {
     const H = PixiPremiumScene.H;
     const s = Layout.uiScale || 1;
     const isPortrait = Layout.isPortrait;
-    const themeId = store.get('theme') || 'space';
+    const themeId = store.get('theme') || 'pawnhollow';
 
     const title = this._level ? `Level ${this._level.id}` : 'Custom Puzzle';
     const subtitle = this._level ? this._level.title : 'Find the best move';
@@ -111,85 +111,81 @@ const PuzzleScreen = {
     );
   },
 
+  // Side panels match the board's height with a 30px gutter; Back and Hint sit
+  // under them, aligned to their outer edges.
   _buildLandscapeUI(cols, s, W, H) {
-    const bx = PixiBoardRenderer.boardOffsetX;
-    const boardRight = bx + PixiBoardRenderer.squareSize * 8 + 24;
-    const panelTop = PixiBoardRenderer.boardOffsetY;
-    const boardBottom = panelTop + PixiBoardRenderer.squareSize * 8;
+    const G = PixiPremiumScene.sidePanels();
+    const pad = 22;
+    const heading = (card, text, y) => {
+      const t = PixiPremiumScene.text(text, { fontFamily: PixiTextStyles.FONT_TITLE, fontSize: 14, fill: cols.accent });
+      t.x = pad;
+      t.y = y;
+      card.addChild(t);
+      return t;
+    };
 
-    // --- Left: Coach card ---
-    const leftW = Math.max(180, bx - 38);
-    const coachH = Math.min(Math.round(200 * s), boardBottom - panelTop);
-    PixiPremiumScene.card(this.pixiContainer, 15, panelTop, leftW, coachH, {
+    // --- Left: coach and lesson ---
+    PixiPremiumScene.card(this.pixiContainer, G.leftX, G.top, G.w, G.h, {
       interactive: false,
-      alpha: 0.55,
+      alpha: 0.6,
       draw: (card) => {
-        const title = PixiPremiumScene.text('Coach Magnus', {
-          fontFamily: PixiTextStyles.FONT_TITLE,
-          fontSize: Math.round(13 * s),
-          fill: cols.accent,
-        });
-        title.x = 14;
-        title.y = 14;
-        card.addChild(title);
-
+        heading(card, 'Coach Magnus', 36);
         this._coachTextObj = PixiPremiumScene.text('', {
-          fontFamily: PixiTextStyles.FONT_BODY,
-          fontSize: Math.round(14 * s),
-          fill: PixiColorUtil.alpha(cols.text, 'cc'),
-          wordWrap: true, wordWrapWidth: leftW - 32,
+          fontSize: 17, lineHeight: 24, fill: PixiColorUtil.alpha(cols.text, 'dd'),
+          wordWrap: true, wordWrapWidth: G.w - pad * 2,
         });
-        this._coachTextObj.x = 14;
-        this._coachTextObj.y = 38;
+        this._coachTextObj.x = pad;
+        this._coachTextObj.y = 66;
         card.addChild(this._coachTextObj);
+
+        if (this._level && this._level.concept) {
+          const lessonY = Math.round(G.h * 0.52);
+          card.addChild(new PIXI.Graphics().rect(pad, lessonY - 20, G.w - pad * 2, 2).fill({ color: PixiPremiumScene.color(cols.text), alpha: 0.12 }));
+          heading(card, 'Lesson', lessonY);
+          const concept = PixiPremiumScene.text(this._level.concept, {
+            fontSize: 16, lineHeight: 23, fill: PixiColorUtil.alpha(cols.text, 'bb'),
+            wordWrap: true, wordWrapWidth: G.w - pad * 2,
+          });
+          concept.x = pad;
+          concept.y = lessonY + 30;
+          card.addChild(concept);
+        }
       },
     });
 
-    // --- Right: Info card ---
-    const rightX = boardRight;
-    const rightW = Math.max(180, W - boardRight - 15);
-    const infoH = Math.min(Math.round(280 * s), boardBottom - panelTop);
-    PixiPremiumScene.card(this.pixiContainer, rightX, panelTop, rightW, infoH, {
+    // --- Right: timer, moves, hints and stars ---
+    PixiPremiumScene.card(this.pixiContainer, G.rightX, G.top, G.w, G.h, {
       interactive: false,
-      alpha: 0.55,
+      alpha: 0.6,
       draw: (card) => {
-        const pad = 16;
-        let cy = 16;
-
-        const addStat = (label, valueKey, fontSize) => {
-          const lbl = PixiPremiumScene.text(label, {
-            fontFamily: PixiTextStyles.FONT_BODY,
-            fontSize: Math.round(12 * s),
-            fill: PixiColorUtil.alpha(cols.text, '88'),
-          });
+        heading(card, 'Progress', 36);
+        let cy = 84;
+        const addStat = (label, valueKey) => {
+          const lbl = PixiPremiumScene.text(label, { fontSize: 17, fontWeight: '700', fill: PixiColorUtil.alpha(cols.text, '99') });
+          lbl.anchor.set(0, 0.5);
           lbl.x = pad;
           lbl.y = cy;
           card.addChild(lbl);
-          cy += Math.round(16 * s);
-
-          const val = PixiPremiumScene.text('0', {
-            fontFamily: PixiTextStyles.FONT_TITLE,
-            fontSize: Math.round((fontSize || 22) * s),
-            fill: cols.text,
-          });
-          val.x = pad;
+          const val = PixiPremiumScene.text('0', { fontFamily: PixiTextStyles.FONT_TITLE, fontSize: 22, fill: cols.text });
+          val.anchor.set(1, 0.5);
+          val.x = G.w - pad;
           val.y = cy;
           card.addChild(val);
           this[valueKey] = val;
-          cy += Math.round(32 * s);
+          card.addChild(new PIXI.Graphics().rect(pad, cy + 28, G.w - pad * 2, 2).fill({ color: PixiPremiumScene.color(cols.text), alpha: 0.1 }));
+          cy += 60;
         };
+        addStat('Time', '_timerText');
+        addStat('Moves', '_moveCountText');
+        addStat('Hints', '_hintCountText');
 
-        addStat('Time', '_timerText', 22);
-        addStat('Moves', '_moveCountText', 20);
-        addStat('Hints', '_hintCountText', 20);
-
-        // Stars
-        const starSize = Math.round(16 * s);
-        const starGap = Math.round(6 * s);
+        const starSize = 30;
+        const starGap = 14;
+        const startX = Math.round((G.w - (3 * starSize + 2 * starGap)) / 2);
         this._starGraphics = [];
         for (let i = 0; i < 3; i++) {
-          const sx = pad + i * (starSize + starGap) + starSize / 2;
-          const sy = cy + starSize / 2;
+          const sx = startX + i * (starSize + starGap) + starSize / 2;
+          const sy = cy + 10;
           const star = new PIXI.Graphics();
           star.star(sx, sy, 5, starSize / 2, starSize / 4).fill({
             color: PixiColorUtil.hexToNum(PixiColorUtil.alpha(cols.text, '33')),
@@ -202,28 +198,8 @@ const PuzzleScreen = {
       },
     });
 
-    // --- Bottom bar ---
-    const btnY = H - 72;
-    PixiPremiumScene.button(this.pixiContainer, 15, btnY, 130, 44, 'Back', () => {
-      this._goBack();
-    }, { fontSize: Math.round(16 * s) });
-
-    PixiPremiumScene.button(this.pixiContainer, W - 165, btnY, 150, 44, 'Hint', () => {
-      this._requestHint();
-    }, { fontSize: Math.round(16 * s) });
-
-    if (this._level && this._level.concept) {
-      const conceptText = PixiPremiumScene.text(this._level.concept, {
-        fontFamily: PixiTextStyles.FONT_BODY,
-        fontSize: Math.round(13 * s),
-        fill: PixiColorUtil.alpha(cols.text, '66'),
-        wordWrap: true, wordWrapWidth: W - 360,
-      });
-      conceptText.anchor.set(0.5, 0.5);
-      conceptText.x = W / 2;
-      conceptText.y = btnY + 34;
-      this.pixiContainer.addChild(conceptText);
-    }
+    PixiPremiumScene.button(this.pixiContainer, G.leftX, G.buttonY, 160, 44, 'Back', () => this._goBack(), { icon: 'back' });
+    PixiPremiumScene.button(this.pixiContainer, G.rightX + G.w - 160, G.buttonY, 160, 44, 'Hint', () => this._requestHint(), { icon: 'spark' });
   },
 
   _buildPortraitUI(cols, s, W, H) {
@@ -391,7 +367,7 @@ const PuzzleScreen = {
 
   _attemptMove(move) {
     this._moveCount++;
-    const themeId = store.get('theme') || 'space';
+    const themeId = store.get('theme') || 'pawnhollow';
     const uci = this._moveToUci(move);
     const isCorrect = this._isSolutionMove(uci);
 
@@ -507,7 +483,7 @@ const PuzzleScreen = {
       return;
     }
 
-    const themeId = store.get('theme') || 'space';
+    const themeId = store.get('theme') || 'pawnhollow';
     setTimeout(() => {
       const captured = this._board.getPiece(move.to.row, move.to.col);
       if (captured) {

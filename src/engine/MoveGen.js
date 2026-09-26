@@ -1,4 +1,9 @@
 class MoveGen {
+  static KNIGHT_STEPS = [[2, 1], [2, -1], [-2, 1], [-2, -1], [1, 2], [1, -2], [-1, 2], [-1, -2]];
+  static KING_STEPS = [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [1, -1], [-1, 1], [-1, -1]];
+  static ROOK_DIRS = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+  static BISHOP_DIRS = [[1, 1], [1, -1], [-1, 1], [-1, -1]];
+
   static generateMoves(board, color) {
     const moves = [];
     for (let r = 0; r < 8; r++) {
@@ -52,7 +57,7 @@ class MoveGen {
       const nc = col + dc;
       if (board.isInBounds(oneStep, nc)) {
         const target = board.grid[oneStep][nc];
-        if (target && target.color !== piece.color) {
+        if (target && target.color !== piece.color && target.type !== 'wall') {
           addPromo(oneStep, nc, target);
         }
         if (board.enPassantTarget && board.enPassantTarget.row === oneStep && board.enPassantTarget.col === nc) {
@@ -75,7 +80,7 @@ class MoveGen {
         if (!target) {
           moves.push({ from: { row, col }, to: { row: nr, col: nc }, captured: null });
         } else {
-          if (target.color !== piece.color) {
+          if (target.color !== piece.color && target.type !== 'wall') {
             moves.push({ from: { row, col }, to: { row: nr, col: nc }, captured: target });
           }
           break;
@@ -114,19 +119,62 @@ class MoveGen {
     }
   }
 
+  // Looks outward from the target square instead of scanning every enemy piece.
   static isSquareAttacked(board, row, col, byColor) {
-    for (let r = 0; r < 8; r++) {
-      for (let c = 0; c < 8; c++) {
-        const p = board.grid[r][c];
-        if (!p || p.color !== byColor) continue;
-        if (p.type === 'pawn') {
-          const dir = byColor === 'white' ? -1 : 1;
-          if (r + dir === row && (c - 1 === col || c + 1 === col)) return true;
-          continue;
-        }
-        if (MoveGen.canPieceAttack(board, p, r, c, row, col)) return true;
+    const g = board.grid;
+
+    const pr = byColor === 'white' ? row + 1 : row - 1;
+    if (pr >= 0 && pr < 8) {
+      if (col > 0) {
+        const p = g[pr][col - 1];
+        if (p && p.type === 'pawn' && p.color === byColor) return true;
+      }
+      if (col < 7) {
+        const p = g[pr][col + 1];
+        if (p && p.type === 'pawn' && p.color === byColor) return true;
       }
     }
+
+    for (const [dr, dc] of MoveGen.KNIGHT_STEPS) {
+      const r = row + dr, c = col + dc;
+      if (r < 0 || r > 7 || c < 0 || c > 7) continue;
+      const p = g[r][c];
+      if (p && p.type === 'knight' && p.color === byColor) return true;
+    }
+
+    for (const [dr, dc] of MoveGen.KING_STEPS) {
+      const r = row + dr, c = col + dc;
+      if (r < 0 || r > 7 || c < 0 || c > 7) continue;
+      const p = g[r][c];
+      if (p && p.type === 'king' && p.color === byColor) return true;
+    }
+
+    for (const [dr, dc] of MoveGen.ROOK_DIRS) {
+      let r = row + dr, c = col + dc;
+      while (r >= 0 && r < 8 && c >= 0 && c < 8) {
+        const p = g[r][c];
+        if (p) {
+          if (p.color === byColor && (p.type === 'rook' || p.type === 'queen')) return true;
+          break;
+        }
+        r += dr;
+        c += dc;
+      }
+    }
+
+    for (const [dr, dc] of MoveGen.BISHOP_DIRS) {
+      let r = row + dr, c = col + dc;
+      while (r >= 0 && r < 8 && c >= 0 && c < 8) {
+        const p = g[r][c];
+        if (p) {
+          if (p.color === byColor && (p.type === 'bishop' || p.type === 'queen')) return true;
+          break;
+        }
+        r += dr;
+        c += dc;
+      }
+    }
+
     return false;
   }
 

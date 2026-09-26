@@ -13,6 +13,7 @@ const PixiBackgroundRenderer = {
   _parallaxLayers: [],
   _glowSources: [],
   _time: 0,
+  _sceneUpdate: null,
 
   init(parentStage) {
     this.container = new PIXI.Container();
@@ -34,13 +35,29 @@ const PixiBackgroundRenderer = {
 
     // --- Background image or gradient ---
     const img = TextureManager.getBackgroundTexture(themeId);
-    if (img) {
+    const hasScene = typeof PixiBackgroundScene !== 'undefined';
+    if (img && (!hasScene || PixiBackgroundScene.ready(themeId))) {
       this.bgSprite = PIXI.Sprite.from(img);
       this.bgSprite.width = Layout.W;
       this.bgSprite.height = Layout.H;
       this.container.addChild(this.bgSprite);
+      if (hasScene) {
+        // Animated layers: swaying trees, drifting clouds and sand...
+        const sceneLayer = new PIXI.Container();
+        this.container.addChild(sceneLayer);
+        this._sceneUpdate = PixiBackgroundScene.build(themeId, sceneLayer, this.bgSprite.texture);
+      }
     } else {
       this._renderGradientBg(cols);
+      if (TextureManager.BACKGROUND_FILES[themeId]) {
+        // Painted scene still loading: show it as soon as it arrives.
+        Promise.all([
+          TextureManager.loadImage(TextureManager.backgroundPath(themeId)),
+          hasScene ? PixiBackgroundScene.load(themeId) : null,
+        ]).then(([loaded]) => {
+          if (loaded && this.container && this._themeId === themeId && !this.bgSprite) this.render(themeId);
+        });
+      }
     }
 
     // --- Parallax fog/mist layers ---
@@ -208,33 +225,35 @@ const PixiBackgroundRenderer = {
     const accentNum = PixiColorUtil.hexToNum(cols.accent);
     const id = themeId.toLowerCase();
 
-    if (id === 'ocean' || id.includes('ocean')) {
-      this._spawnBubbles(60);
-      this._spawnLightRays(cols, 8);
-    } else if (id === 'japanese' || id.includes('japan')) {
-      this._spawnCherryBlossoms(50);
-    } else if (id === 'crystal' || id.includes('crystal')) {
+    if (id === 'pawnhollow') {
+      this._spawnFloatingSpores(30, cols);
+      this._spawnCherryBlossoms(20);
+    } else if (id === 'trainingcamp') {
+      this._spawnCherryBlossoms(40);
+      this._spawnDataStreaks(12, cols);
+    } else if (id === 'crystal') {
       this._spawnCrystalSparkles(70, cols);
-    } else if (id === 'wildwest' || id.includes('west')) {
+    } else if (id === 'forkedgulch') {
       this._spawnDustParticles(45, cols);
-    } else if (id === 'space' || id.includes('space')) {
-      this._spawnStarField(120, cols);
-      this._spawnShootingStars(3);
-    } else if (id === 'cyberpunk' || id.includes('cyber')) {
-      this._spawnDataStreaks(30, cols);
-    } else if (id === 'medieval' || id.includes('medieval')) {
+    } else if (id === 'grandlibrary') {
+      this._spawnDustParticles(40, cols);
+      this._spawnTorchGlows(3, cols);
+    } else if (id === 'ironkeep') {
       this._spawnMedievalEmbers(40, cols);
       this._spawnTorchGlows(3, cols);
-    } else if (id === 'egypt' || id.includes('egypt')) {
+    } else if (id === 'slantedsands') {
       this._spawnSandParticles(50, cols);
       this._spawnHeatShimmer(3);
-    } else if (id === 'steampunk' || id.includes('steampunk') || id.includes('steam')) {
+    } else if (id === 'clockworkcitadel') {
       this._spawnSteamWisps(25, cols);
       this._spawnTinyGears(10, cols);
-    } else if (id === 'prehistoric' || id.includes('prehistoric') || id.includes('dino')) {
-      this._spawnFloatingSpores(40, cols);
-      this._spawnMistBanks(4, cols);
-    } else if (id === 'artdeco' || id.includes('artdeco') || id.includes('art_deco') || id.includes('deco')) {
+    } else if (id === 'mistymoors') {
+      this._spawnMistBanks(6, cols);
+      this._spawnFloatingSpores(20, cols);
+    } else if (id === 'obsidiancourt') {
+      this._spawnMedievalEmbers(35, cols);
+      this._spawnMistBanks(3, cols);
+    } else if (id === 'royalpalace') {
       this._spawnArtDecoGeometrics(30, cols);
     } else {
       this._spawnGenericAmbient(40, cols);
@@ -636,6 +655,7 @@ const PixiBackgroundRenderer = {
   // =============================================
   _animate(dt) {
     this._time += dt;
+    if (this._sceneUpdate) this._sceneUpdate(this._time, dt);
 
     // --- Parallax fog/mist layers ---
     for (const layer of this._parallaxLayers) {
@@ -913,6 +933,7 @@ const PixiBackgroundRenderer = {
     this._parallaxLayer = null;
     this._glowLayer = null;
     this.bgSprite = null;
+    this._sceneUpdate = null;
   },
 
   destroy() {

@@ -6,7 +6,7 @@ class FEN {
       let empty = 0;
       for (let c = 0; c < 8; c++) {
         const p = board.grid[r][c];
-        if (!p) {
+        if (!p || p.type === 'wall') {   // walls are invisible to FEN (and Stockfish)
           empty++;
         } else {
           if (empty > 0) { fen += empty; empty = 0; }

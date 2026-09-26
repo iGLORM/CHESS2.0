@@ -7,13 +7,14 @@
   "scripts": {
     "start": "electron .",
     "test": "node --test \"tests/*.test.js\"",
-    "build": "electron-builder",
-    "build:win": "electron-builder --win",
-    "build:mac": "electron-builder --mac",
-    "build:linux": "electron-builder --linux",
-    "build:steam:win": "electron-builder --win dir --x64",
-    "build:steam:mac": "electron-builder --mac dir",
-    "build:steam:linux": "electron-builder --linux dir"
+    "build": "npm run stockfish-source && electron-builder",
+    "build:win": "npm run stockfish-source && electron-builder --win",
+    "build:mac": "npm run stockfish-source && electron-builder --mac",
+    "build:linux": "npm run stockfish-source && electron-builder --linux",
+    "build:steam:win": "npm run stockfish-source && electron-builder --win dir --x64",
+    "build:steam:mac": "npm run stockfish-source && electron-builder --mac dir",
+    "build:steam:linux": "npm run stockfish-source && electron-builder --linux dir",
+    "stockfish-source": "node scripts/fetch-stockfish-source.js"
   },
   "build": {
     "appId": "com.iglorm.chess2",
@@ -31,6 +32,28 @@
       "icon.ico",
       "icon_512.png",
       "icon_1024.png"
+    ],
+    "extraFiles": [
+      {
+        "from": "src/engine/stockfish",
+        "to": "licenses/stockfish",
+        "filter": [
+          "COPYING.txt",
+          "README.md"
+        ]
+      },
+      {
+        "from": "third_party/stockfish-source",
+        "to": "licenses/stockfish/source"
+      },
+      {
+        "from": "src/vendor",
+        "to": "licenses/libraries",
+        "filter": [
+          "**/LICENSE*",
+          "**/OFL-*.txt"
+        ]
+      }
     ],
     "win": {
       "target": [

@@ -125,10 +125,9 @@ Reusable PixiJS v8 components replacing the Canvas 2D `UIHelpers.js`:
 | `LegalFilter.js` | Filters moves that leave king in check |
 | `GameRules.js` | Check/checkmate/stalemate/draw detection |
 | `MoveExecutor.js` | Applies moves, handles castling/en passant/promotion |
-| `ai/Search.js` | Alpha-beta pruning with iterative deepening |
-| `ai/Evaluate.js` | Material + piece-square table evaluation |
-| `ai/CloudEval.js` | Cloud-based move evaluation |
-| `ai/AIController.js` | 10 difficulty levels (depth 1–5, with noise for lower levels) |
+| `ai/AIController.js` | 13 levels, all played by the bundled Stockfish: 0–5 make human-sized mistakes, 6–12 use Stockfish's skill level |
+| `ai/BotPersonality.js` | Runs Stockfish in a Web Worker over UCI |
+| `ai/StockfishCoach.js` | Move-quality rating and puzzle hints |
 
 ### Input (`src/input/`)
 `InputManager.js`, `Keybindings.js` — keyboard and control handling.

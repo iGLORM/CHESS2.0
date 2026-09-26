@@ -1,4 +1,5 @@
-const PIECE_CHARS = { king: 'k', queen: 'q', rook: 'r', bishop: 'b', knight: 'n', pawn: 'p' };
+// 'wall' is CastlE's neutral blocker: it never moves and cannot be captured.
+const PIECE_CHARS = { king: 'k', queen: 'q', rook: 'r', bishop: 'b', knight: 'n', pawn: 'p', wall: 'x' };
 
 class Board {
   constructor() {

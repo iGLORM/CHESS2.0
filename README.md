@@ -76,7 +76,7 @@ The rule is on in Story Mode and Local 1v1, off in Classic Chess, and your choic
 | **Undo, flip, review** | Take back moves, flip the board, and step through the game's history |
 | **Resume** | An unfinished game is saved after every move and can be resumed from the home screen |
 | **Themes** | 11 visual themes that change the board, pieces, background and particles |
-| **Works offline** | All libraries and fonts are bundled; stronger bots use online engines when available and fall back to the built-in engine offline |
+| **Works offline** | All libraries, fonts and the Stockfish engine are bundled; every bot runs on your computer, no internet needed |
 | **Desktop, web & phone** | Electron app for Windows/macOS/Linux, and the same code runs in a browser and as a [Telegram Mini App](https://t.me/iglorm_chess_bot?startapp=play) with a portrait layout |
 
 ---

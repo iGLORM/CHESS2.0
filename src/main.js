@@ -134,7 +134,7 @@ function gameLoop(timestamp) {
 function initApp() {
   Layout.init();
 
-  const initialTheme = store.get('theme') || 'space';
+  const initialTheme = store.get('theme') || 'pawnhollow';
   TextureManager.preloadTheme(initialTheme);
   TextureManager.preloadCharacters();
 
@@ -142,6 +142,9 @@ function initApp() {
   registerScreen('modeSelect', ModeSelect);
   registerScreen('themeSelect', ThemeSelect);
   registerScreen('characterSelect', CharacterSelect);
+  registerScreen('worldMap', WorldMapScreen);
+  registerScreen('storyScene', StoryScene);
+  registerScreen('worldMissions', WorldMissionsScreen);
   registerScreen('game', GameScreen);
   registerScreen('settings', SettingsScreen);
   registerScreen('miniGamePractice', MiniGamePractice);
@@ -191,6 +194,15 @@ function initApp() {
       miniGameManager.handleClick(x, y);
     }
   });
+
+  for (const [event, type] of [['pointerdown', 'down'], ['pointermove', 'move'], ['pointerup', 'up']]) {
+    miniCanvas.addEventListener(event, (e) => {
+      if (!store.get('miniGameActive')) return;
+      const { x, y } = getMousePos(e, miniCanvas);
+      miniGameManager.handlePointer(type, x, y);
+    });
+  }
+  miniCanvas.style.touchAction = 'none';
 
   canvas.addEventListener('mousemove', (e) => {
     const { x, y } = getMousePos(e, canvas);
@@ -254,7 +266,8 @@ function initApp() {
   }, { passive: true });
 
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'F11') {
+    // F11, or Alt+Enter as most Windows games use.
+    if (e.key === 'F11' || (e.key === 'Enter' && e.altKey)) {
       e.preventDefault();
       if (window.electron && window.electron.toggleFullscreen) {
         window.electron.toggleFullscreen();
@@ -269,6 +282,10 @@ function initApp() {
     if (currentScreen && currentScreen.handleKeyDown) {
       currentScreen.handleKeyDown(e);
     }
+  });
+
+  document.addEventListener('keyup', (e) => {
+    if (store.get('miniGameActive')) miniGameManager.handleKeyUp(e.key);
   });
 
   window.addEventListener('resize', () => {

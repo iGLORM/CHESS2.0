@@ -23,125 +23,103 @@ const LevelSelectScreen = {
     PixiScreenManager.setScreenContainer(this.pixiContainer);
 
     const progress = store.get('trainingProgress');
-    const contentY = 148;
-    const levelSize = Math.round(64 * s);
-    const levelGap = Math.round(10 * s);
-    const bandGap = Math.round(24 * s);
-    const contentW = Math.min(600, W - 80);
-    const contentOffsetX = Math.floor((W - contentW) / 2);
+    // One card per band (title, score, five level tiles). Landscape shows all six
+    // in two columns; portrait stacks them in one scrolling column.
+    const L = { TOP: 150, GAP: 16, PAD: 20, HEADER_H: 48, TILE: 76, TILE_GAP: 12 };
+    const portrait = Layout.isPortrait;
+    const perRow = portrait ? 1 : 2;
+    const areaX = portrait ? 40 : 60;
+    const areaW = W - areaX * 2;
+    const areaH = PixiPremiumScene.contentBottom - L.TOP;
+    const rows = Math.ceil(TRAINING_BANDS.length / perRow);
+    const cardW = Math.floor((areaW - L.GAP * (perRow - 1)) / perRow);
+    const naturalH = L.HEADER_H + L.TILE + L.PAD * 2;
+    const cardH = portrait ? naturalH : Math.max(naturalH, Math.floor((areaH - L.GAP * (rows - 1)) / rows));
 
     const scrollContent = new PIXI.Container();
     scrollContent.label = 'scrollContent';
-    let cursorY = 0;
-
-    for (const band of TRAINING_BANDS) {
-      const bandStars = this._getBandStars(band, progress);
-      const maxBandStars = band.levels.length * 3;
+    TRAINING_BANDS.forEach((band, bi) => {
+      const x = (bi % perRow) * (cardW + L.GAP);
+      const y = Math.floor(bi / perRow) * (cardH + L.GAP);
       const bandUnlocked = this._isBandUnlocked(band.id, progress);
+      const card = new PIXI.Container();
+      card.x = x;
+      card.y = y;
+      scrollContent.addChild(card);
+      PixiPremiumScene.panel(card, 0, 0, cardW, cardH, { accent: false, alpha: bandUnlocked ? 0.7 : 0.45 });
 
-      // Band header card
-      const headerH = Math.round(42 * s);
-      const headerBg = new PIXI.Graphics();
-      headerBg.roundRect(0, cursorY, contentW, headerH, 8).fill({
-        color: PixiColorUtil.hexToNum(cols.panel), alpha: 0.4,
+      const headerY = L.PAD + L.HEADER_H / 2 - 6;
+      const title = PixiPremiumScene.text(band.name, {
+        fontFamily: PixiTextStyles.FONT_TITLE, fontSize: 17,
+        fill: bandUnlocked ? cols.text : PixiColorUtil.alpha(cols.text, '77'),
       });
-      if (bandUnlocked) {
-        headerBg.roundRect(6, cursorY + 4, Math.max(20, contentW - 12), 3, 2).fill({
-          color: PixiColorUtil.hexToNum(cols.accent), alpha: 0.5,
-        });
+      title.anchor.set(0, 0.5);
+      title.x = L.PAD + 4;
+      title.y = headerY;
+      card.addChild(title);
+      const score = PixiPremiumScene.text(`${this._getBandStars(band, progress)}/${band.levels.length * 3}`, {
+        fontFamily: PixiTextStyles.FONT_TITLE, fontSize: 16,
+        fill: bandUnlocked ? cols.accent : PixiColorUtil.alpha(cols.text, '66'),
+      });
+      score.anchor.set(1, 0.5);
+      score.x = cardW - L.PAD - 4;
+      score.y = headerY;
+      card.addChild(score);
+      if (!bandUnlocked) {
+        const hint = PixiPremiumScene.text(`${band.starsToUnlockNext || 10} stars in the previous set to unlock`, { fontSize: 13, fill: PixiColorUtil.alpha(cols.text, '77') });
+        hint.anchor.set(1, 0.5);
+        hint.x = score.x - score.width - 16;
+        hint.y = headerY;
+        if (hint.x - hint.width > title.x + title.width + 16) card.addChild(hint);
       }
-      scrollContent.addChild(headerBg);
 
-      const bandTitle = PixiPremiumScene.text(band.name, {
-        fontFamily: PixiTextStyles.FONT_TITLE,
-        fontSize: Math.round(16 * s),
-        fill: bandUnlocked ? cols.text : PixiColorUtil.alpha(cols.text, '55'),
-      });
-      bandTitle.x = 12;
-      bandTitle.y = cursorY + 12;
-      scrollContent.addChild(bandTitle);
-
-      const bandScore = PixiPremiumScene.text(`${bandStars}/${maxBandStars}`, {
-        fontFamily: PixiTextStyles.FONT_TITLE,
-        fontSize: Math.round(15 * s),
-        fill: bandUnlocked ? cols.accent : PixiColorUtil.alpha(cols.text, '44'),
-      });
-      bandScore.anchor.set(1, 0);
-      bandScore.x = contentW - 12;
-      bandScore.y = cursorY + 12;
-      scrollContent.addChild(bandScore);
-
-      cursorY += headerH + Math.round(12 * s);
-
-      // Level slots — centered row
-      const slotsPerRow = band.levels.length;
-      const totalSlotsW = slotsPerRow * levelSize + (slotsPerRow - 1) * levelGap;
-      const slotsStartX = Math.floor((contentW - totalSlotsW) / 2);
-
-      for (let li = 0; li < band.levels.length; li++) {
-        const levelId = band.levels[li];
+      const tilesW = band.levels.length * L.TILE + (band.levels.length - 1) * L.TILE_GAP;
+      const tileX = Math.round((cardW - tilesW) / 2);
+      const tileY = L.PAD + L.HEADER_H + Math.round((cardH - L.PAD * 2 - L.HEADER_H - L.TILE) / 2);
+      band.levels.forEach((levelId, li) => {
         const level = TRAINING_LEVELS.find(l => l.id === levelId);
-        if (!level) continue;
+        if (!level) return;
+        const data = (progress.levels || {})[levelId] || {};
+        const slot = this._createLevelSlot(tileX + li * (L.TILE + L.TILE_GAP), tileY, L.TILE, level,
+          this._isLevelUnlocked(levelId, progress), data.solved || false, data.stars || 0, cols, 1);
+        card.addChild(slot);
+      });
+    });
+    const contentH = rows * cardH + (rows - 1) * L.GAP;
 
-        const levelData = (progress.levels || {})[levelId] || {};
-        const solved = levelData.solved || false;
-        const stars = levelData.stars || 0;
-        const unlocked = this._isLevelUnlocked(levelId, progress);
-
-        const lx = slotsStartX + li * (levelSize + levelGap);
-        const slot = this._createLevelSlot(lx, cursorY, levelSize, level, unlocked, solved, stars, cols, s);
-        scrollContent.addChild(slot);
-      }
-
-      cursorY += levelSize + bandGap;
-    }
-
-    // Scrollable area
-    const contentH = H - contentY - 80;
-    scrollContent.x = contentOffsetX;
-
-    const mask = new PIXI.Graphics();
-    mask.rect(0, contentY, W, contentH).fill({ color: 0xffffff });
+    const mask = new PIXI.Graphics().rect(0, L.TOP, W, areaH).fill({ color: 0xffffff });
     this.pixiContainer.addChild(mask);
-
     const scrollContainer = new PIXI.Container();
-    scrollContainer.y = contentY;
+    scrollContainer.x = areaX;
+    scrollContainer.y = L.TOP;
     scrollContainer.mask = mask;
     scrollContainer.addChild(scrollContent);
     this.pixiContainer.addChild(scrollContainer);
 
     this._scrollContent = scrollContent;
     this._scrollY = 0;
-    this._maxScroll = Math.max(0, cursorY - contentH + 20);
+    this._maxScroll = Math.max(0, contentH - areaH);
 
-    scrollContainer.eventMode = 'static';
-    scrollContainer.hitArea = new PIXI.Rectangle(0, 0, W, contentH);
-    scrollContainer.on('wheel', (e) => {
-      this._scrollY = Math.max(0, Math.min(this._maxScroll, this._scrollY + e.deltaY * 0.5));
-      scrollContent.y = -this._scrollY;
-    });
-
-    let dragStart = null;
-    let dragScrollStart = 0;
-    scrollContainer.on('pointerdown', (e) => {
-      dragStart = e.global.y;
-      dragScrollStart = this._scrollY;
-    });
-    scrollContainer.on('pointermove', (e) => {
-      if (dragStart !== null) {
-        const dy = dragStart - e.global.y;
-        this._scrollY = Math.max(0, Math.min(this._maxScroll, dragScrollStart + dy));
+    if (this._maxScroll > 0) {
+      scrollContainer.eventMode = 'static';
+      scrollContainer.hitArea = new PIXI.Rectangle(-areaX, 0, W, areaH);
+      scrollContainer.on('wheel', (e) => {
+        this._scrollY = Math.max(0, Math.min(this._maxScroll, this._scrollY + e.deltaY * 0.5));
         scrollContent.y = -this._scrollY;
-      }
-    });
-    scrollContainer.on('pointerup', () => { dragStart = null; });
-    scrollContainer.on('pointerupoutside', () => { dragStart = null; });
+      });
+      let dragStart = null;
+      let dragScrollStart = 0;
+      scrollContainer.on('pointerdown', (e) => { dragStart = e.global.y; dragScrollStart = this._scrollY; });
+      scrollContainer.on('pointermove', (e) => {
+        if (dragStart === null) return;
+        this._scrollY = Math.max(0, Math.min(this._maxScroll, dragScrollStart + dragStart - e.global.y));
+        scrollContent.y = -this._scrollY;
+      });
+      scrollContainer.on('pointerup', () => { dragStart = null; });
+      scrollContainer.on('pointerupoutside', () => { dragStart = null; });
+    }
 
-    // Back button
-    PixiPremiumScene.button(this.pixiContainer, 36, H - 72, 140, 44, 'Back', () => {
-      if (typeof audioManager !== 'undefined' && typeof audioManager.playButton === 'function') audioManager.playButton();
-      switchScreen('trainingHub');
-    }, { fontSize: Math.round(16 * s) });
+    PixiPremiumScene.button(this.pixiContainer, 36, PixiPremiumScene.bottomButtonY(), 160, 44, 'Back', () => switchScreen('trainingHub'), { icon: 'back' });
   },
 
   _createLevelSlot(x, y, size, level, unlocked, solved, stars, cols, s) {
@@ -155,17 +133,16 @@ const LevelSelectScreen = {
     if (!unlocked) {
       const bg = new PIXI.Graphics();
       bg.roundRect(0, 0, size, size, 8).fill({ color: panelNum, alpha: 0.25 });
-      bg.roundRect(0, 0, size, size, 8).stroke({ color: PixiColorUtil.hexToNum(PixiColorUtil.alpha(cols.text, '22')), width: 1 });
+      bg.roundRect(0, 0, size, size, 8).stroke({ color: PixiColorUtil.hexToNum(cols.text), alpha: 0.18, width: 2 });
       container.addChild(bg);
 
-      const lockIcon = PixiPremiumScene.text('?', {
-        fontFamily: PixiTextStyles.FONT_TITLE,
-        fontSize: Math.round(22 * s),
-        fill: PixiColorUtil.alpha(cols.text, '33'),
-      });
-      lockIcon.anchor.set(0.5);
-      lockIcon.x = size / 2;
-      lockIcon.y = size / 2;
+      const lockSize = Math.round(size * 0.42);
+      const lockIcon = new PIXI.Sprite(PixiPremiumAssets.icon('lock'));
+      lockIcon.width = lockSize;
+      lockIcon.height = lockSize;
+      lockIcon.x = Math.round((size - lockSize) / 2);
+      lockIcon.y = Math.round((size - lockSize) / 2);
+      lockIcon.alpha = 0.55;
       container.addChild(lockIcon);
     } else {
       const borderColor = solved ? accentNum : PixiColorUtil.hexToNum(PixiColorUtil.alpha(cols.text, '55'));
