@@ -5,35 +5,56 @@ import { Hook } from "./scenes/Hook";
 import { FightBack } from "./scenes/FightBack";
 import { Arcade } from "./scenes/Arcade";
 import { Worlds } from "./scenes/Worlds";
+import { FinalRush } from "./scenes/FinalRush";
 import { PlayNow } from "./scenes/PlayNow";
+import { EditTexture } from "./Motion";
 export const ChessAd = () => (
   <AbsoluteFill>
-    <Audio src={staticFile("soundtrack.wav")} volume={0.85} />
+    <Audio src={staticFile("trailer-mix.wav")} />
     <TransitionSeries>
       <TransitionSeries.Sequence
-        durationInFrames={120}
-        name="01 — Second chance"
+        premountFor={24}
+        durationInFrames={96}
+        name="01 — The capture / music stop"
       >
         <Hook />
       </TransitionSeries.Sequence>
-      <TransitionSeries.Sequence durationInFrames={180} name="02 — Fight back">
+      <TransitionSeries.Sequence
+        premountFor={24}
+        durationInFrames={144}
+        name="02 — Fight for it / save it"
+      >
         <FightBack />
       </TransitionSeries.Sequence>
       <TransitionSeries.Sequence
-        durationInFrames={120}
-        name="03 — Eighteen minigames"
+        premountFor={24}
+        durationInFrames={240}
+        name="03 — Six-game beat montage"
       >
         <Arcade />
       </TransitionSeries.Sequence>
       <TransitionSeries.Sequence
-        durationInFrames={180}
-        name="04 — The shattered board"
+        premountFor={24}
+        durationInFrames={192}
+        name="04 — World map and guardians"
       >
         <Worlds />
       </TransitionSeries.Sequence>
-      <TransitionSeries.Sequence durationInFrames={150} name="05 — Play now">
+      <TransitionSeries.Sequence
+        premountFor={24}
+        durationInFrames={144}
+        name="05 — Accelerating finale"
+      >
+        <FinalRush />
+      </TransitionSeries.Sequence>
+      <TransitionSeries.Sequence
+        premountFor={24}
+        durationInFrames={144}
+        name="06 — Animated logo and CTA"
+      >
         <PlayNow />
       </TransitionSeries.Sequence>
     </TransitionSeries>
+    <EditTexture />
   </AbsoluteFill>
 );

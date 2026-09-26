@@ -210,13 +210,14 @@ Everything is synthesised with Web Audio (no audio files):
 
 ## Promotional Video
 
-`marketing/chess-ad/` is a separate Remotion project for the 25-second, 1920×1080 game ad.
+`marketing/chess-ad/` is a separate Remotion project for the 32-second, 1920×1080 game ad with 25 shots.
 It has its own dependencies and does not participate in the game runtime or Telegram deployment.
 Run `npm run dev` there for Studio, `npm run lint` for TypeScript/ESLint checks, and
 `npm run render` to export an MP4. See its README for the scene timings and asset workflow.
-`npm run capture` uses the root Electron dependency with a temporary user-data directory and
+`npm run capture` and `npm run capture:montage` use the root Electron dependency with a temporary user-data directory and
 an isolated session; it never loads the player's saves. Captured footage, music, artwork and
-local fonts are in its `public/` directory.
+local fonts are in its `public/` directory. `npm run score` rebuilds the original music and
+sound-design mix. `CREATIVE_NOTES.md` documents the research and edit timing.
 
 ## Telegram Mini App
 

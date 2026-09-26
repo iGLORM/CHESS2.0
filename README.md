@@ -212,8 +212,8 @@ tests/            Node tests (npm test)
 
 ## Game Ad
 
-The [25-second widescreen ad](marketing/chess-ad/README.md) is an editable Remotion project
-using real gameplay footage, story artwork and the game's music. Its README covers previewing,
+The [32-second widescreen trailer](marketing/chess-ad/README.md) is an editable Remotion project
+using real gameplay footage, story artwork, beat-synchronized motion and an original electronic score. Its README covers previewing,
 editing and exporting the video.
 
 ## For Contributors and AI Agents

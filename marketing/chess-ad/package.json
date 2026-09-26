@@ -1,7 +1,7 @@
 {
   "name": "chess-ad",
   "version": "1.0.0",
-  "description": "25-second widescreen ad for Chess 2.0",
+  "description": "32-second gameplay trailer with beat-synchronized motion and sound design",
   "repository": {},
   "license": "UNLICENSED",
   "private": true,
@@ -30,7 +30,9 @@
     "lint": "eslint src && tsc",
     "render": "remotion render Chess2-Ad out/chess-2-ad.mp4 --codec=h264",
     "assets": "node scripts/prepare-assets.cjs",
-    "capture": "../../node_modules/.bin/electron scripts/capture-game.cjs"
+    "capture": "../../node_modules/.bin/electron scripts/capture-game.cjs",
+    "capture:montage": "../../node_modules/.bin/electron scripts/capture-montage.cjs",
+    "score": "node scripts/score-trailer.cjs"
   },
   "sideEffects": [
     "*.css"

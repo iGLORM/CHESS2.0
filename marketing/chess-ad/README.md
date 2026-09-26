@@ -1,25 +1,17 @@
-# Chess 2.0 — A second chance
+# Chess 2.0 — Fight for your next move
 
-25-second widescreen game ad, 1920×1080, 30 fps. Built in Remotion with actual game captures, original game art and a 120 BPM arrangement of the game's Crystal suspense music. No stock assets, voiceover or external font requests.
+A 32-second, 1920×1080, 30 fps game trailer with 25 shots, actual gameplay, frame-driven motion graphics, and an original 150 BPM electronic score with synchronized sound design.
 
 ## Preview and edit
-
-From this directory:
 
 ```sh
 npm install
 npm run dev
 ```
 
-Open the printed Studio URL and select **Chess2-Ad**. Each scene is also registered separately in the Scenes folder. Titles and the call to action use editable Remotion Interactive elements.
+Open the printed Studio URL and choose **Chess2-Ad**. Press Play with audio enabled. Individual acts appear in the Scenes folder. The composition contains six acts with nested, named shots; camera moves, kinetic words, transitions and particles follow the Remotion frame clock.
 
-| Time | Scene | Message |
-| --- | --- | --- |
-| 0–4s | Chess footage | Chess. With a second chance. |
-| 4–10s | Checkmate Run | Captured? Fight back. |
-| 10–14s | Meteor Storm | 18 mini-games. One more chance. |
-| 14–20s | Story guardians | A shattered world. Your next move. |
-| 20–25s | Brand and CTA | Play now — game.altobolt.com |
+See [CREATIVE_NOTES.md](CREATIVE_NOTES.md) for the research, storyboard, timing and creative decisions.
 
 ## Export
 
@@ -27,18 +19,20 @@ Open the printed Studio URL and select **Chess2-Ad**. Each scene is also registe
 npm run render
 ```
 
-Writes `out/chess-2-ad.mp4` (H.264). `out/` and `node_modules/` are gitignored.
+Exports `out/chess-2-ad.mp4` (H.264, 1080p). `out/` and dependencies are ignored by Git.
 
-## Refresh source assets
+## Refresh assets
 
 ```sh
 npm run assets
-npm run capture
+npm run capture           # Original chess, runner and meteor clips
+npm run capture:montage   # Capture threat, successful defense, four more games and map
+npm run score             # Rebuild the original 32-second music / sound-design mix
 ```
 
-`capture` uses the root project's Electron dependency. It launches a separate temporary user-data profile with a non-persistent session partition, so it never loads or changes the player's saved progress. It records legal opening moves and bot-played defensive minigames, and renders the game music with OfflineAudioContext. The copied art and captured WebM/WAV files live in `public/` and are included so previewing does not require launching the game.
+Both capture helpers use the root Electron dependency in a temporary user-data profile and a non-persistent partition. They never read or alter the player's saved progress. They need a working GPU/WebGL environment. Captures are real-time and vary slightly; rendered motion graphics and the synthesized score are deterministic.
 
-The capture helper needs a working GPU/WebGL environment. Gameplay recordings are real-time and may vary slightly across machines. Remotion animations are frame-driven and deterministic after capture.
+`public/footage/` contains the shipped captures. `trailer-mix.wav` is the active stereo mix; `trailer-audio.json` records cut times and levels. `scripts/score-trailer.cjs` generates music, drums, impacts, whooshes, the stop, save chime and title riser without third-party samples. The previous game's music arrangement remains in `soundtrack.wav` as an alternate, unused track.
 
 ## Checks
 
@@ -47,4 +41,6 @@ npm run lint
 npx remotion still Chess2-Ad out/check.png --frame=215
 ```
 
-Fonts: Silkscreen and Pixelify Sans; their SIL Open Font License texts are in `public/fonts/`. Art, footage and music are from Chess 2.0. The app runtime and saved games are unchanged.
+The current CTA is `PLAY CHESS 2.0` / `game.altobolt.com`. Edit `src/scenes/PlayNow.tsx` when a confirmed store destination is available. No price or store availability is asserted.
+
+Art and captures come from Chess 2.0. Silkscreen and Pixelify Sans font licenses are in `public/fonts/`. No remote media, third-party trailer footage or externally hosted fonts are needed for preview or export.

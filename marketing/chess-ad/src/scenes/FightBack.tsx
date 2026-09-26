@@ -1,96 +1,87 @@
-import {
-  AbsoluteFill,
-  Interactive,
-  interpolate,
-  staticFile,
-  useCurrentFrame,
-} from "remotion";
-import { Video } from "@remotion/media";
-import { Atmosphere } from "../Atmosphere";
-export const FightBack = () => {
-  const frame = useCurrentFrame();
+import { AbsoluteFill, Sequence, interpolate, useCurrentFrame } from "remotion";
+import { Burst, Caption, Punch, Shot, Slash, clamp } from "../Motion";
+const Saved = () => {
+  const f = useCurrentFrame();
   return (
-    <AbsoluteFill
-      style={{
-        background: "#0a0616",
-        color: "#fff6e7",
-        fontFamily: "Pixelify",
-      }}
-    >
-      <Video
-        objectFit="cover"
-        src={staticFile("footage/runner.webm")}
-        muted
+    <AbsoluteFill>
+      <Shot
+        file="saved-board"
+        zoom={1.42}
+        endZoom={1.19}
+        length={48}
+        shade={0.28}
+      />
+      <div
         style={{
           position: "absolute",
-          inset: 0,
-          width: "100%",
-          height: "100%",
-          scale: interpolate(frame, [0, 179], [1.16, 1.22]),
+          left: 610,
+          top: 605,
+          width: 230,
+          height: 230,
+          border: "8px solid #a6ffdb",
+          borderRadius: "50%",
+          scale: interpolate(f, [0, 28], [0.6, 1.5], clamp),
+          opacity: interpolate(f, [0, 10, 36], [0, 1, 0], clamp),
+          boxShadow: "0 0 60px #a6ffdb",
         }}
       />
-      <AbsoluteFill
-        style={{
-          background:
-            "linear-gradient(180deg,rgba(8,4,18,.9),transparent 52%,rgba(8,4,18,.9))",
-        }}
-      />
-      <Interactive.Div
-        name="Capture question"
-        style={{
-          position: "absolute",
-          left: 105,
-          top: 94,
-          fontFamily: "Silkscreen",
-          fontSize: 58,
-          color: "#ffcca2",
-          translate: interpolate(frame, [0, 12], ["-90px 0px", "0px 0px"], {
-            extrapolateRight: "clamp",
-          }),
-        }}
-      >
-        CAPTURED?
-      </Interactive.Div>
-      <Interactive.Div
-        name="Fight back headline"
-        style={{
-          position: "absolute",
-          left: 98,
-          top: 182,
-          fontFamily: "Silkscreen",
-          fontSize: 135,
-          letterSpacing: -6,
-          textShadow: "0 8px 0 #241339",
-          opacity: interpolate(frame, [8, 22], [0, 1], {
-            extrapolateLeft: "clamp",
-            extrapolateRight: "clamp",
-          }),
-          translate: interpolate(frame, [8, 22], ["0px 35px", "0px 0px"], {
-            extrapolateLeft: "clamp",
-            extrapolateRight: "clamp",
-          }),
-        }}
-      >
-        FIGHT BACK.
-      </Interactive.Div>
-      <Interactive.Div
-        name="Mechanic explanation"
-        style={{
-          position: "absolute",
-          left: 110,
-          bottom: 105,
-          fontSize: 54,
-          color: "#caffea",
-          textShadow: "0 3px 8px #000",
-          opacity: interpolate(frame, [25, 40], [0, 1], {
-            extrapolateLeft: "clamp",
-            extrapolateRight: "clamp",
-          }),
-        }}
-      >
-        Win the minigame. Save your piece.
-      </Interactive.Div>
-      <Atmosphere />
+      <Punch color="#a6ffdb" size={180} top={135}>
+        SAVED.
+      </Punch>
+      <Caption color="#a6ffdb" top={910}>
+        Win the minigame. Keep your piece.
+      </Caption>
+      <Burst cx={725} cy={720} />
     </AbsoluteFill>
   );
 };
+export const FightBack = () => (
+  <AbsoluteFill>
+    <Sequence
+      premountFor={12}
+      durationInFrames={48}
+      name="Drop into the defense challenge"
+    >
+      <Shot
+        file="defense-run"
+        trim={105}
+        zoom={1.17}
+        endZoom={1.27}
+        tilt={1.2}
+        length={48}
+      >
+        <Punch size={125} top={100}>
+          DEFEND IT.
+        </Punch>
+        <Slash />
+      </Shot>
+    </Sequence>
+    <Sequence
+      premountFor={12}
+      from={48}
+      durationInFrames={48}
+      name="Jump to the finish"
+    >
+      <Shot
+        file="defense-run"
+        trim={275}
+        zoom={1.31}
+        endZoom={1.17}
+        x={40}
+        length={48}
+      >
+        <Punch size={93} top={820}>
+          WIN THE CHALLENGE.
+        </Punch>
+      </Shot>
+    </Sequence>
+    <Sequence
+      premountFor={12}
+      from={96}
+      durationInFrames={48}
+      name="The knight survives"
+    >
+      <Saved />
+    </Sequence>
+  </AbsoluteFill>
+);
