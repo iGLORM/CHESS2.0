@@ -1,0 +1,12 @@
+Use case: stylized-concept
+Asset type: game UI button interaction state
+Style reference: Image 1: edit target.
+Primary request: Change only the rim to brighter gold and add a #ffcf40 inner line for hover. Keep silhouette, canvas size, ornament placement, pixel scale, blank label bed, alpha silhouette and everything else identical.
+Materials & palette: Royal kit: carved obsidian, raised antique gold scrollwork, ruby gemstones, small ivory pearl studs; accent #ffcf40. 32-colour limited palette, 4 discrete shade levels per material.
+Composition/framing: identical to Image 1, full silhouette, blank central 65% label area.
+Pixel treatment: PIXEL ART. Authentic hand-pixelled 16-bit / 32-bit JRPG interface sprite. Elaborate beautiful detail drawn exclusively with discrete PIXEL CLUSTERS. Hard stairstep contours, discrete pixel clusters, 32-color palette, 4 discrete shade levels per material, deliberate pixel dithering. Think professional Aseprite sprite drawn with pencil tool and nearest neighbor enlarged. Specular highlights are individual square pixels and short pixel staircases. ~192x64 logical pixels enlarged 6x nearest-neighbour.
+Output: genuine transparent RGBA background.
+Constraints: no text; no antialiasing; no smooth gradients; no 3D render; no glow or shadow outside the silhouette; no checkerboard; no watermark; one asset only.
+
+Attached reference images (in order):
+/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v4-ui/ui/core/primary-button-normal.png

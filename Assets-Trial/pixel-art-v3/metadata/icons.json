@@ -1,0 +1,28 @@
+[
+  {
+    "path": "icons/amethyst-rook-relic.png",
+    "source": "built-in imagegen",
+    "status": "candidate",
+    "size": [
+      1122,
+      1402
+    ],
+    "alpha_zero_pixels": 1059014,
+    "partial_alpha_pixels": 511918,
+    "prompt": "prompts/icons/amethyst-rook-relic.md",
+    "postprocessing": "none"
+  },
+  {
+    "path": "icons/jeweled-chess-crown.png",
+    "source": "built-in imagegen",
+    "status": "candidate",
+    "size": [
+      1254,
+      1254
+    ],
+    "alpha_zero_pixels": 780578,
+    "partial_alpha_pixels": 790540,
+    "prompt": "prompts/icons/jeweled-chess-crown.md",
+    "postprocessing": "none"
+  }
+]

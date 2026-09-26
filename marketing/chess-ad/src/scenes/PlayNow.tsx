@@ -26,7 +26,7 @@ export const PlayNow = () => {
           height: "100%",
           objectFit: "cover",
           opacity: 0.65,
-          scale: interpolate(frame, [0, 149], [1.04, 1.12]),
+          scale: interpolate(frame, [110, 259], [1.04, 1.12])
         }}
       />
       <AbsoluteFill
@@ -45,9 +45,9 @@ export const PlayNow = () => {
           objectFit: "contain",
           imageRendering: "pixelated",
           filter: "drop-shadow(0 0 40px #9161a966)",
-          scale: interpolate(frame, [0, 18], [0.75, 1], {
-            extrapolateRight: "clamp",
-          }),
+          scale: interpolate(frame, [110, 128], [0.75, 1], {
+            extrapolateRight: "clamp"
+          })
         }}
       />
       <Interactive.Div
@@ -60,9 +60,9 @@ export const PlayNow = () => {
           letterSpacing: -9,
           color: "#f5e5ff",
           textShadow: "0 9px 0 #634b80, 0 18px 0 #271a3b",
-          scale: interpolate(frame, [0, 22], [0.93, 1], {
-            extrapolateRight: "clamp",
-          }),
+          scale: interpolate(frame, [110, 132], [0.93, 1], {
+            extrapolateRight: "clamp"
+          })
         }}
       >
         CHESS 2.0
@@ -89,10 +89,10 @@ export const PlayNow = () => {
           fontFamily: "Silkscreen",
           fontSize: 45,
           boxShadow: "8px 8px 0 #388d73",
-          opacity: interpolate(frame, [20, 35], [0, 1], {
+          opacity: interpolate(frame, [130, 145], [0, 1], {
             extrapolateLeft: "clamp",
-            extrapolateRight: "clamp",
-          }),
+            extrapolateRight: "clamp"
+          })
         }}
       >
         PLAY NOW
@@ -104,10 +104,10 @@ export const PlayNow = () => {
           top: 825,
           fontSize: 52,
           color: "#fff6e7",
-          opacity: interpolate(frame, [25, 40], [0, 1], {
+          opacity: interpolate(frame, [135, 150], [0, 1], {
             extrapolateLeft: "clamp",
-            extrapolateRight: "clamp",
-          }),
+            extrapolateRight: "clamp"
+          })
         }}
       >
         game.altobolt.com

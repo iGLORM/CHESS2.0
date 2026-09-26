@@ -1,0 +1,142 @@
+{
+  "generation": "built-in image_gen",
+  "style_reference": "/Users/yacineboufe/.codex/generated_images/01a0df75-cf67-73e1-817d-bcc5df31a173/exec-32e5ad7b-a7e5-492e-a32a-e6a42df56eea.png",
+  "assets": [
+    {
+      "group": "ui",
+      "name": "royal-obsidian-gold-button",
+      "prompt": "PIXEL ART. Authentic hand-pixelled 16-bit / 32-bit JRPG interface sprite, approximately 192x64 logical pixels displayed enlarged 6x nearest-neighbor so every individual SQUARE PIXEL is visibly large. Reference image is STYLE ONLY: match its obvious square pixels and stair-stepped contours, do NOT copy the crown as the subject. NEW SUBJECT: ONE wide horizontal royal obsidian button. Ornate gold scroll filigree on top and bottom rails, faceted ruby insets at left and right, elegant gold bevels. Spacious dark obsidian purple-black central label bed occupying central 65% width is entirely BLANK. Button aspect 3:1. No text. Elaborate beautiful detail drawn exclusively with discrete PIXEL CLUSTERS. Hard stairstep contours, discrete pixel clusters, 32-color palette, 4 discrete shade levels per material, deliberate pixel dithering. Think professional Aseprite sprite drawn with pencil tool and nearest neighbor enlarged. NO antialiasing, smooth curves, blended gradients, 3D render, photography, subpixel details, tiny smooth scratches, painted microtexture. One asset only, centered complete silhouette with safe transparent margin on all sides. Genuine RGBA transparent background, NO glow outside silhouette, NO light bloom, NO atmosphere, NO external shadow, NO checkerboard illustration, no watermark.",
+      "source": "/Users/yacineboufe/.codex/generated_images/01a0df76-3f76-7161-b4bd-ac6a927b8dec/exec-69748e70-921c-416a-a7f5-f9f2e02f6be7.png",
+      "path": "ui/royal-obsidian-gold-button.png",
+      "prompt_path": "prompts/ui/royal-obsidian-gold-button.txt",
+      "status": "candidate",
+      "visual_qa": "Inspected: visible pixel clusters, stepped contours, no unintended text; logos correctly read CHESS 2.0.",
+      "dimensions": [
+        2172,
+        724
+      ],
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "transparent_pixel_fraction": 0.45167
+    },
+    {
+      "group": "ui",
+      "name": "emerald-woodland-button",
+      "prompt": "PIXEL ART. Authentic hand-pixelled 16-bit / 32-bit JRPG interface sprite, approximately 192x64 logical pixels displayed enlarged 6x nearest-neighbor so every individual SQUARE PIXEL is visibly large. Reference image is STYLE ONLY: match its obvious square pixels and stair-stepped contours, do NOT copy the crown as the subject. NEW SUBJECT: ONE wide horizontal enchanted woodland button. Rich carved oak frame, interwoven ivy vines, distinct fern leaves and roots, golden-green metal bevels and faceted emerald gemstones at both ends. Spacious central dark forest green smooth but PIXEL-SHADED label bed entirely BLANK. Button aspect 3:1. No text. Elaborate beautiful detail drawn exclusively with discrete PIXEL CLUSTERS. Hard stairstep contours, discrete pixel clusters, 32-color palette, 4 discrete shade levels per material, deliberate pixel dithering. Think professional Aseprite sprite drawn with pencil tool and nearest neighbor enlarged. NO antialiasing, smooth curves, blended gradients, 3D render, photography, subpixel details, tiny smooth scratches, painted microtexture. One asset only, centered complete silhouette with safe transparent margin on all sides. Genuine RGBA transparent background, NO glow outside silhouette, NO light bloom, NO atmosphere, NO external shadow, NO checkerboard illustration, no watermark.",
+      "source": "/Users/yacineboufe/.codex/generated_images/01a0df76-3f76-7161-b4bd-ac6a927b8dec/exec-fbe11ec4-8c7b-42ab-8f16-1d03b8fbfb25.png",
+      "path": "ui/emerald-woodland-button.png",
+      "prompt_path": "prompts/ui/emerald-woodland-button.txt",
+      "status": "candidate",
+      "visual_qa": "Inspected: visible pixel clusters, stepped contours, no unintended text; logos correctly read CHESS 2.0.",
+      "dimensions": [
+        2172,
+        724
+      ],
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "transparent_pixel_fraction": 0.44828
+    },
+    {
+      "group": "ui",
+      "name": "crystal-gold-portrait-frame",
+      "prompt": "PIXEL ART. Authentic hand-pixelled 16-bit / 32-bit JRPG interface sprite, approximately 128x192 logical pixels displayed enlarged 6x nearest-neighbor so every individual SQUARE PIXEL is visibly large. Reference image is STYLE ONLY: match its obvious square pixels and stair-stepped contours, do NOT copy the crown as the subject. NEW SUBJECT: ONE tall portrait decorative UI FRAME with carved pixel gold scrolls, cobalt enamel, large blue crystal corners, elegant symmetrical ornate contour. ONLY the border exists. The whole rectangular CENTRAL OPENING is completely EMPTY alpha transparency, all the way up to inner frame edge. No background fill inside frame, no glow, no vignette, no shadow. Outer background also alpha transparency. Frame aspect 2:3. No text. Elaborate beautiful detail drawn exclusively with discrete PIXEL CLUSTERS. Hard stairstep contours, discrete pixel clusters, 32-color palette, 4 discrete shade levels per material, deliberate pixel dithering. Think professional Aseprite sprite drawn with pencil tool and nearest neighbor enlarged. NO antialiasing, smooth curves, blended gradients, 3D render, photography, subpixel details, tiny smooth scratches, painted microtexture. One asset only, centered complete silhouette with safe transparent margin on all sides. Genuine RGBA transparent background, NO glow outside silhouette, NO light bloom, NO atmosphere, NO external shadow, NO checkerboard illustration, no watermark.",
+      "source": "/Users/yacineboufe/.codex/generated_images/01a0df76-3f76-7161-b4bd-ac6a927b8dec/exec-8fa6c227-56d8-4086-89cf-9b5397756ee2.png",
+      "path": "ui/crystal-gold-portrait-frame.png",
+      "prompt_path": "prompts/ui/crystal-gold-portrait-frame.txt",
+      "status": "candidate",
+      "visual_qa": "Inspected: visible pixel clusters, stepped contours, no unintended text; logos correctly read CHESS 2.0.",
+      "dimensions": [
+        1024,
+        1536
+      ],
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        254
+      ],
+      "transparent_pixel_fraction": 0.57295,
+      "transparent_center_qa": {
+        "rect": [
+          250,
+          350,
+          775,
+          1200
+        ],
+        "alpha_extrema": [
+          0,
+          1
+        ],
+        "note": "Center is visually clear; alpha 0\u20131. Colored RGB halo visible in raw viewers is invisible under alpha compositing."
+      }
+    },
+    {
+      "group": "ui",
+      "name": "brass-clockwork-button",
+      "prompt": "PIXEL ART. Authentic hand-pixelled 16-bit / 32-bit JRPG interface sprite, approximately 192x64 logical pixels displayed enlarged 6x nearest-neighbor so every individual SQUARE PIXEL is visibly large. Reference image is STYLE ONLY: match its obvious square pixels and stair-stepped contours, do NOT copy the crown as the subject. NEW SUBJECT: ONE wide horizontal clockwork button. Intricate pixel cogwheels, chunky brass pipe ends and copper coils concentrated at both ends, antique brass bevelled border, screwheads and tiny rivets. Spacious central dark teal enamel BLANK label bed. No gears over central text area. Button aspect 3:1. No text. Elaborate beautiful detail drawn exclusively with discrete PIXEL CLUSTERS. Hard stairstep contours, discrete pixel clusters, 32-color palette, 4 discrete shade levels per material, deliberate pixel dithering. Think professional Aseprite sprite drawn with pencil tool and nearest neighbor enlarged. NO antialiasing, smooth curves, blended gradients, 3D render, photography, subpixel details, tiny smooth scratches, painted microtexture. One asset only, centered complete silhouette with safe transparent margin on all sides. Genuine RGBA transparent background, NO glow outside silhouette, NO light bloom, NO atmosphere, NO external shadow, NO checkerboard illustration, no watermark.",
+      "source": "/Users/yacineboufe/.codex/generated_images/01a0df76-3f76-7161-b4bd-ac6a927b8dec/exec-9299cb1c-25e9-47f0-a56b-0260f45e7c29.png",
+      "path": "ui/brass-clockwork-button.png",
+      "prompt_path": "prompts/ui/brass-clockwork-button.txt",
+      "status": "candidate",
+      "visual_qa": "Inspected: visible pixel clusters, stepped contours, no unintended text; logos correctly read CHESS 2.0.",
+      "dimensions": [
+        2172,
+        724
+      ],
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "transparent_pixel_fraction": 0.48457
+    },
+    {
+      "group": "logos",
+      "name": "chess-2-royal-jeweled-wordmark",
+      "prompt": "PIXEL ART. Authentic hand-pixelled 16-bit / 32-bit JRPG interface sprite, approximately 256x128 logical pixels displayed enlarged 6x nearest-neighbor so every individual SQUARE PIXEL is visibly large. Reference image is STYLE ONLY: match its obvious square pixels and stair-stepped contours, do NOT copy the crown as the subject. NEW SUBJECT: ONE logo wordmark. Render ONLY exact text \"CHESS 2.0\" on ONE line, correctly spelled C H E S S space 2 period 0, in chunky bold fantasy PIXEL LETTERING. Gold letter bevels, black obsidian letter faces, jeweled ruby accents, small pixel crown atop center and refined filigree flourishes at ends. Crown must be secondary to LARGE READABLE TEXT. No plaque behind lettering. All gaps between letters and inside 0 must be alpha-transparent. Elaborate beautiful detail drawn exclusively with discrete PIXEL CLUSTERS. Hard stairstep contours, discrete pixel clusters, 32-color palette, 4 discrete shade levels per material, deliberate pixel dithering. Think professional Aseprite sprite drawn with pencil tool and nearest neighbor enlarged. NO antialiasing, smooth curves, blended gradients, 3D render, photography, subpixel details, tiny smooth scratches, painted microtexture. One asset only, centered complete silhouette with safe transparent margin on all sides. Genuine RGBA transparent background, NO glow outside silhouette, NO light bloom, NO atmosphere, NO external shadow, NO checkerboard illustration, no watermark.",
+      "source": "/Users/yacineboufe/.codex/generated_images/01a0df76-3f76-7161-b4bd-ac6a927b8dec/exec-c60f4b9e-24fc-4a23-8ab5-dca3949d13ed.png",
+      "path": "logos/chess-2-royal-jeweled-wordmark.png",
+      "prompt_path": "prompts/logos/chess-2-royal-jeweled-wordmark.txt",
+      "status": "candidate",
+      "visual_qa": "Inspected: visible pixel clusters, stepped contours, no unintended text; logos correctly read CHESS 2.0.",
+      "dimensions": [
+        1774,
+        887
+      ],
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "transparent_pixel_fraction": 0.48462
+    },
+    {
+      "group": "logos",
+      "name": "chess-2-ice-silver-wordmark",
+      "prompt": "PIXEL ART. Authentic hand-pixelled 16-bit / 32-bit JRPG interface sprite, approximately 256x128 logical pixels displayed enlarged 6x nearest-neighbor so every individual SQUARE PIXEL is visibly large. Reference image is STYLE ONLY: match its obvious square pixels and stair-stepped contours, do NOT copy the crown as the subject. NEW SUBJECT: ONE logo wordmark. Render ONLY exact text \"CHESS 2.0\" on ONE line, correctly spelled C H E S S space 2 period 0, in chunky bold fantasy PIXEL LETTERING. Silver bevels, blue ice crystal letter faces, deep navy shaded facets, small silver chess king crown over center and pixel ice shards on ends. Crown secondary to LARGE READABLE TEXT. No plaque behind lettering. All gaps between letters and inside 0 must be alpha-transparent. Elaborate beautiful detail drawn exclusively with discrete PIXEL CLUSTERS. Hard stairstep contours, discrete pixel clusters, 32-color palette, 4 discrete shade levels per material, deliberate pixel dithering. Think professional Aseprite sprite drawn with pencil tool and nearest neighbor enlarged. NO antialiasing, smooth curves, blended gradients, 3D render, photography, subpixel details, tiny smooth scratches, painted microtexture. One asset only, centered complete silhouette with safe transparent margin on all sides. Genuine RGBA transparent background, NO glow outside silhouette, NO light bloom, NO atmosphere, NO external shadow, NO checkerboard illustration, no watermark.",
+      "source": "/Users/yacineboufe/.codex/generated_images/01a0df76-3f76-7161-b4bd-ac6a927b8dec/exec-a67f90de-041d-4696-b001-0ef51e7e4c0b.png",
+      "path": "logos/chess-2-ice-silver-wordmark.png",
+      "prompt_path": "prompts/logos/chess-2-ice-silver-wordmark.txt",
+      "status": "candidate",
+      "visual_qa": "Inspected: visible pixel clusters, stepped contours, no unintended text; logos correctly read CHESS 2.0.",
+      "dimensions": [
+        1774,
+        887
+      ],
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "transparent_pixel_fraction": 0.6259
+    }
+  ],
+  "asset_count": 6,
+  "integration": "Candidate assets only, no runtime integration",
+  "pixel_style_note": "Image-generated pixel art look, not mathematically guaranteed fixed-grid indexed-color sprites. Originals preserved without procedural image edits."
+}

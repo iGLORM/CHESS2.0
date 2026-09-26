@@ -61,7 +61,7 @@ export const Worlds = () => {
           objectFit: "contain",
           imageRendering: "pixelated",
           filter: "drop-shadow(0 20px 32px #000)",
-          translate: interpolate(frame, [0, 179], ["0px 22px", "0px -15px"]),
+          translate: interpolate(frame, [-110, 69], ["0px 22px", "0px -15px"])
         }}
       />
       <CanvasImage
@@ -75,7 +75,7 @@ export const Worlds = () => {
           objectFit: "contain",
           imageRendering: "pixelated",
           filter: "drop-shadow(0 0 55px #9663ffc0)",
-          translate: interpolate(frame, [0, 179], ["0px 20px", "0px -20px"]),
+          translate: interpolate(frame, [-110, 69], ["0px 20px", "0px -20px"])
         }}
       />
       <CanvasImage
@@ -89,7 +89,7 @@ export const Worlds = () => {
           objectFit: "contain",
           imageRendering: "pixelated",
           filter: "drop-shadow(0 20px 32px #000)",
-          translate: interpolate(frame, [0, 179], ["0px 15px", "0px -15px"]),
+          translate: interpolate(frame, [-110, 69], ["0px 15px", "0px -15px"])
         }}
       />
       <Interactive.Div
@@ -120,10 +120,10 @@ export const Worlds = () => {
           textAlign: "center",
           fontSize: 54,
           textShadow: "0 5px 20px #000",
-          opacity: interpolate(frame, [35, 55], [0, 1], {
+          opacity: interpolate(frame, [-75, -55], [0, 1], {
             extrapolateLeft: "clamp",
-            extrapolateRight: "clamp",
-          }),
+            extrapolateRight: "clamp"
+          })
         }}
       >
         Face nine guardians. Restore the Great Board.

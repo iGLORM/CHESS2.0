@@ -1,0 +1,127 @@
+{
+  "generation": "built-in image_gen",
+  "transparent_background_requested": true,
+  "status": "rejected style studies; awaiting pixel art reference",
+  "assets": [
+    {
+      "group": "ui",
+      "name": "royal-obsidian-gold-button",
+      "prompt": "Use case: stylized-concept. Create ONE isolated premium fantasy game UI button asset. Wide horizontal button, perfectly frontal symmetrical orientation, roughly 4:1 object aspect ratio centered on transparent canvas. Elaborate sculpted antique gold filigree along bevelled edges, dense carved acanthus flourishes, miniature crown at upper middle, faceted ruby gemstone insets at the two ends, black obsidian inset surface with very subtle purple polished striations. Spacious uninterrupted DARK BLANK label bed filling central 65 percent; no letters or symbols in that bed. Art direction: extremely detailed high-bit pixel illustration, crisp deliberate small pixel clusters, sumptuous richly shaded metal, gem caustics, sculptural dimensional finish, hand-crafted premium dark-fantasy RPG inventory art. High resolution 1536x1024, isolated single asset with comfortable transparent margin all around. Genuine RGBA transparent background, not a checkerboard illustration. No scene, no layout, no extra buttons, no captions, no text, no watermark, no drop shadow outside silhouette. Preserve clean usable silhouette.",
+      "source": "/Users/yacineboufe/.codex/generated_images/01a0df76-3f76-7161-b4bd-ac6a927b8dec/exec-dfe69ed6-9d55-4b05-b3d0-350976bb86ca.png",
+      "path": "rejected-style-studies/ui/royal-obsidian-gold-button.png",
+      "prompt_path": "rejected-style-studies/prompts/ui/royal-obsidian-gold-button.txt",
+      "status": "rejected-style-study",
+      "reason": "Material detail present but style reads smooth rather than unmistakable pixel art. Not approved for use.",
+      "dimensions": [
+        1983,
+        793
+      ],
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "fully_transparent_fraction": 0.4895355795383076
+    },
+    {
+      "group": "ui",
+      "name": "emerald-woodland-button",
+      "prompt": "Use case: stylized-concept. Create ONE isolated premium fantasy game UI button asset: a wide horizontal enchanted woodland button approximately 4:1 shape, centered perfectly frontal. Frame of deeply carved aged oak with refined curling ivy, tiny fern leaf reliefs and intricately interwoven roots; bevelled gold-green bronze accents; highly faceted emerald gemstones set at both ends; dark deep green smooth enamel central label bed entirely BLANK, spacious central 65 percent unobstructed. Extremely detailed high-bit pixel illustration, crisp deliberate tiny pixel clusters and rich sculptural shading, luxurious hand-crafted RPG interface art, polished emerald highlights and believable woodgrain. High resolution 1536x1024. Only the one button, genuinely transparent RGBA outside its silhouette, generous margin around every side. No landscape or scenery, no text or labels or letters, no panels or multiple options, no opaque rectangle background, no checkerboard painted in, no watermark.",
+      "source": "/Users/yacineboufe/.codex/generated_images/01a0df76-3f76-7161-b4bd-ac6a927b8dec/exec-b88acce4-c8f0-4ce8-9827-1aa4111e5f0e.png",
+      "path": "rejected-style-studies/ui/emerald-woodland-button.png",
+      "prompt_path": "rejected-style-studies/prompts/ui/emerald-woodland-button.txt",
+      "status": "rejected-style-study",
+      "reason": "Material detail present but style reads smooth rather than unmistakable pixel art. Not approved for use.",
+      "dimensions": [
+        1983,
+        793
+      ],
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "fully_transparent_fraction": 0.452153519289751
+    },
+    {
+      "group": "ui",
+      "name": "crystal-gold-portrait-frame",
+      "prompt": "Use case: stylized-concept. ONE lavish ornamental fantasy RPG UI panel FRAME only, perfectly front-facing symmetrical tall portrait rectangle, vertical proportions approximately 2:3. Golden sculpted architectural frame with intricate filigree scrolls, heraldic fleur ornaments, cobalt enamel segments, lustrous icy blue crystals in elegant corner settings, tiny elaborate engraved bevels and ornamental top crown. Exquisite detailed high-bit pixel illustration, fine crisp pixel clusters, rich material shading and gemstone sparkle. FRAME ONLY: the entire large rectangular CENTRAL OPENING must be genuine alpha transparency, completely empty and see-through; also everything OUTSIDE the frame silhouette is genuine transparent background. No center fill, no blue panel, no parchment, no checkerboard graphic, no scene. The large central cutout should occupy about 65 percent of width and 75 percent of height. Single complete uncut asset, 1024x1536 high resolution, comfortable outside margins. No typography, no labels, no text, no watermark.",
+      "source": "/Users/yacineboufe/.codex/generated_images/01a0df76-3f76-7161-b4bd-ac6a927b8dec/exec-af4817e8-653c-4390-8060-4416aa69b1af.png",
+      "path": "rejected-style-studies/ui/crystal-gold-portrait-frame.png",
+      "prompt_path": "rejected-style-studies/prompts/ui/crystal-gold-portrait-frame.txt",
+      "status": "rejected-style-study",
+      "reason": "Material detail present but style reads smooth rather than unmistakable pixel art. Not approved for use.",
+      "dimensions": [
+        1024,
+        1536
+      ],
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        254
+      ],
+      "fully_transparent_fraction": 0.6584453582763672
+    },
+    {
+      "group": "ui",
+      "name": "brass-clockwork-button",
+      "prompt": "Use case: stylized-concept. ONE premium detailed fantasy steampunk UI button. Wide horizontal shape about 4:1, perfect frontal view, centered isolated on genuine transparent RGBA canvas. Ornate aged brass mechanical border with intricate intermeshing tiny cogwheels, miniature precision screws and copper conduits clustered only at ends, beautiful machined bevels, rich oxidation in recesses; polished dark teal enamel label bed spacious and entirely blank across the central 65 percent, golden thin inset trim. Extremely detailed high-bit pixel illustration with fine crisp clusters, dense beautiful material detail, sophisticated dimensional light and shadow. 1536x1024 high resolution. Only a SINGLE complete button with generous transparent margins. No text, no labels or letters, no backdrop or tabletop, no additional objects, no watermark. Transparency must be real, not a drawn checker pattern.",
+      "source": "/Users/yacineboufe/.codex/generated_images/01a0df76-3f76-7161-b4bd-ac6a927b8dec/exec-bda45d97-ee15-46f5-89a6-f1233fc1d131.png",
+      "path": "rejected-style-studies/ui/brass-clockwork-button.png",
+      "prompt_path": "rejected-style-studies/prompts/ui/brass-clockwork-button.txt",
+      "status": "rejected-style-study",
+      "reason": "Material detail present but style reads smooth rather than unmistakable pixel art. Not approved for use.",
+      "dimensions": [
+        1983,
+        793
+      ],
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "fully_transparent_fraction": 0.544285315471546
+    },
+    {
+      "group": "logos",
+      "name": "chess-2-royal-jeweled-wordmark",
+      "prompt": "Use case: logo-brand. Create ONE spectacular high-detail fantasy chess game logo wordmark as an isolated transparent PNG. Exact readable text: \"CHESS 2.0\". Spell precisely C H E S S space 2 period 0. ONE centered line of large custom sculpted letters, black obsidian letter faces, rich bevelled antique gold borders, fine ornamental gold engravings and tiny ruby jeweled inlays. Graceful gold crown centered above the wordmark, subtle chess rook architecture incorporated into letter tops without hurting legibility. Luxurious premium dark fantasy game title, exquisite high-bit pixel illustration with fine crisp pixel clusters and sumptuous material shading. Decorative crest integrated into letters, all one logo. Wide composition 1536x1024, generous margin, fully visible edges. Genuine RGBA transparent background. No plaque or enclosing shield behind text, no scenery, no subtitle, no tagline, no additional text, no watermark.",
+      "source": "/Users/yacineboufe/.codex/generated_images/01a0df76-3f76-7161-b4bd-ac6a927b8dec/exec-ecaed31a-cdc4-429c-a04c-72b6f3cafb3c.png",
+      "path": "rejected-style-studies/logos/chess-2-royal-jeweled-wordmark.png",
+      "prompt_path": "rejected-style-studies/prompts/logos/chess-2-royal-jeweled-wordmark.txt",
+      "status": "rejected-style-study",
+      "reason": "Material detail present but style reads smooth rather than unmistakable pixel art. Not approved for use.",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        254
+      ],
+      "fully_transparent_fraction": 0.707275390625
+    },
+    {
+      "group": "logos",
+      "name": "chess-2-ice-silver-wordmark",
+      "prompt": "Use case: logo-brand. ONE exquisite high-detail frozen fantasy chess game logo wordmark isolated on transparency. Render exact readable text \"CHESS 2.0\" in ONE centered line: C H E S S space 2 period 0. Broad elegant sculpted capital letters made from icy crystalline silver and luminous blue cut crystal, deep royal blue shaded recesses, engraved silver bevels, tiny frost filigree and sharp ice facets. A graceful silver chess king crown integrated above center, delicate ice flourishes and small crystal shards attached at ends of wordmark, always secondary to legibility. Premium high-bit pixel illustration, fine crisp tiny pixel clusters, dense luxurious material shading and gemstone highlights. High resolution 1536x1024. Complete standalone logo with generous transparent margins. Genuine transparent RGBA outside logo, including spaces between letters. No snowy landscape, no rectangular plaque, no checkerboard painting, no subtitle, no additional words, no watermark.",
+      "source": "/Users/yacineboufe/.codex/generated_images/01a0df76-3f76-7161-b4bd-ac6a927b8dec/exec-0ec528f9-77d7-4b22-8d02-c96f2222491c.png",
+      "path": "rejected-style-studies/logos/chess-2-ice-silver-wordmark.png",
+      "prompt_path": "rejected-style-studies/prompts/logos/chess-2-ice-silver-wordmark.txt",
+      "status": "rejected-style-study",
+      "reason": "Material detail present but style reads smooth rather than unmistakable pixel art. Not approved for use.",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        254
+      ],
+      "fully_transparent_fraction": 0.6423562367757162
+    }
+  ]
+}

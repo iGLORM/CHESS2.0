@@ -1885,15 +1885,16 @@ const GameScreen = {
       const save = store.getActiveSave();
       const stage = this.currentCharacter ? this.currentCharacter.stage : 1;
       // A first win here plays the reward on the world map (restore, fragment, travel).
-      if (stage >= save.maxUnlockedLevel && !save.completed) {
+      // Only your next stage moves progress on (Super User can play ahead without skipping it).
+      if (stage === save.maxUnlockedLevel && !save.completed) {
         store.set('storyMapEvent', { stage, fragment: stage >= 6 });
         store.set('storyScenePending', StoryScenes.after(stage));
       }
-      if (stage >= save.maxUnlockedLevel && stage < CharacterManager.STAGE_COUNT) {
+      if (stage === save.maxUnlockedLevel && stage < CharacterManager.STAGE_COUNT) {
         save.maxUnlockedLevel = stage + 1;
         save.storyLevel = stage + 1;
         store.setActiveSave(save);
-      } else if (stage >= save.maxUnlockedLevel) {
+      } else if (stage === save.maxUnlockedLevel) {
         save.storyLevel = stage;
         save.completed = true;
         if (save.difficultyTier === 'expert' && !store.get('madnessUnlocked')) {

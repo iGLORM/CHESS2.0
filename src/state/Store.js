@@ -28,6 +28,8 @@ class Store {
         { storyLevel: 1, maxUnlockedLevel: 1, selectedCharacter: null, difficultyTier: null, completed: false, stages: 15 },
       ],
       madnessUnlocked: false,
+      // Super User (press T ten times): everything shows as unlocked; progress is untouched.
+      superUser: false,
       settings: {
         audioEnabled: true,
         miniGamesEnabled: true,
@@ -121,6 +123,7 @@ class Store {
         activeSaveSlot: this.state.activeSaveSlot,
         storySaves: this.state.storySaves,
         madnessUnlocked: this.state.madnessUnlocked,
+        superUser: this.state.superUser,
         settings: this.state.settings,
         controls: this.state.controls,
         theme: this.state.theme,
@@ -187,6 +190,7 @@ class Store {
         if (data.activeSaveSlot) {
           this.state.activeSaveSlot = data.activeSaveSlot;
         }
+        this.state.superUser = !!data.superUser;
         this.state.settings = { ...this.state.settings, ...data.settings };
         this.state.controls = data.controls || this.state.controls;
         this.state.theme = ThemeManager.resolveId(data.theme);
@@ -214,6 +218,7 @@ class Store {
       { storyLevel: 1, maxUnlockedLevel: 1, selectedCharacter: null, difficultyTier: null, completed: false, stages: 15 },
     ];
     this.state.madnessUnlocked = false;
+    this.state.superUser = false;
     this.state.unlockedThemes = [];
     this.state.activeSaveSlot = 1;
     this._syncStoryKeys();

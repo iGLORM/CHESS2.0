@@ -45,6 +45,7 @@ function _doSwitchScreen() {
   }
 
   store.set('screen', transition.nextScreen);
+  window.currentScreenData = transition.nextData;   // lets a screen be rebuilt as it was (Super User)
   currentScreen = screens[transition.nextScreen];
   if (currentScreen && currentScreen.init) {
     currentScreen.init(transition.nextData);
@@ -279,6 +280,7 @@ function initApp() {
       e.preventDefault();
       return;
     }
+    if (SuperUser.handleKey(e)) return;
     if (currentScreen && currentScreen.handleKeyDown) {
       currentScreen.handleKeyDown(e);
     }

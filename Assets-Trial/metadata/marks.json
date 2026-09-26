@@ -1,0 +1,1052 @@
+[
+  {
+    "path": "icons/royal_gold/crown.png",
+    "logical_size": [
+      32,
+      32
+    ],
+    "scale": 4,
+    "source": "code-drawn",
+    "generator": "generators/marks.py",
+    "theme": "royal_gold",
+    "category": "icon"
+  },
+  {
+    "path": "icons/royal_gold/rook.png",
+    "logical_size": [
+      32,
+      32
+    ],
+    "scale": 4,
+    "source": "code-drawn",
+    "generator": "generators/marks.py",
+    "theme": "royal_gold",
+    "category": "icon"
+  },
+  {
+    "path": "icons/royal_gold/pawn.png",
+    "logical_size": [
+      32,
+      32
+    ],
+    "scale": 4,
+    "source": "code-drawn",
+    "generator": "generators/marks.py",
+    "theme": "royal_gold",
+    "category": "icon"
+  },
+  {
+    "path": "icons/royal_gold/bishop.png",
+    "logical_size": [
+      32,
+      32
+    ],
+    "scale": 4,
+    "source": "code-drawn",
+    "generator": "generators/marks.py",
+    "theme": "royal_gold",
+    "category": "icon"
+  },
+  {
+    "path": "icons/royal_gold/knight.png",
+    "logical_size": [
+      32,
+      32
+    ],
+    "scale": 4,
+    "source": "code-drawn",
+    "generator": "generators/marks.py",
+    "theme": "royal_gold",
+    "category": "icon"
+  },
+  {
+    "path": "icons/royal_gold/king.png",
+    "logical_size": [
+      32,
+      32
+    ],
+    "scale": 4,
+    "source": "code-drawn",
+    "generator": "generators/marks.py",
+    "theme": "royal_gold",
+    "category": "icon"
+  },
+  {
+    "path": "icons/royal_gold/sword.png",
+    "logical_size": [
+      32,
+      32
+    ],
+    "scale": 4,
+    "source": "code-drawn",
+    "generator": "generators/marks.py",
+    "theme": "royal_gold",
+    "category": "icon"
+  },
+  {
+    "path": "icons/royal_gold/shield.png",
+    "logical_size": [
+      32,
+      32
+    ],
+    "scale": 4,
+    "source": "code-drawn",
+    "generator": "generators/marks.py",
+    "theme": "royal_gold",
+    "category": "icon"
+  },
+  {
+    "path": "icons/royal_gold/gem.png",
+    "logical_size": [
+      32,
+      32
+    ],
+    "scale": 4,
+    "source": "code-drawn",
+    "generator": "generators/marks.py",
+    "theme": "royal_gold",
+    "category": "icon"
+  },
+  {
+    "path": "icons/royal_gold/key.png",
+    "logical_size": [
+      32,
+      32
+    ],
+    "scale": 4,
+    "source": "code-drawn",
+    "generator": "generators/marks.py",
+    "theme": "royal_gold",
+    "category": "icon"
+  },
+  {
+    "path": "icons/royal_gold/hourglass.png",
+    "logical_size": [
+      32,
+      32
+    ],
+    "scale": 4,
+    "source": "code-drawn",
+    "generator": "generators/marks.py",
+    "theme": "royal_gold",
+    "category": "icon"
+  },
+  {
+    "path": "icons/royal_gold/scroll.png",
+    "logical_size": [
+      32,
+      32
+    ],
+    "scale": 4,
+    "source": "code-drawn",
+    "generator": "generators/marks.py",
+    "theme": "royal_gold",
+    "category": "icon"
+  },
+  {
+    "path": "icons/royal_gold/heart.png",
+    "logical_size": [
+      32,
+      32
+    ],
+    "scale": 4,
+    "source": "code-drawn",
+    "generator": "generators/marks.py",
+    "theme": "royal_gold",
+    "category": "icon"
+  },
+  {
+    "path": "icons/royal_gold/coin.png",
+    "logical_size": [
+      32,
+      32
+    ],
+    "scale": 4,
+    "source": "code-drawn",
+    "generator": "generators/marks.py",
+    "theme": "royal_gold",
+    "category": "icon"
+  },
+  {
+    "path": "icons/royal_gold/potion.png",
+    "logical_size": [
+      32,
+      32
+    ],
+    "scale": 4,
+    "source": "code-drawn",
+    "generator": "generators/marks.py",
+    "theme": "royal_gold",
+    "category": "icon"
+  },
+  {
+    "path": "icons/royal_gold/gear.png",
+    "logical_size": [
+      32,
+      32
+    ],
+    "scale": 4,
+    "source": "code-drawn",
+    "generator": "generators/marks.py",
+    "theme": "royal_gold",
+    "category": "icon"
+  },
+  {
+    "path": "icons/royal_gold/lock.png",
+    "logical_size": [
+      32,
+      32
+    ],
+    "scale": 4,
+    "source": "code-drawn",
+    "generator": "generators/marks.py",
+    "theme": "royal_gold",
+    "category": "icon"
+  },
+  {
+    "path": "icons/royal_gold/spark.png",
+    "logical_size": [
+      32,
+      32
+    ],
+    "scale": 4,
+    "source": "code-drawn",
+    "generator": "generators/marks.py",
+    "theme": "royal_gold",
+    "category": "icon"
+  },
+  {
+    "path": "logos/wordmarks/royal_gold_crowned.png",
+    "logical_size": [
+      192,
+      56
+    ],
+    "scale": 4,
+    "source": "code-drawn",
+    "generator": "generators/marks.py",
+    "theme": "royal_gold",
+    "category": "wordmark",
+    "text": "CHESS 2.0"
+  },
+  {
+    "path": "logos/wordmarks/royal_gold_diamond.png",
+    "logical_size": [
+      192,
+      56
+    ],
+    "scale": 4,
+    "source": "code-drawn",
+    "generator": "generators/marks.py",
+    "theme": "royal_gold",
+    "category": "wordmark",
+    "text": "CHESS 2.0"
+  },
+  {
+    "path": "logos/emblems/royal_gold_crown.png",
+    "logical_size": [
+      64,
+      64
+    ],
+    "scale": 4,
+    "source": "code-drawn",
+    "generator": "generators/marks.py",
+    "theme": "royal_gold",
+    "category": "emblem"
+  },
+  {
+    "path": "logos/emblems/royal_gold_rook.png",
+    "logical_size": [
+      64,
+      64
+    ],
+    "scale": 4,
+    "source": "code-drawn",
+    "generator": "generators/marks.py",
+    "theme": "royal_gold",
+    "category": "emblem"
+  },
+  {
+    "path": "logos/emblems/royal_gold_knight.png",
+    "logical_size": [
+      64,
+      64
+    ],
+    "scale": 4,
+    "source": "code-drawn",
+    "generator": "generators/marks.py",
+    "theme": "royal_gold",
+    "category": "emblem"
+  },
+  {
+    "path": "effects/spark_burst/royal_gold/frame_00.png",
+    "logical_size": [
+      64,
+      64
+    ],
+    "scale": 4,
+    "source": "code-drawn",
+    "generator": "generators/marks.py",
+    "theme": "royal_gold",
+    "category": "effect",
+    "frame": 0,
+    "frame_duration_ms": 90,
+    "pivot": [
+      32,
+      32
+    ]
+  },
+  {
+    "path": "effects/spark_burst/royal_gold/frame_01.png",
+    "logical_size": [
+      64,
+      64
+    ],
+    "scale": 4,
+    "source": "code-drawn",
+    "generator": "generators/marks.py",
+    "theme": "royal_gold",
+    "category": "effect",
+    "frame": 1,
+    "frame_duration_ms": 90,
+    "pivot": [
+      32,
+      32
+    ]
+  },
+  {
+    "path": "effects/spark_burst/royal_gold/frame_02.png",
+    "logical_size": [
+      64,
+      64
+    ],
+    "scale": 4,
+    "source": "code-drawn",
+    "generator": "generators/marks.py",
+    "theme": "royal_gold",
+    "category": "effect",
+    "frame": 2,
+    "frame_duration_ms": 90,
+    "pivot": [
+      32,
+      32
+    ]
+  },
+  {
+    "path": "effects/spark_burst/royal_gold/frame_03.png",
+    "logical_size": [
+      64,
+      64
+    ],
+    "scale": 4,
+    "source": "code-drawn",
+    "generator": "generators/marks.py",
+    "theme": "royal_gold",
+    "category": "effect",
+    "frame": 3,
+    "frame_duration_ms": 90,
+    "pivot": [
+      32,
+      32
+    ]
+  },
+  {
+    "path": "icons/lunar_crystal/crown.png",
+    "logical_size": [
+      32,
+      32
+    ],
+    "scale": 4,
+    "source": "code-drawn",
+    "generator": "generators/marks.py",
+    "theme": "lunar_crystal",
+    "category": "icon"
+  },
+  {
+    "path": "icons/lunar_crystal/rook.png",
+    "logical_size": [
+      32,
+      32
+    ],
+    "scale": 4,
+    "source": "code-drawn",
+    "generator": "generators/marks.py",
+    "theme": "lunar_crystal",
+    "category": "icon"
+  },
+  {
+    "path": "icons/lunar_crystal/pawn.png",
+    "logical_size": [
+      32,
+      32
+    ],
+    "scale": 4,
+    "source": "code-drawn",
+    "generator": "generators/marks.py",
+    "theme": "lunar_crystal",
+    "category": "icon"
+  },
+  {
+    "path": "icons/lunar_crystal/bishop.png",
+    "logical_size": [
+      32,
+      32
+    ],
+    "scale": 4,
+    "source": "code-drawn",
+    "generator": "generators/marks.py",
+    "theme": "lunar_crystal",
+    "category": "icon"
+  },
+  {
+    "path": "icons/lunar_crystal/knight.png",
+    "logical_size": [
+      32,
+      32
+    ],
+    "scale": 4,
+    "source": "code-drawn",
+    "generator": "generators/marks.py",
+    "theme": "lunar_crystal",
+    "category": "icon"
+  },
+  {
+    "path": "icons/lunar_crystal/king.png",
+    "logical_size": [
+      32,
+      32
+    ],
+    "scale": 4,
+    "source": "code-drawn",
+    "generator": "generators/marks.py",
+    "theme": "lunar_crystal",
+    "category": "icon"
+  },
+  {
+    "path": "icons/lunar_crystal/sword.png",
+    "logical_size": [
+      32,
+      32
+    ],
+    "scale": 4,
+    "source": "code-drawn",
+    "generator": "generators/marks.py",
+    "theme": "lunar_crystal",
+    "category": "icon"
+  },
+  {
+    "path": "icons/lunar_crystal/shield.png",
+    "logical_size": [
+      32,
+      32
+    ],
+    "scale": 4,
+    "source": "code-drawn",
+    "generator": "generators/marks.py",
+    "theme": "lunar_crystal",
+    "category": "icon"
+  },
+  {
+    "path": "icons/lunar_crystal/gem.png",
+    "logical_size": [
+      32,
+      32
+    ],
+    "scale": 4,
+    "source": "code-drawn",
+    "generator": "generators/marks.py",
+    "theme": "lunar_crystal",
+    "category": "icon"
+  },
+  {
+    "path": "icons/lunar_crystal/key.png",
+    "logical_size": [
+      32,
+      32
+    ],
+    "scale": 4,
+    "source": "code-drawn",
+    "generator": "generators/marks.py",
+    "theme": "lunar_crystal",
+    "category": "icon"
+  },
+  {
+    "path": "icons/lunar_crystal/hourglass.png",
+    "logical_size": [
+      32,
+      32
+    ],
+    "scale": 4,
+    "source": "code-drawn",
+    "generator": "generators/marks.py",
+    "theme": "lunar_crystal",
+    "category": "icon"
+  },
+  {
+    "path": "icons/lunar_crystal/scroll.png",
+    "logical_size": [
+      32,
+      32
+    ],
+    "scale": 4,
+    "source": "code-drawn",
+    "generator": "generators/marks.py",
+    "theme": "lunar_crystal",
+    "category": "icon"
+  },
+  {
+    "path": "icons/lunar_crystal/heart.png",
+    "logical_size": [
+      32,
+      32
+    ],
+    "scale": 4,
+    "source": "code-drawn",
+    "generator": "generators/marks.py",
+    "theme": "lunar_crystal",
+    "category": "icon"
+  },
+  {
+    "path": "icons/lunar_crystal/coin.png",
+    "logical_size": [
+      32,
+      32
+    ],
+    "scale": 4,
+    "source": "code-drawn",
+    "generator": "generators/marks.py",
+    "theme": "lunar_crystal",
+    "category": "icon"
+  },
+  {
+    "path": "icons/lunar_crystal/potion.png",
+    "logical_size": [
+      32,
+      32
+    ],
+    "scale": 4,
+    "source": "code-drawn",
+    "generator": "generators/marks.py",
+    "theme": "lunar_crystal",
+    "category": "icon"
+  },
+  {
+    "path": "icons/lunar_crystal/gear.png",
+    "logical_size": [
+      32,
+      32
+    ],
+    "scale": 4,
+    "source": "code-drawn",
+    "generator": "generators/marks.py",
+    "theme": "lunar_crystal",
+    "category": "icon"
+  },
+  {
+    "path": "icons/lunar_crystal/lock.png",
+    "logical_size": [
+      32,
+      32
+    ],
+    "scale": 4,
+    "source": "code-drawn",
+    "generator": "generators/marks.py",
+    "theme": "lunar_crystal",
+    "category": "icon"
+  },
+  {
+    "path": "icons/lunar_crystal/spark.png",
+    "logical_size": [
+      32,
+      32
+    ],
+    "scale": 4,
+    "source": "code-drawn",
+    "generator": "generators/marks.py",
+    "theme": "lunar_crystal",
+    "category": "icon"
+  },
+  {
+    "path": "logos/wordmarks/lunar_crystal_crowned.png",
+    "logical_size": [
+      192,
+      56
+    ],
+    "scale": 4,
+    "source": "code-drawn",
+    "generator": "generators/marks.py",
+    "theme": "lunar_crystal",
+    "category": "wordmark",
+    "text": "CHESS 2.0"
+  },
+  {
+    "path": "logos/wordmarks/lunar_crystal_diamond.png",
+    "logical_size": [
+      192,
+      56
+    ],
+    "scale": 4,
+    "source": "code-drawn",
+    "generator": "generators/marks.py",
+    "theme": "lunar_crystal",
+    "category": "wordmark",
+    "text": "CHESS 2.0"
+  },
+  {
+    "path": "logos/emblems/lunar_crystal_crown.png",
+    "logical_size": [
+      64,
+      64
+    ],
+    "scale": 4,
+    "source": "code-drawn",
+    "generator": "generators/marks.py",
+    "theme": "lunar_crystal",
+    "category": "emblem"
+  },
+  {
+    "path": "logos/emblems/lunar_crystal_rook.png",
+    "logical_size": [
+      64,
+      64
+    ],
+    "scale": 4,
+    "source": "code-drawn",
+    "generator": "generators/marks.py",
+    "theme": "lunar_crystal",
+    "category": "emblem"
+  },
+  {
+    "path": "logos/emblems/lunar_crystal_knight.png",
+    "logical_size": [
+      64,
+      64
+    ],
+    "scale": 4,
+    "source": "code-drawn",
+    "generator": "generators/marks.py",
+    "theme": "lunar_crystal",
+    "category": "emblem"
+  },
+  {
+    "path": "effects/spark_burst/lunar_crystal/frame_00.png",
+    "logical_size": [
+      64,
+      64
+    ],
+    "scale": 4,
+    "source": "code-drawn",
+    "generator": "generators/marks.py",
+    "theme": "lunar_crystal",
+    "category": "effect",
+    "frame": 0,
+    "frame_duration_ms": 90,
+    "pivot": [
+      32,
+      32
+    ]
+  },
+  {
+    "path": "effects/spark_burst/lunar_crystal/frame_01.png",
+    "logical_size": [
+      64,
+      64
+    ],
+    "scale": 4,
+    "source": "code-drawn",
+    "generator": "generators/marks.py",
+    "theme": "lunar_crystal",
+    "category": "effect",
+    "frame": 1,
+    "frame_duration_ms": 90,
+    "pivot": [
+      32,
+      32
+    ]
+  },
+  {
+    "path": "effects/spark_burst/lunar_crystal/frame_02.png",
+    "logical_size": [
+      64,
+      64
+    ],
+    "scale": 4,
+    "source": "code-drawn",
+    "generator": "generators/marks.py",
+    "theme": "lunar_crystal",
+    "category": "effect",
+    "frame": 2,
+    "frame_duration_ms": 90,
+    "pivot": [
+      32,
+      32
+    ]
+  },
+  {
+    "path": "effects/spark_burst/lunar_crystal/frame_03.png",
+    "logical_size": [
+      64,
+      64
+    ],
+    "scale": 4,
+    "source": "code-drawn",
+    "generator": "generators/marks.py",
+    "theme": "lunar_crystal",
+    "category": "effect",
+    "frame": 3,
+    "frame_duration_ms": 90,
+    "pivot": [
+      32,
+      32
+    ]
+  },
+  {
+    "path": "icons/ember_copper/crown.png",
+    "logical_size": [
+      32,
+      32
+    ],
+    "scale": 4,
+    "source": "code-drawn",
+    "generator": "generators/marks.py",
+    "theme": "ember_copper",
+    "category": "icon"
+  },
+  {
+    "path": "icons/ember_copper/rook.png",
+    "logical_size": [
+      32,
+      32
+    ],
+    "scale": 4,
+    "source": "code-drawn",
+    "generator": "generators/marks.py",
+    "theme": "ember_copper",
+    "category": "icon"
+  },
+  {
+    "path": "icons/ember_copper/pawn.png",
+    "logical_size": [
+      32,
+      32
+    ],
+    "scale": 4,
+    "source": "code-drawn",
+    "generator": "generators/marks.py",
+    "theme": "ember_copper",
+    "category": "icon"
+  },
+  {
+    "path": "icons/ember_copper/bishop.png",
+    "logical_size": [
+      32,
+      32
+    ],
+    "scale": 4,
+    "source": "code-drawn",
+    "generator": "generators/marks.py",
+    "theme": "ember_copper",
+    "category": "icon"
+  },
+  {
+    "path": "icons/ember_copper/knight.png",
+    "logical_size": [
+      32,
+      32
+    ],
+    "scale": 4,
+    "source": "code-drawn",
+    "generator": "generators/marks.py",
+    "theme": "ember_copper",
+    "category": "icon"
+  },
+  {
+    "path": "icons/ember_copper/king.png",
+    "logical_size": [
+      32,
+      32
+    ],
+    "scale": 4,
+    "source": "code-drawn",
+    "generator": "generators/marks.py",
+    "theme": "ember_copper",
+    "category": "icon"
+  },
+  {
+    "path": "icons/ember_copper/sword.png",
+    "logical_size": [
+      32,
+      32
+    ],
+    "scale": 4,
+    "source": "code-drawn",
+    "generator": "generators/marks.py",
+    "theme": "ember_copper",
+    "category": "icon"
+  },
+  {
+    "path": "icons/ember_copper/shield.png",
+    "logical_size": [
+      32,
+      32
+    ],
+    "scale": 4,
+    "source": "code-drawn",
+    "generator": "generators/marks.py",
+    "theme": "ember_copper",
+    "category": "icon"
+  },
+  {
+    "path": "icons/ember_copper/gem.png",
+    "logical_size": [
+      32,
+      32
+    ],
+    "scale": 4,
+    "source": "code-drawn",
+    "generator": "generators/marks.py",
+    "theme": "ember_copper",
+    "category": "icon"
+  },
+  {
+    "path": "icons/ember_copper/key.png",
+    "logical_size": [
+      32,
+      32
+    ],
+    "scale": 4,
+    "source": "code-drawn",
+    "generator": "generators/marks.py",
+    "theme": "ember_copper",
+    "category": "icon"
+  },
+  {
+    "path": "icons/ember_copper/hourglass.png",
+    "logical_size": [
+      32,
+      32
+    ],
+    "scale": 4,
+    "source": "code-drawn",
+    "generator": "generators/marks.py",
+    "theme": "ember_copper",
+    "category": "icon"
+  },
+  {
+    "path": "icons/ember_copper/scroll.png",
+    "logical_size": [
+      32,
+      32
+    ],
+    "scale": 4,
+    "source": "code-drawn",
+    "generator": "generators/marks.py",
+    "theme": "ember_copper",
+    "category": "icon"
+  },
+  {
+    "path": "icons/ember_copper/heart.png",
+    "logical_size": [
+      32,
+      32
+    ],
+    "scale": 4,
+    "source": "code-drawn",
+    "generator": "generators/marks.py",
+    "theme": "ember_copper",
+    "category": "icon"
+  },
+  {
+    "path": "icons/ember_copper/coin.png",
+    "logical_size": [
+      32,
+      32
+    ],
+    "scale": 4,
+    "source": "code-drawn",
+    "generator": "generators/marks.py",
+    "theme": "ember_copper",
+    "category": "icon"
+  },
+  {
+    "path": "icons/ember_copper/potion.png",
+    "logical_size": [
+      32,
+      32
+    ],
+    "scale": 4,
+    "source": "code-drawn",
+    "generator": "generators/marks.py",
+    "theme": "ember_copper",
+    "category": "icon"
+  },
+  {
+    "path": "icons/ember_copper/gear.png",
+    "logical_size": [
+      32,
+      32
+    ],
+    "scale": 4,
+    "source": "code-drawn",
+    "generator": "generators/marks.py",
+    "theme": "ember_copper",
+    "category": "icon"
+  },
+  {
+    "path": "icons/ember_copper/lock.png",
+    "logical_size": [
+      32,
+      32
+    ],
+    "scale": 4,
+    "source": "code-drawn",
+    "generator": "generators/marks.py",
+    "theme": "ember_copper",
+    "category": "icon"
+  },
+  {
+    "path": "icons/ember_copper/spark.png",
+    "logical_size": [
+      32,
+      32
+    ],
+    "scale": 4,
+    "source": "code-drawn",
+    "generator": "generators/marks.py",
+    "theme": "ember_copper",
+    "category": "icon"
+  },
+  {
+    "path": "logos/wordmarks/ember_copper_crowned.png",
+    "logical_size": [
+      192,
+      56
+    ],
+    "scale": 4,
+    "source": "code-drawn",
+    "generator": "generators/marks.py",
+    "theme": "ember_copper",
+    "category": "wordmark",
+    "text": "CHESS 2.0"
+  },
+  {
+    "path": "logos/wordmarks/ember_copper_diamond.png",
+    "logical_size": [
+      192,
+      56
+    ],
+    "scale": 4,
+    "source": "code-drawn",
+    "generator": "generators/marks.py",
+    "theme": "ember_copper",
+    "category": "wordmark",
+    "text": "CHESS 2.0"
+  },
+  {
+    "path": "logos/emblems/ember_copper_crown.png",
+    "logical_size": [
+      64,
+      64
+    ],
+    "scale": 4,
+    "source": "code-drawn",
+    "generator": "generators/marks.py",
+    "theme": "ember_copper",
+    "category": "emblem"
+  },
+  {
+    "path": "logos/emblems/ember_copper_rook.png",
+    "logical_size": [
+      64,
+      64
+    ],
+    "scale": 4,
+    "source": "code-drawn",
+    "generator": "generators/marks.py",
+    "theme": "ember_copper",
+    "category": "emblem"
+  },
+  {
+    "path": "logos/emblems/ember_copper_knight.png",
+    "logical_size": [
+      64,
+      64
+    ],
+    "scale": 4,
+    "source": "code-drawn",
+    "generator": "generators/marks.py",
+    "theme": "ember_copper",
+    "category": "emblem"
+  },
+  {
+    "path": "effects/spark_burst/ember_copper/frame_00.png",
+    "logical_size": [
+      64,
+      64
+    ],
+    "scale": 4,
+    "source": "code-drawn",
+    "generator": "generators/marks.py",
+    "theme": "ember_copper",
+    "category": "effect",
+    "frame": 0,
+    "frame_duration_ms": 90,
+    "pivot": [
+      32,
+      32
+    ]
+  },
+  {
+    "path": "effects/spark_burst/ember_copper/frame_01.png",
+    "logical_size": [
+      64,
+      64
+    ],
+    "scale": 4,
+    "source": "code-drawn",
+    "generator": "generators/marks.py",
+    "theme": "ember_copper",
+    "category": "effect",
+    "frame": 1,
+    "frame_duration_ms": 90,
+    "pivot": [
+      32,
+      32
+    ]
+  },
+  {
+    "path": "effects/spark_burst/ember_copper/frame_02.png",
+    "logical_size": [
+      64,
+      64
+    ],
+    "scale": 4,
+    "source": "code-drawn",
+    "generator": "generators/marks.py",
+    "theme": "ember_copper",
+    "category": "effect",
+    "frame": 2,
+    "frame_duration_ms": 90,
+    "pivot": [
+      32,
+      32
+    ]
+  },
+  {
+    "path": "effects/spark_burst/ember_copper/frame_03.png",
+    "logical_size": [
+      64,
+      64
+    ],
+    "scale": 4,
+    "source": "code-drawn",
+    "generator": "generators/marks.py",
+    "theme": "ember_copper",
+    "category": "effect",
+    "frame": 3,
+    "frame_duration_ms": 90,
+    "pivot": [
+      32,
+      32
+    ]
+  }
+]

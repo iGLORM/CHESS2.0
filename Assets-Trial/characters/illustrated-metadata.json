@@ -1,0 +1,65 @@
+[
+  {
+    "id": "clockwork-rook-marshal",
+    "path": "bosses/illustrated/clockwork-rook-marshal.png",
+    "dimensions": [
+      1254,
+      1254
+    ],
+    "mode": "RGBA",
+    "transparent_pixels": 503128,
+    "partial_alpha_pixels": 1068855,
+    "opaque_pixels": 533,
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "provenance": "Built-in image_gen; original output copied unmodified",
+    "prompt": "../prompts/characters/clockwork-rook-marshal.md",
+    "date": "2026-09-26",
+    "status": "unintegrated candidate",
+    "notes": "High resolution pixel-style illustration. Original generation includes partial alpha in artwork and edge glow; inspect on desired backdrop before future use."
+  },
+  {
+    "id": "dune-bishop-oracle",
+    "path": "bosses/illustrated/dune-bishop-oracle.png",
+    "dimensions": [
+      1254,
+      1254
+    ],
+    "mode": "RGBA",
+    "transparent_pixels": 1058845,
+    "partial_alpha_pixels": 513083,
+    "opaque_pixels": 588,
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "provenance": "Built-in image_gen; original output copied unmodified",
+    "prompt": "../prompts/characters/dune-bishop-oracle.md",
+    "date": "2026-09-26",
+    "status": "unintegrated candidate",
+    "notes": "High resolution pixel-style illustration. Original generation includes partial alpha in artwork and edge glow; inspect on desired backdrop before future use."
+  },
+  {
+    "id": "obsidian-crown-sovereign",
+    "path": "bosses/illustrated/obsidian-crown-sovereign.png",
+    "dimensions": [
+      1024,
+      1536
+    ],
+    "mode": "RGBA",
+    "transparent_pixels": 685625,
+    "partial_alpha_pixels": 887239,
+    "opaque_pixels": 0,
+    "alpha_extrema": [
+      0,
+      254
+    ],
+    "provenance": "Built-in image_gen; original output copied unmodified",
+    "prompt": "../prompts/characters/obsidian-crown-sovereign.md",
+    "date": "2026-09-26",
+    "status": "unintegrated candidate",
+    "notes": "High resolution pixel-style illustration. Original generation includes partial alpha in artwork and edge glow; inspect on desired backdrop before future use."
+  }
+]

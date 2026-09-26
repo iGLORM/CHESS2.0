@@ -244,7 +244,7 @@ const CharacterSelect = {
   buildDifficulty() {
     const s = Layout.uiScale || 1;
     const tiers = ['rookie', 'beginner', 'intermediate', 'advanced', 'expert'];
-    if (store.get('madnessUnlocked')) tiers.push('madness');
+    if (store.get('madnessUnlocked') || SuperUser.active()) tiers.push('madness');
 
     const portrait = Layout.isPortrait;
     const cardW = Math.min(Math.round((portrait ? 700 : 720) * s), Layout.W - 80);

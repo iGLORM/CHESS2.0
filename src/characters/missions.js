@@ -613,12 +613,14 @@ const StoryMissions = {
 
   // Missions open in order; a restored world's missions are all open (replays).
   isOpen(save, world, index) {
+    if (typeof SuperUser !== 'undefined' && SuperUser.active()) return true;
     if (!StoryProgress.isUnlocked(save, world.stages[0])) return false;
     return StoryProgress.isRestored(save, world) || index <= this.cleared(save, world.id);
   },
 
   // The guardian waits at the end of the path.
   bossReady(save, world) {
+    if (typeof SuperUser !== 'undefined' && SuperUser.active()) return true;
     if (!MISSIONS[world.id]) return StoryProgress.isUnlocked(save, world.stages[0]);
     return StoryProgress.isRestored(save, world) ||
       (StoryProgress.isUnlocked(save, world.stages[0]) && this.cleared(save, world.id) >= this.COUNT);

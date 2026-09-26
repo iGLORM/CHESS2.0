@@ -33,6 +33,7 @@ const StoryProgress = {
   },
 
   isUnlocked(save, stage) {
+    if (typeof SuperUser !== 'undefined' && SuperUser.active()) return true;
     return stage <= ((save && save.maxUnlockedLevel) || 1);
   },
 

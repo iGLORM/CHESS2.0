@@ -1,0 +1,291 @@
+[
+  {
+    "path": "ui/core/primary-button-normal.png",
+    "section": "A",
+    "world": null,
+    "state": "normal",
+    "size": [
+      2172,
+      724
+    ],
+    "source": "built-in imagegen",
+    "postprocessing": "none",
+    "prompt_path": "prompts/ui/core/primary-button-normal.txt",
+    "source_path": "/Users/yacineboufe/.codex/generated_images/01a0df9e-f09b-7cf2-8de8-c88af5c118e4/exec-a9c4505f-222b-4e0c-aaee-e514b892d728.png",
+    "references": [
+      "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/icons/jeweled-chess-crown.png",
+      "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/ui/royal-obsidian-gold-button.png"
+    ],
+    "review": "accepted after visual review and alpha validation"
+  },
+  {
+    "path": "ui/core/primary-button-hover.png",
+    "section": "A",
+    "world": null,
+    "state": "hover",
+    "size": [
+      2172,
+      724
+    ],
+    "source": "built-in imagegen",
+    "postprocessing": "none",
+    "prompt_path": "prompts/ui/core/primary-button-hover.txt",
+    "source_path": "/Users/yacineboufe/.codex/generated_images/01a0df9e-f09b-7cf2-8de8-c88af5c118e4/exec-a3b002d9-eb6f-42a2-98d3-25d4a76e145d.png",
+    "references": [
+      "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v4-ui/ui/core/primary-button-normal.png"
+    ],
+    "review": "accepted after visual review and alpha validation"
+  },
+  {
+    "path": "ui/core/primary-button-pressed.png",
+    "section": "A",
+    "world": null,
+    "state": "pressed",
+    "size": [
+      2172,
+      724
+    ],
+    "source": "built-in imagegen",
+    "postprocessing": "none",
+    "prompt_path": "prompts/ui/core/primary-button-pressed.txt",
+    "source_path": "/Users/yacineboufe/.codex/generated_images/01a0df9e-f09b-7cf2-8de8-c88af5c118e4/exec-54e5adb0-4157-4c97-9cc3-293001c2d646.png",
+    "references": [
+      "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v4-ui/ui/core/primary-button-normal.png"
+    ],
+    "review": "accepted after visual review and alpha validation"
+  },
+  {
+    "path": "ui/core/primary-button-disabled.png",
+    "section": "A",
+    "world": null,
+    "state": "disabled",
+    "size": [
+      2172,
+      724
+    ],
+    "source": "built-in imagegen",
+    "postprocessing": "none",
+    "prompt_path": "prompts/ui/core/primary-button-disabled.txt",
+    "source_path": "/Users/yacineboufe/.codex/generated_images/01a0df9e-f09b-7cf2-8de8-c88af5c118e4/exec-5afef616-4104-4061-a39f-a2ca21f71c44.png",
+    "references": [
+      "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v4-ui/ui/core/primary-button-normal.png"
+    ],
+    "review": "accepted after visual review and alpha validation"
+  },
+  {
+    "path": "ui/core/square-button-normal.png",
+    "section": "A",
+    "world": null,
+    "state": null,
+    "size": [
+      1254,
+      1254
+    ],
+    "source": "built-in imagegen",
+    "postprocessing": "none",
+    "prompt_path": "prompts/ui/core/square-button-normal.txt",
+    "source_path": "/Users/yacineboufe/.codex/generated_images/01a0df9e-f09b-7cf2-8de8-c88af5c118e4/exec-331e1acf-3032-4a10-9c72-2d16a2a84637.png",
+    "references": [
+      "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/icons/jeweled-chess-crown.png"
+    ],
+    "review": "accepted after visual review and alpha validation"
+  },
+  {
+    "path": "ui/core/secondary-button-normal.png",
+    "section": "A",
+    "world": null,
+    "state": null,
+    "size": [
+      2172,
+      724
+    ],
+    "source": "built-in imagegen",
+    "postprocessing": "none",
+    "prompt_path": "prompts/ui/core/secondary-button-normal.txt",
+    "source_path": "/Users/yacineboufe/.codex/generated_images/01a0df9e-f09b-7cf2-8de8-c88af5c118e4/exec-b34394ad-c412-4853-b221-3ee2ca6888b5.png",
+    "references": [
+      "/Users/yacineboufe/.codex/generated_images/01a0df9e-f09b-7cf2-8de8-c88af5c118e4/exec-b2a6747c-8294-48e4-88e1-fea1c8009cfd.png"
+    ],
+    "review": "accepted after visual review and alpha validation"
+  },
+  {
+    "path": "ui/core/danger-button-normal.png",
+    "section": "A",
+    "world": null,
+    "state": null,
+    "size": [
+      2172,
+      724
+    ],
+    "source": "built-in imagegen",
+    "postprocessing": "none",
+    "prompt_path": "prompts/ui/core/danger-button-normal.txt",
+    "source_path": "/Users/yacineboufe/.codex/generated_images/01a0df9e-f09b-7cf2-8de8-c88af5c118e4/exec-ed9303dd-323c-44eb-8349-3e6bcfd09c96.png",
+    "references": [
+      "/Users/yacineboufe/.codex/generated_images/01a0df9e-f09b-7cf2-8de8-c88af5c118e4/exec-46601331-e550-430a-b7a9-b2446ac3d566.png"
+    ],
+    "review": "accepted after visual review and alpha validation"
+  },
+  {
+    "path": "ui/core/round-button-normal.png",
+    "section": "A",
+    "world": null,
+    "state": null,
+    "size": [
+      1254,
+      1254
+    ],
+    "source": "built-in imagegen",
+    "postprocessing": "none",
+    "prompt_path": "prompts/ui/core/round-button-normal.txt",
+    "source_path": "/Users/yacineboufe/.codex/generated_images/01a0df9e-f09b-7cf2-8de8-c88af5c118e4/exec-5cfc095f-c2ba-4da1-a0fc-002528ef3e12.png",
+    "references": [
+      "/Users/yacineboufe/.codex/generated_images/01a0df9e-f09b-7cf2-8de8-c88af5c118e4/exec-e4d829e7-b0ff-4b49-90bf-50e162c7488a.png"
+    ],
+    "review": "accepted after visual review and alpha validation"
+  },
+  {
+    "path": "ui/core/back-button.png",
+    "section": "A",
+    "world": null,
+    "state": null,
+    "size": [
+      1254,
+      1254
+    ],
+    "source": "built-in imagegen",
+    "postprocessing": "none",
+    "prompt_path": "prompts/ui/core/back-button.txt",
+    "source_path": "/Users/yacineboufe/.codex/generated_images/01a0df9e-f09b-7cf2-8de8-c88af5c118e4/exec-914d968e-d6ab-4a38-977a-a22e8af0ea86.png",
+    "references": [
+      "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/icons/jeweled-chess-crown.png"
+    ],
+    "review": "accepted after visual review and alpha validation"
+  },
+  {
+    "path": "ui/core/secondary-button-hover.png",
+    "section": "A",
+    "world": null,
+    "state": "hover",
+    "size": [
+      2172,
+      724
+    ],
+    "source": "built-in imagegen",
+    "postprocessing": "none",
+    "prompt_path": "prompts/ui/core/secondary-button-hover.txt",
+    "source_path": "/Users/yacineboufe/.codex/generated_images/01a0df9e-f09b-7cf2-8de8-c88af5c118e4/exec-a7a852f5-507c-40c4-9c75-396b67c629c2.png",
+    "references": [
+      "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v4-ui/ui/core/secondary-button-normal.png"
+    ],
+    "review": "accepted after visual review and alpha validation"
+  },
+  {
+    "path": "ui/core/secondary-button-pressed.png",
+    "section": "A",
+    "world": null,
+    "state": "pressed",
+    "size": [
+      2172,
+      724
+    ],
+    "source": "built-in imagegen",
+    "postprocessing": "none",
+    "prompt_path": "prompts/ui/core/secondary-button-pressed.txt",
+    "source_path": "/Users/yacineboufe/.codex/generated_images/01a0df9e-f09b-7cf2-8de8-c88af5c118e4/exec-cc3edf99-17a0-4385-9bea-3e0dfcd758c3.png",
+    "references": [
+      "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v4-ui/ui/core/secondary-button-normal.png"
+    ],
+    "review": "accepted after visual review and alpha validation"
+  },
+  {
+    "path": "ui/core/secondary-button-disabled.png",
+    "section": "A",
+    "world": null,
+    "state": "disabled",
+    "size": [
+      2172,
+      724
+    ],
+    "source": "built-in imagegen",
+    "postprocessing": "none",
+    "prompt_path": "prompts/ui/core/secondary-button-disabled.txt",
+    "source_path": "/Users/yacineboufe/.codex/generated_images/01a0df9e-f09b-7cf2-8de8-c88af5c118e4/exec-04e70235-7ae8-4014-9f6e-3c089bd8b5eb.png",
+    "references": [
+      "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v4-ui/ui/core/secondary-button-normal.png"
+    ],
+    "review": "accepted after visual review and alpha validation"
+  },
+  {
+    "path": "ui/core/danger-button-hover.png",
+    "section": "A",
+    "world": null,
+    "state": "hover",
+    "size": [
+      2172,
+      724
+    ],
+    "source": "built-in imagegen",
+    "postprocessing": "none",
+    "prompt_path": "prompts/ui/core/danger-button-hover.txt",
+    "source_path": "/Users/yacineboufe/.codex/generated_images/01a0df9e-f09b-7cf2-8de8-c88af5c118e4/exec-db56071a-de7b-46d4-bffa-a04f0aaaeff7.png",
+    "references": [
+      "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v4-ui/ui/core/danger-button-normal.png"
+    ],
+    "review": "accepted after visual review and alpha validation"
+  },
+  {
+    "path": "ui/core/square-button-hover.png",
+    "section": "A",
+    "world": null,
+    "state": "hover",
+    "size": [
+      1254,
+      1254
+    ],
+    "source": "built-in imagegen",
+    "postprocessing": "none",
+    "prompt_path": "prompts/ui/core/square-button-hover.txt",
+    "source_path": "/Users/yacineboufe/.codex/generated_images/01a0df9e-f09b-7cf2-8de8-c88af5c118e4/exec-ae74b7c1-932a-4df0-a7bf-c772e0870d99.png",
+    "references": [
+      "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v4-ui/ui/core/square-button-normal.png"
+    ],
+    "review": "accepted after visual review and alpha validation"
+  },
+  {
+    "path": "ui/core/square-button-pressed.png",
+    "section": "A",
+    "world": null,
+    "state": "pressed",
+    "size": [
+      1254,
+      1254
+    ],
+    "source": "built-in imagegen",
+    "postprocessing": "none",
+    "prompt_path": "prompts/ui/core/square-button-pressed.txt",
+    "source_path": "/Users/yacineboufe/.codex/generated_images/01a0df9e-f09b-7cf2-8de8-c88af5c118e4/exec-588c6c41-0f86-40d2-93d4-e3afcc243d78.png",
+    "references": [
+      "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v4-ui/ui/core/square-button-normal.png"
+    ],
+    "review": "accepted after visual review and alpha validation"
+  },
+  {
+    "path": "ui/core/round-button-hover.png",
+    "section": "A",
+    "world": null,
+    "state": "hover",
+    "size": [
+      1254,
+      1254
+    ],
+    "source": "built-in imagegen",
+    "postprocessing": "none",
+    "prompt_path": "prompts/ui/core/round-button-hover.txt",
+    "source_path": "/Users/yacineboufe/.codex/generated_images/01a0df9e-f09b-7cf2-8de8-c88af5c118e4/exec-30a11685-cef9-403c-a2c0-4ffde540fb19.png",
+    "references": [
+      "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v4-ui/ui/core/round-button-normal.png"
+    ],
+    "review": "accepted after visual review and alpha validation"
+  }
+]

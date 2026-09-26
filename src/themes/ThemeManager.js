@@ -28,6 +28,7 @@ class ThemeManager {
   // save slot. Pawn Hollow and Custom are always open; themes a player had
   // before the story worlds stay open (store.unlockedThemes).
   static isThemeUnlocked(id) {
+    if (typeof SuperUser !== 'undefined' && SuperUser.active()) return true;
     id = THEME_ALIASES[id] || id;
     if (id === 'pawnhollow' || id === 'custom') return true;
     if ((store.get('unlockedThemes') || []).includes(id)) return true;

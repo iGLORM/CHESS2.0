@@ -1,0 +1,44 @@
+[
+  {
+    "id": "desert-jackal-knight-warlord",
+    "path": "characters/desert-jackal-knight-warlord.png",
+    "dimensions": [
+      1024,
+      1536
+    ],
+    "provenance": "built-in image_gen original preserved",
+    "status": "rejected-style-study",
+    "reason": "User requires visible pixel grid; illustration too painterly",
+    "transparent_pixels": 819884,
+    "partial_alpha_pixels": 752980,
+    "prompt": "prompts/characters/desert-jackal-knight-warlord.md"
+  },
+  {
+    "id": "emerald-thorn-queen",
+    "path": "characters/emerald-thorn-queen.png",
+    "dimensions": [
+      1024,
+      1536
+    ],
+    "provenance": "built-in image_gen original preserved",
+    "status": "rejected-style-study",
+    "reason": "User requires visible pixel grid; illustration too painterly",
+    "transparent_pixels": 724182,
+    "partial_alpha_pixels": 848682,
+    "prompt": "prompts/characters/emerald-thorn-queen.md"
+  },
+  {
+    "id": "spectral-moon-bishop-archivist",
+    "path": "characters/spectral-moon-bishop-archivist.png",
+    "dimensions": [
+      1024,
+      1536
+    ],
+    "provenance": "built-in image_gen original preserved",
+    "status": "rejected-style-study",
+    "reason": "User requires visible pixel grid; illustration too painterly",
+    "transparent_pixels": 584576,
+    "partial_alpha_pixels": 988288,
+    "prompt": "prompts/characters/spectral-moon-bishop-archivist.md"
+  }
+]

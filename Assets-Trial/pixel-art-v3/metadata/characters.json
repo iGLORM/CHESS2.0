@@ -1,0 +1,98 @@
+[
+  {
+    "id": "desert-jackal-knight-warlord",
+    "path": "characters/desert-jackal-knight-warlord.png",
+    "dimensions": [
+      1024,
+      1536
+    ],
+    "mode": "RGBA",
+    "provenance": "built-in image_gen; original copied unmodified; crown reference supplied for pixel-art style only",
+    "status": "unintegrated candidate",
+    "style": "detailed visible pixel-art clusters and stepped contours",
+    "visual_qa": "Original-resolution output visually inspected using view_image; full body and all major equipment visible",
+    "alpha_extrema": [
+      0,
+      254
+    ],
+    "transparent_pixels": 716330,
+    "partial_alpha_pixels": 856534,
+    "opaque_pixels": 0,
+    "notes": "Original generated partial alpha preserved. Invisible RGB in transparent pixels may show dark glow in raw previews; use composited gallery for assessment. Prompt logical grid and palette are stylistic targets, not a guarantee of strict quantization.",
+    "prompt": "prompts/characters/desert-jackal-knight-warlord.md",
+    "sha256": "62ee4abd0aaeb95e97f43a46ba19618cb126af5bbe0150d98007089de6fca996",
+    "date": "2026-09-26"
+  },
+  {
+    "id": "emerald-thorn-queen",
+    "path": "characters/emerald-thorn-queen.png",
+    "dimensions": [
+      1024,
+      1536
+    ],
+    "mode": "RGBA",
+    "provenance": "built-in image_gen; original copied unmodified; crown reference supplied for pixel-art style only",
+    "status": "unintegrated candidate",
+    "style": "detailed visible pixel-art clusters and stepped contours",
+    "visual_qa": "Original-resolution output visually inspected using view_image; full body and all major equipment visible",
+    "alpha_extrema": [
+      0,
+      254
+    ],
+    "transparent_pixels": 610949,
+    "partial_alpha_pixels": 961915,
+    "opaque_pixels": 0,
+    "notes": "Original generated partial alpha preserved. Invisible RGB in transparent pixels may show dark glow in raw previews; use composited gallery for assessment. Prompt logical grid and palette are stylistic targets, not a guarantee of strict quantization.",
+    "prompt": "prompts/characters/emerald-thorn-queen.md",
+    "sha256": "13ab955c06e4e2eeafd0a292b504ed21905206d26861b25e743fe2ec16c56f3a",
+    "date": "2026-09-26"
+  },
+  {
+    "id": "spectral-moon-bishop-archivist",
+    "path": "characters/spectral-moon-bishop-archivist.png",
+    "dimensions": [
+      1024,
+      1536
+    ],
+    "mode": "RGBA",
+    "provenance": "built-in image_gen; original copied unmodified; crown reference supplied for pixel-art style only",
+    "status": "unintegrated candidate",
+    "style": "detailed visible pixel-art clusters and stepped contours",
+    "visual_qa": "Original-resolution output visually inspected using view_image; full body and all major equipment visible",
+    "alpha_extrema": [
+      0,
+      254
+    ],
+    "transparent_pixels": 576386,
+    "partial_alpha_pixels": 996478,
+    "opaque_pixels": 0,
+    "notes": "Original generated partial alpha preserved. Invisible RGB in transparent pixels may show dark glow in raw previews; use composited gallery for assessment. Prompt logical grid and palette are stylistic targets, not a guarantee of strict quantization.",
+    "prompt": "prompts/characters/spectral-moon-bishop-archivist.md",
+    "sha256": "8b333597f6a3e1b25d51eccfc61fbfb5bdac6fc5893efaae499a4b64d4a8c9a5",
+    "date": "2026-09-26"
+  },
+  {
+    "id": "white-marble-celestial-king",
+    "path": "characters/white-marble-celestial-king.png",
+    "dimensions": [
+      1024,
+      1536
+    ],
+    "mode": "RGBA",
+    "provenance": "built-in image_gen; original copied unmodified; crown reference supplied for pixel-art style only",
+    "status": "unintegrated candidate",
+    "style": "detailed visible pixel-art clusters and stepped contours",
+    "visual_qa": "Original-resolution output visually inspected using view_image; full body and all major equipment visible",
+    "alpha_extrema": [
+      0,
+      254
+    ],
+    "transparent_pixels": 591671,
+    "partial_alpha_pixels": 981193,
+    "opaque_pixels": 0,
+    "notes": "Original generated partial alpha preserved. Invisible RGB in transparent pixels may show dark glow in raw previews; use composited gallery for assessment. Prompt logical grid and palette are stylistic targets, not a guarantee of strict quantization.",
+    "prompt": "prompts/characters/white-marble-celestial-king.md",
+    "sha256": "695dd5fc18efec06ba98b0fa5aeed43657be2f425dc5ce0c290001f3a6536ae4",
+    "date": "2026-09-26"
+  }
+]
