@@ -508,4 +508,6 @@ I18n.add('fr', {
   'Library': 'Bibliothèque', 'Endless shelves by candlelight': 'Rayons sans fin à la bougie', 'Gulch': 'Ravin', 'Cacti, mesas and rolling tumbleweeds': 'Cactus, mesas et virevoltants',
   'Court': 'Cour', 'A black glass throne room over lava': 'Trône de verre noir sur la lave', 'Soulbound': 'Âmes', 'Crystal shards and glowing ether': 'Éclats de cristal, éther lumineux',
   'Ivory, lapis and gold: the board made whole': 'Ivoire, lapis, or : l\'échiquier réuni', 'Your own colors': 'Tes propres couleurs',
+  // Fight screen panels, result card and puzzle coach (2026-10-03).
+  'Moves appear here as you play.': 'Les coups s\'affichent ici au fil de la partie.', 'THIS GAME': 'CETTE PARTIE', 'Bot': 'Bot', 'Custom game': 'Partie personnalisée', 'level {0}': 'niveau {0}', 'Move {0}': 'Coup {0}', 'BALANCE': 'ÉQUILIBRE', 'Even material': 'Matériel égal', 'LAST MOVE': 'DERNIER COUP', 'PUZZLE {0} OF {1}': 'PUZZLE {0} SUR {1}', 'PUZZLE {0}': 'PUZZLE {0}', 'THIS SET': 'CETTE SÉRIE', 'The Pixel Coach': 'Le coach pixel',
 });

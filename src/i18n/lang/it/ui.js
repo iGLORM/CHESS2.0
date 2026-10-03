@@ -508,4 +508,6 @@ I18n.add('it', {
   'Library': 'Biblioteca', 'Endless shelves by candlelight': 'Scaffali infiniti a lume di candela', 'Gulch': 'Gola', 'Cacti, mesas and rolling tumbleweeds': 'Cactus, mesa e rotolacampo',
   'Court': 'Corte', 'A black glass throne room over lava': 'Trono di vetro nero sulla lava', 'Soulbound': 'Anime', 'Crystal shards and glowing ether': 'Schegge di cristallo, etere lucente',
   'Ivory, lapis and gold: the board made whole': 'Avorio, lapislazzuli, oro: la scacchiera intera', 'Your own colors': 'I tuoi colori',
+  // Fight screen panels, result card and puzzle coach (2026-10-03).
+  'Moves appear here as you play.': 'Le mosse compaiono qui mentre giochi.', 'THIS GAME': 'QUESTA PARTITA', 'Bot': 'Bot', 'Custom game': 'Partita personalizzata', 'level {0}': 'livello {0}', 'Move {0}': 'Mossa {0}', 'BALANCE': 'EQUILIBRIO', 'Even material': 'Materiale pari', 'LAST MOVE': 'ULTIMA MOSSA', 'PUZZLE {0} OF {1}': 'PUZZLE {0} DI {1}', 'PUZZLE {0}': 'PUZZLE {0}', 'THIS SET': 'QUESTA SERIE', 'The Pixel Coach': 'L\'allenatore pixel',
 });

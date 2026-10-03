@@ -128,31 +128,96 @@ const PuzzleScreen = {
       return t;
     };
 
-    // --- Left: coach and lesson ---
+    // --- Left: the coach (portrait, his line in a speech card), then this puzzle:
+    // its place in its set, the lesson, and the set's progress ---
     PixiPremiumScene.card(this.pixiContainer, G.leftX, G.top, G.w, G.h, {
       interactive: false,
       alpha: 0.6,
       draw: (card) => {
-        heading(card, 'Coach Magnus', 36);
-        this._coachTextObj = PixiPremiumScene.text('', {
-          fontSize: 17, lineHeight: 24, fill: PixiColorUtil.alpha(cols.text, 'dd'),
-          wordWrap: true, wordWrapWidth: G.w - pad * 2,
+        const P = PixiPremiumScene;
+        const face = 64;
+        card.addChild(new PIXI.Graphics()
+          .roundRect(pad, 34, face, face, 8).fill({ color: P.color(cols.accent), alpha: 0.16 })
+          .roundRect(pad, 34, face, face, 8).stroke({ color: P.color(cols.accent), alpha: 0.7, width: 2 }));
+        const kingTex = PixiPieceRenderer.getTexture(PixiPieceRenderer.withArt(store.get('theme')), 'white', 'king');
+        if (kingTex) {
+          const k = new PIXI.Sprite(kingTex);
+          k.width = k.height = face - 10;
+          k.x = pad + 5; k.y = 39;
+          card.addChild(k);
+        }
+        const name = heading(card, 'Coach ' + CoachCharacter.name, 44);
+        name.x = pad + face + 14;
+        P.fit(name, G.w - pad * 2 - face - 14);
+        const role = P.text(CoachCharacter.title, { fontSize: 14, fill: PixiColorUtil.alpha(cols.text, '88') });
+        role.x = pad + face + 14; role.y = 68;
+        P.fit(role, G.w - pad * 2 - face - 14);
+        card.addChild(role);
+
+        // His line, in a speech card with a tail up to the portrait.
+        const by = 114, bh = 96;
+        card.addChild(new PIXI.Graphics()
+          .poly([pad + 22, by, pad + 34, by - 10, pad + 46, by]).fill({ color: 0x000000, alpha: 0.28 })
+          .roundRect(pad, by, G.w - pad * 2, bh, 8).fill({ color: 0x000000, alpha: 0.28 })
+          .roundRect(pad, by, G.w - pad * 2, bh, 8).stroke({ color: P.color(cols.text), alpha: 0.14, width: 2 }));
+        this._coachTextObj = P.text('', {
+          fontSize: 16, lineHeight: 22, fill: PixiColorUtil.alpha(cols.text, 'ee'),
+          wordWrap: true, wordWrapWidth: G.w - pad * 2 - 24,
         });
-        this._coachTextObj.x = pad;
-        this._coachTextObj.y = 66;
+        this._coachTextObj.x = pad + 12;
+        this._coachTextObj.y = by + 12;
         card.addChild(this._coachTextObj);
 
+        let y = by + bh + 26;
+        const band = this._level && typeof TRAINING_BANDS !== 'undefined' && TRAINING_BANDS.find(b => b.id === this._level.band);
+        if (this._level) {
+          card.addChild(new PIXI.Graphics().rect(pad, y - 10, G.w - pad * 2, 2).fill({ color: P.color(cols.text), alpha: 0.12 }));
+          const tag = P.text(band ? `PUZZLE ${band.levels.indexOf(this._level.id) + 1} OF ${band.levels.length}  ·  ${band.name.toUpperCase()}` : `PUZZLE ${this._level.id}`,
+            { fontSize: 12, fontWeight: '900', fill: PixiColorUtil.alpha(cols.text, '77') });
+          tag.x = pad; tag.y = y + 4;
+          P.fit(tag, G.w - pad * 2);
+          card.addChild(tag);
+          const title = heading(card, this._level.title, y + 26);
+          P.fit(title, G.w - pad * 2);
+          y += 60;
+        }
         if (this._level && this._level.concept) {
-          const lessonY = Math.round(G.h * 0.52);
-          card.addChild(new PIXI.Graphics().rect(pad, lessonY - 20, G.w - pad * 2, 2).fill({ color: PixiPremiumScene.color(cols.text), alpha: 0.12 }));
-          heading(card, 'Lesson', lessonY);
-          const concept = PixiPremiumScene.text(this._level.concept, {
+          const concept = P.text(this._level.concept, {
             fontSize: 16, lineHeight: 23, fill: PixiColorUtil.alpha(cols.text, 'bb'),
             wordWrap: true, wordWrapWidth: G.w - pad * 2,
           });
           concept.x = pad;
-          concept.y = lessonY + 30;
+          concept.y = y;
           card.addChild(concept);
+        }
+
+        // The set's five puzzles as pips: solved (with its stars), this one, still to do.
+        if (band) {
+          const levels = (store.get('trainingProgress') || {}).levels || {};
+          const pip = 30, gap = 10, total = band.levels.length * pip + (band.levels.length - 1) * gap;
+          const px = Math.round((G.w - total) / 2), py = G.h - 70;
+          const lbl = P.text('THIS SET', { fontSize: 12, fontWeight: '900', fill: PixiColorUtil.alpha(cols.text, '66') });
+          lbl.anchor.set(0.5, 0);
+          lbl.x = G.w / 2; lbl.y = py - 24;
+          card.addChild(lbl);
+          band.levels.forEach((id, i) => {
+            const d = levels[id] || {}, current = id === this._level.id;
+            const x = px + i * (pip + gap);
+            const g = new PIXI.Graphics().roundRect(x, py, pip, pip, 6)
+              .fill({ color: d.solved ? P.color(cols.accent) : 0x000000, alpha: d.solved ? 0.85 : 0.3 })
+              .roundRect(x, py, pip, pip, 6)
+              .stroke({ color: P.color(current ? cols.accent : cols.text), alpha: current ? 1 : 0.25, width: current ? 3 : 2 });
+            card.addChild(g);
+            const n = P.text(String(i + 1), { fontSize: 14, fontWeight: '900', fill: d.solved ? '#1a1024' : PixiColorUtil.alpha(cols.text, current ? 'ff' : '88') });
+            n.anchor.set(0.5);
+            n.x = x + pip / 2; n.y = py + pip / 2 + 1;
+            card.addChild(n);
+            if (d.solved && typeof PixiStar !== 'undefined') {
+              const row = PixiStar.row(3, d.stars || 0, 3, 1);
+              row.x = x + pip / 2 - row.width / 2; row.y = py + pip + 8;
+              card.addChild(row);
+            }
+          });
         }
       },
     });

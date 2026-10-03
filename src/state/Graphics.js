@@ -16,7 +16,7 @@ const Graphics = {
     fps: 60,
     sceneMotion: 'full',
     particles: 'high',
-    mini3d: 'medium',
+    mini3d: 'high',
     retro: true,
     shake: true,
     brightness: 1,
@@ -26,7 +26,7 @@ const Graphics = {
   PRESETS: {
     low:    { sceneMotion: 'off',  particles: 'low',    mini3d: 'low' },
     medium: { sceneMotion: 'half', particles: 'medium', mini3d: 'medium' },
-    high:   { sceneMotion: 'full', particles: 'high', mini3d: 'medium' },
+    high:   { sceneMotion: 'full', particles: 'high', mini3d: 'high' },
     ultra:  { sceneMotion: 'full', particles: 'high', mini3d: 'ultra' },
   },
 
@@ -65,6 +65,9 @@ const Graphics = {
     if (settings && settings === this._src) return this._cache;
     this._src = settings;
     this._cache = { ...this.DEFAULTS, ...((settings && settings.graphics) || {}) };
+    // The preset names what the options really are: an older save whose options no
+    // longer match its preset (High used to mean Medium 3D) reads as Custom.
+    this._cache.preset = this._matchPreset(this._cache);
     return this._cache;
   },
 

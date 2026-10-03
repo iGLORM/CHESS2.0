@@ -292,22 +292,10 @@ const PixiGameHud = {
         fill: PixiColorUtil.alpha(cols.text, '44'),
       });
     } else {
-      const symbols = { pawn: 'p', knight: 'N', bishop: 'B', rook: 'R', queen: 'Q', king: 'K' };
-      const text = captured.slice(0, 24).map(p => symbols[p.type] || '?').join(' ');
-      const cap = this._text(text, x + pad, y + 160, {
-        fontSize: 18,
-        fontWeight: '700',
-        fill: color === 'white' ? '#e8e0d0' : '#aaaaaa',
-        wordWrap: true,
-        wordWrapWidth: w - pad * 2,
-      });
-      PixiPremiumUI.fitText(cap, w - pad * 2);
+      this._capturedRow(captured, x + pad, y + 150, w - pad * 2, 34);
     }
 
-    const values = { pawn: 1, knight: 3, bishop: 3, rook: 5, queen: 9, king: 0 };
-    const whiteMat = game.capturedPieces.white.reduce((s, p) => s + (values[p.type] || 0), 0);
-    const blackMat = game.capturedPieces.black.reduce((s, p) => s + (values[p.type] || 0), 0);
-    const adv = color === 'white' ? whiteMat - blackMat : blackMat - whiteMat;
+    const adv = this._material(game, color);
     if (adv !== 0) {
       this._text((adv > 0 ? '+' : '') + adv + ' material', x + pad, y + 188, {
         fontSize: 15,
@@ -316,24 +304,129 @@ const PixiGameHud = {
       });
     }
 
-
-    if (isLeft && game.moveHistory.length > 0) {
-      const L = this.LANDSCAPE;
+    const L = this.LANDSCAPE;
+    if (isLeft) {
+      // The move list, from the first move on (an empty panel says what will go there).
       this._panel(x, L.LOWER_Y, w, L.BOTTOM - L.LOWER_Y, cols, { alpha: 0.68 });
       this._text('MOVE HISTORY', x + pad, L.LOWER_Y + 32, {
         fontSize: 13,
         fontWeight: '900',
         fill: PixiColorUtil.alpha(cols.text, '66'),
       });
-      const rows = this.historyRows(game.moveHistory).slice(-Math.floor((L.BOTTOM - L.LOWER_Y - 80) / 20));
-      rows.forEach((row, i) => {
-        const isLast = i === rows.length - 1;
-        this._text(row.text, x + pad, L.LOWER_Y + 62 + i * 20, {
-          fontSize: 15,
-          fill: row.blocked ? (cols.checkHighlight || '#ff6677') : (isLast ? cols.accent : PixiColorUtil.alpha(cols.text, '99')),
+      if (!game.moveHistory.length) {
+        this._text('Moves appear here as you play.', x + pad, L.LOWER_Y + 62, {
+          fontSize: 14, fill: PixiColorUtil.alpha(cols.text, '44'), wordWrap: true, wordWrapWidth: w - pad * 2,
         });
-      });
+      }
+      this._historyColumns(game, cols, x + pad, L.LOWER_Y + 62, w - pad * 2, L.BOTTOM - L.LOWER_Y - 80);
+    } else if (game.mode !== 'story') {
+      this._drawGamePanel(game, cols, x, L.LOWER_Y, w, L.BOTTOM - L.LOWER_Y);
     }
+  },
+
+  PIECE_VALUES: { pawn: 1, knight: 3, bishop: 3, rook: 5, queen: 9, king: 0 },
+
+  // What color is ahead by in captured material (negative when behind).
+  _material(game, color) {
+    const v = this.PIECE_VALUES;
+    const sum = (c) => (game.capturedPieces[c] || []).reduce((s, p) => s + (v[p.type] || 0), 0);
+    return color === 'white' ? sum('white') - sum('black') : sum('black') - sum('white');
+  },
+
+  // Captured pieces as the theme's own piece sprites, most valuable first; the same
+  // kind overlaps like a stack, and the whole row shrinks to fit maxW.
+  _capturedRow(captured, x, y, maxW, size) {
+    const v = this.PIECE_VALUES;
+    const art = PixiPieceRenderer.withArt(store.get('theme'));
+    const list = captured.slice().sort((a, b) => (v[b.type] || 0) - (v[a.type] || 0));
+    const row = new PIXI.Container();
+    let cx = 0, prev = null;
+    for (const p of list) {
+      if (prev) cx += prev === p.type ? size * 0.45 : size * 0.85;
+      const tex = PixiPieceRenderer.getTexture(art, p.color, p.type);
+      if (!tex) continue;
+      const sp = new PIXI.Sprite(tex);
+      sp.width = sp.height = size;
+      sp.x = cx;
+      row.addChild(sp);
+      prev = p.type;
+    }
+    const full = cx + size;
+    if (full > maxW) row.scale.set(maxW / full);
+    row.x = x; row.y = y + (size - size * row.scale.y) / 2;
+    this.container.addChild(row);
+    return row;
+  },
+
+  // Move history as numbered rows: "12.  Nf3   e5", the newest at the bottom. A capture
+  // blocked by a mini-game is marked x; his moves inside the Knight of the Mist's fog stay ???.
+  _historyColumns(game, cols, x, y, w, h) {
+    const lineH = 22, max = Math.floor(h / lineH);
+    const pairs = [];
+    game.moveHistory.forEach((m, i) => {
+      const san = m.hidden ? '???' : (m.san || '?');
+      const cell = { text: m.defended ? san.replace(/[+#]$/, '') + ' x' : san, blocked: !!m.defended, last: i === game.moveHistory.length - 1 };
+      if (i % 2 === 0) pairs.push({ num: Math.floor(i / 2) + 1, white: cell, black: null });
+      else pairs[pairs.length - 1].black = cell;
+    });
+    const rows = pairs.slice(-max);
+    const cellStyle = (c) => ({
+      fontSize: 15, fontWeight: c.last ? '900' : '400',
+      fill: c.blocked ? (cols.checkHighlight || '#ff6677') : c.last ? cols.accent : PixiColorUtil.alpha(cols.text, 'bb'),
+    });
+    rows.forEach((r, i) => {
+      const ry = y + i * lineH;
+      if (i % 2 === 1) {
+        this.container.addChild(new PIXI.Graphics().roundRect(x - 6, ry - 3, w + 12, lineH, 4)
+          .fill({ color: PixiColorUtil.hexToNum(cols.text), alpha: 0.04 }));
+      }
+      this._text(r.num + '.', x, ry, { fontSize: 14, fill: PixiColorUtil.alpha(cols.text, '55') });
+      this._text(r.white.text, x + 40, ry, cellStyle(r.white));
+      if (r.black) this._text(r.black.text, x + 40 + (w - 40) / 2, ry, cellStyle(r.black));
+    });
+  },
+
+  // Off the story: the opponent, a material balance bar and the last move, under the
+  // right player panel.
+  _drawGamePanel(game, cols, x, y, w, h) {
+    const pad = 18;
+    this._panel(x, y, w, h, cols, { alpha: 0.68 });
+    const label = (t, ly) => this._text(t, x + pad, ly, { fontSize: 13, fontWeight: '900', fill: PixiColorUtil.alpha(cols.text, '66') });
+    let ly = y + 32;
+    label('THIS GAME', ly);
+    ly += 26;
+    let who = 'Local 1v1';
+    if (game.mode === 'classic' && typeof BotSelect !== 'undefined') who = 'Bot · ' + BotSelect.eloToName(BotSelect.eloValue) + ' (' + BotSelect.eloValue + ')';
+    else if (game.mode === 'custom') who = 'Custom game · level ' + game.characterLevel;
+    else if (game.mode === 'greatboard') who = 'Great Board · level ' + game.characterLevel;
+    const whoText = this._text(who, x + pad, ly, { fontSize: 15, fontWeight: '700', fill: cols.text });
+    PixiPremiumUI.fitText(whoText, w - pad * 2);
+    ly += 24;
+    this._text('Move ' + (Math.floor(game.moveHistory.length / 2) + 1), x + pad, ly, { fontSize: 14, fill: PixiColorUtil.alpha(cols.text, '88') });
+
+    // Balance: the bar leans toward whoever is ahead in material.
+    ly += 44;
+    label('BALANCE', ly);
+    ly += 26;
+    const bw = w - pad * 2, bh = 14;
+    const adv = this._material(game, 'white');
+    const share = Math.max(0.06, Math.min(0.94, 0.5 + adv / 30));
+    const g = new PIXI.Graphics();
+    g.roundRect(x + pad, ly, bw, bh, 4).fill(0x211b2f);
+    g.roundRect(x + pad, ly, Math.round(bw * share), bh, 4).fill(0xf2ead8);
+    g.roundRect(x + pad, ly, bw, bh, 4).stroke({ color: PixiColorUtil.hexToNum(cols.accent), alpha: 0.5, width: 2 });
+    g.rect(x + pad + bw / 2 - 1, ly - 3, 2, bh + 6).fill({ color: PixiColorUtil.hexToNum(cols.accent), alpha: 0.8 });
+    this.container.addChild(g);
+    ly += bh + 8;
+    const verdict = adv === 0 ? 'Even material' : (adv > 0 ? game.getPlayerName('white') : game.getPlayerName('black')) + ' +' + Math.abs(adv);
+    this._text(verdict, x + pad, ly, { fontSize: 14, fill: adv === 0 ? PixiColorUtil.alpha(cols.text, '88') : cols.accent });
+
+    // The last move, big.
+    ly += 44;
+    label('LAST MOVE', ly);
+    ly += 24;
+    const last = game.moveHistory[game.moveHistory.length - 1];
+    this._text(last ? (last.hidden ? '???' : last.san || '?') : '-', x + pad, ly, { fontSize: 28, fontWeight: '900', fill: last ? cols.accent : PixiColorUtil.alpha(cols.text, '44') });
   },
 
   // The story opponent's stage: the character itself, big and alive (its live scene,
@@ -389,10 +482,8 @@ const PixiGameHud = {
     const thinking = isTurn && game.isAIMode && game.aiThinking;
     this._text(thinking ? 'THINKING...' : isTurn ? 'HIS TURN' : 'WAITING', x + pad + 52, py + 4, { fontSize: 12, fontWeight: '900', fill: isTurn ? accent : PixiColorUtil.alpha(cols.text, '77') }, 0.5);
     const captured = game.capturedPieces[color] || [];
-    const symbols = { pawn: 'p', knight: 'N', bishop: 'B', rook: 'R', queen: 'Q', king: 'K' };
-    const cap = this._text(captured.length ? captured.slice(0, 16).map(p => symbols[p.type] || '?').join(' ') : 'No captures', x + pad + 114, py + 3,
-      { fontSize: 14, fontWeight: '700', fill: captured.length ? '#aaaaaa' : PixiColorUtil.alpha(cols.text, '44') });
-    PixiPremiumUI.fitText(cap, w - pad * 2 - 114);
+    if (captured.length) this._capturedRow(captured, x + pad + 114, py - 6, w - pad * 2 - 114, 30);
+    else this._text('No captures', x + pad + 114, py + 3, { fontSize: 14, fontWeight: '700', fill: PixiColorUtil.alpha(cols.text, '44') });
   },
 
   // Where the speech bubble's tail points: the stage character's mouth (landscape), or
@@ -408,20 +499,6 @@ const PixiGameHud = {
     if (!a || a.destroyed || typeof gsap === 'undefined') return;
     gsap.killTweensOf(a);
     gsap.fromTo(a, { y: a._baseY - 6 }, { y: a._baseY, duration: 0.35, ease: 'bounce.out' });
-  },
-
-  // One line per move: "1. e4", "1... e5". A capture blocked by a minigame
-  // is shown as the attempted move followed by "blocked".
-  historyRows(history) {
-    return history.map((m, i) => {
-      const num = Math.floor(i / 2) + 1;
-      const prefix = i % 2 === 0 ? num + '. ' : num + '... ';
-      // Moves he made inside the Knight of the Mist's fog stay secret.
-      const san = m.hidden ? '???' : (m.san || '?');
-      return m.defended
-        ? { text: prefix + san.replace(/[+#]$/, '') + '  blocked', blocked: true }
-        : { text: prefix + san, blocked: false };
-    });
   },
 
   _drawHorizPanel(game, cols, side, color) {
@@ -486,20 +563,12 @@ const PixiGameHud = {
     this._text('CAPTURED', x + pad, y + 76, { fontSize: 18, fontWeight: '900', fill: PixiColorUtil.alpha(cols.text, '88') });
 
     const captured = game.capturedPieces[color] || [];
-    const symbols = { pawn: 'p', knight: 'N', bishop: 'B', rook: 'R', queen: 'Q', king: 'K' };
-    const capText = captured.length ? captured.slice(0, 16).map(p => symbols[p.type] || '?').join(' ') : 'None';
-    const cap = this._text(capText, x + pad, y + 106, {
-      fontSize: 26, fontWeight: '700',
-      fill: captured.length ? (color === 'white' ? '#e8e0d0' : '#aaaaaa') : PixiColorUtil.alpha(cols.text, '44'),
-    });
     // Your panel holds the item buttons on the right in story fights.
     const itemsHere = color === game.playerColor && game.itemsAvailable && game.itemsAvailable();
-    PixiPremiumUI.fitText(cap, w - pad * 2 - (itemsHere ? 400 : 100));
+    if (captured.length) this._capturedRow(captured, x + pad, y + 102, w - pad * 2 - (itemsHere ? 400 : 100), 36);
+    else this._text('None', x + pad, y + 106, { fontSize: 26, fontWeight: '700', fill: PixiColorUtil.alpha(cols.text, '44') });
 
-    const values = { pawn: 1, knight: 3, bishop: 3, rook: 5, queen: 9, king: 0 };
-    const whiteMat = game.capturedPieces.white.reduce((s, p) => s + (values[p.type] || 0), 0);
-    const blackMat = game.capturedPieces.black.reduce((s, p) => s + (values[p.type] || 0), 0);
-    const adv = color === 'white' ? whiteMat - blackMat : blackMat - whiteMat;
+    const adv = this._material(game, color);
     if (adv !== 0) {
       this._text((adv > 0 ? '+' : '') + adv, x + pad, y + 146, { fontSize: 22, fontWeight: '700', fill: adv > 0 ? '#66dd77' : '#dd6677' });
     }

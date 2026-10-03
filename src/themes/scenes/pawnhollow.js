@@ -252,12 +252,12 @@ LiveScenes.register({
       for (let y = 115; y <= 117; y++) put(BACK, cx, y, C('#ffcf78'));
       const cone = [[112, 4], [111, 3], [110, 2], [109, 1], [108, 0]];
       for (const [y, hw] of cone) for (let x = cx - hw; x <= cx + hw; x++) put(BACK, x, y, x === cx + hw && hw > 0 ? C('#f0a07a') : C('#3e2640'));
+      // A stout pawn: wide foot, solid body, a round head. No thin neck or bar, which
+      // against the sun read as a cross from afar (the art rule: no crosses).
       const dark = C('#34203a');
-      for (let x = cx - 2; x <= cx + 2; x++) put(BACK, x, 107, dark);
-      for (let x = cx - 1; x <= cx + 1; x++) put(BACK, x, 106, dark);
-      put(BACK, cx, 105, dark);
-      for (let x = cx - 1; x <= cx + 1; x++) put(BACK, x, 104, dark);
-      for (let y = 99; y <= 103; y++) for (let x = cx - 2; x <= cx + 2; x++) if (Math.hypot(x - cx, y - 101) <= 2.2) put(BACK, x, y, dark);
+      for (let y = 106; y <= 107; y++) for (let x = cx - 2; x <= cx + 2; x++) put(BACK, x, y, dark);
+      for (let y = 103; y <= 105; y++) for (let x = cx - 1; x <= cx + 1; x++) put(BACK, x, y, dark);
+      for (let y = 98; y <= 103; y++) for (let x = cx - 3; x <= cx + 3; x++) if (Math.hypot(x - cx, y - 100.5) <= 2.7) put(BACK, x, y, dark);
     })();
 
     // ---------- the near field ----------
