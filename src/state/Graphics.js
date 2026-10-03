@@ -50,11 +50,13 @@ const Graphics = {
     mini3d: [['low', 'Low'], ['medium', 'Medium'], ['high', 'High'], ['ultra', 'Ultra']],
   },
 
+  // pixel: screen pixels per rendered pixel (1 = the screen's own resolution,
+  // below 1 supersamples).
   MINI3D: {
-    low:    { pixel: 2.4, shadows: false },
-    medium: { pixel: 1.6, shadows: true },
-    high:   { pixel: 1.25, shadows: true },
-    ultra:  { pixel: 1, shadows: true },
+    low:    { pixel: 2, shadows: false },
+    medium: { pixel: 1.33, shadows: true },
+    high:   { pixel: 1, shadows: true },
+    ultra:  { pixel: 0.75, shadows: true },
   },
 
   // Read every frame, so cached until the settings object is replaced (store.set).
