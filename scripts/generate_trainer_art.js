@@ -239,7 +239,7 @@ const TRAINERS = {
     a.ellipse(24, 0, 2, 2, S.hi);                                         // ball on top
   },
 
-  // A king-crowned old master: topknot and cross, bushy brows, long beard, staff.
+  // A king-crowned old master: topknot and small crown, bushy brows, long beard, staff.
   senseitactic(a) {
     a.rect(9, 8, 2, 45, S.mid); a.rect(9, 8, 1, 45, S.light);             // bo staff
     body(a, { cloth: 0.7 });
@@ -249,7 +249,9 @@ const TRAINERS = {
     a.ellipse(24, 19, 10, 9, S.skin);                                     // face
     a.ellipse(24, 10, 9, 5, S.hi);                                        // white hair
     a.ellipse(24, 5, 3, 3, S.hi);                                         // topknot
-    a.rect(23, -2, 2, 6, S.light); a.rect(21, 0, 6, 2, S.light);          // king's cross
+    a.rect(20, 3, 8, 2, S.light); a.rect(23, 3, 2, 1, S.hi);             // king's crown: band and gem
+    a.rect(20, 1, 1, 2, S.light); a.rect(27, 1, 1, 2, S.light);          // side points
+    a.rect(23, 1, 2, 2, S.light); a.rect(23, 0, 2, 1, S.hi);             // centre point, ball on top
     a.rect(14, 12, 20, 2, S.dark);                                        // headband
     a.rect(17, 16, 5, 2, S.hi); a.rect(26, 16, 5, 2, S.hi);               // bushy brows
     eyes(a, 19, { closed: true });

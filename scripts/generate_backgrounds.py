@@ -996,8 +996,10 @@ def obsidiancourt():
     return s
 
 
-SCENES = {f.__name__: f for f in (pawnhollow, slantedsands, ironkeep, mistymoors, royalpalace,
-                                   clockworkcitadel, grandlibrary, obsidiancourt)}
+# Every world is now a live scene drawn in code (src/themes/scenes/<id>.js), and its still
+# is written by `node scripts/live-scene.js bg <id>`. The scene functions above are kept for
+# reference only: generating them again would overwrite those stills.
+SCENES = {}
 
 # Hand-painted backgrounds: animated regions as fractions of the image.
 # ripple: displacement wobble (amp in game px, speed = map scroll px/s).
