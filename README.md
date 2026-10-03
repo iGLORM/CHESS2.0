@@ -52,10 +52,10 @@
 
 Everything is normal chess, with one twist: **captures can be challenged with a quick 3D arcade mini-game.** Each mini-game takes on the colours of the world you are in.
 
-- **Local 1v1 and Custom Game (Defenses):** when one of your pieces is about to be captured, you can spend a
+- **Local 1v1 (Defenses):** when one of your pieces is about to be captured, you can spend a
   **Defense** to play a mini-game. Win it and the capture is cancelled and your opponent loses their turn.
   Each side starts with **2 Defenses** and earns **1 more for every 2 captures**.
-- **Story Mode (Challenges):** any capture may start a challenge (about 1 in 3, and some bosses change the odds).
+- **Story Mode and Custom Game (Challenges):** any capture may start a challenge (about 1 in 3, and some bosses change the odds).
   The **attacker** plays it: win and the capture goes through, lose and it is cancelled and that square locks.
 - A capture that gets a king **out of check** can never be blocked.
 
@@ -69,8 +69,8 @@ Classic Chess is plain chess with no mini-games.
 |:--------|:------------|
 | **Story Mode** | "The Shattered Board": 15 stages across 11 worlds, a world map, cutscenes, 63 missions and 9 guardians who each bend the rules |
 | **Local 1v1** | Two players on the same screen, with Defenses |
-| **Classic Chess** | Standard chess against the computer, 200-2000 Elo, as White or Black |
-| **Custom Game** | Pick the bot strength, your side, whether Defenses are on, and which mini-games can appear |
+| **Classic Chess** | Standard chess against the computer: 13 strengths (about 250 to 3000 Elo), as White, Black or a random side |
+| **Custom Game** | The same bot strengths and side choice, with capture challenges from the mini-games you pick |
 | **Training** | 30 Stockfish-checked puzzles with stars, hints and a coach, mini-game practice, and a board editor whose positions you play out against the coach |
 | **18 3D Mini-Games** | Retro-styled Three.js arcade games that decide contested captures; practise any of them from Training |
 | **Stockfish AI** | Every bot is the bundled Stockfish 18, from human-like beginner mistakes up to full strength |
@@ -127,8 +127,7 @@ story starts at once: the prologue, then your first match, against Pawnie, plain
   like capturing both of Rook-E's rooks); a trophy shelf in Stats shows bronze, silver or gold for each world.
 - **The last game:** beat Grandmaster X and he refuses to lose: he tears every guardian's power out of the worlds
   and plays you once more on the Great Board itself, with all their rules at once and 40 moves to mate him.
-- **After the ending:** **Great Board mode** (a board split into four quarters, each with a guardian's rule) and the
-  **Great Board theme**.
+- **After the ending:** the **Great Board theme**.
 - **The Training Camp:** five holographic trainers, each at their own spot on the camp's map: ten mate-in-one
   puzzles, an endgame where you are ahead, every mini-game one by one, the Mystery Piece, and a full final game.
 - **Missions:** every guardian world has seven missions before its guardian: mate-in-one puzzles, challenge
@@ -274,7 +273,7 @@ editing and exporting the video.
 - [x] Mobile / touch support (portrait mode in the browser)
 - [x] Undo, board flip and resuming unfinished games
 - [x] Story Mode rebuilt: world map, trainers, missions, cutscenes and boss twists
-- [x] Story rewards: stars per fight, trophies and Great Board mode
+- [x] Story rewards: stars per fight and trophies
 - [x] The last game: Grandmaster X Unbound, every guardian's power on the Great Board
 - [ ] Online multiplayer
 - [ ] Game replay / PGN export

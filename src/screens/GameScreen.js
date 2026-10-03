@@ -38,6 +38,8 @@ const GameScreen = {
   getSavedGame() {
     try {
       const saved = JSON.parse(localStorage.getItem(this.SAVE_KEY));
+      // The Great Board mode was removed (2026-10-03): its unfinished games can't be resumed.
+      if (saved && saved.mode === 'greatboard') return null;
       return saved && saved.v === 1 && saved.snapshots && saved.snapshots.length > 1 ? saved : null;
     } catch (e) {
       return null;
@@ -64,7 +66,6 @@ const GameScreen = {
         customMinigames: store.get('customMinigames') || {},
         snapshots: this.boardSnapshots.slice(-40),
         powers: this.powers || {},
-        bossRule: this.mode === 'greatboard' ? this.bossRule : undefined,
       }));
     } catch (e) { /* storage full or unavailable: resume just won't be offered */ }
   },
@@ -138,11 +139,11 @@ const GameScreen = {
     this.bossEvent = false;
     this._fogCache = null;
     this.mode = store.get('mode');
-    this.isAIMode = this.mode === 'story' || this.mode === 'classic' || this.mode === 'custom' || this.mode === 'greatboard';
+    this.isAIMode = this.mode === 'story' || this.mode === 'classic' || this.mode === 'custom';
     // Every mode sets its own options so nothing leaks over from the last mode played.
-    if (this.mode === 'story' || this.mode === 'greatboard') {
+    if (this.mode === 'story') {
       store.set('p1IsWhite', true);
-      // Challenges are part of the story (and the Great Board), whatever the minigame setting says.
+      // Challenges are part of the story, whatever the minigame setting says.
       store.set('miniGamesEnabled', true);
     }
     const p1IsWhite = store.get('p1IsWhite') !== false;
@@ -169,20 +170,12 @@ const GameScreen = {
         }
         this._placeBounty();
       }
-    } else if (this.mode === 'greatboard') {
-      // Four quarters, four guardian rules (src/engine/GreatBoard.js). A restored game
-      // brings its own board; otherwise the setup screen's board, or a fresh one.
-      this.currentCharacter = null;
-      const lvl = store.get('greatBoardLevel');
-      this.characterLevel = typeof lvl === 'number' ? lvl : 6;
-      this.bossRule = (data && data.restore && data.restore.bossRule) || (data && data.rule) || GreatBoard.make();
-      if (!(data && data.restore)) this.board = BossRules.startBoard(this.bossRule);
     } else if (this.mode === 'classic') {
       this.currentCharacter = null;
-      this.characterLevel = store.get('classicDifficulty') || 5;
+      this.characterLevel = store.get('classicDifficulty') ?? BotSetup.DEFAULT_LEVEL;
     } else if (this.mode === 'custom') {
       this.currentCharacter = null;
-      this.characterLevel = store.get('customDifficulty') || 5;
+      this.characterLevel = store.get('customDifficulty') ?? BotSetup.DEFAULT_LEVEL;
     } else {
       this.currentCharacter = null;
       this.characterLevel = 0;
@@ -222,14 +215,6 @@ const GameScreen = {
       this.powers = { ...(saved.powers || {}) };
       this.restoreSnapshot(this.boardSnapshots[this.boardSnapshots.length - 1]);
       store.update({ board: this.board, turn: this.turn, gameStatus: this.gameStatus });
-      return;
-    }
-
-    // The Great Board opens with its four regions.
-    if (this.mode === 'greatboard') {
-      this._introQueue = [];
-      this._introDone = () => this._startTraining();
-      this._showRulesIntro({ kicker: 'GREAT BOARD', title: 'Four Worlds, One Board', lines: this.bossRule.lines, button: 'Play' });
       return;
     }
 
@@ -762,7 +747,7 @@ const GameScreen = {
 
   // Story and Custom games use random capture challenges, never Defenses.
   usesRandomChallenges(mode) {
-    return mode === 'story' || mode === 'custom' || mode === 'greatboard';
+    return mode === 'story' || mode === 'custom';
   },
 
   // Defenses only exist when the Chess 2.0 capture mini-games are on
@@ -1172,12 +1157,11 @@ const GameScreen = {
     // Random capture challenges (Story and Custom): the attacker plays; losing
     // cancels the capture and locks that square for the rest of the turn.
     const bossIsAttacker = this.mode === 'story' && isAIMove;
-    // Double take: ForkMaster's forks, or any fork that captures on a Great Board "forks" quarter.
-    const forksHere = BossRules.regionAt(this.bossRule, move.to) === 'forks';
-    if (captured && this.bossRule && ((bossIsAttacker && this.bossRule.doubleTake) || forksHere)) {
+    // Double take: ForkMaster's forks.
+    if (captured && this.bossRule && bossIsAttacker && this.bossRule.doubleTake) {
       move.doubleTake = BossRules.doubleTakeVictim(this.board, move);
     }
-    const challengeChance = BossRules.challengeChance(this.bossRule, captured || {}, bossIsAttacker, move.to);
+    const challengeChance = BossRules.challengeChance(this.bossRule, captured || {}, bossIsAttacker);
     if (captured && !this.gameplayMode && Math.random() < challengeChance && MiniGameManager.shouldTriggerMiniGame() &&
         CaptureRules.isChallengeable(this.board, move)) {
       const token = this._aiToken;
@@ -1333,8 +1317,7 @@ const GameScreen = {
 
   revertMoveAndLockTile(move) {
     const rule = this.bossRule;
-    // On the Great Board only the gears quarter locks squares for longer.
-    const lockPlies = rule && rule.lockPlies && (!rule.regions || BossRules.regionAt(rule, move.to) === 'gears') ? rule.lockPlies : 0;
+    const lockPlies = rule && rule.lockPlies ? rule.lockPlies : 0;
     if (lockPlies && this.turn === this.playerColor) this._twistLine('lock');
     // A timed lock (CastlE) lasts `lockPlies` plies after the replacement move:
     // with 4, the square stays shut for 3 of that side's turns, this one included.
@@ -1731,7 +1714,7 @@ const GameScreen = {
         this.init(this._lastInitData);
         break;
       case 'menu':
-        switchScreen(this.mode === 'greatboard' ? 'greatBoard' : 'home');
+        switchScreen('home');
         break;
       case 'map': {
         // A first win plays its story scene on the way back to the map; the

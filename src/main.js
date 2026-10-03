@@ -212,7 +212,6 @@ function initApp() {
   registerScreen('controls', ControlsScreen);
   registerScreen('trainingHub', TrainingHubScreen);
   registerScreen('playMenu', PlayMenuScreen);
-  registerScreen('greatBoard', GreatBoardScreen);
   registerScreen('levelSelect', LevelSelectScreen);
   registerScreen('puzzle', PuzzleScreen);
   registerScreen('boardEditor', BoardEditorScreen);

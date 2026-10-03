@@ -3,21 +3,37 @@ class AIController {
   // Levels 0-5 (`human`) make deliberate, human-sized mistakes: `noise` is how
   // often the bot slips and how big the slips can be. Levels 6+ use Stockfish's
   // own skill setting.
+  // `elo` is a rough guide for players (shown in Classic and Custom), `blurb` one line about the bot.
   static LEVEL_CONFIG = {
-    0:  { name: 'Newcomer',     human: { depth: 1, noise: 0.70 } },
-    1:  { name: 'Beginner',     human: { depth: 2, noise: 0.45 } },
-    2:  { name: 'Novice',       human: { depth: 2, noise: 0.28 } },
-    3:  { name: 'Apprentice',   human: { depth: 3, noise: 0.15 } },
-    4:  { name: 'Intermediate', human: { depth: 3, noise: 0.07 } },
-    5:  { name: 'Skilled',      human: { depth: 4, noise: 0.03 } },
-    6:  { name: 'Advanced',     stockfish: { skill: 1,  depth: 6 } },
-    7:  { name: 'Expert',       stockfish: { skill: 4,  depth: 8 } },
-    8:  { name: 'Master',       stockfish: { skill: 8,  depth: 10 } },
-    9:  { name: 'Grandmaster',  stockfish: { skill: 12, movetime: 800 } },
-    10: { name: 'Chess 2.0',    stockfish: { skill: 16, movetime: 1200 } },
-    11: { name: 'Impossible',   stockfish: { skill: 20, movetime: 1500 } },
-    12: { name: 'Madness',      stockfish: { skill: 20, movetime: 2500 } },
+    0:  { name: 'Newcomer',     elo: 250,  blurb: 'Still learning how the pieces move.',      human: { depth: 1, noise: 0.70 } },
+    1:  { name: 'Beginner',     elo: 400,  blurb: 'Leaves pieces hanging. Learn the rules.',  human: { depth: 2, noise: 0.45 } },
+    2:  { name: 'Novice',       elo: 600,  blurb: 'Knows the basics, misses easy tactics.',   human: { depth: 2, noise: 0.28 } },
+    3:  { name: 'Apprentice',   elo: 800,  blurb: 'Spots simple threats most of the time.',   human: { depth: 3, noise: 0.15 } },
+    4:  { name: 'Intermediate', elo: 1000, blurb: 'Solid club play with the odd slip.',       human: { depth: 3, noise: 0.07 } },
+    5:  { name: 'Skilled',      elo: 1200, blurb: 'Rarely blunders. Punishes yours.',         human: { depth: 4, noise: 0.03 } },
+    6:  { name: 'Advanced',     elo: 1400, blurb: 'Plays real plans and sharp tactics.',      stockfish: { skill: 1,  depth: 6 } },
+    7:  { name: 'Expert',       elo: 1600, blurb: 'Strong in every phase of the game.',       stockfish: { skill: 4,  depth: 8 } },
+    8:  { name: 'Master',       elo: 1800, blurb: 'Near-perfect calculation.',                stockfish: { skill: 8,  depth: 10 } },
+    9:  { name: 'Grandmaster',  elo: 2000, blurb: 'Deep, patient and precise.',               stockfish: { skill: 12, movetime: 800 } },
+    10: { name: 'Chess 2.0',    elo: 2300, blurb: 'Beyond most humans.',                      stockfish: { skill: 16, movetime: 1200 } },
+    11: { name: 'Impossible',   elo: 2700, blurb: 'Full-strength Stockfish.',                 stockfish: { skill: 20, movetime: 1500 } },
+    12: { name: 'Madness',      elo: 3000, blurb: 'Full strength, thinking even longer.',     stockfish: { skill: 20, movetime: 2500 } },
   };
+
+  static MAX_LEVEL = 12;
+
+  static levelInfo(level) {
+    return this.LEVEL_CONFIG[level] || this.LEVEL_CONFIG[4];
+  }
+
+  // The level whose Elo is closest (old saves kept an Elo from 200 to 2000).
+  static levelFromElo(elo) {
+    let best = 0;
+    for (let l = 0; l <= this.MAX_LEVEL; l++) {
+      if (Math.abs(this.LEVEL_CONFIG[l].elo - elo) < Math.abs(this.LEVEL_CONFIG[best].elo - elo)) best = l;
+    }
+    return best;
+  }
 
   static async getMoveAsync(board, color, level, legalMoves) {
     const config = this.LEVEL_CONFIG[level] || this.LEVEL_CONFIG[1];

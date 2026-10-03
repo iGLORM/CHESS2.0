@@ -88,7 +88,6 @@ const STEPS = [
   ['boardEditor', go('boardEditor'), 1800],
   ['characterSelect', go('characterSelect'), 1500],
   ['difficulty', `${go('characterSelect')}; setTimeout(() => CharacterSelect.chooseSlot(2), 300)`, 1500],
-  ['greatBoard', go('greatBoard'), 2000],
   ['worldMap', go('worldMap'), 4000],
   ['worldMissions-sands', go('worldMissions', { world: 'slantedsands' }), 3500],
   ['worldMissions-camp', go('worldMissions', { world: 'trainingcamp' }), 3500],
