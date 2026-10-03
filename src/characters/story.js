@@ -1,6 +1,8 @@
 // The script of "The Shattered Board": cutscenes played by StoryScene.
 //
-//   bg     theme whose painted scene is the backdrop (a beat can change it)
+//   bg     theme whose painted scene is the backdrop (a beat can change it), or a live
+//          scene id; sceneState is its starting state and a beat's `scene` eases it
+//          toward new values over `sceneTime` seconds (the ascension's charge and board)
 //   beats  in order; `who` is a character id, 'narrator', or an extra speaker
 //          from STORY_SPEAKERS. `fx` plays an effect as the beat starts:
 //          crystal, fragment, crack, shatter, fragments, fuse, title (or a list).
@@ -240,14 +242,15 @@ const STORY_SCENES = {
   // Beaten three times, Grandmaster X will not accept it: he takes back every power
   // he gave the guardians and plays you on the Great Board itself (FinalBoss).
   ascension: {
-    bg: 'crystal',
+    bg: 'ascension',                 // a live scene driven by the beats (scenes/ascension.js)
+    sceneState: { charge: 0, board: 0 },
     beats: [
-      { who: 'narrator', text: 'The third checkmate lands. The crystal cracks from crown to base... and holds.', fx: ['crystal', 'crack'] },
+      { who: 'narrator', text: 'The third checkmate lands. The crystal cracks from crown to base... and holds.', fx: 'tremor' },
       { who: 'grandmasterx', mood: 'cracking', text: 'No. No! I do not lose. I have never lost. The board does not get to choose you.' },
       { who: 'grandmasterx', mood: 'fury', text: 'Guardians! Everything I gave you, I take back. Every rule, every trick. Now.' },
-      { who: 'narrator', text: 'Far away, the guardians cry out. Their powers tear loose from every world and stream across the sky towards him.', fx: 'absorb' },
-      { who: 'grandmasterx', mood: 'fury', text: 'Bishops from the sands. Iron from the Keep. Mist from the moors. Queens, walls, forks, and the sand of the hourglass. Mine. All of it, mine.' },
-      { who: 'narrator', text: 'The ground drops away. When it stops, you stand on the Great Board itself, cracked and floating in the dark.', fx: 'quake', bg: 'greatboard' },
+      { who: 'narrator', text: 'Far away, the guardians cry out. Their powers tear loose from every world and stream across the sky towards him.', scene: { charge: 1 }, sceneTime: 9, fx: 'surge' },
+      { who: 'grandmasterx', mood: 'fury', text: 'Bishops from the sands. Iron from the Keep. Queens, walls, forks, and the sand of the hourglass. Mine. All of it, mine.' },
+      { who: 'narrator', text: 'The ground drops away. When it stops, you stand on the Great Board itself, cracked and floating in the dark.', scene: { board: 1 }, sceneTime: 2.5, fx: 'quake' },
       { who: 'grandmasterx', mood: 'contempt', text: 'One last game, on the board I broke. Forty moves, and every rule they ever had. Win, and it is yours.' },
     ],
   },

@@ -285,7 +285,7 @@ I18n.add('de', {
   "No. No! I do not lose. I have never lost. The board does not get to choose you.": "Nein. Nein! Ich verliere nicht. Ich habe nie verloren. Das Brett hat nicht das Recht, dich zu wählen.",
   "Guardians! Everything I gave you, I take back. Every rule, every trick. Now.": "Wächter! Alles, was ich euch gegeben habe, nehme ich zurück. Jede Regel, jeden Trick. Jetzt.",
   "Far away, the guardians cry out. Their powers tear loose from every world and stream across the sky towards him.": "In der Ferne schreien die Wächter auf. Ihre Kräfte reißen sich aus jeder Welt los und strömen über den Himmel zu ihm.",
-  "Bishops from the sands. Iron from the Keep. Mist from the moors. Queens, walls, forks, and the sand of the hourglass. Mine. All of it, mine.": "Läufer aus dem Sand. Eisen aus der Festung. Nebel aus dem Moor. Damen, Mauern, Gabeln und der Sand der Sanduhr. Mein. Alles mein.",
+  "Bishops from the sands. Iron from the Keep. Queens, walls, forks, and the sand of the hourglass. Mine. All of it, mine.": "Läufer aus dem Sand. Eisen aus der Festung. Damen, Mauern, Gabeln und der Sand der Sanduhr. Mein. Alles mein.",
   "The ground drops away. When it stops, you stand on the Great Board itself, cracked and floating in the dark.": "Der Boden fällt weg. Als alles stillsteht, stehst du auf dem Großen Brett selbst, zersprungen und schwebend in der Dunkelheit.",
   "One last game, on the board I broke. Forty moves, and every rule they ever had. Win, and it is yours.": "Ein letztes Spiel, auf dem Brett, das ich zerbrochen habe. Vierzig Züge und jede Regel, die sie je hatten. Gewinn, und es gehört dir.",
   "The Last Game": "Das letzte Spiel",

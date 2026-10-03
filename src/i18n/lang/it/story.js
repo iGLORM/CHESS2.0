@@ -285,7 +285,7 @@ I18n.add('it', {
   "No. No! I do not lose. I have never lost. The board does not get to choose you.": "No. No! Io non perdo. Non ho mai perso. La scacchiera non ha il diritto di sceglierti.",
   "Guardians! Everything I gave you, I take back. Every rule, every trick. Now.": "Guardiani! Tutto ciò che vi ho dato, me lo riprendo. Ogni regola, ogni trucco. Adesso.",
   "Far away, the guardians cry out. Their powers tear loose from every world and stream across the sky towards him.": "Lontano, i guardiani gridano. I loro poteri si strappano da ogni mondo e attraversano il cielo verso di lui.",
-  "Bishops from the sands. Iron from the Keep. Mist from the moors. Queens, walls, forks, and the sand of the hourglass. Mine. All of it, mine.": "Alfieri dalle sabbie. Ferro dalla fortezza. Nebbia dalle brughiere. Donne, muri, forchette e la sabbia della clessidra. Miei. Tutto mio.",
+  "Bishops from the sands. Iron from the Keep. Queens, walls, forks, and the sand of the hourglass. Mine. All of it, mine.": "Alfieri dalle sabbie. Ferro dalla fortezza. Donne, muri, forchette e la sabbia della clessidra. Miei. Tutto mio.",
   "The ground drops away. When it stops, you stand on the Great Board itself, cracked and floating in the dark.": "Il suolo crolla. Quando tutto si ferma, sei sulla Grande Scacchiera in persona, spezzata e sospesa nel buio.",
   "One last game, on the board I broke. Forty moves, and every rule they ever had. Win, and it is yours.": "Un'ultima partita, sulla scacchiera che ho spezzato. Quaranta mosse e ogni regola che abbiano mai avuto. Vinci, ed è tua.",
   "The Last Game": "L'ultima partita",

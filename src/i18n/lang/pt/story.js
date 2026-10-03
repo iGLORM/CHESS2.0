@@ -282,7 +282,7 @@ I18n.add('pt', {
   "No. No! I do not lose. I have never lost. The board does not get to choose you.": "Não. Não! Eu não perco. Nunca perdi. O tabuleiro não tem o direito de escolher você.",
   "Guardians! Everything I gave you, I take back. Every rule, every trick. Now.": "Guardiões! Tudo o que dei a vocês, eu tomo de volta. Cada regra, cada truque. Agora.",
   "Far away, the guardians cry out. Their powers tear loose from every world and stream across the sky towards him.": "Ao longe, os guardiões gritam. Seus poderes se arrancam de cada mundo e cruzam o céu em direção a ele.",
-  "Bishops from the sands. Iron from the Keep. Mist from the moors. Queens, walls, forks, and the sand of the hourglass. Mine. All of it, mine.": "Bispos das areias. Ferro da fortaleza. Névoa dos pântanos. Damas, muros, garfos e a areia da ampulheta. Meus. Tudo meu.",
+  "Bishops from the sands. Iron from the Keep. Queens, walls, forks, and the sand of the hourglass. Mine. All of it, mine.": "Bispos das areias. Ferro da fortaleza. Damas, muros, garfos e a areia da ampulheta. Meus. Tudo meu.",
   "The ground drops away. When it stops, you stand on the Great Board itself, cracked and floating in the dark.": "O chão desaba. Quando tudo para, você está sobre o próprio Grande Tabuleiro, rachado e flutuando no escuro.",
   "One last game, on the board I broke. Forty moves, and every rule they ever had. Win, and it is yours.": "Uma última partida, no tabuleiro que eu quebrei. Quarenta lances e todas as regras que eles já tiveram. Vença, e ele é seu.",
   "The Last Game": "A última partida",

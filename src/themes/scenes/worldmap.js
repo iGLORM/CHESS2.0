@@ -44,14 +44,23 @@ LiveScenes.register({
     forkedgulch: [488, 100],
     obsidiancourt: [562, 214],
     soulboundpixel: [395, 190],
-    // Not worlds: the Shop (the Crossroads Bazaar) and the Arena. They claim no land
-    // and have no rifts; the map screen lights the Arena once it opens.
+    // Not worlds: the Shop (the Crossroads Bazaar) and the Arena. The Bazaar holds all of
+    // southern Africa (shopLand), always whole, a rift along its northern edge; the Arena
+    // claims a little land and no rifts. The map screen lights the Arena once it opens.
     shop: [86, 211],
     arena: [286, 238],
   },
-  // How far each place's land reaches from its landmark (scene px; others: 78). The Shop
-  // and the Arena claim a little land; Soulbound Pixel floats in the sea and claims none.
+  // How far each place's land reaches from its landmark (scene px; others: 78). The Arena
+  // claims a little land; Soulbound Pixel floats in the sea and claims none. (The Shop's
+  // land is shopLand, not a reach.)
   reach: { pawnhollow: 46, soulboundpixel: 0, shop: 22, arena: 24 },
+  // Whether a point (scene px) lies in the Bazaar's part of the Earth: Africa (and
+  // Madagascar) south of a wavy line across the Congo.
+  SHOP_EDGE: 170,
+  shopLand(x, y) {
+    if (x < 52 || x > 150) return false;
+    return y > this.SHOP_EDGE + (PixelKit.noise1(x / 9, 77) - 0.5) * 12 + (x - 90) * 0.06;
+  },
   // The world whose land a map point (scene px) is in, roughly: the nearest landmark within
   // its reach (the map screen's plane uses it to change the theme). Soulbound Pixel counts
   // close over its crystal. Null far from every world.
@@ -68,7 +77,7 @@ LiveScenes.register({
   // How far a map point (scene px) lies outside the charted land before the compass
   // (negative: charted). `known` lists place ids (charted round their landmark) and
   // [x, y, r] circles (the road walked). A wobbly edge, like a hand-drawn chart.
-  KNOWN_REACH: { shop: 34 },
+  KNOWN_REACH: { shop: 46 },
   _knownCircles(known) {
     return known.map(k => (Array.isArray(k) ? k : this.places[k] ? [...this.places[k], this.KNOWN_REACH[k] || 44] : null)).filter(Boolean);
   },
@@ -108,6 +117,8 @@ LiveScenes.register({
     const WILD = IDS.length;                 // land far from every world: restored by the fusing
     const NEUTRAL = new Set(['shop', 'arena', 'soulboundpixel']);
     const NEUT = IDS.map(id => NEUTRAL.has(id));
+    // The Bazaar's land is bounded by a rift, unlike the other places that are not worlds.
+    const NORIFT = IDS.map(id => NEUTRAL.has(id) && id !== 'shop');
     let buf = null;
 
     // Longitude/latitude to scene pixels: longitude 27°W on the left edge, the Pacific in
@@ -1089,7 +1100,8 @@ LiveScenes.register({
 
     // ---------- regions: which world each piece of land belongs to ----------
     const SEEDS = IDS.map(id => PLACES[id]);
-    const REACH = LiveScenes.get('worldmap').reach;
+    const DEF = LiveScenes.get('worldmap');
+    const REACH = DEF.reach;
     const REG = new Uint8Array(N).fill(255);
     const RDIST = new Float32Array(N);       // distance from the world's landmark, 0..1 of its reach
     const RMAX = new Float32Array(WILD + 1);
@@ -1098,6 +1110,7 @@ LiveScenes.register({
       if (!LAND[i]) continue;
       const wx = x + (noise2(x / 16, y / 16, 71) - 0.5) * 22, wy = y + (noise2(x / 16, y / 16, 72) - 0.5) * 22;
       let best = 1e9, r = LMK[i] !== 255 ? LMK[i] : WILD;
+      if (r === WILD && DEF.shopLand(wx * 0.3 + x * 0.7, y)) r = K('shop');
       if (r === WILD) SEEDS.forEach(([sx, sy], k) => {
         const reach = REACH[IDS[k]] !== undefined ? REACH[IDS[k]] : 78;
         const d = Math.hypot(wx - sx, wy - sy);
@@ -1117,7 +1130,7 @@ LiveScenes.register({
       if (!LAND[i]) continue;
       for (const o of [1, W, -1, -W]) {
         const j = i + o;
-        if (LAND[j] && REG[j] !== REG[i] && !NEUT[REG[i]] && !NEUT[REG[j]]) { RIFT.push(i); RIFTA.push(REG[i]); RIFTB.push(REG[j]); ISRIFT[i] = REG[i] > REG[j] ? 2 : 1; break; }
+        if (LAND[j] && REG[j] !== REG[i] && !NORIFT[REG[i]] && !NORIFT[REG[j]]) { RIFT.push(i); RIFTA.push(REG[i]); RIFTB.push(REG[j]); ISRIFT[i] = REG[i] > REG[j] ? 2 : 1; break; }
       }
     }
     const RIFTAT = new Int32Array(N);

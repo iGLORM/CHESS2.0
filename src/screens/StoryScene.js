@@ -64,6 +64,10 @@ const StoryScene = {
     this._temp = [];      // effect objects that fade when the next line starts
     this._crystal = null;  // Grandmaster X's crystal and its cracks, from an earlier scene too
     this._cracks = null;
+    this._timers = [];
+    // A live scene as the backdrop can be driven by the beats (beat.scene, see story.js).
+    this._sceneState = { ...(this.scene.sceneState || {}) };
+    if (this.scene.sceneState && typeof LiveScenes !== 'undefined') LiveScenes.setState(this.scene.bg, this._sceneState);
 
     this.pixiContainer = new PIXI.Container();
     PixiScreenManager.setScreenContainer(this.pixiContainer);
@@ -104,9 +108,10 @@ const StoryScene = {
       walk(this.pixiContainer);
       all.forEach(o => gsap.killTweensOf(o));
     }
-    // The absorb's paths tween plain objects, which the walk above does not reach.
-    (this._absorbing || []).forEach(t => gsap.killTweensOf(t));
-    this._absorbing = [];
+    // Timers and the scene-state tweens are plain objects the walk above does not reach.
+    (this._timers || []).forEach(t => t.kill());
+    this._timers = [];
+    if (this._sceneState) gsap.killTweensOf(this._sceneState);
     PixiBackgroundRenderer.destroy();
     PixiPremiumScene.destroy(this);
   },
@@ -244,15 +249,18 @@ const StoryScene = {
   // over the previous one.
   _setBackground(themeId, instant) {
     const holder = new PIXI.Container();
+    // A live scene that is not a theme (the ascension) has no painted still behind it.
+    const sceneOnly = !TextureManager.BACKGROUND_FILES[themeId] && typeof LiveScenes !== 'undefined' && LiveScenes.has(themeId);
     const fill = () => {
       if (holder.destroyed) return;
       holder.removeChildren().forEach(o => o.destroy({ children: true }));
+      if (sceneOnly) { LiveScenes.addTo(themeId, holder, Layout.W, Layout.H); return; }
       if (!PixiPremiumScene._paintedScene(holder, themeId)) {
         holder.addChild(PixiPremiumScene.image(PixiPremiumAssets.background(themeId), 0, 0, Layout.W, Layout.H));
       }
     };
     fill();
-    if (!PixiBackgroundScene.ready(themeId) || !TextureManager.getBackgroundTexture(themeId)) {
+    if (!sceneOnly && (!PixiBackgroundScene.ready(themeId) || !TextureManager.getBackgroundTexture(themeId))) {
       TextureManager.preloadTheme(themeId).then(fill);
     }
     const old = this.bgLayer.children.slice();
@@ -432,8 +440,23 @@ const StoryScene = {
     }
     this._temp = [];
     if (next.bg) this._setBackground(next.bg);
+    if (next.scene) this._driveScene(next.scene, next.sceneTime || 2);
     [].concat(next.fx || []).forEach(fx => this._fx(fx));
     this._drawPips();
+  },
+
+  // Eases the live backdrop's state toward `target` ({ charge: 1 }) over `time` seconds.
+  _driveScene(target, time) {
+    const id = this.scene.bg;
+    gsap.to(this._sceneState, {
+      ...target, duration: time, ease: 'sine.inOut',
+      onUpdate: () => { if (typeof LiveScenes !== 'undefined') LiveScenes.setState(id, { ...this._sceneState }); },
+    });
+  },
+
+  // A delayed call that dies with the screen.
+  _later(seconds, fn) {
+    this._timers.push(gsap.delayedCall(seconds, () => { if (!this.done) fn(); }));
   },
 
   _finish() {
@@ -469,86 +492,6 @@ const StoryScene = {
       onUpdate: () => { const k = strength * (1 - t.v); c.x = (Math.random() - 0.5) * k; c.y = (Math.random() - 0.5) * k; },
       onComplete: () => { c.x = 0; c.y = 0; },
     });
-  },
-
-  // Grandmaster X takes back every guardian's power: a light from each world streams
-  // in from the edges along a curve, leaving sparks, and sinks into his crystal, which
-  // flares a little more with each one and burns red at the end.
-  ABSORB: [
-    ['slantedsands', 0xf3c45a], ['ironkeep', 0xff8a3a], ['mistymoors', 0x8fe0c4], ['royalpalace', 0xff6ad5],
-    ['clockworkcitadel', 0xffb347], ['grandlibrary', 0x8ab4ff], ['forkedgulch', 0xe0703f], ['obsidiancourt', 0xb070ff],
-  ],
-
-  _absorb(cx, cy) {
-    const tx = cx, ty = cy + 10;
-    const aura = new PIXI.Graphics().circle(0, 0, 120).fill({ color: 0xff2a4a, alpha: 0.16 }).circle(0, 0, 80).fill({ color: 0xff6a3a, alpha: 0.14 });
-    aura.x = tx;
-    aura.y = ty;
-    aura.alpha = 0;
-    this.fxLayer.addChildAt(aura, 0);
-    this._temp.push(aura);
-    const n = this.ABSORB.length;
-    this._absorbing = this._absorbing || [];
-    this.ABSORB.forEach(([, color], i) => {
-      const orb = new PIXI.Container();
-      orb.addChild(new PIXI.Graphics().circle(0, 0, 40).fill({ color, alpha: 0.18 }).circle(0, 0, 26).fill({ color, alpha: 0.45 }).circle(0, 0, 15).fill(color).circle(0, 0, 7).fill(0xffffff));
-      // From the screen's rim, spread round it; the curve bends past the crystal.
-      const a = (i / n) * Math.PI * 2 + 0.3;
-      const sx = tx + Math.cos(a) * Layout.W * 0.62, sy = ty + Math.sin(a) * Layout.H * 0.62;
-      const bend = a + (i % 2 ? 1 : -1) * 1.1;
-      const mx = tx + Math.cos(bend) * 260, my = ty + Math.sin(bend) * 200;
-      orb.x = sx;
-      orb.y = sy;
-      orb.alpha = 0;
-      this.fxLayer.addChild(orb);
-      const t = { v: 0 };
-      this._absorbing.push(t);
-      let spark = 0;
-      gsap.to(orb, { alpha: 1, duration: 0.3, delay: 0.2 + i * 0.45 });
-      gsap.to(t, {
-        v: 1, duration: 1.9, delay: 0.2 + i * 0.45, ease: 'power1.in',
-        onUpdate: () => {
-          const u = t.v, w = 1 - u;
-          orb.x = w * w * sx + 2 * w * u * mx + u * u * tx;
-          orb.y = w * w * sy + 2 * w * u * my + u * u * ty;
-          orb.scale.set(1 - u * 0.5);
-          spark++;
-          this._absorbSpark(orb.x, orb.y, color);
-          if (spark % 2) this._absorbSpark(orb.x, orb.y, 0xffffff);
-        },
-        onComplete: () => {
-          orb.destroy({ children: true });
-          this._flash(color, 0.35, 0.5);
-          this._shake(6 + i * 1.5, 0.3);
-          audioManager.playCapture();
-          if (this._crystal) {
-            gsap.killTweensOf(this._crystal.scale);
-            this._crystal.scale.set(1.12 + i * 0.02);
-            gsap.to(this._crystal.scale, { x: 1 + i * 0.02, y: 1 + i * 0.02, duration: 0.35, ease: 'power2.out' });
-          }
-          aura.alpha = Math.min(1, (i + 1) / n);
-          if (i === n - 1) this._absorbEnd(aura);
-        },
-      });
-    });
-  },
-
-  _absorbSpark(x, y, color) {
-    const k = 3 + Math.floor(Math.random() * 4);
-    const s = new PIXI.Graphics().rect(-k / 2, -k / 2, k, k).fill(color);
-    s.x = x + (Math.random() - 0.5) * 24;
-    s.y = y + (Math.random() - 0.5) * 24;
-    this.fxLayer.addChild(s);
-    gsap.to(s, { alpha: 0, y: s.y + 10 + Math.random() * 20, duration: 0.7 + Math.random() * 0.5, onComplete: () => s.destroy() });
-  },
-
-  // Full: the crystal burns red and the air around it throbs.
-  _absorbEnd(aura) {
-    this._flash(0xff2a4a, 0.75, 1.2);
-    this._shake(20, 0.8);
-    audioManager.playGameOver();
-    if (this._crystal) this._crystal.tint = 0xff7a7a;
-    gsap.to(aura.scale, { x: 1.25, y: 1.25, duration: 0.7, yoyo: true, repeat: -1, ease: 'sine.inOut' });
   },
 
   _fx(kind) {
@@ -630,8 +573,14 @@ const StoryScene = {
         });
       }
       audioManager.playGameOver();
-    } else if (kind === 'absorb') {
-      this._absorb(cx, cy);
+    } else if (kind === 'tremor') {
+      this._shake(8, 0.6);
+      audioManager.playCheck();
+    } else if (kind === 'surge') {
+      // The stolen lights arriving one after another (the scene draws them).
+      this._shake(6, 0.5);
+      for (let i = 0; i < 8; i++) this._later(1.2 + i * 0.85, () => { audioManager.playCapture(); this._shake(4 + i, 0.3); });
+      this._later(8.6, () => { this._flash(0xff2a4a, 0.6, 1.2); this._shake(18, 0.8); audioManager.playGameOver(); });
     } else if (kind === 'quake') {
       this._flash(0xffffff, 0.85, 1.1);
       this._shake(22, 0.9);

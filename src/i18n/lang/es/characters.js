@@ -608,7 +608,7 @@ I18n.add('es', {
 // Grandmaster X Unbound, the last game (characters/finalboss.js)
 I18n.add('es', {
   "Every Power": "Todos los poderes",
-  "He stole every guardian's power: four bishops and two queens for him, no rooks for you, the mist, the gear walls, double takes, and every capture a challenge he plays at full strength.": "Robó el poder de cada guardián: cuatro alfiles y dos damas para él, ninguna torre para ti, la niebla, los muros de engranajes, las capturas dobles, y cada captura inicia un desafío que juega a plena fuerza.",
+  "He stole every guardian's power: four bishops and two queens for him, no rooks for you, the gear walls, double takes, and every capture a challenge he plays at full strength.": "Robó el poder de cada guardián: cuatro alfiles y dos damas para él, ninguna torre para ti, los muros de engranajes, las capturas dobles, y cada captura inicia un desafío que juega a plena fuerza.",
   "Checkmate him within 40 of your moves, or the board stays broken.": "Dale mate en 40 de tus jugadas, o el tablero seguirá roto.",
   "The Great Board": "El Gran Tablero",
   "The Board Is Free!": "¡El tablero es libre!",

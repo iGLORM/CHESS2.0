@@ -45,13 +45,13 @@ test('chests need the Iron Key and open once, for coins and a star', () => {
   assert.strictEqual(new Set(Keepsakes.CHESTS.map(c => c.id)).size, Keepsakes.CHESTS.length);
 });
 
-test("Queenie's Signet takes a third off the story items, not the plane", () => {
+test("Queenie's Signet takes a third off the story items", () => {
   fresh({ maxUnlockedLevel: stageOf('queenie'), bonusStars: 20 });
   assert.strictEqual(Wallet.price('remove'), 12);
   fresh({ maxUnlockedLevel: stageOf('queenie') + 1, bonusStars: 20 });
   assert.strictEqual(Wallet.price('remove'), 8);
   assert.strictEqual(Wallet.price('rewind'), 4);
-  assert.strictEqual(Wallet.price('plane'), Wallet.item('plane').price);
+  assert.strictEqual(Wallet.price('token_queen'), Wallet.item('token_queen').price, 'not the coin items');
   assert.ok(Wallet.buy('remove').ok);
   assert.strictEqual(Wallet.stars(), 12, 'paid the lower price');
 });

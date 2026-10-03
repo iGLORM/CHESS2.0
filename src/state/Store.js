@@ -153,6 +153,12 @@ class Store {
       save = rest;
       if (save.completed) save = { ...save, storyLevel: 15, maxUnlockedLevel: 15, selectedCharacter: null };
     }
+    // The plane is Pawnie's gift now, no longer sold: a save that bought it gets its
+    // stars back (once; planeGift marks the plane as given).
+    if (save.plane && !save.planeGift) {
+      const was = typeof Wallet !== 'undefined' ? Wallet.PLANE_PRICE_WAS : 60;
+      save = { ...save, planeGift: true, starsSpent: Math.max(0, (save.starsSpent || 0) - was) };
+    }
     if (save.stages === 15) return save;
     const toStage = level => (level <= 1 ? 1 : level + 5);
     return {

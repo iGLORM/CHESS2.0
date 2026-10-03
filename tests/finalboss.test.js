@@ -30,9 +30,10 @@ test('the last game starts legal: his stolen armies, your missing rooks, the gea
   assert.ok(G.GameRules.getLegalMoves(b, 'white').length > 0);
 });
 
-test('he has every guardian power but Pawnie\'s plain chess', () => {
+test('he has every guardian power but Pawnie\'s plain chess and the mist', () => {
   const r = FinalBoss.RULE;
-  assert.ok(r.fog && r.doubleTake && r.everyCapture && r.maxBotSkill && r.weakestGames && r.tenseMusic);
+  assert.ok(!r.fog);
+  assert.ok(r.doubleTake && r.everyCapture && r.maxBotSkill && r.weakestGames && r.tenseMusic);
   assert.strictEqual(r.moveLimit, 40);
   assert.strictEqual(r.lockPlies, 4);
   assert.ok(!r.noChallenges && !r.endgames && !r.rewinds);
@@ -45,7 +46,11 @@ test('beating Grandmaster X leaves the story waiting for the last game', () => {
   assert.ok(!StoryProgress.isBeaten(store.getActiveSave(), LAST), 'Grandmaster X only counts after the last game');
   assert.strictEqual(StoryProgress.fragments(store.getActiveSave()), 3);
   assert.strictEqual(G.StoryScenes.after(LAST), null, 'the ending waits for the last game');
-  assert.ok(G.STORY_SCENES.ascension.beats.some(b => [].concat(b.fx || []).includes('absorb')));
+  // The ascension plays on its own live scene: he absorbs (charge), then the board appears.
+  const asc = G.STORY_SCENES.ascension;
+  assert.strictEqual(asc.bg, 'ascension');
+  assert.ok(asc.beats.some(b => b.scene && b.scene.charge === 1));
+  assert.ok(asc.beats.some(b => b.scene && b.scene.board === 1));
 });
 
 test('a loss changes nothing; the first win finishes the story and plays the ending', () => {
