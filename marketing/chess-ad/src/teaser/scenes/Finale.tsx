@@ -76,9 +76,6 @@ export const Finale: React.FC<{ short?: boolean }> = ({ short }) => {
         }}
       >
         game.altobolt.com
-        <div style={{ fontSize: 38, color: C.soft, marginTop: 12 }}>
-          or on Telegram: <span style={{ color: C.cyan }}>@iglorm_chess_bot</span>
-        </div>
       </div>
       <Flash at={0} len={14} color="#ffe9a0" peak={0.7} />
       <Grade />

@@ -51,7 +51,7 @@ use `ps`, `pgrep`, `lsof`.
   - `git fetch origin --quiet`, then `git log -1 --oneline origin/main` and what waits to be pushed:
     `git for-each-ref --format='%(refname:short) %(upstream:short) %(upstream:track)' refs/heads`
     (branches with no upstream are unpushed too).
-  - Telegram web version: local cache tag `grep -o '?v=[0-9]*' src/index.html | sort | uniq -c` against the
+  - Web version: local cache tag `grep -o '?v=[0-9]*' src/index.html | sort | uniq -c` against the
     live one `curl -s --max-time 10 https://game.altobolt.com/ | grep -o '?v=[0-9]*' | sort -u`. Different tag
     means `src/` changes are not deployed; no answer (sandbox or site down) means write "live tag: not checked". Never deploy or push from this skill.
 
@@ -86,7 +86,7 @@ Sections, in this order, short lines, plain words, paths and commit hashes inste
 8. **Heads:** repo branch + HEAD, `main` and `origin/main`, Codex branches/worktrees, the `?v=NN` tag local vs
    live, `npm test` result, and "nothing waits to be pushed" or the list.
 
-If the owner passed an argument, put that focus first in "Next". Redact secrets: no Telegram bot token, VPS
+If the owner passed an argument, put that focus first in "Next". Redact secrets: no bot or API tokens, VPS
 address or SSH details beyond the alias `vps`, no save contents, no email addresses. Do not duplicate what already
 lives in `AGENTS.md`, `STORY_MODE_PLAN.md`, a plan, a README or a commit message: reference it by path.
 

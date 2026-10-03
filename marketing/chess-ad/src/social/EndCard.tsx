@@ -91,23 +91,6 @@ export const EndCard: React.FC = () => {
       >
         game.altobolt.com
       </Interactive.Div>
-      <Interactive.Div
-        name="Telegram"
-        style={{
-          position: "absolute",
-          left: 60,
-          right: 60,
-          top: 1370,
-          textAlign: "center",
-          fontFamily: "Pixelify",
-          fontSize: 44,
-          color: "#72ffe0",
-          textShadow: "0 4px 0 #140c22",
-          opacity: interpolate(frame, [56, 68], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
-        }}
-      >
-        Telegram: @iglorm_chess_bot
-      </Interactive.Div>
       <Grade />
     </AbsoluteFill>
   );

@@ -93,7 +93,7 @@ const CreditsScreen = {
     this.pixiContainer.addChild(hit);
 
     const hint = PixiPremiumScene.text(
-      (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData) ? 'Hold to speed up' : 'Hold Space to speed up  ·  Esc to leave',
+      (navigator.maxTouchPoints > 0 && !(window.electron && window.electron.isDesktop)) ? 'Hold to speed up' : 'Hold Space to speed up  ·  Esc to leave',
       { fontSize: 16, fill: PixiPremiumScene.alpha(cols.text, '88') });
     hint.anchor.set(1, 0.5);
     hint.x = W - 28;

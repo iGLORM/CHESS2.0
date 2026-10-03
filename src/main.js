@@ -417,8 +417,8 @@ function initApp() {
     switchScreen('home');
   });
 
-  // Start the music right away. Electron allows it (see main.js); browsers and
-  // Telegram keep the audio suspended until the first click or key, below.
+  // Start the music right away. Electron allows it (see main.js); browsers keep
+  // the audio suspended until the first click or key, below.
   audioManager.init();
   audioManager.startMusic();
   function initAudio() {

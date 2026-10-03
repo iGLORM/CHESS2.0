@@ -62,7 +62,7 @@ each takes `short` for the 60-second version. Scene lengths are in `src/teaser/d
 | 2:30 | Worlds | Eight guardians: live world scene, guardian, twist, real fight |
 | 3:34 | Journey | Training Camp, the plane, the Crossroads Bazaar, tournaments |
 | 4:16 | The Absolute | Grandmaster X, faster and faster cuts |
-| 4:46 | Finale | Logo, PLAY NOW, game.altobolt.com and the Telegram bot |
+| 4:46 | Finale | Logo, PLAY NOW and game.altobolt.com |
 
 The art is live: `src/teaser/live/LiveScene.tsx` draws the game's own pixel scenes
 (`src/themes/scenes/*.js`) frame by frame, bundled by `npm run teaser:scenes` into

@@ -18,7 +18,7 @@ touches the owner's save and several copies can run at once on different ports.
 
 No linter or build step is configured. The app runs directly from source via Electron.
 All local scripts in `src/index.html` share one cache-busting tag (`?v=NN`); bump it when deploying
-so the Telegram web version never mixes old and new files.
+so the web version never mixes old and new files.
 
 ### Dependencies
 - **Electron** — app shell
@@ -275,7 +275,7 @@ Everything is synthesised with Web Audio (no audio files):
 - `audioManager.useSong(id)` makes a screen play its own song whatever the theme (the world map: `'worldmap'` in `init`, `null` in `destroy`); while it is set, a theme change only plays the theme's stinger
 - `src/audio/MusicPlayer.js` — sequencer; writes each section's melody from a motif and schedules bars ahead. Works with an `OfflineAudioContext`, so songs can be rendered to a file for checking
 - `AudioManager` — public API (`startMusic`, `setSuspense`, `play*` effects, volumes); master limiter and a small reverb on effects
-- The theme song starts at boot: `main.js` sets Electron's `autoplay-policy` to `no-user-gesture-required`; browsers and Telegram still wait for the first click or key (`src/main.js` resumes the context then).
+- The theme song starts at boot: `main.js` sets Electron's `autoplay-policy` to `no-user-gesture-required`; browsers still wait for the first click or key (`src/main.js` resumes the context then).
 - Leaving a match stops its music (`GameScreen.destroy`); `audioManager.resumeMusicLater()` brings the theme song back 5-10 s later, since menu screens don't start music themselves. Any `startMusic`/`stopMusic` cancels the pending restart
 
 ### Characters and Story Mode
@@ -354,7 +354,7 @@ Everything is synthesised with Web Audio (no audio files):
 teaser draws the game's live scenes itself (`scripts/bundle-live-scenes.cjs` bundles `src/themes/scenes`),
 so scene edits show up in it; `npm run teaser:capture` records its footage and music from the real game
 in a temporary profile. Change `src/teaser/data.ts` when worlds, guardians, twists or mini-games change.
-It has its own dependencies and does not participate in the game runtime or Telegram deployment.
+It has its own dependencies and does not participate in the game runtime or web deployment.
 Run `npm run dev` there for Studio, `npm run lint` for TypeScript/ESLint checks, and
 `npm run render` to export an MP4. See its README for the scene timings and asset workflow.
 `npm run capture` and `npm run capture:montage` use the root Electron dependency with a temporary user-data directory and
@@ -362,44 +362,20 @@ an isolated session; it never loads the player's saves. Captured footage, music,
 local fonts are in its `public/` directory. `npm run score` rebuilds the original music and
 sound-design mix. `CREATIVE_NOTES.md` documents the research and edit timing.
 
-## Telegram Mini App
+## Web Version
 
-The game runs as a **Telegram Mini App** at `https://game.altobolt.com` via bot `@iglorm_chess_bot`.
+The same `src/index.html` also runs in a browser at `https://game.altobolt.com` (there is no separate web
+entry point). `src/web/web-compat.js` gives the browser a stand-in `window.electron` for fullscreen;
+`src/vendor/pretext/` is a vendored copy of `@chenglou/pretext` so its ES module import works from file
+paths and over HTTP (re-copy its `dist/` there after updating it). The Telegram Mini App was removed on
+2026-10-03: do not add Telegram code back.
 
-### How It Works
-The **same `src/index.html`** serves both Electron and Telegram — no separate web version. Telegram-specific code auto-detects its environment:
-- `src/telegram/telegram-compat.js` — Telegram SDK init, back button, haptic feedback. All behind `if (window.Telegram)` guards — completely inert in Electron.
-- The Telegram Web App SDK (`telegram.org/js/telegram-web-app.js`) is loaded in `index.html` but is a no-op outside Telegram's webview.
-- `src/vendor/pretext/` — vendored copy of `@chenglou/pretext` dist so the ES module import works on both Electron (file paths) and web (HTTP paths).
-
-### Deployment
-The VPS is only accessible from the main dev PC (SSH alias `vps`). `deploy.sh` (local-only, gitignored) syncs files:
-```bash
-scp -r src assets vps:/var/www/chess2/
-ssh vps "sudo chmod -R o+rX /var/www/chess2/"
-```
-
-### Keeping In Sync
-Any change to `src/` or `assets/` automatically works on Telegram after redeploying. When adding new screens, scripts, or assets:
-1. Add `<script>` tags to `src/index.html` as usual — works for both Electron and web
-2. Redeploy to VPS after changes
-3. No separate files to maintain — the codebase is the deployment
-
-### Rules for keeping Telegram in sync
-1. **Never create a separate web entry point.** All changes go in `src/index.html` and `src/`, the same files Electron uses.
-2. **New `<script>` tags in `index.html`** work on both Electron and Telegram automatically.
-3. **New assets** go in `assets/` as usual; the VPS serves `assets/` via an nginx alias.
-4. **Telegram-specific code** lives in `src/telegram/telegram-compat.js`, always guarded with `if (window.Telegram && window.Telegram.WebApp)`.
-5. **Never use `window.electron` without a guard** (`if (window.electron)`); it does not exist on the web.
-6. **The vendored pretext library** is at `src/vendor/pretext/`. If `@chenglou/pretext` is updated via npm, re-copy its `dist/` there.
-7. **No Node.js APIs** (fs, path, child_process) in `src/`. Renderer code must stay browser-compatible.
-8. **Touch events**: `src/main.js` listens to touch and mouse events. New input handlers must support both.
-
-### Infrastructure
-- **Hosting**: nginx on VPS, root at `/var/www/chess2/src`, assets aliased from `/var/www/chess2/assets/`
-- **SSL**: Let's Encrypt (auto-renewing via certbot)
-- **Domain**: `game.altobolt.com` (A record → VPS IP)
-- **Bot**: `@iglorm_chess_bot` — menu button launches the Mini App
+Rules for keeping the browser version working:
+1. **Never use `window.electron` without a guard** (`if (window.electron)`); in a browser it is the stand-in.
+2. **No Node.js APIs** (fs, path, child_process) in `src/`. Renderer code must stay browser-compatible.
+3. **Touch events**: `src/main.js` listens to touch and mouse events. New input handlers must support both.
+4. Deploying copies `src/` and `assets/` to the server (`/var/www/chess2/`, nginx); only from the machine
+   that has the `vps` SSH alias, and only when the owner asks.
 
 ## Working Together (Claude Code + Codex)
 
@@ -415,7 +391,7 @@ Two AI agents (Claude Code and Codex) and the owner work on this repository. To 
   messages with your own `Co-Authored-By` line.
 - **Run `npm test` before every commit.** Add tests in `tests/` for new engine or rule logic.
 - **Bump the `?v=NN` cache tag** in `src/index.html` (all local scripts share one number) whenever you change
-  files in `src/`, so browsers and Telegram never mix old and new scripts.
+  files in `src/`, so browsers never mix old and new scripts.
 - **The owner's save is real.** The app (including the headless one) uses the owner's own
   `localStorage` (`chess2_progress`). Back it up before automated play and restore it afterwards;
   confirm after restarting the app, because in-memory state can be written back over a restore.

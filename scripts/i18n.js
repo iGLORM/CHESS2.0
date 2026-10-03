@@ -13,7 +13,7 @@ const vm = require('vm');
 
 const ROOT = path.join(__dirname, '..');
 const SRC = path.join(ROOT, 'src');
-const SKIP_DIRS = ['vendor', 'stockfish', 'i18n', 'scenes', 'telegram'];
+const SKIP_DIRS = ['vendor', 'stockfish', 'i18n', 'scenes', 'web'];
 
 const IGNORE = new Set([
   'Pixelify Sans', 'Silkscreen', 'Chess 2.0', 'Stockfish', 'Courier New', 'Arial', 'Helvetica',

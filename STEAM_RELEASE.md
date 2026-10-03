@@ -73,10 +73,9 @@ Launch executable for the Steam depot: `Chess 2.0.exe` (Windows), `Chess 2.0.app
     `third_party/` (gitignored) and ships it in `licenses/stockfish/source/`. A build stops if
     the download fails; don't upload a build without that folder;
   - Credits screen: names Stockfish, the GPL, no warranty, and where the source is.
-  - Telegram web version: it also sends Stockfish to players, so put the source archive on the
+  - Web version (game.altobolt.com): it also sends Stockfish to players, so put the source archive on the
     server too (e.g. copy `third_party/stockfish-source/` to `/var/www/chess2/src/licenses/`).
   - If you ever modify Stockfish, you must publish your modified source as well.
-  The server-side `stockfish-api/` is not distributed to players, so the GPL asks nothing there.
 - **Fonts (OFL 1.1)**, **PixiJS (MIT)**, **Electron (MIT)**, **pretext (MIT)**: licence files included.
 - **GSAP**: free "standard" licence, which allows use in paid games.
 - **Your own code**: there is no LICENSE file for Chess 2.0 itself; add one if you want to set terms.
