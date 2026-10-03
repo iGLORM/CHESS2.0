@@ -1,6 +1,9 @@
 How to resume: read this file and the files it lists, check what is still running, then give the owner a
 short summary (what was done, what is next) and WAIT for an instruction. Do not start any Next step on your own.
 
+> **Update 2026-10-03:** the owner dropped Russian and Naš jezik (`ru`, `hbs`). The game ships English,
+> French, Spanish, Portuguese, Italian and German only; skip every step below about those two.
+
 # Handoff 2026-10-02 evening (20:41)
 
 - Why: context too high, owner is switching session.

@@ -145,6 +145,12 @@ Reusable PixiJS v8 components replacing the Canvas 2D `UIHelpers.js`:
 - `TextFit.drawFitted()` — measure and draw text fitted to a bounding box
 - `TextFit.scaleToFit()` — scale text to fit within constraints
 
+### Languages
+`src/i18n/I18n.js` translates at draw time; tables live in `src/i18n/lang/<id>/` (English plus `fr`, `es`, `pt`,
+`it`, `de`). Give new English text its translations in those five. Russian and Naš jezik were dropped
+(2026-10-03): do not add them back. `node scripts/i18n.js stats|missing <lang>` checks coverage;
+`scripts/i18n-check.mjs` checks layouts per language on a test copy.
+
 ### State Management
 `src/state/Store.js` — A singleton `store` with `get(key)`, `set(key, value)`, `update({})`, and `on(key, fn)` for reactive listeners. Persists progress to `localStorage` under key `chess2_progress`.
 
