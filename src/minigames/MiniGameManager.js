@@ -323,7 +323,7 @@ class MiniGameManager {
 
     // The game itself, clipped to its area.
     ctx.save();
-    MiniGameUtils.pixelRect(ctx, this.gameX, this.gameY, this.gameW, this.gameH, 4);
+    MiniGameUtils.roundRect(ctx, this.gameX, this.gameY, this.gameW, this.gameH, 10);
     ctx.clip();
     try {
       const r = this._gameRect();
@@ -370,50 +370,49 @@ class MiniGameManager {
     }
   }
 
-  // The frame is one of the game's own pixel panels: dark outline, the theme's
-  // panel colour with a bevel, a border and accent strip in the theme's accent
-  // (warn for a duel, green/red once the result is in).
   _drawFrame(ctx, ox, oy, ow, oh, pal) {
-    const th = MiniGameUtils.themeColors();
-    const frame = this._frameColor(pal);
-    const U = MiniGameUtils;
     ctx.save();
-    // Hard pixel drop shadow, then the outline and body.
-    ctx.fillStyle = 'rgba(0,0,0,0.45)';
-    U.pixelRect(ctx, ox, oy + 10, ow, oh, 6);
+    // Drop shadow + body
+    ctx.shadowColor = 'rgba(0,0,0,0.6)';
+    ctx.shadowBlur = 40;
+    ctx.shadowOffsetY = 12;
+    MiniGameUtils.roundRect(ctx, ox, oy, ow, oh, 18);
+    const body = ctx.createLinearGradient(0, oy, 0, oy + oh);
+    body.addColorStop(0, '#221a44');
+    body.addColorStop(1, '#130f28');
+    ctx.fillStyle = body;
     ctx.fill();
-    ctx.fillStyle = '#07080d';
-    U.pixelRect(ctx, ox, oy, ow, oh, 6);
-    ctx.fill();
-    ctx.fillStyle = th.panel;
-    U.pixelRect(ctx, ox + 4, oy + 4, ow - 8, oh - 8, 6);
-    ctx.fill();
-    // Bevel: light along the top, dark along the bottom.
-    ctx.fillStyle = 'rgba(255,255,255,0.10)';
-    ctx.fillRect(ox + 16, oy + 4, ow - 32, 3);
-    ctx.fillStyle = 'rgba(0,0,0,0.25)';
-    ctx.fillRect(ox + 16, oy + oh - 8, ow - 32, 4);
-    // Border ring and accent strip.
-    ctx.lineWidth = 3;
-    ctx.strokeStyle = U.colorWithAlpha(frame, 0.85);
-    U.pixelRect(ctx, ox + 2.5, oy + 2.5, ow - 5, oh - 5, 6);
-    ctx.stroke();
-    ctx.fillStyle = U.colorWithAlpha(frame, 0.8);
-    ctx.fillRect(ox + 20, oy + 12, ow - 40, 3);
-    ctx.fillStyle = 'rgba(0,0,0,0.3)';
-    ctx.fillRect(ox + 20, oy + 15, ow - 40, 1);
+    ctx.shadowColor = 'transparent';
 
-    // Game well: sunk into the panel, with a dark pixel rim.
+    // Outer and inner borders
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = MiniGameUtils.colorWithAlpha(this._frameColor(pal), 0.9);
+    MiniGameUtils.roundRect(ctx, ox, oy, ow, oh, 18);
+    ctx.stroke();
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+    MiniGameUtils.roundRect(ctx, ox + 6, oy + 6, ow - 12, oh - 12, 13);
+    ctx.stroke();
+
+    // Game well with a faint pixel grid
     const gx = this.gameX, gy = this.gameY, gw = this.gameW, gh = this.gameH;
-    ctx.fillStyle = '#07080d';
-    U.pixelRect(ctx, gx - 4, gy - 4, gw + 8, gh + 8, 4);
+    MiniGameUtils.roundRect(ctx, gx, gy, gw, gh, 10);
+    ctx.fillStyle = pal.background;
     ctx.fill();
-    ctx.fillStyle = th.background;
-    U.pixelRect(ctx, gx, gy, gw, gh, 4);
-    ctx.fill();
-    ctx.strokeStyle = U.colorWithAlpha(th.text, 0.18);
-    ctx.lineWidth = 2;
-    U.pixelRect(ctx, gx - 3, gy - 3, gw + 6, gh + 6, 4);
+    ctx.save();
+    MiniGameUtils.roundRect(ctx, gx, gy, gw, gh, 10);
+    ctx.clip();
+    ctx.fillStyle = 'rgba(255,255,255,0.025)';
+    for (let x = gx; x < gx + gw; x += 24) ctx.fillRect(x, gy, 1, gh);
+    for (let y = gy; y < gy + gh; y += 24) ctx.fillRect(gx, y, gw, 1);
+    const glow = ctx.createRadialGradient(gx + gw / 2, gy, 0, gx + gw / 2, gy, gh);
+    glow.addColorStop(0, MiniGameUtils.colorWithAlpha(this._frameColor(pal), 0.10));
+    glow.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = glow;
+    ctx.fillRect(gx, gy, gw, gh);
+    ctx.restore();
+    ctx.strokeStyle = 'rgba(255,255,255,0.10)';
+    MiniGameUtils.roundRect(ctx, gx, gy, gw, gh, 10);
     ctx.stroke();
     ctx.restore();
   }
@@ -422,7 +421,7 @@ class MiniGameManager {
     if (this.currentGame && this.currentGame.done && this.doneTime) {
       return this.currentGame.winner === 'attacker' ? pal.success : pal.danger;
     }
-    return this.isDuel ? pal.warn : MiniGameUtils.themeColors().accent;
+    return this.isDuel ? pal.warn : pal.info;
   }
 
   _drawHeader(ctx, ox, oy, ow, pal) {
@@ -440,24 +439,20 @@ class MiniGameManager {
     const tag = practice ? 'PRACTICE' : (this.isDuel ? 'DUEL' : 'CAPTURE CHALLENGE');
     ctx.font = 'bold 13px "Pixelify Sans", sans-serif';
     const tagW = ctx.measureText(tag).width + 24;
-    const th = MiniGameUtils.themeColors();
-    const tagCol = this.isDuel ? pal.warn : th.accent;
-    MiniGameUtils.pixelRect(ctx, cx - tagW / 2, headerY + 4, tagW, 22, 3);
-    ctx.fillStyle = MiniGameUtils.colorWithAlpha(tagCol, 0.18);
+    MiniGameUtils.roundRect(ctx, cx - tagW / 2, headerY, tagW, 22, 11);
+    ctx.fillStyle = MiniGameUtils.colorWithAlpha(this.isDuel ? pal.warn : pal.info, 0.18);
     ctx.fill();
-    ctx.lineWidth = 2;
-    ctx.strokeStyle = MiniGameUtils.colorWithAlpha(tagCol, 0.6);
-    ctx.stroke();
-    ctx.fillStyle = tagCol;
-    ctx.fillText(tag, cx, headerY + 20);
+    ctx.fillStyle = this.isDuel ? pal.warn : pal.info;
+    ctx.fillText(tag, cx, headerY + 16);
 
     // Title
     const title = practice ? (this.currentGame.name || 'Mini-Game') : `Save the ${threatened}!`;
     ctx.font = 'bold 26px "Silkscreen", monospace';
-    ctx.fillStyle = '#07080d';
-    ctx.fillText(title.toUpperCase(), cx, headerY + 60);
-    ctx.fillStyle = th.text;
-    ctx.fillText(title.toUpperCase(), cx, headerY + 57);
+    ctx.fillStyle = pal.text;
+    ctx.shadowColor = 'rgba(0,0,0,0.6)';
+    ctx.shadowOffsetY = 3;
+    ctx.fillText(title.toUpperCase(), cx, headerY + 54);
+    ctx.shadowColor = 'transparent';
 
     // Difficulty pips
     const diff = Math.max(1, Math.min(5, Math.ceil((this.challengeDifficulty || 1) / 2)));
@@ -465,10 +460,9 @@ class MiniGameManager {
     const totalW = 5 * pipW + 4 * gap;
     for (let i = 0; i < 5; i++) {
       const px = cx - totalW / 2 + i * (pipW + gap);
-      ctx.fillStyle = '#07080d';
-      ctx.fillRect(px - 1, headerY + 68, pipW + 2, 8);
-      ctx.fillStyle = i < diff ? th.accent : 'rgba(255,255,255,0.14)';
-      ctx.fillRect(px, headerY + 69, pipW, 6);
+      MiniGameUtils.roundRect(ctx, px, headerY + 66, pipW, 6, 3);
+      ctx.fillStyle = i < diff ? pal.gold : 'rgba(255,255,255,0.14)';
+      ctx.fill();
     }
 
     // Pieces: threatened on the left, attacker on the right.
@@ -481,7 +475,7 @@ class MiniGameManager {
 
   _drawPieceBadge(ctx, x, y, piece, label, color, pal) {
     ctx.save();
-    MiniGameUtils.pixelRect(ctx, x, y, 64, 64, 4);
+    MiniGameUtils.roundRect(ctx, x, y, 64, 64, 12);
     ctx.fillStyle = MiniGameUtils.colorWithAlpha(color, 0.14);
     ctx.fill();
     ctx.lineWidth = 2;
@@ -502,7 +496,7 @@ class MiniGameManager {
     const gx = this.gameX, gy = this.gameY, gw = this.gameW, gh = this.gameH;
     ctx.save();
     ctx.fillStyle = `rgba(8,6,20,${go ? 0.55 * (1 - local) : 0.62})`;
-    MiniGameUtils.pixelRect(ctx, gx, gy, gw, gh, 4);
+    MiniGameUtils.roundRect(ctx, gx, gy, gw, gh, 10);
     ctx.fill();
     const size = go ? 72 + local * 30 : 56;
     ctx.font = `bold ${Math.round(size)}px "Silkscreen", monospace`;
@@ -510,11 +504,11 @@ class MiniGameManager {
     ctx.textBaseline = 'middle';
     ctx.globalAlpha *= go ? 1 - local * 0.8 : Math.min(1, local * 3);
     ctx.fillStyle = go ? pal.success : pal.text;
-    ctx.shadowColor = '#07080d';
-    ctx.shadowOffsetY = 4;
+    ctx.shadowColor = go ? pal.success : 'rgba(0,0,0,0.7)';
+    ctx.shadowBlur = go ? 24 : 0;
     ctx.fillText(go ? 'GO!' : 'READY', gx + gw / 2, gy + gh / 2);
     if (!go && this.currentGame.name) {
-      ctx.shadowOffsetY = 2;
+      ctx.shadowBlur = 0;
       ctx.font = 'bold 20px "Pixelify Sans", sans-serif';
       ctx.fillStyle = pal.textDim;
       ctx.fillText(this.currentGame.name, gx + gw / 2, gy + gh / 2 + 56);
@@ -530,18 +524,18 @@ class MiniGameManager {
     const gx = this.gameX, gy = this.gameY, gw = this.gameW, gh = this.gameH;
     ctx.save();
     ctx.fillStyle = `rgba(8,6,20,${0.7 * ease})`;
-    MiniGameUtils.pixelRect(ctx, gx, gy, gw, gh, 4);
+    MiniGameUtils.roundRect(ctx, gx, gy, gw, gh, 10);
     ctx.fill();
 
     const bandH = 130;
     const by = gy + gh / 2 - bandH / 2;
     ctx.globalAlpha *= ease;
-    // Pixel band: solid in the middle, stepping out to the sides.
-    for (let i = 0; i < 4; i++) {
-      ctx.fillStyle = MiniGameUtils.colorWithAlpha(color, 0.22 - i * 0.05);
-      const inset = gw * (0.2 - i * 0.06);
-      ctx.fillRect(gx + inset, by, gw - inset * 2, bandH);
-    }
+    const band = ctx.createLinearGradient(gx, 0, gx + gw, 0);
+    band.addColorStop(0, MiniGameUtils.colorWithAlpha(color, 0));
+    band.addColorStop(0.5, MiniGameUtils.colorWithAlpha(color, 0.28));
+    band.addColorStop(1, MiniGameUtils.colorWithAlpha(color, 0));
+    ctx.fillStyle = band;
+    ctx.fillRect(gx, by, gw, bandH);
     ctx.fillStyle = color;
     ctx.fillRect(gx + gw * 0.2, by, gw * 0.6, 2);
     ctx.fillRect(gx + gw * 0.2, by + bandH - 2, gw * 0.6, 2);
@@ -555,10 +549,10 @@ class MiniGameManager {
     ctx.textBaseline = 'middle';
     ctx.font = `bold ${Math.round(44 + (1 - ease) * 20)}px "Silkscreen", monospace`;
     ctx.fillStyle = color;
-    ctx.shadowColor = '#07080d';
-    ctx.shadowOffsetY = 4;
+    ctx.shadowColor = color;
+    ctx.shadowBlur = 22;
     ctx.fillText(title, gx + gw / 2, by + 52);
-    ctx.shadowOffsetY = 0;
+    ctx.shadowBlur = 0;
     ctx.font = 'bold 18px "Pixelify Sans", sans-serif';
     ctx.fillStyle = pal.text;
     ctx.fillText(sub, gx + gw / 2, by + 98);

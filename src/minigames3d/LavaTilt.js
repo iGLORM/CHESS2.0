@@ -35,9 +35,8 @@ class LavaTilt extends Game3D {
     // The board
     this.board = new THREE.Group();
     scene.add(this.board);
-    const sq = Mini3D.boardColors();
-    const light = new THREE.MeshStandardMaterial({ color: sq.light, roughness: 0.6, flatShading: true });
-    const dark = new THREE.MeshStandardMaterial({ color: sq.dark, roughness: 0.6, flatShading: true });
+    const light = new THREE.MeshStandardMaterial({ color: 0xe8d6b0, roughness: 0.6, flatShading: true });
+    const dark = new THREE.MeshStandardMaterial({ color: 0x5b3a2a, roughness: 0.6, flatShading: true });
     const cellGeo = new THREE.BoxGeometry(0.98, 0.3, 0.98);
     for (let r = 0; r < 8; r++) {
       for (let c = 0; c < 8; c++) {

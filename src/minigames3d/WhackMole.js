@@ -13,7 +13,7 @@ class WhackMole extends Game3D {
     scene.fog = new THREE.Fog(0x0c1a14, 12, 28);
     this.lights({ sky: 0xd0ffe0, ground: 0x1a3a2a, keyI: 2.4, shadows: true, shadowSize: 5, rim: 0xffd166 });
 
-    const box = new THREE.Mesh(new THREE.BoxGeometry(6.4, 1, 6.4), new THREE.MeshStandardMaterial({ map: Mini3D.themeChecker(8, 8), flatShading: true }));
+    const box = new THREE.Mesh(new THREE.BoxGeometry(6.4, 1, 6.4), new THREE.MeshStandardMaterial({ map: Mini3D.checkerTexture(8, '#e8dcc0', '#3a6a4a', 8), flatShading: true }));
     box.position.y = -0.5;
     box.receiveShadow = true;
     scene.add(box);

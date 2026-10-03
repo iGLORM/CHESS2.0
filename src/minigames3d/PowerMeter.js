@@ -205,17 +205,17 @@ class PowerMeter extends Game3D {
     this.hudTimer(ctx, x + w - 16, y + 20);
     // Vertical power gauge
     const gx = x + w - 40, gy = y + 60, gh = h - 120;
-    ctx.fillStyle = '#07080d';
-    MiniGameUtils.pixelRect(ctx, gx, gy, 18, gh, 3);
+    ctx.fillStyle = 'rgba(0,0,0,0.55)';
+    MiniGameUtils.roundRect(ctx, gx, gy, 18, gh, 9);
     ctx.fill();
     const p = this.flying ? this.shotPower : this.power;
-    // Filled in 6px cells, green to gold to red going up.
-    const cells = Math.floor((gh - 6) / 6), lit = Math.round(cells * p);
-    for (let i = 0; i < lit; i++) {
-      const f = i / cells;
-      ctx.fillStyle = f < 0.6 ? '#3ee07f' : f < 0.85 ? '#ffd166' : '#ff4d6d';
-      ctx.fillRect(gx + 3, gy + gh - 3 - (i + 1) * 6 + 1, 12, 5);
-    }
+    const grad = ctx.createLinearGradient(0, gy + gh, 0, gy);
+    grad.addColorStop(0, '#3ee07f');
+    grad.addColorStop(0.7, '#ffd166');
+    grad.addColorStop(1, '#ff4d6d');
+    ctx.fillStyle = grad;
+    MiniGameUtils.roundRect(ctx, gx + 3, gy + gh - (gh - 6) * p - 3, 12, (gh - 6) * p, 6);
+    ctx.fill();
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(gx - 6, gy + gh - gh * this.threshold, 30, 2);
     this.hudHint(ctx, 'Click or press SPACE when the gauge is at the top');

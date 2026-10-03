@@ -169,20 +169,15 @@ class BarBalance extends Game3D {
     this.hudHearts(ctx, x + w - 16 - this.maxLives * 22, y + 21, this.lives, this.maxLives);
     // Balance meter
     const mx = x + w / 2, my = y + h - 50, mw = 260;
-    ctx.fillStyle = '#07080d';
-    MiniGameUtils.pixelRect(ctx, mx - mw / 2 - 2, my - 10, mw + 4, 20, 3);
+    ctx.fillStyle = 'rgba(0,0,0,0.5)';
+    MiniGameUtils.roundRect(ctx, mx - mw / 2, my - 8, mw, 16, 8);
     ctx.fill();
-    ctx.fillStyle = 'rgba(255,255,255,0.08)';
-    ctx.fillRect(mx - mw / 2, my - 8, mw, 16);
     ctx.fillStyle = 'rgba(62,224,127,0.35)';
     ctx.fillRect(mx - mw * 0.25, my - 8, mw * 0.5, 16);
     const k = Math.max(-1, Math.min(1, this.theta / BarBalance.FALL));
-    const kx = Math.round(mx + k * mw / 2);
-    ctx.fillStyle = '#07080d';
-    MiniGameUtils.pixelRect(ctx, kx - 11, my - 11, 22, 22, 4);
-    ctx.fill();
     ctx.fillStyle = Math.abs(k) > 0.6 ? '#ff4d6d' : '#ffd166';
-    MiniGameUtils.pixelRect(ctx, kx - 8, my - 8, 16, 16, 3);
+    ctx.beginPath();
+    ctx.arc(mx + k * mw / 2, my, 9, 0, Math.PI * 2);
     ctx.fill();
     this.hudHint(ctx, 'Lean with the mouse or ← → to stay upright');
   }
