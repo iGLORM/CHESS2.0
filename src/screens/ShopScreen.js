@@ -5,7 +5,7 @@
 // four at a time: browse them with the arrow keys, the mouse or a tap; the one picked
 // lifts up and glows, and the note pinned on the wall tells its name, use and price.
 // Four drawers in the counter front are the tabs: the Star Shop (story helpers bought
-// with the stars of the active save: rewinds, hints, removing a piece, the plane), the
+// with the stars of the active save: rewinds, hints, removing a piece), the
 // Coin Shop (plane paints), Characters (who you are on the map: a piece, a colour and a
 // piece set, for coins) and Themes (world themes unlocked early, for coins). What everything costs and does lives in src/state/Wallet.js.
 // init({ from, tab }) — the screen to go back to (default: the world map), the drawer.

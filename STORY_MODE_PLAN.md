@@ -45,8 +45,9 @@ here were made with the project owner; ask before changing them.
   knockout; Gulch Shootout: straight knockout); winning one opens its guardian.
 - Wandering rivals (6, three tiers each), side quests from the good guardians
   (Bish-Bosh, the Knight of the Mist, the EndGamer), the Arena gauntlet (Australia).
-- Shop (the Crossroads Bazaar, middle of Africa): story stars buy rewinds, hints,
-  remove-a-piece and the plane; coins buy cosmetics and early themes.
+- Shop (the Crossroads Bazaar, all of southern Africa): story stars buy rewinds, hints and
+  remove-a-piece; coins buy cosmetics and early themes. The plane is Pawnie's gift after the
+  first game (2026-10-03); it flies only over opened lands and to the next stop, marked in yellow.
 
 ## Worlds (in order)
 | Stage(s) | Character | World | Board material | Song from | Placeholder art now |

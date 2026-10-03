@@ -379,9 +379,9 @@ I18n.add('es', {
   'Win {0} Arena rounds in a row': 'Gana {0} rondas seguidas en la Arena', 'Reach stage {0} first': 'Llega antes a la etapa {0}', 'Missions {0} / {1}': 'Misiones {0} / {1}',
   'Next lesson': 'Siguiente lección', 'Enter': 'Entrar', 'Next battle': 'Siguiente combate', 'Find Them': 'Encuéntralos', 'Replay': 'Repetir', 'Train': 'Entrenar', 'Fight': 'Luchar',
   'A guardian': 'Un guardián', 'Not found yet. {0} holds it.': 'Aún no encontrado. Lo tiene {0}.', 'ROAD BLOCKED': 'CAMINO BLOQUEADO',
-  'Spend stars on rewinds, hints and the plane; coins on paint, characters and themes.': 'Gasta estrellas en retrocesos, pistas y el avión; monedas en pintura, personajes y temas.',
+  'Spend stars on rewinds, hints and removing pieces; coins on plane paint, characters and themes.': 'Gasta estrellas en retrocesos, pistas y quitar piezas; monedas en pintura de avión, personajes y temas.',
   'YOUR PURSE': 'TU BOLSA', '{0} star{1}  ·  {2} coin{3}': '{0} estrella{1}  ·  {2} moneda{3}', 'Stars come from battles, coins from every win.': 'Las estrellas vienen de los combates; las monedas, de cada victoria.',
-  'Stars: rewind a move, get a hint, remove a piece, fly the plane. Coins: plane paint, characters, themes.': 'Estrellas: retroceder una jugada, una pista, quitar una pieza, volar en avión. Monedas: pintura de avión, personajes, temas.',
+  'Stars: rewind a move, get a hint, remove a piece. Coins: plane paint, characters, themes.': 'Estrellas: retroceder una jugada, una pista, quitar una pieza. Monedas: pintura de avión, personajes, temas.',
   'A gauntlet of guardians': 'Una prueba de guardianes', 'Best streak {0}  ·  next: round {1}': 'Mejor racha {0}  ·  siguiente: ronda {1}', 'Beat {0} guardians to open it': 'Vence a {0} guardianes para abrirla',
   'NEXT OPPONENT': 'PRÓXIMO RIVAL', '{0}  ·  +{1} coins': '{0}  ·  +{1} monedas',
   'Fight the guardians you have beaten, one after another. One loss ends the run. Win {0} in a row to open the road to the Obsidian Court.': 'Lucha contra los guardianes que ya venciste, uno tras otro. Una derrota acaba la racha. Gana {0} seguidas para abrir el camino a la Corte de Obsidiana.',
@@ -396,6 +396,15 @@ I18n.add('es', {
   'This save starts over from the first stage. Your stars, trophies and themes stay.': 'Esta partida vuelve a la primera etapa. Tus estrellas, trofeos y temas se mantienen.',
   'The freed First Piece plays you first, at full strength. Each guardian adds the rule of the one before, and every bot plays a level stronger.': 'La Primera Pieza liberada juega contra ti primero, a plena fuerza. Cada guardián añade la regla del anterior, y cada bot juega un nivel más fuerte.',
   'Land the Plane': 'Aterrizar', 'Summon the Plane': 'Llamar al avión', 'WASD / ZQSD or arrows to fly  ·  hold the map to steer  ·  Space to land': 'WASD / ZQSD o flechas para volar  ·  mantén el mapa para dirigir  ·  Espacio para aterrizar',
+  // Pawnie's gift (the plane) and the flight zone.
+  'A gift from Pawnie': 'Un regalo de Pawnie',
+  'The plane is yours!': '¡El avión es tuyo!',
+  'Wait! Before you go any further... come and see what Grandpa kept in the old hangar.': '¡Espera! Antes de seguir... ven a ver lo que el abuelo guardaba en el viejo hangar.',
+  'His plane! She hasn\'t flown since the rifts opened. But the world stopped breaking when you landed, so maybe she can fly again.': '¡Su avión! No ha volado desde que se abrieron las grietas. Pero el mundo dejó de romperse cuando llegaste, así que quizá pueda volar otra vez.',
+  'She\'s yours now. She\'ll take you over every land you have opened, and on to the next stop. Follow the yellow marker!': 'Ahora es tuyo. Te llevará sobre todas las tierras que has abierto, y hasta la próxima parada. ¡Sigue la marca amarilla!',
+  'Summon it on the world map and fly over every land you have opened.': 'Llámalo en el mapa del mundo y vuela sobre todas las tierras que has abierto.',
+  'The story has not opened this land yet. Next stop: {0}': 'La historia aún no ha abierto esta tierra. Próxima parada: {0}',
+  'The story has not opened this land yet.': 'La historia aún no ha abierto esta tierra.',
 
   // World missions
   'Arrow keys to choose  ·  Enter to play': 'Flechas para elegir  ·  Intro para jugar', 'Restored  ·  replay any stop': 'Restaurado  ·  repite cualquier parada',
