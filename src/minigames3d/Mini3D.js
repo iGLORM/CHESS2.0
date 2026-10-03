@@ -3,15 +3,14 @@
 // One WebGL renderer is created on first use and kept for the whole session
 // (browsers cap WebGL contexts, so games never make their own). Each frame a
 // game renders its scene into a low-resolution target, a post shader adds the
-// pixel-art look (dithered colour steps, dark outlines at silhouettes, faint
-// scanlines, vignette, plus chromatic split and flash for hits), and the result
-// is blitted into the 2D mini-game overlay with nearest-neighbour scaling, so it
-// reads like the game's live pixel scenes.
+// arcade look (chromatic split, flash, faint scanlines, vignette, light colour
+// steps), and the result is blitted into the 2D mini-game overlay with
+// nearest-neighbour scaling: slightly pixelated, so it still fits the pixel-art game.
 const Mini3D = {
   // Virtual pixels per rendered pixel (Settings > Graphics > 3D Mini-Games).
   get PIXEL() {
     if (this._pixel) return this._pixel;     // thumbnails render sharper
-    return typeof Graphics !== 'undefined' ? Graphics.mini3d().pixel : 3;
+    return typeof Graphics !== 'undefined' ? Graphics.mini3d().pixel : 1.6;
   },
   _pixel: null,
   renderer: null,
@@ -32,8 +31,6 @@ const Mini3D = {
       this.target = new THREE.WebGLRenderTarget(4, 4, {
         minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter, depthBuffer: true,
       });
-      // Depth is read back by the post pass to draw the pixel outline.
-      this.target.depthTexture = new THREE.DepthTexture(4, 4);
       this._buildPost();
       return true;
     } catch (e) {
@@ -48,10 +45,6 @@ const Mini3D = {
     const material = new THREE.ShaderMaterial({
       uniforms: {
         tDiffuse: { value: null },
-        tDepth: { value: null },
-        near: { value: 0.1 },
-        far: { value: 400 },
-        outline: { value: new THREE.Color(0x07080d) },
         resolution: { value: new THREE.Vector2(1, 1) },
         time: { value: 0 },
         aberration: { value: 0 },
@@ -67,25 +60,10 @@ const Mini3D = {
       `,
       fragmentShader: `
         uniform sampler2D tDiffuse;
-        uniform sampler2D tDepth;
         uniform vec2 resolution;
-        uniform float time, aberration, flash, warp, tint, retro, near, far;
-        uniform vec3 flashColor, outline;
+        uniform float time, aberration, flash, warp, tint, retro;
+        uniform vec3 flashColor;
         varying vec2 vUv;
-        float viewZ(vec2 p) {
-          float d = texture2D(tDepth, p).x;
-          return (near * far) / (far - d * (far - near));
-        }
-        // 4x4 Bayer matrix, for the ordered dither of the pixel scenes.
-        float bayer(vec2 p) {
-          vec2 q = mod(floor(p), 4.0);
-          float i = q.x + q.y * 4.0;
-          float m[16];
-          m[0]=0.0; m[1]=8.0; m[2]=2.0; m[3]=10.0; m[4]=12.0; m[5]=4.0; m[6]=14.0; m[7]=6.0;
-          m[8]=3.0; m[9]=11.0; m[10]=1.0; m[11]=9.0; m[12]=15.0; m[13]=7.0; m[14]=13.0; m[15]=5.0;
-          for (int k = 0; k < 16; k++) if (float(k) == i) return m[k] / 16.0 - 0.47;
-          return 0.0;
-        }
         void main() {
           vec2 uv = vUv;
           vec2 c = uv - 0.5;
@@ -100,30 +78,8 @@ const Mini3D = {
           col *= 1.15;
           col = clamp((col * (2.51 * col + 0.03)) / (col * (2.43 * col + 0.59) + 0.14), 0.0, 1.0);
           col = pow(col, vec3(1.0 / 2.2));
-          // Pixel-art colour steps with an ordered dither, like the live scenes.
-          vec2 cell = uv * resolution;
-          col = mix(col, floor(col * 20.0 + 0.5 + bayer(cell) * 0.6) / 20.0, retro);
-          // Dark outline where something stands in front of what is behind it,
-          // so pieces and props read like the game's outlined sprites. 1/depth
-          // changes linearly across any flat surface on screen, so its second
-          // difference is ~0 on walls and floors (even seen edge-on) and only
-          // jumps at silhouettes; the line goes on the nearer side.
-          vec2 px = 1.0 / resolution;
-          float z = viewZ(uv);
-          float zl = viewZ(uv - vec2(px.x, 0.0)), zr = viewZ(uv + vec2(px.x, 0.0));
-          float zd = viewZ(uv - vec2(0.0, px.y)), zu = viewZ(uv + vec2(0.0, px.y));
-          float w = 1.0 / z;
-          float bend = max(abs(1.0 / zl + 1.0 / zr - 2.0 * w), abs(1.0 / zd + 1.0 / zu - 2.0 * w)) / w;
-          // A far neighbour with this surface again just past it is a hairline
-          // crack between tiles, not a silhouette: no line there.
-          float gap = z * 0.04;
-          float behind = 0.0;
-          if (zl - z > gap && abs(viewZ(uv - vec2(2.0 * px.x, 0.0)) - z) > gap) behind = 1.0;
-          if (zr - z > gap && abs(viewZ(uv + vec2(2.0 * px.x, 0.0)) - z) > gap) behind = 1.0;
-          if (zd - z > gap && abs(viewZ(uv - vec2(0.0, 2.0 * px.y)) - z) > gap) behind = 1.0;
-          if (zu - z > gap && abs(viewZ(uv + vec2(0.0, 2.0 * px.y)) - z) > gap) behind = 1.0;
-          float edge = step(0.25, bend) * behind * step(z, far * 0.5);
-          col = mix(col, outline, edge * 0.85);
+          // Light colour steps (a hint of retro banding).
+          col = mix(col, floor(col * 48.0 + 0.5) / 48.0, retro);
           // Scanlines on every other rendered row.
           float line = mod(floor(uv.y * resolution.y), 2.0);
           col *= 1.0 - (0.025 - 0.025 * line) * retro;
@@ -171,9 +127,6 @@ const Mini3D = {
 
     const u = this.post.material.uniforms;
     u.tDiffuse.value = this.target.texture;
-    u.tDepth.value = this.target.depthTexture;
-    u.near.value = camera.near;
-    u.far.value = camera.far;
     u.resolution.value.set(rw, rh);
     u.time.value = performance.now() / 1000;
     u.aberration.value = (fx && fx.aberration) || 0;
@@ -223,7 +176,7 @@ const Mini3D = {
       for (let i = 0; i < 90 && !game.done; i++) game.update(1 / 30);
       game.flash = 0;
       game.banner = null;
-      this._pixel = 2;
+      this._pixel = 1.1;
       game.render(ctx, 0, 0, w, h);
       this._pixel = null;
     } catch (e) {
@@ -287,22 +240,6 @@ const Mini3D = {
       metalness: white ? 0.05 : 0.35,
       flatShading: true,
     });
-  },
-
-  // The active theme's board squares as CSS colours, so mini-game boards match
-  // the board the fight is played on.
-  boardColors() {
-    const cols = typeof ThemeManager !== 'undefined' ? ThemeManager.getCurrentColors() : null;
-    return {
-      light: (cols && cols.lightSquare) || '#e8dcc0',
-      dark: (cols && cols.darkSquare) || '#5a4a7a',
-    };
-  },
-
-  // A checkerboard in the theme's square colours.
-  themeChecker(cells, px) {
-    const b = this.boardColors();
-    return this.checkerTexture(cells, b.light, b.dark, px);
   },
 
   // A checkerboard texture; `cells` squares per side.
@@ -728,47 +665,27 @@ class Game3D {
     ctx.restore();
   }
 
-  // Pixel bar: dark outline, sunk track, the fill with a light top row.
   hudBar(ctx, x, y, w, h, k, color) {
-    x = Math.round(x); y = Math.round(y); w = Math.round(w); h = Math.round(h);
     ctx.save();
-    ctx.fillStyle = '#07080d';
-    MiniGameUtils.pixelRect(ctx, x - 2, y - 2, w + 4, h + 4, 2);
+    ctx.fillStyle = 'rgba(0,0,0,0.55)';
+    MiniGameUtils.roundRect(ctx, x, y, w, h, h / 2);
     ctx.fill();
-    ctx.fillStyle = 'rgba(255,255,255,0.08)';
-    ctx.fillRect(x, y, w, h);
     if (k > 0) {
-      const fw = Math.max(2, Math.round(w * Math.min(1, k)));
       ctx.fillStyle = color;
-      ctx.fillRect(x, y, fw, h);
-      ctx.fillStyle = 'rgba(255,255,255,0.35)';
-      ctx.fillRect(x, y, fw, 2);
-      ctx.fillStyle = 'rgba(0,0,0,0.25)';
-      ctx.fillRect(x, y + h - 2, fw, 2);
+      MiniGameUtils.roundRect(ctx, x + 2, y + 2, Math.max(h - 4, (w - 4) * Math.min(1, k)), h - 4, (h - 4) / 2);
+      ctx.fill();
     }
-    ctx.restore();
-  }
-
-  // Pixel heart, 7x6 cells of `u` pixels, centred on (x, y).
-  static HEART = ['0110110', '1111111', '1111111', '0111110', '0011100', '0001000'];
-  hudHeart(ctx, x, y, full, u = 3) {
-    const rows = Game3D.HEART;
-    const ox = Math.round(x - 3.5 * u), oy = Math.round(y - 3 * u);
-    ctx.save();
-    ctx.fillStyle = '#07080d';
-    rows.forEach((row, r) => [...row].forEach((c, i) => {
-      if (c === '1') ctx.fillRect(ox + i * u - u / 1.5, oy + r * u - u / 1.5, u * 2.33, u * 2.33);
-    }));
-    rows.forEach((row, r) => [...row].forEach((c, i) => {
-      if (c !== '1') return;
-      ctx.fillStyle = !full ? 'rgba(255,255,255,0.18)' : (r === 1 && (i === 1 || i === 2)) ? '#ffc2cc' : r >= 3 ? '#d42a4c' : '#ff4d6d';
-      ctx.fillRect(ox + i * u, oy + r * u, u, u);
-    }));
+    ctx.strokeStyle = 'rgba(255,255,255,0.25)';
+    ctx.lineWidth = 1;
+    MiniGameUtils.roundRect(ctx, x, y, w, h, h / 2);
+    ctx.stroke();
     ctx.restore();
   }
 
   hudHearts(ctx, x, y, n, max) {
-    for (let i = 0; i < max; i++) this.hudHeart(ctx, x + 8 + i * 22, y, i < n);
+    for (let i = 0; i < max; i++) {
+      this.hudText(ctx, '♥', x + i * 22, y, { size: 22, color: i < n ? '#ff4d6d' : 'rgba(255,255,255,0.2)' });
+    }
   }
 
   hudTimer(ctx, x, y) {

@@ -15,7 +15,7 @@ class ShieldBlock extends Game3D {
     scene.fog = new THREE.Fog(0x14102a, 14, 32);
     this.lights({ keyI: 2.4, shadows: true, shadowSize: 8, rim: 0xff6a3d });
 
-    const plat = new THREE.Mesh(new THREE.CylinderGeometry(2.2, 2.6, 0.6, 12), new THREE.MeshStandardMaterial({ map: Mini3D.themeChecker(6, 6), flatShading: true }));
+    const plat = new THREE.Mesh(new THREE.CylinderGeometry(2.2, 2.6, 0.6, 12), new THREE.MeshStandardMaterial({ map: Mini3D.checkerTexture(6, '#d8cff5', '#5a4a8a', 6), flatShading: true }));
     plat.position.y = -0.3;
     plat.receiveShadow = true;
     scene.add(plat);
