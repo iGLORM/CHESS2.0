@@ -379,9 +379,9 @@ I18n.add('pt', {
   'Win {0} Arena rounds in a row': 'Vença {0} rodadas seguidas na Arena', 'Reach stage {0} first': 'Chegue antes à etapa {0}', 'Missions {0} / {1}': 'Missões {0} / {1}',
   'Next lesson': 'Próxima lição', 'Enter': 'Entrar', 'Next battle': 'Próxima batalha', 'Find Them': 'Encontre-os', 'Replay': 'Jogar de novo', 'Train': 'Treinar', 'Fight': 'Lutar',
   'A guardian': 'Um guardião', 'Not found yet. {0} holds it.': 'Ainda não encontrado. Está com {0}.', 'ROAD BLOCKED': 'BLOQUEADO',
-  'Spend stars on rewinds, hints and the plane; coins on paint, characters and themes.': 'Gaste estrelas em voltas, dicas e no avião; moedas em pintura, personagens e temas.',
+  'Spend stars on rewinds, hints and removing pieces; coins on plane paint, characters and themes.': 'Gaste estrelas em voltas, dicas e remover peças; moedas em pintura do avião, personagens e temas.',
   'YOUR PURSE': 'SUA BOLSA', '{0} star{1}  ·  {2} coin{3}': '{0} estrela{1}  ·  {2} moeda{3}', 'Stars come from battles, coins from every win.': 'Estrelas vêm das batalhas; moedas, de cada vitória.',
-  'Stars: rewind a move, get a hint, remove a piece, fly the plane. Coins: plane paint, characters, themes.': 'Estrelas: voltar um lance, uma dica, remover uma peça, voar de avião. Moedas: pintura do avião, personagens, temas.',
+  'Stars: rewind a move, get a hint, remove a piece. Coins: plane paint, characters, themes.': 'Estrelas: voltar um lance, uma dica, remover uma peça. Moedas: pintura do avião, personagens, temas.',
   'A gauntlet of guardians': 'Um desafio de guardiões', 'Best streak {0}  ·  next: round {1}': 'Melhor sequência {0}  ·  próxima: rodada {1}', 'Beat {0} guardians to open it': 'Vença {0} guardiões para abri-la',
   'NEXT OPPONENT': 'PRÓXIMO ADVERSÁRIO', '{0}  ·  +{1} coins': '{0}  ·  +{1} moedas',
   'Fight the guardians you have beaten, one after another. One loss ends the run. Win {0} in a row to open the road to the Obsidian Court.': 'Enfrente os guardiões que você já venceu, um após o outro. Uma derrota encerra a sequência. Vença {0} seguidas para abrir o caminho até a Corte de Obsidiana.',
@@ -396,6 +396,15 @@ I18n.add('pt', {
   'This save starts over from the first stage. Your stars, trophies and themes stay.': 'Este jogo recomeça da primeira etapa. Suas estrelas, troféus e temas ficam.',
   'The freed First Piece plays you first, at full strength. Each guardian adds the rule of the one before, and every bot plays a level stronger.': 'A Primeira Peça libertada joga contra você primeiro, com força total. Cada guardião soma a regra do anterior, e cada bot joga um nível acima.',
   'Land the Plane': 'Pousar', 'Summon the Plane': 'Chamar o avião', 'WASD / ZQSD or arrows to fly  ·  hold the map to steer  ·  Space to land': 'WASD / ZQSD ou setas para voar  ·  segure o mapa para guiar  ·  Espaço para pousar',
+  // Pawnie's gift (the plane) and the flight zone.
+  'A gift from Pawnie': 'Um presente do Pawnie',
+  'The plane is yours!': 'O avião é teu!',
+  'Wait! Before you go any further... come and see what Grandpa kept in the old hangar.': 'Espera! Antes de ires mais longe... vem ver o que o avô guardava no velho hangar.',
+  'His plane! She hasn\'t flown since the rifts opened. But the world stopped breaking when you landed, so maybe she can fly again.': 'O avião dele! Não voa desde que as fendas se abriram. Mas o mundo parou de se partir quando chegaste, por isso talvez possa voar outra vez.',
+  'She\'s yours now. She\'ll take you over every land you have opened, and on to the next stop. Follow the yellow marker!': 'Agora é teu. Leva-te por todas as terras que abriste, e até à próxima paragem. Segue a marca amarela!',
+  'Summon it on the world map and fly over every land you have opened.': 'Chama-o no mapa do mundo e voa sobre todas as terras que abriste.',
+  'The story has not opened this land yet. Next stop: {0}': 'A história ainda não abriu esta terra. Próxima paragem: {0}',
+  'The story has not opened this land yet.': 'A história ainda não abriu esta terra.',
 
   // World missions
   'Arrow keys to choose  ·  Enter to play': 'Setas para escolher  ·  Enter para jogar', 'Restored  ·  replay any stop': 'Restaurado  ·  rejogue qualquer parada',

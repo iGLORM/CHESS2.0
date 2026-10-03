@@ -2,6 +2,7 @@
 //
 // 320x200, drawn in code and scaled up with nearest-neighbour. Shown on the world map
 // when Pawnie hands you the plane after your first game (WorldMapScreen._planeGift).
+// State { gone: true } leaves the strip empty: the map screen's own plane has taken off.
 // The low sun on the right warms the plane's wings against the cool shade of the old
 // wooden hangar on the left, its doors flung open, a lantern still lit inside. The
 // cream-and-red biplane (the same paint as on the map) idles on the mown strip, its
@@ -253,10 +254,11 @@ LiveScenes.register({
     const NOSE = { x: PX0 + 91, y: PY0 + CY };
     const EXH = { x: PX0 + 70, y: PY0 + CY + 7 };
     // Its shadow on the grass.
+    const SHADOW = [];
     for (let y = -3; y <= 3; y++) for (let x = -48; x <= 48; x++) {
-      if (sq(x / 48) + sq(y / 3.5) > 1) continue;
-      blend(BACK, (PY0 + 48 + y) * W + PX0 + 52 + x, C('#1a3028'), 0.5);
+      if (sq(x / 48) + sq(y / 3.5) <= 1) SHADOW.push((PY0 + 48 + y) * W + PX0 + 52 + x);
     }
+    const SHADC = C('#1a3028');
 
     // ---------- the near grass bank (in front of everything) ----------
     const bank = x => 188 + 4 * fbm1(x / 20, 81);
@@ -288,7 +290,7 @@ LiveScenes.register({
     const MOTES = Array.from({ length: 36 }, (_, i) => ({ x0: hash(i, 21), y0: 60 + hash(i, 22) * 110, ky: 6 + (hash(i, 23) * 8 | 0), p: hash(i, 24) * TAU, k: 1 + (i % 2) }));
     const vig = kit.vignette(C('#140c20'), 0.32, 0.4);
 
-    function frame(t) {
+    function frame(t, gone) {
       const u = t / LOOP;
       buf.set(SKYB);
       for (const s of STARS) if (Math.sin(TAU * s.k * u + s.p) > 0.3) put(buf, s.x, s.y, C('#fff6dc'));
@@ -320,8 +322,9 @@ LiveScenes.register({
         kit.rect(buf, LANTERN.x - 1, LANTERN.y - 1, 3, 1, C('#3a2a20'));
         kit.rect(buf, LANTERN.x - 1, LANTERN.y, 3, 3, f > 0.82 ? C('#fff0b0') : LAMP);
       }
+      if (!gone) for (const i of SHADOW) blend(buf, i, SHADC, 0.5);
       // Exhaust puffs drift back from the idling engine.
-      for (let i = 0; i < 14; i++) {
+      if (!gone) for (let i = 0; i < 14; i++) {
         const v = frac(30 * u + i / 14);
         const x = EXH.x - v * 46, y = EXH.y - v * 14 + Math.sin(v * 7 + i) * 1.5, r = 0.8 + v * 3;
         const col = v < 0.35 ? SMOKE : SMOKE2, a = (1 - v) * 0.4;
@@ -329,9 +332,9 @@ LiveScenes.register({
       }
       // The plane shakes on its idling engine.
       const shake = Math.sin(TAU * 480 * u) > 0.4 ? 1 : 0;
-      kit.blit(buf, PL, PX0, PY0 - shake);
+      if (!gone) kit.blit(buf, PL, PX0, PY0 - shake);
       // Propeller: a pale blur with a blade flicking through it.
-      {
+      if (!gone) {
         const nx = NOSE.x, ny = NOSE.y - shake;
         for (let y = -14; y <= 14; y++) {
           const e = 1 - sq(y / 14.5);
@@ -345,7 +348,7 @@ LiveScenes.register({
         if (Math.abs(ext) > 10) { put(buf, nx, ny + ext, C('#ffe080')); put(buf, nx, ny - ext, C('#ffe080')); }
       }
       // A glint runs along the top wing now and then.
-      {
+      if (!gone) {
         const v = frac(8 * u);
         if (v < 0.18) {
           const gx = Math.round(PX0 + 32 + v / 0.18 * 46), dip = y0 => y0 + - shake;
@@ -392,6 +395,6 @@ LiveScenes.register({
       vig(buf);
     }
 
-    return (t, out) => { buf = out; frame(t); };
+    return (t, out, state) => { buf = out; frame(t, !!(state && state.gone)); };
   },
 });

@@ -3,7 +3,7 @@ const test = require('node:test');
 const assert = require('node:assert');
 const fs = require('fs');
 const path = require('path');
-const { stats } = require('../scripts/live-scene.js');
+const { stats, loadScene } = require('../scripts/live-scene.js');
 
 const dir = path.join(__dirname, '../src/themes/scenes');
 const scenes = fs.readdirSync(dir).filter(f => f.endsWith('.js') && f !== 'PixelKit.js').map(f => f.slice(0, -3));
@@ -20,3 +20,12 @@ for (const id of scenes) {
     assert.ok(s.ms < 40, `${s.ms.toFixed(1)} ms per frame is too slow`);
   });
 }
+
+test('the Bazaar holds southern Africa, not the worlds to the north', () => {
+  const { def } = loadScene('worldmap');
+  const [sx, sy] = def.places.shop;
+  assert.ok(def.shopLand(sx, sy), 'its own landmark');
+  assert.ok(def.shopLand(88, 240), 'the Cape');
+  assert.ok(def.shopLand(132, 220), 'Madagascar');
+  for (const id of ['slantedsands', 'royalpalace', 'trainingcamp', 'arena']) assert.ok(!def.shopLand(...def.places[id]), id);
+});

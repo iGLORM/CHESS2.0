@@ -110,8 +110,11 @@ story starts at once: the prologue, then your first match, against Pawnie, plain
 - **Off the path:** the
   friendly guardians ask favours (three-match side quests with a prize); the Arena in Australia is a gauntlet of
   every guardian you have beaten.
-- **The Bazaar (shop):** in the middle of Africa on the map. Stars from battles buy rewinds, hints, removing an
-  enemy piece and the plane (the big prize, 60 stars): summon it on the map and fly anywhere with WASD or ZQSD. Coins from every win buy plane
+- **The plane:** Pawnie gives you his grandpa's old biplane after your first game. Summon it on the map and fly
+  with WASD or ZQSD over every land the story has opened, and on to the next stop; a yellow marker always shows
+  where to go next (an arrow at the screen's edge points to it when it is out of view).
+- **The Bazaar (shop):** its land is all of southern Africa on the map. Stars from battles buy rewinds, hints and
+  removing an enemy piece. Coins from every win buy plane
   paint, new characters (be a king, a queen, a knight... in another colour or another world's piece set) and world
   themes early. Everything costs three times what it used to.
 - **Themes:** story mode always shows the theme of the world you are in; everywhere else you pick any theme whose
