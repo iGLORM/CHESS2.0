@@ -175,9 +175,12 @@ defaults reproduce the old fixed behaviour. `tests/graphics.test.js` covers pres
 settings keys still match (e.g. `ReactionTest` is "Quick Draw", `BarBalance` is "Tightrope");
 `MiniGameManager.GAMES_3D()` is the list. `MiniGameManager` (in `src/minigames/`, with `MiniGameUtils`)
 runs them on the overlay canvas. Without WebGL, captures skip the challenge.
-- `src/minigames3d/Mini3D.js` — one shared WebGLRenderer (never create another), a low-res render target
-  plus a retro post shader (tone map, chromatic split, scanlines, flash), blitted into the 2D overlay with
-  nearest scaling. Also `Pieces3D` (low-poly lathe chess pieces, coloured by sampling the active theme's
+- `src/minigames3d/Mini3D.js` — one shared WebGLRenderer (never create another), a render target at the
+  screen's own pixels (`Mini3D.PIXEL` = screen pixels per rendered pixel: 1.33 at Medium, 1 at High, 0.75
+  supersampled at Ultra; capped at `MAX_SIDE`) plus a post shader (tone map, light sharpen, a dark outline
+  about 2.5 game units thick at silhouettes found from the depth buffer, chromatic split, scanlines, flash),
+  drawn into the 2D overlay without blowing it up, so the games stay crisp. The owner did not want the
+  chunky pixelated, dithered look (tried and reverted 2026-10-03): keep them sharp, with outlines. Also `Pieces3D` (low-poly lathe chess pieces, coloured by sampling the active theme's
   piece sprites via `Mini3D.themePalette`; games build the player with `playerPiece()`, which is the
   captured piece plus a green ring), `Burst3D` (instanced debris), `Sfx3D`, and
   the `Game3D` base class (HUD helpers, pointer/key state, `bot(dt)` steering, `timeLimit`, `cleanup`).

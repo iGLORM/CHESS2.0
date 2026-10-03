@@ -2,16 +2,19 @@
 //
 // One WebGL renderer is created on first use and kept for the whole session
 // (browsers cap WebGL contexts, so games never make their own). Each frame a
-// game renders its scene into a low-resolution target, a post shader adds the
-// arcade look (chromatic split, flash, faint scanlines, vignette, light colour
-// steps), and the result is blitted into the 2D mini-game overlay with
-// nearest-neighbour scaling: slightly pixelated, so it still fits the pixel-art game.
+// game renders its scene into a target at the screen's own resolution, a post
+// shader adds the arcade look (dark outlines at silhouettes, a light sharpen,
+// chromatic split, flash, faint scanlines, vignette, light colour steps), and
+// the result is drawn into the 2D mini-game overlay pixel for pixel, so it stays crisp.
 const Mini3D = {
-  // Virtual pixels per rendered pixel (Settings > Graphics > 3D Mini-Games).
+  // Screen pixels per rendered pixel (Settings > Graphics > 3D Mini-Games);
+  // below 1 renders bigger and scales down (supersampling).
   get PIXEL() {
-    if (this._pixel) return this._pixel;     // thumbnails render sharper
-    return typeof Graphics !== 'undefined' ? Graphics.mini3d().pixel : 1.6;
+    if (this._pixel) return this._pixel;     // thumbnails
+    return typeof Graphics !== 'undefined' ? Graphics.mini3d().pixel : 1.33;
   },
+  // Rendered size is capped so huge screens stay fast.
+  MAX_SIDE: 2560,
   _pixel: null,
   renderer: null,
   target: null,
@@ -31,6 +34,8 @@ const Mini3D = {
       this.target = new THREE.WebGLRenderTarget(4, 4, {
         minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter, depthBuffer: true,
       });
+      // Depth is read back by the post pass to draw the outlines.
+      this.target.depthTexture = new THREE.DepthTexture(4, 4);
       this._buildPost();
       return true;
     } catch (e) {
@@ -45,6 +50,12 @@ const Mini3D = {
     const material = new THREE.ShaderMaterial({
       uniforms: {
         tDiffuse: { value: null },
+        tDepth: { value: null },
+        near: { value: 0.1 },
+        far: { value: 400 },
+        outline: { value: new THREE.Color(0x07080d) },
+        edgePx: { value: 1 },
+        sharpen: { value: 0.35 },
         resolution: { value: new THREE.Vector2(1, 1) },
         time: { value: 0 },
         aberration: { value: 0 },
@@ -60,10 +71,15 @@ const Mini3D = {
       `,
       fragmentShader: `
         uniform sampler2D tDiffuse;
+        uniform sampler2D tDepth;
         uniform vec2 resolution;
-        uniform float time, aberration, flash, warp, tint, retro;
-        uniform vec3 flashColor;
+        uniform float time, aberration, flash, warp, tint, retro, near, far, edgePx, sharpen;
+        uniform vec3 flashColor, outline;
         varying vec2 vUv;
+        float viewZ(vec2 p) {
+          float d = texture2D(tDepth, p).x;
+          return (near * far) / (far - d * (far - near));
+        }
         void main() {
           vec2 uv = vUv;
           vec2 c = uv - 0.5;
@@ -74,12 +90,38 @@ const Mini3D = {
           col.r = texture2D(tDiffuse, uv + dir).r;
           col.g = texture2D(tDiffuse, uv).g;
           col.b = texture2D(tDiffuse, uv - dir).b;
+          // Light sharpen: push each pixel away from its neighbours' average.
+          vec2 px = 1.0 / resolution;
+          vec3 around = texture2D(tDiffuse, uv + vec2(px.x, 0.0)).rgb + texture2D(tDiffuse, uv - vec2(px.x, 0.0)).rgb
+                      + texture2D(tDiffuse, uv + vec2(0.0, px.y)).rgb + texture2D(tDiffuse, uv - vec2(0.0, px.y)).rgb;
+          col = max(col + (col - around * 0.25) * sharpen, 0.0);
           // Render targets hold linear light: tone map and gamma-encode here.
           col *= 1.15;
           col = clamp((col * (2.51 * col + 0.03)) / (col * (2.43 * col + 0.59) + 0.14), 0.0, 1.0);
           col = pow(col, vec3(1.0 / 2.2));
           // Light colour steps (a hint of retro banding).
           col = mix(col, floor(col * 48.0 + 0.5) / 48.0, retro);
+          // Dark outline where something stands in front of what is behind it,
+          // so pieces and props read like the game's outlined sprites. 1/depth
+          // changes linearly across any flat surface on screen, so its second
+          // difference is ~0 on walls and floors (even seen edge-on) and only
+          // jumps at silhouettes; the line goes on the nearer side.
+          vec2 o = px * edgePx;
+          float z = viewZ(uv);
+          float zl = viewZ(uv - vec2(o.x, 0.0)), zr = viewZ(uv + vec2(o.x, 0.0));
+          float zd = viewZ(uv - vec2(0.0, o.y)), zu = viewZ(uv + vec2(0.0, o.y));
+          float w = 1.0 / z;
+          float bend = max(abs(1.0 / zl + 1.0 / zr - 2.0 * w), abs(1.0 / zd + 1.0 / zu - 2.0 * w)) / w;
+          // A far neighbour with this surface again just past it is a hairline
+          // crack between tiles, not a silhouette: no line there.
+          float gap = z * 0.02;
+          float behind = 0.0;
+          if (zl - z > gap && abs(viewZ(uv - vec2(2.0 * o.x, 0.0)) - z) > gap) behind = 1.0;
+          if (zr - z > gap && abs(viewZ(uv + vec2(2.0 * o.x, 0.0)) - z) > gap) behind = 1.0;
+          if (zd - z > gap && abs(viewZ(uv - vec2(0.0, 2.0 * o.y)) - z) > gap) behind = 1.0;
+          if (zu - z > gap && abs(viewZ(uv + vec2(0.0, 2.0 * o.y)) - z) > gap) behind = 1.0;
+          float edge = step(0.25, bend) * behind * step(z, far * 0.5);
+          col = mix(col, outline, edge * 0.95);
           // Scanlines on every other rendered row.
           float line = mod(floor(uv.y * resolution.y), 2.0);
           col *= 1.0 - (0.025 - 0.025 * line) * retro;
@@ -104,8 +146,12 @@ const Mini3D = {
   // Renders `scene` through the post pass and draws it into the 2D overlay.
   draw(ctx, scene, camera, x, y, w, h, fx) {
     if (!this.available()) throw new Error('WebGL is not available');
-    const rw = Math.max(32, Math.round(w / this.PIXEL));
-    const rh = Math.max(32, Math.round(h / this.PIXEL));
+    // The overlay is drawn in game units scaled to the screen: render at the
+    // screen's own pixels so nothing is blown up.
+    const screen = Math.abs(ctx.getTransform().a) || 1;
+    const k = Math.min(screen / this.PIXEL, this.MAX_SIDE / Math.max(w, h));
+    const rw = Math.max(32, Math.round(w * k));
+    const rh = Math.max(32, Math.round(h * k));
     const r = this.renderer;
     const quality = typeof Graphics !== 'undefined' ? Graphics.mini3d() : { shadows: true };
     if (r.shadowMap.enabled !== quality.shadows) {
@@ -127,6 +173,11 @@ const Mini3D = {
 
     const u = this.post.material.uniforms;
     u.tDiffuse.value = this.target.texture;
+    u.tDepth.value = this.target.depthTexture;
+    u.near.value = camera.near;
+    u.far.value = camera.far;
+    // Outline about 2.5 game units thick, whatever the resolution.
+    u.edgePx.value = Math.max(1, 2.5 * k);
     u.resolution.value.set(rw, rh);
     u.time.value = performance.now() / 1000;
     u.aberration.value = (fx && fx.aberration) || 0;
@@ -138,7 +189,8 @@ const Mini3D = {
     r.render(this.post.scene, this.post.camera);
 
     const smoothing = ctx.imageSmoothingEnabled;
-    ctx.imageSmoothingEnabled = false;
+    // Scaling down (supersampled) wants smoothing; scaling up stays crisp.
+    ctx.imageSmoothingEnabled = rw > w * screen + 1;
     ctx.drawImage(r.domElement, x, y, w, h);
     ctx.imageSmoothingEnabled = smoothing;
   },
@@ -176,7 +228,7 @@ const Mini3D = {
       for (let i = 0; i < 90 && !game.done; i++) game.update(1 / 30);
       game.flash = 0;
       game.banner = null;
-      this._pixel = 1.1;
+      this._pixel = 1;
       game.render(ctx, 0, 0, w, h);
       this._pixel = null;
     } catch (e) {
