@@ -1,10 +1,13 @@
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow, ipcMain, screen } = require('electron');
 const path = require('path');
 const fs = require('fs');
 
 // CHESS2_HEADLESS=1 runs the game in a hidden window (for automated testing
 // over --remote-debugging-port) without pausing rendering in the background.
 const HEADLESS = !!process.env.CHESS2_HEADLESS;
+
+// CHESS2_USER_DATA=<dir> runs with its own saves (a test copy never touches the owner's).
+if (process.env.CHESS2_USER_DATA) app.setPath('userData', path.resolve(process.env.CHESS2_USER_DATA));
 
 // Window preferences (fullscreen) persist between launches.
 const prefsPath = () => path.join(app.getPath('userData'), 'window.json');
@@ -82,6 +85,17 @@ ipcMain.handle('is-fullscreen', (event) => {
 
 ipcMain.on('quit-app', () => app.quit());
 
+// Settings > Display > Resolution in a window: size the window's content, never
+// larger than the screen it is on. Fullscreen windows are left alone.
+ipcMain.on('set-window-size', (event, w, h) => {
+  const win = BrowserWindow.fromWebContents(event.sender);
+  if (!win || win.isFullScreen()) return;
+  const area = screen.getDisplayMatching(win.getBounds()).workAreaSize;
+  const scale = Math.min(1, area.width / w, area.height / h);
+  win.setContentSize(Math.max(960, Math.round(w * scale)), Math.max(600, Math.round(h * scale)));
+  win.center();
+});
+
 // Developer-only screenshot helpers; never active in a packaged build.
 function setupDevScreenshot(win) {
   const triggerPath = path.join(__dirname, '.screenshot-trigger');
@@ -95,6 +109,14 @@ function setupDevScreenshot(win) {
   }, 500);
   app.on('will-quit', () => clearInterval(intervalId));
 }
+
+// Let the theme song start as soon as the game boots, without waiting for a click.
+app.commandLine.appendSwitch('autoplay-policy', 'no-user-gesture-required');
+// Draw as many frames as Settings > Display > Frame Limit asks for, not only as many as
+// the screen refreshes (a 60 Hz screen would hold 90, 120... and Unlimited at 60).
+// The game paces itself to the chosen limit (Graphics.pacer, Pixi ticker maxFPS).
+app.commandLine.appendSwitch('disable-frame-rate-limit');
+app.commandLine.appendSwitch('disable-gpu-vsync');
 
 if (!app.requestSingleInstanceLock()) {
   app.quit();

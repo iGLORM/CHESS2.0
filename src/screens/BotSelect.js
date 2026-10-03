@@ -138,7 +138,7 @@ const BotSelect = {
     });
 
     const btnY = PixiPremiumScene.bottomButtonY();
-    PixiPremiumScene.button(this.pixiContainer, 36, btnY, 160, 44, 'Back', () => switchScreen('home'), { icon: 'back' });
+    PixiPremiumScene.button(this.pixiContainer, 36, btnY, 160, 44, 'Back', () => switchScreen('playMenu'), { icon: 'back' });
     PixiPremiumScene.button(this.pixiContainer, Layout.W - 256, PixiPremiumScene.bottomButtonY(52), 220, 52, 'Start Game', () => this.startGame(), { primary: true, icon: 'play', fontSize: 22 });
   },
 
@@ -154,7 +154,7 @@ const BotSelect = {
 
   handleKeyDown(e) {
     if (e.key === 'Escape') {
-      switchScreen('home');
+      switchScreen('playMenu');
       return;
     }
     if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {

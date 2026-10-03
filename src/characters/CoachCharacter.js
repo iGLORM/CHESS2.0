@@ -72,9 +72,9 @@ const CoachCharacter = {
       'The answer involves {square}.',
     ],
     reveal: [
-      'The solution is {move}. Here is why: {concept}.',
-      'The correct move was {move}. {concept}.',
-      'Let me show you: {move}. {concept}.',
+      'The solution is {move}. {concept}',
+      'The correct move was {move}. {concept}',
+      'Let me show you: {move}. {concept}',
     ],
     encouragement: [
       'Keep going. Every puzzle makes you stronger.',
@@ -105,9 +105,32 @@ const CoachCharacter = {
       'You will get {tag} positions — keep at it. They click with repetition.',
     ],
     customPuzzle: [
-      'Interesting position. Let me analyze it for you.',
-      'Let us see what Stockfish thinks about this setup.',
-      'An original creation! I will find the best move.',
+      'Your position, your move. I will play the other side.',
+      'Interesting setup. Let us play it out.',
+      'An original creation! Show me how you would win it.',
+    ],
+    alsoWorks: [
+      'That works too! Not the move I had in mind, but it wins just as well.',
+      'A different path to the same result. Well spotted!',
+    ],
+    checking: [
+      'Hmm, let me check that move...',
+    ],
+    opponentThinking: [
+      'My move. Let me think...',
+      'Now it is my turn.',
+    ],
+    sandboxWin: [
+      'Checkmate! You won the position.',
+      'You converted it. Well played!',
+    ],
+    sandboxLoss: [
+      'Checkmate. That one got away. Try again?',
+      'I found a mate. Set it up again and look for a better plan.',
+    ],
+    sandboxDraw: [
+      'It is a draw. Can you find a way to win it?',
+      'Drawn. Try a different plan next time.',
     ],
     returnVisit: [
       'Welcome back! Ready to continue where we left off?',
@@ -119,11 +142,8 @@ const CoachCharacter = {
   getLine(category, replacements = {}) {
     const pool = this.dialogue[category];
     if (!pool || pool.length === 0) return '';
-    let line = pool[Math.floor(Math.random() * pool.length)];
-    for (const [key, value] of Object.entries(replacements)) {
-      line = line.replace(`{${key}}`, value);
-    }
-    return line;
+    const line = pool[Math.floor(Math.random() * pool.length)];
+    return I18n.fill(line, replacements);
   },
 
   getMoveQualityLine(quality) {

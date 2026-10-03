@@ -128,19 +128,33 @@ const PauseMenu = {
     const buttons = [
       { text: 'Resume', action: 'resume', y: firstBtnY },
       { text: 'Settings', action: 'settings', y: firstBtnY + (btnH + btnGap) },
-      { text: 'Surrender', action: 'surrender', y: firstBtnY + (btnH + btnGap) * 2 },
+      { text: this._isLesson() ? 'Leave' : 'Surrender', action: 'surrender', y: firstBtnY + (btnH + btnGap) * 2 },
       { text: 'Quit to Menu', action: 'quit', y: firstBtnY + (btnH + btnGap) * 3 },
     ];
 
+    const surrenderOff = !this._canSurrender();
     for (const btn of buttons) {
-      const isHover = this.hoveredBtn === btn.action;
-      UIHelpers.drawButton(ctx, btnX, btn.y, btnW, btnH, btn.text, cols, { font: 'bold ' + btnFs + 'px "Pixelify Sans", sans-serif', hover: isHover, radius: 10 });
+      const off = btn.action === 'surrender' && surrenderOff;
+      const isHover = !off && this.hoveredBtn === btn.action;
+      if (off) ctx.globalAlpha = this.fadeTimer * 0.45;
+      UIHelpers.drawButton(ctx, btnX, btn.y, btnW, btnH, btn.text, cols, { font: 'bold ' + btnFs + 'px "Pixelify Sans", sans-serif', hover: isHover, radius: 10, textColor: off ? '#8a8a8a' : undefined });
+      if (off) ctx.globalAlpha = this.fadeTimer;
       btn._bounds = { x: btnX, y: btn.y, w: btnW, h: btnH };
     }
 
     this._btnLayout = { x: btnX, w: btnW, h: btnH, gap: btnGap, firstY: firstBtnY };
 
     ctx.restore();
+  },
+
+  // Greyed out in the opening Pawnie game of a new save (GameScreen.canSurrender).
+  _canSurrender() {
+    return typeof GameScreen === 'undefined' || typeof GameScreen.canSurrender !== 'function' || GameScreen.canSurrender();
+  },
+
+  // Training Camp lessons say Leave instead (GameScreen.isLesson).
+  _isLesson() {
+    return typeof GameScreen !== 'undefined' && typeof GameScreen.isLesson === 'function' && GameScreen.isLesson();
   },
 
   _inBounds(x, y, b) {
@@ -165,6 +179,7 @@ const PauseMenu = {
     for (let i = 0; i < actions.length; i++) {
       const btnY = bl.firstY + (bl.h + bl.gap) * i;
       if (x >= bl.x && x <= bl.x + bl.w && y >= btnY && y <= btnY + bl.h) {
+        if (actions[i] === 'surrender' && !this._canSurrender()) break;
         this.hoveredBtn = actions[i];
         canvas.style.cursor = 'pointer';
         return;
@@ -198,10 +213,12 @@ const PauseMenu = {
     for (let i = 0; i < actions.length; i++) {
       const btnY = bl.firstY + (bl.h + bl.gap) * i;
       if (x >= bl.x && x <= bl.x + bl.w && y >= btnY && y <= btnY + bl.h) {
+        if (actions[i] === 'surrender' && !this._canSurrender()) return;
         if (typeof audioManager !== 'undefined' && typeof audioManager.playButton === 'function') audioManager.playButton();
         const action = actions[i];
         if (action === 'resume') this.hide();
         else if (action === 'settings') { this.hide(); switchScreen('settings', { returnTo: 'game' }); }
+        else if (action === 'surrender' && this._isLesson()) { this.hide(); GameScreen.leaveLesson(); }
         else if (action === 'surrender') { this.confirmSurrender = true; }
         else if (action === 'quit') {
           this.hide();

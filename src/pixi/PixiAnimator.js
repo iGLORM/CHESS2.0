@@ -25,7 +25,7 @@ const PixiAnimator = {
 
     for (let i = 1; i < steps; i++) {
       setTimeout(() => {
-        if (!sprite || !sprite.texture) return;
+        if (!sprite || sprite.destroyed || !sprite.texture || parent.destroyed) return;
         const trail = new PIXI.Sprite(sprite.texture);
         trail.anchor.set(0.5);
         trail.x = fromX + dx * i;
@@ -35,11 +35,11 @@ const PixiAnimator = {
         trail.tint = 0xffffff;
         parent.addChildAt(trail, 0);
 
+        const fade = { duration: 0.2 + (steps - i) * 0.02, ease: 'power2.out' };
+        gsap.to(trail.scale, { x: 0, y: 0, ...fade });
         gsap.to(trail, {
           alpha: 0,
-          scale: { x: 0, y: 0 },
-          duration: 0.2 + (steps - i) * 0.02,
-          ease: 'power2.out',
+          ...fade,
           onComplete: () => {
             if (trail.parent) trail.parent.removeChild(trail);
             trail.destroy();
@@ -86,6 +86,7 @@ const PixiAnimator = {
   },
 
   screenShake(container, intensity, duration) {
+    if (typeof Graphics !== 'undefined' && !Graphics.shake()) return;
     const originalX = container.x || 0;
     const originalY = container.y || 0;
     gsap.to(container, {
@@ -125,3 +126,25 @@ const PixiAnimator = {
     gsap.killTweensOf(target);
   },
 };
+
+// A tween still running on a destroyed display object throws on every GSAP
+// tick (its position/scale are gone), and that stops every other tween too:
+// pieces freeze mid-move and screens stop responding. So anything that is
+// destroyed takes its tweens with it. (Children are destroyed one by one,
+// so a whole screen is covered.)
+(function killTweensOnDestroy() {
+  if (typeof PIXI === 'undefined' || typeof gsap === 'undefined') return;
+  const proto = PIXI.Container.prototype;
+  if (proto._killsTweens) return;
+  const destroy = proto.destroy;
+  proto.destroy = function (options) {
+    if (!this.destroyed) {
+      gsap.killTweensOf(this);
+      for (const point of [this._position, this._scale, this._pivot, this._skew]) {
+        if (point) gsap.killTweensOf(point);
+      }
+    }
+    return destroy.call(this, options);
+  };
+  proto._killsTweens = true;
+})();

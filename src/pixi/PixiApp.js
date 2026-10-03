@@ -21,6 +21,9 @@ const PixiApp = {
       preference: 'webgl',
     }).then(() => {
       PIXI.TextureSource.defaultOptions.scaleMode = 'nearest';
+      // The game loop in main.js drives the ticker (ticker.update), so one frame limit
+      // (Settings > Display > Frame Limit, Graphics.pacer) paces both canvases.
+      this.app.ticker.stop();
       this.stage = this.app.stage;
       this.initialized = true;
     });

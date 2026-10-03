@@ -27,6 +27,7 @@ class UIHelpers {
   }
 
   static truncateText(ctx, text, maxWidth) {
+    text = I18n.display(text);
     if (ctx.measureText(text).width <= maxWidth) return text;
     let truncated = text;
     while (truncated.length > 0 && ctx.measureText(truncated + '...').width > maxWidth) {
@@ -36,6 +37,7 @@ class UIHelpers {
   }
 
   static wrapText(ctx, text, x, y, maxWidth, lineHeight, maxLines) {
+    text = I18n.display(text);
     const words = text.split(' ');
     let line = '';
     let lineNum = 0;
@@ -505,8 +507,10 @@ class UIHelpers {
         break;
 
       case 'king':
-        ctx.fillRect(x + p * 3, y, p * 2, p); // cross top
-        ctx.fillRect(x + p * 3, y + p, p * 2, p); // cross
+        ctx.fillRect(x + p * 3, y, p * 2, p); // crown ball
+        ctx.fillRect(x + p, y + p, p, p); // crown points
+        ctx.fillRect(x + p * 3, y + p, p * 2, p);
+        ctx.fillRect(x + p * 6, y + p, p, p);
         ctx.fillRect(x + p, y + p * 2, p * 6, p * 2); // crown body
         ctx.fillRect(x, y + p * 2, p * 8, p); // crown base
         ctx.fillRect(x + p * 2, y + p * 4, p * 4, p * 3); // body

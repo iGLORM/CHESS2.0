@@ -1,176 +1,204 @@
+// How to Play: topic tiles on the left (same layout as Settings), the lesson on the
+// right: a headline, the rules as pixel bullets, and a key table for Controls.
 const HowToPlay = {
   isPixiScreen: true,
   pixiContainer: null,
+  _topic: 'basics',
 
-  sections: [
+  TOPICS: [
     {
-      title: 'Chess Basics',
-      icon: 'progress',
+      id: 'basics', title: 'Basics', sub: 'Moving and winning',
+      art: [{ type: 'king', color: 'white', scale: 0.9 }],
+      lead: 'Checkmate the enemy king to win.',
       lines: [
-        'Select a piece, then choose one of its highlighted legal squares.',
-        'Capture by moving onto an occupied enemy square.',
-        'Win by checkmating the opposing king.',
+        'Click a piece, then one of its highlighted squares to move it.',
+        'Capture by moving onto a square held by an enemy piece.',
+        'Check means the king is attacked and must escape at once. No escape is checkmate.',
+        'Stalemate, repeating the same position three times and the 50-move rule are draws.',
       ],
     },
     {
-      title: 'Capture Challenges',
-      icon: 'play',
+      id: 'captures', title: 'Captures', sub: 'Fight for every piece',
+      art: [{ type: 'knight', color: 'white', dx: -0.2, scale: 0.8, flip: true }, { type: 'knight', color: 'black', dx: 0.2, scale: 0.8 }],
+      lead: 'A capture can be fought over in a mini-game.',
       lines: [
-        'Each side has 2 Defenses and earns 1 more every 2 captures.',
-        'When a piece is captured, its owner can spend a Defense on a mini-game.',
-        'Win it and the capture is cancelled; the attacker loses their turn.',
-        'Captures that get a king out of check cannot be blocked.',
+        'Each side starts with 2 Defenses and earns 1 more for every 2 captures.',
+        'When one of your pieces is taken, spend a Defense to play a short mini-game.',
+        'Win it and the capture is cancelled: your piece stays and the attacker loses the turn.',
+        'A capture that gets a king out of check can never be blocked.',
       ],
+      action: { label: 'Practise Mini-Games', icon: 'play', go: () => switchScreen('miniGamePractice', { from: 'howToPlay' }) },
     },
     {
-      title: 'Story Progress',
-      icon: 'save',
+      id: 'story', title: 'Story', sub: '15 stages, 11 worlds',
+      art: [{ type: 'pawn', color: 'white', dx: -0.22, dy: 0.08, scale: 0.62 }, { type: 'king', color: 'black', dx: 0.18, scale: 0.86 }],
+      lead: 'Wake in Pawn Hollow and restore the broken Great Board.',
       lines: [
-        'Pick a save slot and climb through ten opponents.',
-        'Each victory unlocks the next character.',
-        'Difficulty rises as your story level increases.',
+        'Pick a save slot. The story has 15 stages across 11 worlds.',
+        'Beat Pawnie and the five trainers of the Training Camp, then face nine guardians.',
+        'Each guardian world has seven missions; clear them all to open the guardian\'s fight.',
+        'Every guardian plays with a twist: walls, fog, a clock, rewinds and more.',
       ],
+      action: { label: 'Play Story', icon: 'play', go: () => { store.set('mode', 'story'); switchScreen('characterSelect'); } },
     },
     {
-      title: 'Controls',
-      icon: 'settings',
+      id: 'training', title: 'Training', sub: 'Puzzles and practice',
+      art: [{ type: 'pawn', color: 'white', dx: -0.22, dy: 0.08, scale: 0.62 }, { type: 'rook', color: 'black', dx: 0.2, scale: 0.82 }],
+      lead: 'Sharpen your tactics at your own pace.',
       lines: [
-        'Click a piece, then a highlighted square. Esc pauses.',
-        'U undoes your last move, F flips the board.',
-        'Arrow keys step back and forward through the game.',
-        'F11 or Alt+Enter toggles fullscreen.',
+        '30 puzzles in six sets of five, from simple captures to endgames.',
+        'Solve quickly without hints for three stars; showing the answer gives one.',
+        'Mini-Games lets you play any capture challenge outside a match.',
+        'The Board Editor sets up any position to play out against Stockfish.',
+      ],
+      action: { label: 'Open Training', icon: 'play', go: () => switchScreen('trainingHub') },
+    },
+    {
+      id: 'controls', title: 'Controls', sub: 'Keys and mouse',
+      art: [{ type: 'queen', color: 'white', scale: 0.9 }],
+      lead: 'Play with the mouse or touch; these keys help.',
+      keys: [
+        ['Click', 'Select a piece, then its square'],
+        ['Esc', 'Pause the game, or go back in menus'],
+        ['U', 'Undo your last move'],
+        ['F', 'Flip the board'],
+        ['Left / Right', 'Step back and forward through the game'],
+        ['F11', 'Fullscreen (also Alt + Enter)'],
       ],
     },
   ],
 
-  init() {
+  init(data) {
+    if (data && data.topic) this._topic = data.topic;
     this.build();
+  },
+
+  get _lastInitData() {
+    return { topic: this._topic };
   },
 
   build() {
     if (this.pixiContainer) this.pixiContainer.destroy({ children: true });
-    this.pixiContainer = PixiPremiumScene.root('How To Play', 'Rules, capture challenges, story, and controls', {
-      footerHint: 'Tip: practise every mini-game from Settings'
+    this.pixiContainer = PixiPremiumScene.root('How To Play', null, {
+      footerHint: 'Up / Down choose a topic',
     });
     PixiScreenManager.setScreenContainer(this.pixiContainer);
 
-    if (Layout.isPortrait) {
-      const cardW = Math.min(700, Layout.W - 80);
-      const startX = (Layout.W - cardW) / 2;
-      const startY = 152;
-      const gapY = 20;
-      const btnArea = 100;
-      const availH = Layout.H - startY - btnArea;
-      const cardH = Math.min(240, Math.floor((availH - gapY * 3) / 4));
-      const totalH = cardH * 4 + gapY * 3;
+    const L = PixiPremiumScene.tabLayout();
+    const tabs = this.TOPICS.map(t => ({ ...t, art: PixiPremiumScene.pieceArt(t.art) }));
+    PixiPremiumScene.tabStrip(this.pixiContainer, L, tabs, this._topic, (id) => this._select(id));
+    this._lesson(L.panel, this.TOPICS.find(t => t.id === this._topic));
 
-      PixiPremiumScene.panel(this.pixiContainer, 30, 132, Layout.W - 60, totalH + 40, { accentAlpha: 0.42 });
-
-      const size = Math.min(...this.sections.map(sec => this.fitSize(sec, cardW, cardH)));
-      this.sections.forEach((section, i) => {
-        this.sectionCard(section, startX, startY + i * (cardH + gapY), cardW, cardH, size);
-      });
-
-      const btnY = Layout.H - Layout.SAFE_BOTTOM - 48;
-      PixiPremiumScene.button(this.pixiContainer, 36, btnY, 160, 44, 'Back', () => switchScreen('home'), { icon: 'back' });
-      PixiPremiumScene.button(this.pixiContainer, Layout.W - 196, btnY, 160, 44, 'Practice', () => switchScreen('miniGamePractice'), { icon: 'play' });
-    } else {
-      const L = { X: 60, Y: 150, PAD: 28, PAD_TOP: 40, GAP: 24 };
-      const panelW = Layout.W - L.X * 2;
-      const panelH = PixiPremiumScene.contentBottom - L.Y;
-      PixiPremiumScene.panel(this.pixiContainer, L.X, L.Y, panelW, panelH, { accentAlpha: 0.42 });
-      const cardW = Math.floor((panelW - L.PAD * 2 - L.GAP) / 2);
-      const cardH = Math.floor((panelH - L.PAD_TOP - L.PAD - L.GAP) / 2);
-      // One text size for all four cards: the largest at which the fullest card fits.
-      const size = Math.min(...this.sections.map(sec => this.fitSize(sec, cardW, cardH)));
-      this.sections.forEach((section, i) => {
-        const x = L.X + L.PAD + (i % 2) * (cardW + L.GAP);
-        const y = L.Y + L.PAD_TOP + Math.floor(i / 2) * (cardH + L.GAP);
-        this.sectionCard(section, x, y, cardW, cardH, size);
-      });
-
-      PixiPremiumScene.button(this.pixiContainer, 36, PixiPremiumScene.bottomButtonY(), 160, 44, 'Back', () => switchScreen('home'), { icon: 'back' });
-      PixiPremiumScene.button(this.pixiContainer, Layout.W - 196, PixiPremiumScene.bottomButtonY(), 160, 44, 'Practice', () => switchScreen('miniGamePractice'), { icon: 'play' });
-    }
+    const btnY = PixiPremiumScene.bottomButtonY();
+    PixiPremiumScene.button(this.pixiContainer, 36, btnY, 160, 44, 'Back', () => switchScreen('home'), { icon: 'back' });
   },
 
-  CARD: { PAD: 20, ICON: 52, TITLE_H: 30, BULLET_GAP: 8 },
+  _select(id) {
+    if (id === this._topic) return;
+    this._topic = id;
+    this.build();
+  },
 
-  // Builds the bullet list at a font size; returns the container and its height.
-  bulletList(section, width, size, cols) {
-    const box = new PIXI.Container();
-    const dotSize = Math.max(4, Math.round(size * 0.36));
-    const indent = dotSize + 10;
-    let y = 0;
-    section.lines.forEach((line, i) => {
-      const text = PixiPremiumScene.text(line, {
-        fontSize: size,
-        fontWeight: '600',
-        fill: cols ? PixiPremiumScene.alpha(cols.text, 'cc') : '#ffffff',
-        wordWrap: true,
-        wordWrapWidth: width - indent,
-        lineHeight: Math.round(size * 1.3),
-      });
-      text.x = indent;
-      text.y = y;
-      const dot = new PIXI.Graphics().rect(0, 0, dotSize, dotSize).fill({ color: cols ? PixiColorUtil.hexToNum(cols.accent) : 0xffffff, alpha: 0.9 });
-      dot.y = Math.round(y + size * 0.65 - dotSize / 2);
-      box.addChild(dot, text);
-      y += text.height + (i < section.lines.length - 1 ? this.CARD.BULLET_GAP : 0);
+  _lesson(P, topic) {
+    const cols = ThemeManager.getCurrentColors();
+    const s = Layout.uiScale || 1;
+    const root = this.pixiContainer;
+    PixiPremiumScene.panel(root, P.x, P.y, P.w, P.h, { accentAlpha: 0.5, alpha: 0.76 });
+    const pad = 34;
+    const innerW = P.w - pad * 2;
+
+    const title = PixiPremiumScene.text(topic.title.toUpperCase(), { fontFamily: PixiTextStyles.FONT_TITLE, fontSize: Math.round(24 * s), fontWeight: 'bold', fill: cols.text });
+    title.x = P.x + pad;
+    title.y = P.y + 30;
+    root.addChild(title);
+    const sub = PixiPremiumScene.text(topic.sub, { fontSize: Math.round(16 * s), fill: PixiPremiumScene.alpha(cols.text, '99') });
+    sub.anchor.set(1, 0);
+    sub.x = P.x + P.w - pad;
+    sub.y = title.y + Math.round((title.height - sub.height) / 2);
+    root.addChild(sub);
+    let y = title.y + title.height + 18;
+    root.addChild(new PIXI.Graphics().rect(P.x + pad, y - 8, innerW, 2).fill({ color: PixiPremiumScene.color(cols.text), alpha: 0.12 }));
+
+    // Headline in a highlighted strip.
+    const lead = PixiPremiumScene.text(topic.lead, {
+      fontSize: Math.round(23 * s), fontWeight: '800', fill: cols.accent,
+      wordWrap: true, wordWrapWidth: innerW - 40, lineHeight: Math.round(30 * s),
     });
-    return { box, height: y };
-  },
+    const leadH = lead.height + 28;
+    root.addChild(new PIXI.Graphics()
+      .poly(PixiPremiumScene.pixelShape(P.x + pad, y + 6, innerW, leadH, 3)).fill({ color: PixiPremiumScene.color(cols.accent), alpha: 0.1 })
+      .rect(P.x + pad, y + 16, 4, leadH - 20).fill({ color: PixiPremiumScene.color(cols.accent) }));
+    lead.x = P.x + pad + 22;
+    lead.y = y + 6 + 14;
+    root.addChild(lead);
+    y += leadH + 28;
 
-  textArea(w, h) {
-    const C = this.CARD;
-    const textLeft = C.PAD + C.ICON + 18;
-    return { x: textLeft, y: C.PAD + C.TITLE_H + 12, w: w - textLeft - C.PAD, h: h - (C.PAD + C.TITLE_H + 12) - C.PAD };
-  },
+    const bottom = P.y + P.h - pad - (topic.action ? PixiPremiumScene.buttonHeight(46) + 14 : 0);
+    if (topic.keys) this._keyTable(root, P.x + pad, y, innerW, bottom - y, topic.keys, cols, s);
+    else this._bullets(root, P.x + pad, y, innerW, bottom - y, topic.lines, cols, s);
 
-  fitSize(section, w, h) {
-    const area = this.textArea(w, h);
-    for (let size = 21; size > 12; size--) {
-      const { box, height } = this.bulletList(section, area.w, size);
-      box.destroy({ children: true });
-      if (height <= area.h) return size;
+    if (topic.action) {
+      const bw = Math.round(260 * s);
+      PixiPremiumScene.button(root, P.x + P.w - pad - bw, P.y + P.h - pad - PixiPremiumScene.buttonHeight(46), bw, 46, topic.action.label, topic.action.go, { primary: true, icon: topic.action.icon });
     }
-    return 12;
   },
 
-  sectionCard(section, x, y, w, h, size) {
-    const C = this.CARD;
-    const fs = Layout.uiScale || 1;
-    size = size || Math.round(16 * fs);
-    PixiPremiumScene.card(this.pixiContainer, x, y, w, h, {
-      interactive: false,
-      alpha: 0.72,
-      accentStrip: false,
-      draw: (card) => {
-        const cols = ThemeManager.getCurrentColors();
-        const iconBox = new PIXI.Graphics()
-          .roundRect(C.PAD, C.PAD, C.ICON, C.ICON, 8).fill({ color: PixiColorUtil.hexToNum(cols.buttonBg), alpha: 0.74 })
-          .roundRect(C.PAD, C.PAD, C.ICON, C.ICON, 8).stroke({ color: PixiColorUtil.hexToNum(cols.accent), alpha: 0.62, width: 2 });
-        card.addChild(iconBox);
-        const icon = new PIXI.Sprite(PixiPremiumAssets.icon(section.icon));
-        icon.width = C.ICON - 14;
-        icon.height = C.ICON - 14;
-        icon.x = C.PAD + 7;
-        icon.y = C.PAD + 7;
-        card.addChild(icon);
+  // Bullet list at the largest text size that fits the space.
+  _bullets(root, x, y, w, h, lines, cols, s) {
+    let size = Math.round(20 * s);
+    let box;
+    for (; size >= 13; size--) {
+      if (box) box.destroy({ children: true });
+      box = new PIXI.Container();
+      const dot = Math.max(6, Math.round(size * 0.42));
+      let by = 0;
+      lines.forEach((line, i) => {
+        const t = PixiPremiumScene.text(line, {
+          fontSize: size, fontWeight: '600', fill: PixiPremiumScene.alpha(cols.text, 'dd'),
+          wordWrap: true, wordWrapWidth: w - dot - 20, lineHeight: Math.round(size * 1.35),
+        });
+        t.x = dot + 18;
+        t.y = by;
+        const d = new PIXI.Graphics()
+          .rect(0, 0, dot, dot).fill({ color: PixiPremiumScene.color(cols.accent) })
+          .rect(0, 0, Math.ceil(dot / 2), Math.ceil(dot / 2)).fill({ color: 0xffffff, alpha: 0.35 });
+        d.x = 2;
+        d.y = Math.round(by + size * 0.68 - dot / 2);
+        box.addChild(d, t);
+        by += t.height + (i < lines.length - 1 ? Math.round(size * 0.9) : 0);
+      });
+      if (by <= h) break;
+    }
+    box.x = x;
+    box.y = y;
+    root.addChild(box);
+  },
 
-        const area = this.textArea(w, h);
-        const title = PixiPremiumScene.text(section.title, { fontSize: Math.round(21 * fs), fontWeight: '900', fill: cols.text });
-        title.anchor.set(0, 0.5);
-        title.x = area.x;
-        title.y = C.PAD + C.TITLE_H / 2;
-        PixiPremiumScene.fit(title, area.w, 0.7);
-        card.addChild(title);
-
-        const { box } = this.bulletList(section, area.w, size, cols);
-        box.x = area.x;
-        box.y = area.y;
-        card.addChild(box);
-      },
+  // Key caps on the left, what they do on the right.
+  _keyTable(root, x, y, w, h, keys, cols, s) {
+    const rowH = Math.min(Math.round(50 * s), Math.floor(h / keys.length));
+    const capW = Math.round(170 * s);
+    keys.forEach(([key, what], i) => {
+      const ry = y + i * rowH;
+      const capH = rowH - 12;
+      const g = new PIXI.Graphics()
+        .poly(PixiPremiumScene.pixelShape(x, ry + 4, capW, capH, 2)).fill({ color: 0x000000, alpha: 0.45 })
+        .poly(PixiPremiumScene.pixelShape(x, ry, capW, capH, 2)).fill({ color: PixiPremiumScene.color(cols.buttonBg || cols.panel), alpha: 0.95 })
+        .poly(PixiPremiumScene.pixelShape(x + 1, ry + 1, capW - 2, capH - 2, 2)).stroke({ color: PixiPremiumScene.color(cols.accent), alpha: 0.6, width: 2, alignment: 1 })
+        .rect(x + 8, ry + 4, capW - 16, 2).fill({ color: 0xffffff, alpha: 0.12 });
+      root.addChild(g);
+      const k = PixiPremiumScene.text(key.toUpperCase(), { fontFamily: PixiTextStyles.FONT_TITLE, fontSize: Math.round(14 * s), fill: cols.text });
+      k.anchor.set(0.5);
+      k.x = x + capW / 2;
+      k.y = ry + capH / 2;
+      PixiPremiumScene.fit(k, capW - 16, 0.6);
+      root.addChild(k);
+      const t = PixiPremiumScene.text(what, { fontSize: Math.round(19 * s), fontWeight: '600', fill: PixiPremiumScene.alpha(cols.text, 'dd') });
+      t.anchor.set(0, 0.5);
+      t.x = x + capW + 24;
+      t.y = ry + capH / 2;
+      PixiPremiumScene.fit(t, w - capW - 24, 0.6);
+      root.addChild(t);
     });
   },
 
@@ -183,6 +211,19 @@ const HowToPlay = {
   },
 
   handleKeyDown(e) {
-    if (e.key === 'Escape') switchScreen('home');
+    const ids = this.TOPICS.map(t => t.id);
+    const i = ids.indexOf(this._topic);
+    const prev = Layout.isPortrait ? 'ArrowLeft' : 'ArrowUp';
+    const next = Layout.isPortrait ? 'ArrowRight' : 'ArrowDown';
+    if (e.key === prev || e.key === next || e.key === 'Tab') {
+      e.preventDefault();
+      const dir = e.key === prev || (e.key === 'Tab' && e.shiftKey) ? -1 : 1;
+      this._select(ids[(i + dir + ids.length) % ids.length]);
+    } else if (e.key === 'Enter') {
+      const topic = this.TOPICS[i];
+      if (topic.action) topic.action.go();
+    } else if (e.key === 'Escape' || e.key === 'Backspace') {
+      switchScreen('home');
+    }
   },
 };

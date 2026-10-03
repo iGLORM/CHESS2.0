@@ -200,18 +200,19 @@ const DialogueManager = {
     let line = this._pickLine(gd[category], category);
     if (!line) return;
 
-    if (context) {
-      line = line.replace(/\{piece\}/g, context.piece || 'piece');
-      line = line.replace(/\{myPieces\}/g, String(context.myPieces || '?'));
-      line = line.replace(/\{theirPieces\}/g, String(context.theirPieces || '?'));
-      line = line.replace(/\{moveNum\}/g, String(context.moveNum || '?'));
-      line = line.replace(/\{advantage\}/g, String(context.advantage || 0));
-      line = line.replace(/\{left\}/g, String(context.left != null ? context.left : '?'));
-    }
+    // Translated as a whole line, then the slots filled (see I18n.fill).
+    line = I18n.fill(line, context ? {
+      piece: context.piece || 'piece',
+      myPieces: String(context.myPieces || '?'),
+      theirPieces: String(context.theirPieces || '?'),
+      moveNum: String(context.moveNum || '?'),
+      advantage: String(context.advantage || 0),
+      left: String(context.left != null ? context.left : '?'),
+    } : {});
 
     this._lastShownTimes[category] = now;
     this._lastShownTime = now;
-    this._onShow(line, this._character);
+    this._onShow(line, this._character, category);
   },
 
   _pickLine(lines, category) {

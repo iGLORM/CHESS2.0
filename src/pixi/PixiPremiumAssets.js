@@ -5,6 +5,7 @@ const PixiPremiumAssets = {
   preloadPromise: null,
   files: [
     'premium_home_hero.png',
+    'premium_bg_chess20.png',
     'premium_bg_pawnhollow.png',
     'premium_bg_trainingcamp.png',
     'premium_bg_slantedsands.png',
@@ -16,6 +17,7 @@ const PixiPremiumAssets = {
     'premium_bg_forkedgulch.png',
     'premium_bg_obsidiancourt.png',
     'premium_bg_crystal.png',
+    'premium_bg_greatboard.png',
     'premium_bg_custom.png',
     'premium_character_bishbosh.png',
     'premium_character_card_bishbosh.png',
@@ -66,6 +68,7 @@ const PixiPremiumAssets = {
     'premium_minigame_timingStrike.png',
     'premium_minigame_undertaleDodge.png',
     'premium_minigame_whackMole.png',
+    'premium_theme_chess20.png',
     'premium_theme_pawnhollow.png',
     'premium_theme_trainingcamp.png',
     'premium_theme_slantedsands.png',
@@ -77,6 +80,7 @@ const PixiPremiumAssets = {
     'premium_theme_forkedgulch.png',
     'premium_theme_obsidiancourt.png',
     'premium_theme_crystal.png',
+    'premium_theme_greatboard.png',
     'premium_theme_custom.png',
   ],
 
@@ -134,12 +138,22 @@ const PixiPremiumAssets = {
 
   character(id) {
     if (typeof PixiMinion !== 'undefined' && PixiMinion.isMinion(id)) return PixiMinion.texture(id);
-    return this.texture(`premium_character_${id}.png`);
+    const face = typeof SideMatches !== 'undefined' && SideMatches.faceOf(id);
+    return this.texture(`premium_character_${face || id}.png`);
+  },
+
+  // A story character's picture as a sprite: its live pixel art (animated; the
+  // close-up face frame when `face`) if it has some, else the still portrait.
+  characterSprite(id, face = true) {
+    const live = typeof LiveScenes !== 'undefined' && LiveScenes.character(id);
+    const sprite = live && LiveScenes.sprite(live, face ? 'face' : '');
+    return sprite || new PIXI.Sprite(this.character(id));
   },
 
   characterCard(id) {
     if (typeof PixiMinion !== 'undefined' && PixiMinion.isMinion(id)) return PixiMinion.texture(id, true);
-    return this.texture(`premium_character_card_${id}.png`);
+    const face = typeof SideMatches !== 'undefined' && SideMatches.faceOf(id);
+    return this.texture(`premium_character_card_${face || id}.png`);
   },
 
   theme(id) {

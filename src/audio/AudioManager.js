@@ -118,15 +118,32 @@ class AudioManager {
   // ----------------------------------------------------------------- music --
 
   startMusic() {
+    this._cancelMusicResume();
     if (!this.enabled || !this.ctx || this.musicPlaying) return;
     this._createMusicGain();
     this.musicPlaying = true;
     this.player = new MusicPlayer(this.ctx, this.musicGain);
-    this.player.play(Songs.get(this._getMusicThemeId(), this.suspenseActive), this.ctx.currentTime + 0.1);
+    this.currentSong = this._getMusicThemeId();
+    this.player.play(Songs.get(this.currentSong, this.suspenseActive), this.ctx.currentTime + 0.1);
     this._scheduleLoop();
   }
 
+  // A screen can play its own song instead of the theme's: the world map plays
+  // 'worldmap' whatever world's theme is showing. null goes back to the theme's song.
+  useSong(id) {
+    this.songOverride = id || null;
+    if (!this.musicPlaying) {
+      if (id) this.startMusic();
+      return;
+    }
+    if (this.currentSong !== this._getMusicThemeId()) {
+      this.stopMusic();
+      this.startMusic();
+    }
+  }
+
   stopMusic() {
+    this._cancelMusicResume();
     this.musicPlaying = false;
     this.player = null;
     if (this.currentLoop) {
@@ -146,6 +163,24 @@ class AudioManager {
     }
   }
 
+  // Leaving a match stops its music; the theme song comes back after a short
+  // pause (5-10 s) unless something else starts the music first.
+  resumeMusicLater(minMs = 5000, maxMs = 10000) {
+    this._cancelMusicResume();
+    this._musicResumeTimer = setTimeout(() => {
+      this._musicResumeTimer = null;
+      if (!this._ready()) return;
+      this.startMusic();
+    }, minMs + Math.random() * (maxMs - minMs));
+  }
+
+  _cancelMusicResume() {
+    if (this._musicResumeTimer) {
+      clearTimeout(this._musicResumeTimer);
+      this._musicResumeTimer = null;
+    }
+  }
+
   setSuspense(active) {
     const next = !!active;
     if (this.suspenseActive === next) return;
@@ -161,6 +196,7 @@ class AudioManager {
   }
 
   _getMusicThemeId() {
+    if (this.songOverride) return this.songOverride;
     const themeId = store.get('theme');
     if (themeId === 'custom') {
       return store.get('customMusicTheme') || 'pawnhollow';
@@ -177,6 +213,7 @@ class AudioManager {
 
   _getThemeAudioProfile(themeId) {
     const profiles = {
+      chess20: { root: 62, wave: 'bell' },
       pawnhollow: { root: 60, wave: 'pluck' },
       trainingcamp: { root: 57, wave: 'pluck' },
       slantedsands: { root: 64, wave: 'pluck' },
@@ -196,6 +233,12 @@ class AudioManager {
 
   playButton() {
     this._phrase([[0, 'bell', 88, 0.05, 0.35, { ratio: 2, index: 0.6, ring: 0.12 }]]);
+  }
+
+  // One syllable of a character's "voice" while their line types out.
+  playVoice(midi) {
+    if (!this._ready()) return;
+    this._playNote(Synth.mtof(midi), 0.045, 'square', 0.022);
   }
 
   playSelect() {

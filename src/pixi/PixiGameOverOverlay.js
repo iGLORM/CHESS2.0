@@ -67,6 +67,8 @@ const PixiGameOverOverlay = {
       game.gameStatus,
       game.mode,
       game.currentCharacter ? game.currentCharacter.id : '',
+      game.starResult ? game.starResult.got.join('') : '',
+      game.reward ? `${game.reward.coins}/${game.reward.stars}` : '',
     ].join('|');
   },
 
@@ -80,7 +82,9 @@ const PixiGameOverOverlay = {
     c.addChild(shade);
 
     const panelW = 560;
-    const panelH = game.currentCharacter ? 382 : 316;
+    const stars = game.mode === 'story' && game.starResult && typeof PixiStar !== 'undefined' ? game.starResult : null;
+    const STARS_H = stars ? 116 : 0;
+    const panelH = (game.currentCharacter ? 356 : 316) + STARS_H;
     const panelX = Layout.cx - panelW / 2;
     const panelY = Layout.cy - panelH / 2;
     const panel = new PixiPanel({
@@ -124,7 +128,9 @@ const PixiGameOverOverlay = {
     PixiPremiumUI.fitText(reason, panelW - 100);
     c.addChild(reason);
 
-    let buttonY = panelY + 166;
+    if (stars) this._stars(c, stars, panelY + 154, cols);
+    const top = panelY + STARS_H;
+    let buttonY = top + 166;
     if (game.currentCharacter && game.gameResult) {
       const lines = game.currentCharacter.dialogue;
       const dialogue = game.gameResult === 'draw' ? (lines.draw || 'A draw. Neither of us gave an inch. Again?')
@@ -139,7 +145,7 @@ const PixiGameOverOverlay = {
         lineHeight: 20,
       });
       text.x = panelX + 43;
-      text.y = panelY + 154;
+      text.y = top + 154;
       const maxTextH = 80;
       if (text.height > maxTextH) {
         const mask = new PIXI.Graphics();
@@ -148,15 +154,17 @@ const PixiGameOverOverlay = {
         text.mask = mask;
       }
       c.addChild(text);
-      buttonY = panelY + 158 + Math.min(text.height, maxTextH) + 12;
+      buttonY = top + 158 + Math.min(text.height, maxTextH) + 12;
     }
 
     // Story games lead back to the world map (which plays the reward after a win).
     const story = game.mode === 'story';
-    const labels = !story ? [['Play Again', 'rematch'], ['Main Menu', 'menu']]
+    const side = story && game.currentCharacter && game.currentCharacter.side;
+    const labels = side && side.noRematch ? [['Continue', 'map']]
+      : !story ? [['Play Again', 'rematch'], ['Main Menu', 'menu']]
       : game.playerWon() ? [['Continue', 'map'], ['Play Again', 'rematch']]
         : [['Try Again', 'rematch'], ['Back to Map', 'map']];
-    const actions = labels.map(([text, action], i) => ({ text, action, x: Layout.cx + (i === 0 ? -214 : 14), y: buttonY, width: 200 }));
+    const actions = labels.map(([text, action], i) => ({ text, action, x: labels.length === 1 ? Layout.cx - 100 : Layout.cx + (i === 0 ? -214 : 14), y: buttonY, width: 200 }));
     this.buttonRects = actions.map(a => ({ action: a.action, x: a.x, y: a.y, w: a.width, h: 56 }));
 
     for (const item of actions) {
@@ -178,12 +186,53 @@ const PixiGameOverOverlay = {
     }
   },
 
+  // The fight's stars: three big ones (lit for this result), then what each is for.
+  _stars(c, r, y, cols) {
+    const row = PixiStar.row(3, r.got, 17, 12);
+    row.x = Layout.cx - row.width / 2;
+    row.y = y;
+    c.addChild(row);
+    row.children.forEach((st, i) => {
+      if (!r.got[i] || typeof gsap === 'undefined') return;
+      st.scale.set(0);
+      gsap.to(st.scale, { x: 1, y: 1, duration: 0.35, delay: 0.25 + i * 0.18, ease: 'back.out(3)' });
+    });
+    r.texts.forEach((t, i) => {
+      const ly = y + 48 + i * 22;
+      const got = r.got[i], before = !got && r.best[i];
+      const mark = PixiStar.create(6, got || before);
+      mark.alpha = got ? 1 : before ? 0.55 : 1;
+      const label = PixiPremiumUI.text(before ? `${t} (earned before)` : t, {
+        fontSize: 15,
+        fontWeight: '700',
+        fill: got ? '#ffe08a' : before ? PixiColorUtil.alpha(cols.text, '99') : '#8a8494',
+      });
+      label.anchor.set(0, 0.5);
+      const tag = r.fresh[i] ? PixiPremiumUI.text('NEW', { fontSize: 12, fontWeight: '900', fill: '#7dea99' }) : null;
+      const w = 20 + label.width + (tag ? tag.width + 10 : 0);
+      mark.x = Layout.cx - w / 2 + 6;
+      mark.y = ly;
+      label.x = mark.x + 14;
+      label.y = ly;
+      c.addChild(mark, label);
+      if (tag) {
+        tag.anchor.set(0, 0.5);
+        tag.x = label.x + label.width + 10;
+        tag.y = ly;
+        c.addChild(tag);
+      }
+    });
+  },
+
   _title(game) {
     return game.resultTitle();
   },
 
   _reason(game) {
-    return game.resultReason();
+    // What the win paid, after the reason.
+    const r = game.reward || {};
+    const paid = [r.coins ? `+${r.coins} coins` : '', r.stars ? `+${r.stars} bonus stars` : ''].filter(Boolean).join('  ·  ');
+    return paid ? `${game.resultReason()}  ·  ${paid}` : game.resultReason();
   },
 
   destroy() {

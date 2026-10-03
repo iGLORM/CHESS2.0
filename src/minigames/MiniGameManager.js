@@ -233,6 +233,12 @@ class MiniGameManager {
 
   gameLoop() {
     if (!this.active) return;
+    // Same frame limit as the game loop (Settings > Display > Frame Limit).
+    if (!this._pacer) this._pacer = Graphics.pacer();
+    if (!this._pacer.ready(performance.now())) {
+      this.animFrame = requestAnimationFrame(() => this.gameLoop());
+      return;
+    }
 
     // Real elapsed time, so minigames run at the same speed on 60Hz and 120Hz screens.
     const now = performance.now();

@@ -17,9 +17,11 @@ const PixiGameScreen = {
 
     PixiParticleFX.update(dt);
 
-    const currentTheme = store.get('theme') || 'pawnhollow';
-    if (this._lastTheme !== currentTheme) {
-      PixiBackgroundRenderer.render(currentTheme);
+    const currentTheme = store.get('theme') || 'chess20';
+    const backdrop = gameState.backdrop || ThemeManager.backdropFor(currentTheme);
+    if (this._lastTheme !== currentTheme || this._lastBackdrop !== backdrop) {
+      this._lastBackdrop = backdrop;
+      PixiBackgroundRenderer.render(currentTheme, backdrop);
       if (gameState.board) {
         PixiBoardRenderer.drawBoard(currentTheme);
         PixiBoardRenderer.setPieces(gameState.board, currentTheme);

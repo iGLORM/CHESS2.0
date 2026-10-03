@@ -1,13 +1,17 @@
-// Missions: five short challenges on the path to each guardian, played in
-// order on the world's own map (WorldMissionsScreen). Each mission is fought
+// Missions: seven short challenges on the path to each guardian, played in
+// order on the world's own map (WorldMissionsScreen). Not every world has them:
+// the Royal Palace and Forked Gulch hold tournaments instead (tournaments.js), and
+// the Grand Library's path is a hall of puzzle rooms. Each mission is fought
 // against one of the guardian's minions and has a rule like a boss (see
 // BossRules), registered in BOSS_RULES under the mission id.
 //
-//   kind   puzzle | trial | hunt | taster | wild  (the map icon)
+//   kind   puzzle | trial | hunt | taster | wild | relic | memory  (the map icon)
 //   rule   BossRules fields; missions also use goal.mystery (capture the
 //          hidden Mystery Piece; hints narrow it down), goal.captureAll (take
 //          every piece but the king), goal.promote (crown a pawn),
-//          goal.survive (don't lose for N of your moves) and
+//          goal.survive (don't lose for N of your moves), goal.relics
+//          (squares to step on: Relic Run), goal.crossing (walk your king to
+//          the last rank: a Memory of the night you crossed the board) and
 //          minigameTrial.pool (which challenges the trial draws from).
 //          Checkmate always wins a board mission too.
 //
@@ -19,6 +23,8 @@ const MISSION_KINDS = {
   hunt: { label: 'Hunt', icon: '⚔' },
   taster: { label: 'Rule Taster', icon: '!' },
   wild: { label: 'Wild Card', icon: '♙' },
+  relic: { label: 'Relic Run', icon: '◆' },
+  memory: { label: 'Memory', icon: '☾' },
 };
 
 const MISSIONS = {
@@ -76,6 +82,28 @@ const MISSIONS = {
       rule: {
         title: 'Crown a Pawn', lines: ['A pawn race: get one of your pawns to the last rank to win.', 'Stopping his pawns helps too.'],
         fen: 'k7/pppp4/8/8/8/8/4PPPP/7K w - - 0 1', goal: { promote: true }, noChallenges: true,
+      },
+    },
+    {
+      kind: 'relic', name: 'Buried Sunstones',
+      minion: { name: 'Sidewinder', title: 'Snake of the Dunes', piece: 'bishop' },
+      greet: 'Sssunstones, buried in my sand. Four of them. Dig them up before the sun sets, if you can.',
+      after: 'You dug them all up. The dunes feel lighter.',
+      fail: 'The sand covers everything again. Ssso sorry.',
+      rule: {
+        title: 'Relic Run', lines: ['Four sunstones lie on the board. Move a piece onto each one to dig it up.', 'Find all four within 20 moves (or checkmate) to win.'],
+        fen: 'b3k2b/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 0 1', goal: { relics: ['c4', 'f5', 'b5', 'g4'] }, moveLimit: 20,
+      },
+    },
+    {
+      kind: 'memory', name: 'The First Crossing',
+      minion: { name: 'A Memory', title: 'The Night of the Crossing', piece: 'bishop' },
+      greet: '*the dunes blur* ... You remember this. Night. The sky still whole. Your king walking toward the far edge.',
+      after: 'A memory: the sand was warm under you, and someone far ahead was waiting at the edge.',
+      fail: '*the memory fades* ... Not yet. Close your eyes and try again.',
+      rule: {
+        title: 'Walk the Crossing', lines: ['A memory of the night you crossed. Two bishops try to stop you.', 'Walk your king to the far edge (the 8th rank) within 20 moves.'],
+        fen: '7k/2b5/8/8/5b2/8/PPP5/1K4N1 w - - 0 1', goal: { crossing: true }, moveLimit: 20, noChallenges: true,
       },
     },
   ],
@@ -136,6 +164,28 @@ const MISSIONS = {
         fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/4K2R w K - 0 1', goal: { survive: 12 },
       },
     },
+    {
+      kind: 'relic', name: 'Forge Ingots',
+      minion: { name: 'Bellows', title: 'Breath of the Forge', piece: 'rook' },
+      greet: 'Four hot ingots, dropped all over the courtyard. Carry them off before they cool. Or before I catch you.',
+      after: 'Every ingot, still glowing. You have a smith\'s hands.',
+      fail: 'Cooled and cracked. Back to the furnace.',
+      rule: {
+        title: 'Relic Run', lines: ['Four ingots lie on the board. Move a piece onto each one to pick it up.', 'Find all four within 22 moves (or checkmate) to win.'],
+        fen: 'r3k2r/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1', goal: { relics: ['a5', 'h5', 'd6', 'e3'] }, moveLimit: 22,
+      },
+    },
+    {
+      kind: 'memory', name: 'The Open Gate',
+      minion: { name: 'A Memory', title: 'The Night of the Crossing', piece: 'rook' },
+      greet: '*iron creaks* ... The Keep\'s gate, open for you that night. Then a message came, and it began to close.',
+      after: 'A memory: Rook-E lowering the bar for you... then raising it again when the message came.',
+      fail: '*the gate slams* ... The memory shuts. Try again.',
+      rule: {
+        title: 'Walk the Crossing', lines: ['A memory of the Keep. A rook tries to cut your king off.', 'Walk your king to the far edge (the 8th rank) within 20 moves.'],
+        fen: '4k3/8/8/r7/8/8/5PPP/4K2R w K - 0 1', goal: { crossing: true }, moveLimit: 20, noChallenges: true,
+      },
+    },
   ],
 
   mistymoors: [
@@ -194,62 +244,26 @@ const MISSIONS = {
         fog: true, fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/R2QK2R w KQ - 0 1', goal: { survive: 10 },
       },
     },
-  ],
-
-  royalpalace: [
     {
-      kind: 'puzzle', name: 'Royal Decrees',
-      minion: { name: 'The Herald', title: 'Voice of the Queen', piece: 'pawn' },
-      greet: 'Hear ye! Her Majesty decrees three checkmates. With the queen, naturally.',
-      after: 'Decreed and delivered!',
-      fail: 'Hear ye... that was not a checkmate.',
+      kind: 'relic', name: 'Wisp Lanterns',
+      minion: { name: 'Glimmer', title: 'A Wisp Gone Astray', piece: 'knight' },
+      greet: 'Four lanterns, lost in the fog. Light them all and the Moors will show you the way.',
+      after: 'Four lanterns, lit. The mist is thinner already.',
+      fail: 'Out go the lights. Out, out, out.',
       rule: {
-        title: 'Mate in One', lines: ['Three positions. In each one your queen can checkmate in a single move.'],
-        puzzles: ['r7/k3b3/pp4n1/N5r1/P7/8/B3K2P/7Q w - - 0 1', '4nNrk/6p1/4b2P/2r2Q1P/8/K7/4B3/8 w - - 0 1', '2k2n2/bpp5/2r2r2/8/4QP2/3NP3/4B3/K7 w - - 0 1'],
+        title: 'Relic Run', lines: ['Fog covers the board. Four lanterns glow in it: move a piece onto each.', 'Light all four within 24 moves (or checkmate) to win.'],
+        fog: true, goal: { relics: ['b5', 'g5', 'd6', 'e6'] }, moveLimit: 24,
       },
     },
     {
-      kind: 'trial', name: 'The Grand Ball',
-      minion: { name: 'Dance Master', title: 'Keeper of Rhythm', piece: 'knight' },
-      greet: 'And a one, and a two! Keep the rhythm, darling, or leave the floor.',
-      after: 'Divine footwork!',
-      fail: 'Off beat! From the top!',
+      kind: 'memory', name: 'A Light in the Fog',
+      minion: { name: 'A Memory', title: 'The Night of the Crossing', piece: 'knight' },
+      greet: '*the fog thickens* ... You walked these moors in the dark, with only a lantern and a voice: yours.',
+      after: 'A memory: a lantern in the fog, and your own voice saying: just a few more ranks.',
+      fail: '*the lantern gutters out* ... Lost in the mist. Try again.',
       rule: {
-        title: 'Three Challenges', lines: ['Three challenges on the ballroom floor. Win 2 of them.'],
-        minigameTrial: { games: 3, need: 2, pool: ['RhythmTap', 'TimingStrike', 'BarBalance'] },
-      },
-    },
-    {
-      kind: 'hunt', name: 'Palace Guards',
-      minion: { name: 'Royal Guard', title: 'Pikes and Polish', piece: 'rook' },
-      greet: 'By order of the queen, every capture we make is a challenge for you. Mostly.',
-      after: 'The guard stands aside. Grudgingly.',
-      fail: 'Escorted out. Please mind the marble.',
-      rule: {
-        title: 'Guarded Halls', lines: ['His captures start a challenge 60% of the time.', 'Checkmate him to win.'],
-        bossChallengeChance: 0.6,
-      },
-    },
-    {
-      kind: 'taster', name: 'Two Crowns',
-      minion: { name: 'Lady-in-Waiting', title: "Queenie's Shadow", piece: 'queen' },
-      greet: 'Her Majesty lent me her second crown, and I hid it on one of my pieces. Two queens! Try not to faint.',
-      after: 'Oh dear. You found the crown. I shall have to return it.',
-      fail: 'Two queens beat one, darling. Simple arithmetic.',
-      rule: {
-        title: 'The Hidden Crown', lines: ['She starts with two queens and no bishops. One of her pieces hides the crown.', 'Hints narrow it down every 3 moves. Capture it, or checkmate, to win.'],
-        fen: 'rnq1kqnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1', goal: { mystery: true },
-      },
-    },
-    {
-      kind: 'wild', name: 'Coronation',
-      minion: { name: 'Crown Keeper', title: 'Guardian of Crowns', piece: 'king' },
-      greet: 'Every pawn dreams of a crown. Can yours reach the throne room?',
-      after: 'Crowned! The palace has a new queen, and she is yours.',
-      fail: 'No crown for you today.',
-      rule: {
-        title: 'Crown a Pawn', lines: ['A king-and-pawns ending. Get a pawn to the last rank to win.'],
-        fen: '4k3/pppp4/8/8/8/8/4PPPP/4K3 w - - 0 1', goal: { promote: true }, noChallenges: true,
+        title: 'Walk the Crossing', lines: ['A memory in the mist: you only see what your pieces see. Knights hunt you.', 'Walk your king to the far edge (the 8th rank) within 22 moves.'],
+        fog: true, fen: '4k3/8/2n5/8/8/5n2/PPP5/2KR4 w - - 0 1', goal: { crossing: true }, moveLimit: 22, noChallenges: true,
       },
     },
   ],
@@ -310,6 +324,30 @@ const MISSIONS = {
         fen: 'rnbqkqnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1', lockPlies: 4, goal: { survive: 12 },
       },
     },
+    {
+      kind: 'relic', name: 'Loose Cogs',
+      minion: { name: 'Sprocket', title: 'The Spare Part', piece: 'pawn' },
+      greet: 'Four cogs fell out of the great clock! Put your pieces on them before the Citadel winds down. Tick tock!',
+      after: 'Click, click, click, click! The clock runs again.',
+      fail: 'Wound down. Tick... tock... tick...',
+      rule: {
+        title: 'Relic Run', lines: ['Gear walls block the middle. Four cogs lie on the board: move a piece onto each.', 'A lost challenge locks its square for 3 turns. Find all four within 24 moves.'],
+        walls: [{ row: 4, col: 2 }, { row: 4, col: 5 }, { row: 3, col: 2 }, { row: 3, col: 5 }], lockPlies: 4,
+        goal: { relics: ['b5', 'g5', 'd6', 'e3'] }, moveLimit: 24,
+      },
+    },
+    {
+      kind: 'memory', name: 'The Stopped Clocks',
+      minion: { name: 'A Memory', title: 'The Night of the Crossing', piece: 'rook' },
+      greet: '*every clock stops* ... You remember the ticking. Thousands of clocks. And then, all at once, silence.',
+      after: 'A memory: every clock in the Citadel stopped at the same second. The second the board broke.',
+      fail: '*tick... tock...* The memory winds down. Try again.',
+      rule: {
+        title: 'Walk the Crossing', lines: ['A memory of the Citadel: gear walls block the middle and a rook guards the way.', 'Walk your king to the far edge (the 8th rank) within 20 moves.'],
+        walls: [{ row: 4, col: 2 }, { row: 4, col: 5 }, { row: 3, col: 2 }, { row: 3, col: 5 }],
+        fen: '1r2k3/8/8/8/8/8/PPP5/1K1R4 w - - 0 1', goal: { crossing: true }, moveLimit: 20, noChallenges: true,
+      },
+    },
   ],
 
   grandlibrary: [
@@ -325,36 +363,47 @@ const MISSIONS = {
       },
     },
     {
-      kind: 'taster', name: 'Chapter Endings',
-      minion: { name: 'Archivist', title: "EndGamer's Assistant", piece: 'king' },
-      greet: "I opened one of the master's books to a random ending. It favours me. Last fifteen moves.",
-      after: 'You rewrote the ending. I must file a correction.',
-      fail: 'As the book foretold.',
+      kind: 'puzzle', name: 'The Back Rank Wing',
+      minion: { name: 'The Archivist', title: "EndGamer's Assistant", piece: 'rook' },
+      greet: 'The back-rank wing. Every book here ends on the last row. Three positions: a rook finishes each one.',
+      after: 'Filed under "Back Rank". Correctly, for once.',
+      fail: 'That is not how the chapter ends. Again.',
       rule: {
-        title: 'Survive the Ending', lines: ['The game starts in a random endgame that favours him.', "Don't lose for 15 of your moves."],
-        endgames: true, goal: { survive: 15 },
+        title: 'Rook Mates', lines: ['Three positions. In each one a rook checkmates in one move. Find it.'],
+        puzzles: ['5k2/4p2R/5p2/8/3R4/6R1/8/6K1 w - - 0 1', '3k4/2pp4/1B1N4/8/4R3/8/P7/3K4 w - - 0 1', '2k5/1p5R/3p4/7n/6r1/5R2/K7/8 w - - 0 1'],
       },
     },
     {
-      kind: 'trial', name: 'Speed Reading',
-      minion: { name: 'Page Turner', title: 'Quickest Fingers', piece: 'pawn' },
-      greet: 'Can you read faster than the pages turn? Three tries, two passes.',
-      after: 'Remarkable reading speed!',
-      fail: 'You lost your place. From the top.',
+      kind: 'puzzle', name: "The Knight's Alcove",
+      minion: { name: 'Inkwell', title: 'A Spilled Knight', piece: 'knight' },
+      greet: 'In my alcove kings hide behind their own pieces. Too well. A knight jumps in and... you tell me.',
+      after: 'Smothered! Every one of them. Delicious.',
+      fail: 'The king breathes. Not a mate.',
       rule: {
-        title: 'Three Challenges', lines: ['Three quick-thinking challenges. Win 2 of them.'],
-        minigameTrial: { games: 3, need: 2, pool: ['MemoryMatch', 'PatternPress', 'WhackMole'] },
+        title: 'Smothered', lines: ['Three positions. In each one a knight checkmates a king boxed in by its own pieces.'],
+        puzzles: ['kr6/pp6/8/3N4/8/5q2/PPP5/1K1R4 w - - 0 1', '6rk/1p4pp/8/4N3/1n6/8/5PPP/2R3K1 w - - 0 1', '6rk/p5pp/1p6/4N3/8/2q5/5PPP/3R2K1 w - - 0 1'],
       },
     },
     {
-      kind: 'hunt', name: 'Bookworms',
-      minion: { name: 'Bookworms', title: 'Paper Eaters', piece: 'pawn' },
-      greet: '*munch munch* We are eating the shelves. Leave even one of us and we will be back!',
-      after: '*scurrying* The shelves are safe. For now.',
-      fail: '*munch* Delicious.',
+      kind: 'puzzle', name: "The Queen's Reading Room",
+      minion: { name: 'Madam Folio', title: 'Keeper of the Reading Room', piece: 'queen' },
+      greet: 'Silence in the reading room. My queen may go anywhere, which makes her very hard to aim. Three positions.',
+      after: 'Beautifully read. You may borrow a book.',
+      fail: 'That book is overdue. Try again.',
       rule: {
-        title: 'Clear the Shelves', lines: ['Your rooks against a wall of eight pawns.', 'Capture every one of them (or checkmate) to win.'],
-        fen: '4k3/pppppppp/8/8/8/8/8/R3K2R w KQ - 0 1', goal: { captureAll: true },
+        title: 'Queen Mates', lines: ['Three positions. In each one the queen checkmates in a single move.'],
+        puzzles: ['4qk2/1p2p3/2Q5/8/1R6/NB6/8/5K2 w - - 0 1', '7k/7p/6p1/8/8/5Q2/7K/4N3 w - - 0 1', 'k7/p7/8/QR6/2N2n2/8/8/3K4 w - - 0 1'],
+      },
+    },
+    {
+      kind: 'puzzle', name: 'The Closed Stacks',
+      minion: { name: 'The Night Porter', title: 'Locks the Stacks at Dusk', piece: 'king' },
+      greet: 'The closed stacks. Here every piece can give check, and only one check is mate. Choose carefully.',
+      after: 'You chose well. I shall leave the door unlocked for you.',
+      fail: 'Check is not mate. The stacks stay closed.',
+      rule: {
+        title: 'Many Checks, One Mate', lines: ['Three positions full of checks. Only one move in each is checkmate.'],
+        puzzles: ['k7/p7/1p6/8/1p2R3/8/2KR4/7B w - - 0 1', '5k2/5pp1/4pB2/8/Q7/8/8/6NK w - - 0 1', '3k4/2ppp3/3P4/8/2Q5/8/4K3/8 w - - 0 1'],
       },
     },
     {
@@ -368,62 +417,15 @@ const MISSIONS = {
         fen: '4k3/8/8/8/8/8/3PP3/4K3 w - - 0 1', goal: { promote: true }, noChallenges: true,
       },
     },
-  ],
-
-  forkedgulch: [
     {
-      kind: 'puzzle', name: 'High Noon',
-      minion: { name: 'The Kid', title: 'Fastest Knight in the West', piece: 'knight' },
-      greet: 'Draw, partner! Three showdowns, one knight jump each.',
-      after: 'Faster than me. Nobody is faster than me.',
-      fail: 'Missed! Holster up and try again.',
+      kind: 'memory', name: 'The Blank Chapter',
+      minion: { name: 'A Memory', title: 'The Night of the Crossing', piece: 'king' },
+      greet: '*a page turns by itself* ... You sat here once, with a blank book, and a pen that fitted your hand.',
+      after: 'A memory: a blank book, and your hand writing the first letter of your name.',
+      fail: '*the book snaps shut* ... Not this chapter. Try again.',
       rule: {
-        title: 'Mate in One', lines: ['Three positions. In each one a knight can checkmate in a single move.'],
-        puzzles: ['1krb3q/ppp5/1N6/p1N5/8/P3Q3/7P/3K4 w - - 0 1', '1qbr1QN1/2p1P2k/6pp/5P2/8/4N3/8/7K w - - 0 1', '5QN1/2Nq3k/P2P2pp/2b4r/8/3K4/8/8 w - - 0 1'],
-      },
-    },
-    {
-      kind: 'trial', name: 'Shooting Gallery',
-      minion: { name: 'Deadeye', title: 'Never Misses', piece: 'bishop' },
-      greet: 'Three rounds at the gallery. Hit two, and you can walk into town.',
-      after: 'Sharp shooting, stranger.',
-      fail: 'Missed the bottles. Reload.',
-      rule: {
-        title: 'Three Challenges', lines: ['Three sharpshooting challenges. Win 2 of them.'],
-        minigameTrial: { games: 3, need: 2, pool: ['ReactionTest', 'TargetPractice', 'SiegeCannon'] },
-      },
-    },
-    {
-      kind: 'taster', name: 'Double Trouble',
-      minion: { name: 'Two-Gun', title: "ForkMaster's Deputy", piece: 'knight' },
-      greet: 'Line up two of your pieces for me and I take both. Just like the boss.',
-      after: 'You never gave me a pair. Smart.',
-      fail: 'Two for one! Yee-haw!',
-      rule: {
-        title: 'Double Take', lines: ['If his capturing piece also attacks another of your queen, rooks, bishops or knights, he takes both.', 'Checkmate him to win.'],
-        doubleTake: true,
-      },
-    },
-    {
-      kind: 'hunt', name: 'Tumbleweeds',
-      minion: { name: 'Tumbleweeds', title: 'Rolling Through', piece: 'pawn' },
-      greet: '*rolls in* ... *rolls out* ... Two knights and a queen against eight of us? Round us all up.',
-      after: '*the last one rolls away*',
-      fail: '*rolls over your king*',
-      rule: {
-        title: 'Round Em Up', lines: ['Two knights and a queen against a line of pawns.', 'Capture every one of them (or checkmate) to win.'],
-        fen: '4k3/pppppppp/8/8/8/8/8/1N1QK1N1 w - - 0 1', goal: { captureAll: true },
-      },
-    },
-    {
-      kind: 'wild', name: 'Standoff',
-      minion: { name: 'Sheriff', title: 'Law of the Gulch', piece: 'king' },
-      greet: 'This town ain\'t big enough for the both of us. Last twelve moves and I\'ll let you ride on.',
-      after: 'You earned your spurs.',
-      fail: 'Run out of town.',
-      rule: {
-        title: 'Survive 12 Moves', lines: ['He has an extra rook and double take.', "Don't get checkmated for 12 of your moves."],
-        fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/1NBQKBN1 w - - 0 1', doubleTake: true, goal: { survive: 12 },
+        title: 'Walk the Crossing', lines: ['A memory of the Library. A rook and a bishop guard the far shelves.', 'Walk your king to the far edge (the 8th rank) within 20 moves.'],
+        fen: '4k3/3r4/6b1/8/8/8/3PP3/3KN3 w - - 0 1', goal: { crossing: true }, moveLimit: 20, noChallenges: true,
       },
     },
   ],
@@ -484,6 +486,28 @@ const MISSIONS = {
         fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/1NB1KBN1 w - - 0 1', goal: { survive: 15 },
       },
     },
+    {
+      kind: 'relic', name: 'Embers of the Court',
+      minion: { name: 'Cinder', title: 'Spark of the Verdict', piece: 'pawn' },
+      greet: 'Four embers of old verdicts. Pick them up quickly. The sand is already falling.',
+      after: 'Every ember gathered. The court grows cold.',
+      fail: 'Burned out. Sentence carried out.',
+      rule: {
+        title: 'Relic Run', lines: ['Four embers lie on the board. Move a piece onto each one.', 'The hourglass is short: find all four within 16 moves.'],
+        goal: { relics: ['c5', 'f5', 'd6', 'e4'] }, moveLimit: 16,
+      },
+    },
+    {
+      kind: 'memory', name: 'The Hourglass Turns',
+      minion: { name: 'A Memory', title: 'The Night of the Crossing', piece: 'king' },
+      greet: '*sand falling* ... Across the lava, far away, a king made of crystal watched you. He turned an hourglass over.',
+      after: 'A memory: the hourglass turned, and the crystal king whispered: not this one. Not this piece.',
+      fail: '*the sand runs out* ... The memory burns away. Try again.',
+      rule: {
+        title: 'Walk the Crossing', lines: ['A memory of the Court. A rook stands in your way and the sand is short.', 'Walk your king to the far edge (the 8th rank) within 16 moves.'],
+        fen: '2r1k3/8/8/8/8/8/PPP5/1K1R4 w - - 0 1', goal: { crossing: true }, moveLimit: 16, noChallenges: true,
+      },
+    },
   ],
 
   soulboundpixel: [
@@ -542,6 +566,28 @@ const MISSIONS = {
         everyCapture: true, goal: { promote: true },
       },
     },
+    {
+      kind: 'relic', name: 'Shard Storm',
+      minion: { name: 'Splinter', title: 'A Piece of the Break', piece: 'bishop' },
+      greet: 'Five shards of the Great Board, spinning in the void. Every capture is a challenge. Gather them.',
+      after: 'Five shards, back in your hands. They are warm. They know you.',
+      fail: 'Scattered to the void again.',
+      rule: {
+        title: 'Relic Run', lines: ['Five shards float on the board. Move a piece onto each one. Every capture is a challenge.', 'Find all five within 24 moves (or checkmate) to win.'],
+        everyCapture: true, goal: { relics: ['a5', 'h5', 'c6', 'f6', 'd4'] }, moveLimit: 24,
+      },
+    },
+    {
+      kind: 'memory', name: 'One Square Away',
+      minion: { name: 'A Memory', title: 'The Night of the Crossing', piece: 'king' },
+      greet: '*everything goes quiet* ... The last memory. You were one square from the edge. Take the step.',
+      after: 'A memory: one square from the edge, the board cracked like ice, and everything went white. You remember now. All of it but your name.',
+      fail: '*white light* ... The board breaks again. Try again.',
+      rule: {
+        title: 'Walk the Crossing', lines: ['The last memory. A queen and a knight try to stop you, and every capture is a challenge.', 'Walk your king to the far edge (the 8th rank) within 22 moves.'],
+        fen: '3qk3/8/8/2n5/8/8/PPP5/1KR5 w - - 0 1', goal: { crossing: true }, moveLimit: 22, everyCapture: true,
+      },
+    },
   ],
 };
 
@@ -559,6 +605,14 @@ function minionLines(m) {
   } else if (goal.captureAll) {
     lines.playerCapture = ['You got my {piece}. {myPieces} of us left!', 'That {piece} was one of the good ones!', 'Still {myPieces} of us. We scatter!'];
     lines.lowHealth = ['Only {myPieces} left... run!', 'They are rounding us up!'];
+  } else if (goal.relics) {
+    lines.playerCapture = ['Hands off my {piece}! And my relics!', 'You took my {piece}. The relics are still mine!'];
+    lines.relic = ['That one was mine!', 'Put that back!', 'Only {left} left... you will never find them all.'];
+  } else if (goal.crossing) {
+    lines.bossCapture = ['*the memory darkens* ... Your {piece} is lost in it.', 'Something took your {piece}. Keep walking.'];
+    lines.playerCapture = ['*the memory brightens* ... The way is clearer.', 'The shadow of a {piece} fades.'];
+    lines.bossCheck = ['*a cold wind* ... Check. They tried to stop you here, too.'];
+    lines.milestone = ['*the edge glows* ... Keep walking. Move {moveNum}.'];
   } else if (goal.survive) {
     lines.playerCapture = ['You bit back. Hold on while you can.', 'My {piece}? Fine. Still coming.'];
     lines.milestone = ['Move {moveNum}. Still standing? Hm.', 'Move {moveNum}. You are stubborn.'];
@@ -597,7 +651,7 @@ for (const [worldId, list] of Object.entries(MISSIONS)) {
 }
 
 const StoryMissions = {
-  COUNT: 5,
+  COUNT: 7,
 
   forWorld(worldId) {
     return MISSIONS[worldId] || null;
@@ -621,6 +675,11 @@ const StoryMissions = {
   // The guardian waits at the end of the path.
   bossReady(save, world) {
     if (typeof SuperUser !== 'undefined' && SuperUser.active()) return true;
+    // Tournament worlds: the guardian waits for the champion.
+    if (typeof Tournaments !== 'undefined' && Tournaments.forWorld(world.id)) {
+      return StoryProgress.isRestored(save, world) ||
+        (StoryProgress.isUnlocked(save, world.stages[0]) && Tournaments.won(save, world.id));
+    }
     if (!MISSIONS[world.id]) return StoryProgress.isUnlocked(save, world.stages[0]);
     return StoryProgress.isRestored(save, world) ||
       (StoryProgress.isUnlocked(save, world.stages[0]) && this.cleared(save, world.id) >= this.COUNT);

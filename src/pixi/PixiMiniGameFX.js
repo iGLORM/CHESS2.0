@@ -136,7 +136,7 @@ const PixiMiniGameFX = {
   },
 
   shakeScreen(intensity) {
-    if (!PixiApp.stage) return;
+    if (!PixiApp.stage || (typeof Graphics !== 'undefined' && !Graphics.shake())) return;
     intensity = intensity || 8;
     gsap.to(PixiApp.stage, {
       x: intensity,

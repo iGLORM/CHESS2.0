@@ -4,7 +4,8 @@ class Store {
       screen: 'home',
       mode: null,
       subScreen: null,
-      theme: 'pawnhollow',
+      theme: 'chess20',       // the theme on screen now (in story mode: the world you are in)
+      menuTheme: 'chess20',   // the player's own pick, used everywhere outside story mode
       board: null,
       selectedSquare: null,
       legalMoves: [],
@@ -34,7 +35,6 @@ class Store {
         audioEnabled: true,
         miniGamesEnabled: true,
         animationSpeed: 1,
-        bossThemeEnabled: true,
         musicVolume: 0.5,
         sfxVolume: 0.5,
       },
@@ -48,6 +48,8 @@ class Store {
       // Themes kept from before the story worlds (world themes unlock by
       // restoring worlds; see ThemeManager.isThemeUnlocked).
       unlockedThemes: [],
+      // Coins and cosmetics for the whole game (src/state/Wallet.js).
+      wallet: { coins: 0, owned: [], planePaint: null, token: null },
       whitePlayer: 'Player 1',
       blackPlayer: 'Player 2',
       p1IsWhite: true,
@@ -127,10 +129,12 @@ class Store {
         settings: this.state.settings,
         controls: this.state.controls,
         theme: this.state.theme,
+        menuTheme: this.state.menuTheme,
         customThemeColors: this.state.customThemeColors,
         customMusicTheme: this.state.customMusicTheme,
         customBgTheme: this.state.customBgTheme,
         unlockedThemes: this.state.unlockedThemes,
+        wallet: this.state.wallet,
         stats: this.state.stats,
         trainingProgress: this.state.trainingProgress,
         // Player names and last-used Classic/Custom game options.
@@ -194,11 +198,14 @@ class Store {
         this.state.settings = { ...this.state.settings, ...data.settings };
         this.state.controls = data.controls || this.state.controls;
         this.state.theme = ThemeManager.resolveId(data.theme);
+        // Saves from before story mode had its own themes: the last theme is the pick.
+        this.state.menuTheme = ThemeManager.resolveId(data.menuTheme || data.theme);
         this.state.customThemeColors = data.customThemeColors || {};
         this.state.customMusicTheme = ThemeManager.resolveId(data.customMusicTheme);
-        this.state.customBgTheme = ThemeManager.resolveId(data.customBgTheme);
+        this.state.customBgTheme = ThemeManager.resolveBackdrop(data.customBgTheme);
         this.state.unlockedThemes = data.unlockedThemes || Store.legacyThemeUnlocks(this.state.storySaves);
         this.state.stats = { ...this.state.stats, ...data.stats };
+        if (data.wallet) this.state.wallet = { ...this.state.wallet, ...data.wallet };
         if (data.prefs) {
           for (const k of Store.PREF_KEYS) {
             if (data.prefs[k] !== undefined && data.prefs[k] !== null) this.state[k] = data.prefs[k];
@@ -220,6 +227,7 @@ class Store {
     this.state.madnessUnlocked = false;
     this.state.superUser = false;
     this.state.unlockedThemes = [];
+    this.state.wallet = { coins: 0, owned: [], planePaint: null, token: null };
     this.state.activeSaveSlot = 1;
     this._syncStoryKeys();
     localStorage.removeItem('chess2_progress');

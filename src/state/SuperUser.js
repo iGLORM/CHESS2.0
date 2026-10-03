@@ -2,10 +2,15 @@
 // challenge) and everything in the game shows as unlocked: every story stage,
 // mission, theme and song, the Madness tier and all training puzzles. It only
 // overrides the unlock checks, so real progress is kept, and ten more presses
-// switch it back off.
+// switch it back off. While it is on, W three times wins whatever you are
+// playing: a match, a trainer's test or mission, a puzzle or a mini-game.
 const SuperUser = {
   PRESSES: 10,
   WINDOW_MS: 4000,   // the presses must come within this long of each other
+  WIN_PRESSES: 3,
+  WIN_WINDOW_MS: 1500,
+  _winCount: 0,
+  _winLast: 0,
   REFRESH: ['home', 'worldMap', 'worldMissions', 'characterSelect', 'themeSelect', 'levelSelect', 'trainingHub'],
   _count: 0,
   _last: 0,
@@ -31,6 +36,40 @@ const SuperUser = {
     return true;
   },
 
+  // Called for every keydown (mini-games included); returns true when it won.
+  handleWinKey(e, screen) {
+    if (!this.active()) return false;
+    const target = e.target || {};
+    if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) return false;
+    if (e.repeat) return false;
+    if (e.ctrlKey || e.metaKey || e.altKey || (e.key !== 'w' && e.key !== 'W')) {
+      if (e.key !== 'Shift') this._winCount = 0;
+      return false;
+    }
+    const now = Date.now();
+    this._winCount = now - this._winLast > this.WIN_WINDOW_MS ? 1 : this._winCount + 1;
+    this._winLast = now;
+    if (this._winCount < this.WIN_PRESSES) return false;
+    this._winCount = 0;
+    const won = this.winNow(screen);
+    if (won) this._banner(true, 'SUPER USER: you win!');
+    return won;
+  },
+
+  // Wins the mini-game on screen, or else the current screen's game.
+  winNow(screen) {
+    if (typeof store !== 'undefined' && store.get('miniGameActive') && typeof miniGameManager !== 'undefined') {
+      const mgr = miniGameManager;
+      const game = mgr.currentGame;
+      if (!game || game.done) return false;
+      mgr.introTime = Math.max(mgr.introTime || 0, MiniGameManager.INTRO_SECONDS);
+      // When the bot plays the challenge, you are the other side.
+      if (mgr.challengePlayerIsAI) game.lose(); else game.win();
+      return true;
+    }
+    return !!(screen && typeof screen.superWin === 'function' && screen.superWin());
+  },
+
   toggle() {
     const on = !this.active();
     store.set('superUser', on);
@@ -48,9 +87,9 @@ const SuperUser = {
     }
   },
 
-  _banner(on) {
+  _banner(on, text) {
     const el = document.createElement('div');
-    el.textContent = on ? 'SUPER USER ON: everything unlocked' : 'SUPER USER OFF';
+    el.textContent = text || (on ? 'SUPER USER ON: everything unlocked' : 'SUPER USER OFF');
     Object.assign(el.style, {
       position: 'fixed', left: '50%', top: '9%', transform: 'translate(-50%, -12px)', zIndex: 10000,
       padding: '14px 26px', borderRadius: '10px', pointerEvents: 'none',

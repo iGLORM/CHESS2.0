@@ -63,6 +63,8 @@ const GameScreen = {
         miniGamesEnabled: !!store.get('miniGamesEnabled'),
         customMinigames: store.get('customMinigames') || {},
         snapshots: this.boardSnapshots.slice(-40),
+        powers: this.powers || {},
+        bossRule: this.mode === 'greatboard' ? this.bossRule : undefined,
       }));
     } catch (e) { /* storage full or unavailable: resume just won't be offered */ }
   },
@@ -119,18 +121,28 @@ const GameScreen = {
     if (canvas) canvas.style.pointerEvents = 'auto';
 
     this.bossRule = null;
-    this.bossState = { rewindsUsed: 0, puzzle: 0 };
+    this.bossState = { rewindsUsed: 0, puzzle: 0, challenges: { won: 0, lost: 0 }, misses: 0 };
     this.trial = null;
+    this.starResult = null;
+    this.reward = null;
+    this.hint = null;
+    this.removeMode = false;
+    this.sealMode = false;
+    this.powers = {};
+    this.lantern = null;
+    this._hintPending = false;
+    this._itemMsg = null;
+    this._fightStart = null;
     this._introQueue = null;
     this._introDone = null;
     this.bossEvent = false;
     this._fogCache = null;
     this.mode = store.get('mode');
-    this.isAIMode = this.mode === 'story' || this.mode === 'classic' || this.mode === 'custom';
+    this.isAIMode = this.mode === 'story' || this.mode === 'classic' || this.mode === 'custom' || this.mode === 'greatboard';
     // Every mode sets its own options so nothing leaks over from the last mode played.
-    if (this.mode === 'story') {
+    if (this.mode === 'story' || this.mode === 'greatboard') {
       store.set('p1IsWhite', true);
-      // Challenges are part of the story, whatever the minigame setting says.
+      // Challenges are part of the story (and the Great Board), whatever the minigame setting says.
       store.set('miniGamesEnabled', true);
     }
     const p1IsWhite = store.get('p1IsWhite') !== false;
@@ -146,15 +158,27 @@ const GameScreen = {
       const charLevel = this.currentCharacter ? this.currentCharacter.level : 1;
       const save = store.getActiveSave();
       const tier = save ? save.difficultyTier : 'beginner';
-      this.bossRule = this.currentCharacter ? BossRules.get(this.currentCharacter.id) : null;
-      this.characterLevel = BossRules.aiLevel(this.bossRule, DifficultyScaler.getAiLevel(tier, charLevel));
+      // New Game+ stacks the previous guardian's rule and plays a level stronger.
+      const ng = typeof NewGamePlus !== 'undefined' && NewGamePlus.active(save);
+      this.bossRule = !this.currentCharacter ? null : ng ? NewGamePlus.rule(this.currentCharacter, save) : BossRules.get(this.currentCharacter.id);
+      const level = DifficultyScaler.getAiLevel(tier, charLevel);
+      this.characterLevel = ng ? NewGamePlus.aiLevel(level) : BossRules.aiLevel(this.bossRule, level);
       if (!(data && data.restore)) {
         this.board = BossRules.startBoard(this.bossRule);
         if (this.bossRule && this.bossRule.goal && this.bossRule.goal.mystery) {
           BossRules.hideMystery(this.board, this.aiColor);
           this.bossState.hint = null;
         }
+        this._placeBounty();
       }
+    } else if (this.mode === 'greatboard') {
+      // Four quarters, four guardian rules (src/engine/GreatBoard.js). A restored game
+      // brings its own board; otherwise the setup screen's board, or a fresh one.
+      this.currentCharacter = null;
+      const lvl = store.get('greatBoardLevel');
+      this.characterLevel = typeof lvl === 'number' ? lvl : 6;
+      this.bossRule = (data && data.restore && data.restore.bossRule) || (data && data.rule) || GreatBoard.make();
+      if (!(data && data.restore)) this.board = BossRules.startBoard(this.bossRule);
     } else if (this.mode === 'classic') {
       this.currentCharacter = null;
       this.characterLevel = store.get('classicDifficulty') || 5;
@@ -179,7 +203,8 @@ const GameScreen = {
 
     audioManager.init();
     if (typeof audioManager.setSuspense === 'function') {
-      audioManager.setSuspense(false);
+      // The final fight plays the tense version of its song from the first move.
+      audioManager.setSuspense(!!(this.bossRule && this.bossRule.tenseMusic));
     }
     audioManager.startMusic();
     audioManager.setMatchDuck(true);
@@ -196,8 +221,17 @@ const GameScreen = {
       this.characterLevel = saved.characterLevel;
       this.gameplayMode = !this.usesRandomChallenges(saved.mode) && saved.gameplayMode !== false;
       this.boardSnapshots = saved.snapshots;
+      this.powers = { ...(saved.powers || {}) };
       this.restoreSnapshot(this.boardSnapshots[this.boardSnapshots.length - 1]);
       store.update({ board: this.board, turn: this.turn, gameStatus: this.gameStatus });
+      return;
+    }
+
+    // The Great Board opens with its four regions.
+    if (this.mode === 'greatboard') {
+      this._introQueue = [];
+      this._introDone = () => this._startTraining();
+      this._showRulesIntro({ kicker: 'GREAT BOARD', title: 'Four Worlds, One Board', lines: this.bossRule.lines, button: 'Play' });
       return;
     }
 
@@ -206,7 +240,7 @@ const GameScreen = {
       const ch = this.currentCharacter;
       const name = ch.name.toUpperCase();
       const lesson = ch.trainer ? ch.lesson || [] : [];
-      const tested = ch.trainer || ch.mission;   // a pass/fail test rather than a boss fight
+      const tested = ch.trainer || ch.mission || ch.side;   // a pass/fail test rather than a boss fight
       const pages = lesson.map((page, i) => ({
         kicker: `LESSON ${i + 1} / ${lesson.length}  ·  ${name}`,
         title: page.title,
@@ -215,7 +249,8 @@ const GameScreen = {
         button: 'Next',
       }));
       pages.push({
-        kicker: ch.mission ? `MISSION ${ch.mission.index + 1} / ${StoryMissions.COUNT}  ·  ${ch.world.name.toUpperCase()}`
+        kicker: ch.side ? (ch.side.kicker || name)
+          : ch.mission ? `MISSION ${ch.mission.index + 1} / ${StoryMissions.COUNT}  ·  ${ch.world.name.toUpperCase()}`
           : ch.trainer ? `YOUR TEST  ·  ${name}` : `BOSS RULE  ·  ${name}`,
         title: this.bossRule.title,
         lines: this.bossRule.lines,
@@ -224,7 +259,8 @@ const GameScreen = {
       });
       // The opponent greets you first; after a loss, with a rematch line.
       const record = (store.getActiveSave().record || {})[ch.id] || {};
-      const greeting = record.losses && ch.dialogue.rematch ? ch.dialogue.rematch : ch.dialogue.before;
+      const ngGreeting = typeof NewGamePlus !== 'undefined' && NewGamePlus.greeting(ch, store.getActiveSave());
+      const greeting = ngGreeting || (record.losses && ch.dialogue.rematch ? ch.dialogue.rematch : ch.dialogue.before);
       if (greeting) {
         pages.unshift({ kicker: (ch.title || '').toUpperCase(), title: ch.name, lines: [greeting], portraitId: ch.id, button: 'Continue' });
       }
@@ -287,11 +323,13 @@ const GameScreen = {
     c.addChild(title);
     if (portraitId) {
       // The opponent's portrait beside the text; a trainer's hologram bobs and flickers.
-      const isHolo = typeof TRAINERS !== 'undefined' && TRAINERS.some(t => t.id === portraitId);
-      const holo = new PIXI.Sprite(PixiPremiumAssets.characterCard(portraitId));
-      const hh = Math.min(h - TOP * 2, 200);
+      // Characters with live art show it (whole-pixel scale); the rest their painted card.
+      const live = typeof LiveScenes !== 'undefined' && LiveScenes.character(portraitId);
+      const isHolo = !live && typeof TRAINERS !== 'undefined' && TRAINERS.some(t => t.id === portraitId);
+      const holo = live ? LiveScenes.sprite(live) : new PIXI.Sprite(PixiPremiumAssets.characterCard(portraitId));
+      const hh = live ? LiveScenes.get(live).height * Math.floor(Math.min(h - TOP * 2, 240) / LiveScenes.get(live).height) : Math.min(h - TOP * 2, 200);
       holo.height = hh;
-      holo.width = Math.round(hh * 238 / 292);
+      holo.width = live ? Math.round(hh * LiveScenes.get(live).width / LiveScenes.get(live).height) : Math.round(hh * 238 / 292);
       holo.x = x + PAD_X - 6;
       holo.y = y + Math.round((h - hh) / 2) - 10;
       c.addChild(holo);
@@ -358,9 +396,20 @@ const GameScreen = {
       tl.from(actor.scale, { y: actor.scale.y * 0.05, duration: 0.35, ease: 'power2.out' }, 0.3);
       tl.add(() => audioManager.playMiniGameStart(), 0.3);
     } else {
-      actor = PixiPieceRenderer.createSprite(store.get('theme'), this.aiColor, STORY_PIECES[ch.id] || ch.piece || 'king');
-      actor.anchor.set(0.5, 1);
-      actor.width = actor.height = sq * 2.2;
+      // The opponent itself (its live figure, backdrop cut away); a piece if it has none.
+      const live = typeof LiveScenes !== 'undefined' && LiveScenes.character(ch.id);
+      const figure = live && LiveScenes.cutout(live);
+      if (figure) {
+        const def = LiveScenes.get(live);
+        figure.anchor.set(0.5, 1);
+        figure.height = def.height * Math.max(2, Math.round(sq * 3.2 / def.height));
+        figure.width = figure.height * def.width / def.height;
+        actor = figure;
+      } else {
+        actor = PixiPieceRenderer.createSprite(store.get('theme'), this.aiColor, STORY_PIECES[ch.id] || ch.piece || 'king');
+        actor.anchor.set(0.5, 1);
+        actor.width = actor.height = sq * 2.2;
+      }
       actor.x = Layout.W + sq * 2;
       actor.y = floor;
       shadow.x = actor.x;
@@ -432,6 +481,7 @@ const GameScreen = {
   },
 
   _shakeStage(strength) {
+    if (typeof Graphics !== 'undefined' && !Graphics.shake()) return;
     const st = PixiApp.stage;
     const t = { v: 0 };
     gsap.to(t, {
@@ -478,7 +528,7 @@ const GameScreen = {
     if (typeof PixiGameScreen !== 'undefined') {
       PixiGameScreen.init();
       PixiBoardRenderer.flipped = !!this.flipped;
-      PixiGameScreen.renderBoard(this.board, store.get('theme') || 'pawnhollow');
+      PixiGameScreen.renderBoard(this.board, store.get('theme') || 'chess20');
     }
     if (typeof PixiGameHud !== 'undefined') {
       PixiGameHud.init();
@@ -493,7 +543,8 @@ const GameScreen = {
 
   _initDialogue() {
     if (this.mode === 'story' && this.currentCharacter && typeof DialogueManager !== 'undefined') {
-      DialogueManager.init(this.currentCharacter, (text, character) => {
+      DialogueManager.init(this.currentCharacter, (text, character, category) => {
+        this._setCharacterMood(character, category);
         this._showDialogueBubble(text, character);
       });
     }
@@ -529,6 +580,8 @@ const GameScreen = {
     if (typeof audioManager.setSuspense === 'function') {
       audioManager.setSuspense(false);
     }
+    // Menus don't start music themselves: bring the theme song back after a pause.
+    audioManager.resumeMusicLater();
     if (typeof PixiBossFX !== 'undefined') PixiBossFX.destroy();
     if (typeof PixiGameScreen !== 'undefined') {
       PixiGameScreen.destroy();
@@ -670,13 +723,26 @@ const GameScreen = {
     return -1;
   },
 
+  // In Story Mode an undo is a Rewind bought in the Shop; everywhere else it is free.
   canUndo() {
+    if (this.mode === 'story' && !this.canUseItem('rewind', true)) return false;
+    return this._canRewind();
+  },
+
+  // Whether there is a move to take back now (whatever pays for it).
+  _canRewind() {
     return !this.gameOver && !this.bossEvent && this.reviewingAt === null && !this.promotionPending &&
       !store.get('miniGameActive') && this._undoTargetIndex() !== -1;
   },
 
-  undo() {
-    if (!this.canUndo()) return;
+  // free: the Stopped Hourglass pays instead of a Rewind.
+  undo(free = false) {
+    if (free ? !this._canRewind() : !this.canUndo()) return;
+    if (this.mode === 'story' && !free && !Wallet.use('rewind')) return;
+    this.hint = null;
+    this.removeMode = false;
+    this.sealMode = false;
+    this.lantern = null;
     const idx = this._undoTargetIndex();
     this._aiToken = (this._aiToken || 0) + 1;
     if (this._aiTimeout) { clearTimeout(this._aiTimeout); this._aiTimeout = null; }
@@ -690,6 +756,338 @@ const GameScreen = {
     this.pendingRevertMove = null;
     store.update({ board: this.board, turn: this.turn, gameStatus: this.gameStatus });
     audioManager.playSelect();
+  },
+
+  /* ------------------------------------------------------------------ */
+  /*  Story items (bought with stars in the Shop, see src/state/Wallet.js) */
+  /* ------------------------------------------------------------------ */
+
+  // Items work in story fights against a real opponent: not in the Training Camp,
+  // puzzle drills or challenge trials.
+  itemsAvailable() {
+    const ch = this.currentCharacter, rule = this.bossRule || {};
+    return typeof Wallet !== 'undefined' && this.mode === 'story' && !!ch && !ch.trainer && !rule.puzzles && !rule.minigameTrial;
+  },
+
+  // Whether an item can be used now. `rules` skips the turn checks (Undo checks its own).
+  canUseItem(id, rules = false) {
+    if (!this.itemsAvailable() || Wallet.count(id) <= 0) return false;
+    if (rules) return true;
+    if (this.gameOver || this.bossEvent || this.reviewingAt !== null || this.promotionPending || this.trial) return false;
+    if (store.get('miniGameActive') || this.aiThinking || this.turn !== this.playerColor) return false;
+    if (id === 'rewind') return this.canUndo();
+    if (id === 'hint') return !this._hintPending && !(this.hint && this.hint.at === this.moveHistory.length);
+    if (id === 'remove') {
+      const goal = (this.bossRule && this.bossRule.goal) || {};
+      return !goal.mystery && !goal.captureAll && this._removable().length > 0;
+    }
+    return false;
+  },
+
+  useItem(id) {
+    if (!this.canUseItem(id)) {
+      if (this.itemsAvailable() && Wallet.count(id) <= 0) this._shopHint();
+      else if (audioManager.playTileLock) audioManager.playTileLock();
+      return;
+    }
+    if (id === 'rewind') this.undo();
+    else if (id === 'hint') this._useHint();
+    else if (id === 'remove') {
+      this.removeMode = !this.removeMode;
+      this.sealMode = false;
+      this.selectedSquare = null;
+      this.legalMoves = [];
+      audioManager.playSelect();
+    }
+  },
+
+  // A short note in the status bar (none left: buy more in the Shop).
+  _shopHint() {
+    this._itemMsg = { text: 'None left: buy more in the Shop (on the world map)', until: performance.now() + 2600 };
+    if (audioManager.playTileLock) audioManager.playTileLock();
+  },
+
+  itemMessage() {
+    if (this.removeMode) return 'Click an enemy piece to remove it';
+    if (this.sealMode) return 'Click one of your pieces to seal it';
+    if (this._hintPending) return 'Finding a good move...';
+    return this._itemMsg && performance.now() < this._itemMsg.until ? this._itemMsg.text : null;
+  },
+
+  // Enemy pieces that can be lifted off: not the king or queen, not a wall, and not
+  // one whose removal would leave his king in check on your move.
+  _removable() {
+    const out = [];
+    for (let r = 0; r < 8; r++) {
+      for (let c = 0; c < 8; c++) {
+        const p = this.board.grid[r][c];
+        if (!p || p.color !== this.aiColor || p.type === 'king' || p.type === 'queen' || p.type === 'wall') continue;
+        const test = this.board.clone();
+        test.grid[r][c] = null;
+        const k = test.findKing(this.aiColor);
+        if (k && MoveGen.isSquareAttacked(test, k.row, k.col, this.playerColor)) continue;
+        out.push({ row: r, col: c });
+      }
+    }
+    return out;
+  },
+
+  _removePiece(row, col) {
+    if (!this._removable().some(s => s.row === row && s.col === col)) return false;
+    if (!Wallet.use('remove')) return false;
+    const piece = this.board.grid[row][col];
+    this.board.grid[row][col] = null;
+    this.capturedPieces[this.playerColor].push({ ...piece });
+    this.removeMode = false;
+    this.hint = null;
+    this._fogCache = null;
+    if (typeof PixiParticleFX !== 'undefined' && PixiParticleFX.spawnCaptureExplosion) {
+      const c = PixiBoardRenderer.squareCenter(row, col);
+      PixiParticleFX.spawnCaptureExplosion(c.x, c.y, 0xffd24a, piece.type);
+    }
+    audioManager.playCapture();
+    store.update({ board: this.board });
+    this._persistGame();
+    return true;
+  },
+
+  // The engine's move for you, marked on the board until you move.
+  _useHint() {
+    if (!Wallet.use('hint')) return;
+    this._hintPending = true;
+    const at = this.moveHistory.length;
+    const legal = GameRules.getLegalMoves(this.board, this.playerColor).filter(m => !this._isLockedSquare(m.to.row, m.to.col));
+    const done = (move) => {
+      this._hintPending = false;
+      if (this.moveHistory.length !== at || this.gameOver) { Wallet.give('hint', 1); return; }
+      if (!move) { Wallet.give('hint', 1); return; }
+      this.hint = { from: { ...move.from }, to: { ...move.to }, at };
+      audioManager.playSelect();
+    };
+    const walls = this.board.grid.some(r => r.some(p => p && p.type === 'wall'));
+    if (!legal.length) { done(null); return; }
+    if (walls && AIController._wallsHideCheck(this.board, this.playerColor)) { done(AIController._fallbackMove(legal)); return; }
+    const restricted = walls || legal.length < GameRules.getLegalMoves(this.board, this.playerColor).length;
+    const searchmoves = restricted ? legal.map(m => BotPersonality.moveToUci(m)) : null;
+    BotPersonality.bestMove(FEN.fromBoard(this.board, this.playerColor), { skill: 20, depth: 12, searchmoves })
+      .then(uci => done(BotPersonality._uciToMove(uci, legal) || null))
+      .catch(() => done(null));
+  },
+
+  // Hint squares and removable pieces, drawn over the board.
+  _drawItemMarks() {
+    const board = typeof PixiBoardRenderer !== 'undefined' && PixiBoardRenderer.container;
+    if (!board) return;
+    if (!this._itemG || this._itemG.destroyed || this._itemG.parent !== board) {
+      this._itemG = new PIXI.Graphics();
+      this._itemG.eventMode = 'none';
+      board.addChild(this._itemG);
+    }
+    const g = this._itemG.clear();
+    const sq = PixiBoardRenderer.squareSize;
+    const pulse = 0.55 + 0.35 * Math.sin(performance.now() / 180);
+    if (this.hint && this.hint.at === this.moveHistory.length && !this.gameOver) {
+      for (const s of [this.hint.from, this.hint.to]) {
+        const x = PixiBoardRenderer.squareX(s.col), y = PixiBoardRenderer.squareY(s.row);
+        g.rect(x + 3, y + 3, sq - 6, sq - 6).fill({ color: 0x5dff8a, alpha: 0.28 * pulse });
+        g.rect(x + 4, y + 4, sq - 8, sq - 8).stroke({ color: 0x5dff8a, width: 6, alpha: 0.5 + 0.5 * pulse });
+        g.rect(x + 10, y + 10, sq - 20, sq - 20).stroke({ color: 0xeafff0, width: 2, alpha: 0.6 * pulse });
+      }
+    }
+    if (this.removeMode && !this.gameOver) {
+      for (const s of this._removable()) {
+        const x = PixiBoardRenderer.squareX(s.col), y = PixiBoardRenderer.squareY(s.row);
+        g.rect(x + 3, y + 3, sq - 6, sq - 6).stroke({ color: 0xff6a5a, width: 3, alpha: pulse });
+        g.rect(x + 3, y + 3, sq - 6, sq - 6).fill({ color: 0xff6a5a, alpha: 0.14 });
+      }
+    }
+    // The Mist Lantern: every square he attacks gets a pale-green ember, your pieces
+    // in danger a ring.
+    if (this.lanternLit()) {
+      for (const s of this.lantern.attacked) {
+        const x0 = PixiBoardRenderer.squareX(s.col), y0 = PixiBoardRenderer.squareY(s.row), x = x0 + sq / 2, y = y0 + sq / 2;
+        g.rect(x0 + 2, y0 + 2, sq - 4, sq - 4).fill({ color: 0x3adcb4, alpha: 0.16 + 0.1 * pulse });
+        g.rect(x - 7, y - 7, 14, 14).fill({ color: 0x70f0d0, alpha: 0.55 * pulse + 0.25 });
+        g.rect(x - 3, y - 3, 6, 6).fill({ color: 0xe8fff8, alpha: 0.95 });
+      }
+      for (const s of this.lantern.threatened) {
+        const x = PixiBoardRenderer.squareX(s.col), y = PixiBoardRenderer.squareY(s.row);
+        g.rect(x + 3, y + 3, sq - 6, sq - 6).stroke({ color: 0xff5a5a, width: 4, alpha: 0.5 + 0.5 * pulse });
+      }
+    }
+    // Seal mode: your pieces that can be sealed; sealed squares: a red wax seal.
+    if (this.sealMode && !this.gameOver) {
+      for (const s of this._sealable()) {
+        const x = PixiBoardRenderer.squareX(s.col), y = PixiBoardRenderer.squareY(s.row);
+        g.rect(x + 3, y + 3, sq - 6, sq - 6).stroke({ color: 0xff6a5a, width: 3, alpha: pulse }).fill({ color: 0xff6a5a, alpha: 0.12 });
+      }
+    }
+    for (const t of this.lockedTiles) {
+      if (!t.seal) continue;
+      const x = PixiBoardRenderer.squareX(t.col), y = PixiBoardRenderer.squareY(t.row), cx = x + sq - 16, cy = y + 16;
+      g.rect(x + 2, y + 2, sq - 4, sq - 4).stroke({ color: 0xd8322a, width: 3, alpha: 0.85 });
+      // Red wax stamped with an X, as the Broken Seal was.
+      g.circle(cx, cy, 11).fill(0x5a0a14).circle(cx, cy - 1, 9).fill(0xc8262e).circle(cx - 3, cy - 4, 3).fill(0xff7a6a);
+      for (let k = -3; k <= 3; k++) g.rect(cx + k - 1, cy + k - 2, 2, 2).fill(0x5a0a14).rect(cx - k - 1, cy + k - 2, 2, 2).fill(0x5a0a14);
+    }
+    this._drawBounty(board, sq);
+  },
+
+  // The Wanted Poster's mark over the wanted piece, with the bounty below it.
+  _drawBounty(board, sq) {
+    let at = !this.gameOver && this.bountySquare();
+    const hidden = at && this._hiddenSquares();
+    if (hidden && hidden[at.row][at.col]) at = null;          // no giving it away in the fog
+    if (!at || typeof PixiKeepsake === 'undefined') {
+      if (this._bountyMark && !this._bountyMark.destroyed) this._bountyMark.visible = false;
+      return;
+    }
+    if (!this._bountyMark || this._bountyMark.destroyed || this._bountyMark.parent !== board) {
+      const c = new PIXI.Container();
+      const icon = PixiKeepsake.icon('poster', 26);
+      const tag = new PIXI.Text({ text: `+${this.BOUNTY}`, style: { fontFamily: PixiTextStyles.FONT_TITLE, fontSize: 11, fill: '#ffd24a', stroke: { color: '#1a1024', width: 4 } } });
+      tag.anchor.set(0.5, 0);
+      tag.y = 12;
+      c.addChild(icon, tag);
+      c.eventMode = 'none';
+      board.addChild(c);
+      this._bountyMark = c;
+    }
+    const m = this._bountyMark;
+    m.visible = true;
+    m.x = PixiBoardRenderer.squareX(at.col) + 15;
+    m.y = PixiBoardRenderer.squareY(at.row) + 15 + Math.sin(performance.now() / 260) * 2;
+  },
+
+  /* ------------------------------------------------------------------ */
+  /*  Keepsake powers (src/characters/keepsakes.js), in story fights      */
+  /* ------------------------------------------------------------------ */
+
+  // Once per fight each: the Stopped Hourglass (a free rewind), the Mist Lantern (his
+  // threats shown and the fog gone for your turn), the Broken Seal (one of your pieces
+  // cannot be taken for three of his turns). The Wanted Poster puts a bounty on one of
+  // his pieces. `powers` records what was used (kept outside the snapshots, so an undo
+  // never gives a power back).
+  KEEPSAKE_POWERS: ['hourglass', 'lantern', 'seal'],
+  BOUNTY: 25,
+
+  hasKeepsake(id) {
+    return this.itemsAvailable() && typeof Keepsakes !== 'undefined' && Keepsakes.has(id);
+  },
+
+  powerUsed(id) {
+    return !!(this.powers && this.powers[id]);
+  },
+
+  canUsePower(id) {
+    if (!this.hasKeepsake(id) || this.powerUsed(id)) return false;
+    if (this.gameOver || this.bossEvent || this.reviewingAt !== null || this.promotionPending || this.trial) return false;
+    if (store.get('miniGameActive') || this.aiThinking || this.turn !== this.playerColor) return false;
+    if (id === 'hourglass') return this._canRewind();
+    if (id === 'seal') return this._sealable().length > 0;
+    return true;
+  },
+
+  usePower(id) {
+    if (id === 'seal' && this.sealMode) { this.sealMode = false; audioManager.playSelect(); return; }
+    if (!this.canUsePower(id)) {
+      if (this.powerUsed(id)) this._itemMsg = { text: 'Used already: once per fight', until: performance.now() + 2200 };
+      if (audioManager.playTileLock) audioManager.playTileLock();
+      return;
+    }
+    if (id === 'hourglass') {
+      this.powers = { ...this.powers, hourglass: true };
+      this.undo(true);
+      this._itemMsg = { text: 'The sand stops for you. Your move again.', until: performance.now() + 2600 };
+      this._persistGame();
+    } else if (id === 'lantern') {
+      this.powers = { ...this.powers, lantern: true };
+      this.lantern = { at: this.moveHistory.length, ...this._threats() };
+      this._fogCache = null;
+      this._itemMsg = { text: 'The lantern shows what he hides', until: performance.now() + 2600 };
+      if (audioManager.playPromotion) audioManager.playPromotion();
+      this._persistGame();
+    } else if (id === 'seal') {
+      this.sealMode = true;
+      this.removeMode = false;
+      this.selectedSquare = null;
+      this.legalMoves = [];
+      audioManager.playSelect();
+    }
+  },
+
+  // Whether the lantern is lit (your turn after using it).
+  lanternLit() {
+    return !!this.lantern && this.lantern.at === this.moveHistory.length && !this.gameOver;
+  },
+
+  // Squares his pieces attack, and your pieces standing on them.
+  _threats() {
+    const attacked = [], threatened = [];
+    for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) {
+      if (!MoveGen.isSquareAttacked(this.board, r, c, this.aiColor)) continue;
+      attacked.push({ row: r, col: c });
+      const p = this.board.grid[r][c];
+      if (p && p.color === this.playerColor) threatened.push({ row: r, col: c });
+    }
+    return { attacked, threatened };
+  },
+
+  // Your pieces the seal can hold (not the king).
+  _sealable() {
+    const out = [];
+    for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) {
+      const p = this.board.grid[r][c];
+      if (p && p.color === this.playerColor && p.type !== 'king' && !this._isLockedSquare(r, c)) out.push({ row: r, col: c });
+    }
+    return out;
+  },
+
+  // Seals a piece: he cannot move onto (take) its square for three of his turns.
+  _sealPiece(row, col) {
+    if (!this._sealable().some(s => s.row === row && s.col === col)) return false;
+    this.sealMode = false;
+    this.powers = { ...this.powers, seal: true };
+    this.lockedTiles.push({ row, col, until: this.moveHistory.length + 6, seal: true });
+    if (typeof PixiParticleFX !== 'undefined' && PixiParticleFX.spawnCaptureExplosion) {
+      const c = PixiBoardRenderer.squareCenter(row, col);
+      PixiParticleFX.spawnCaptureExplosion(c.x, c.y, 0xff6a5a, 'pawn');
+    }
+    audioManager.playTileLock();
+    this._itemMsg = { text: 'Sealed: he cannot take it for 3 turns', until: performance.now() + 2600 };
+    store.update({ board: this.board });
+    this._persistGame();
+    return true;
+  },
+
+  // The Wanted Poster: one of his minor pieces or rooks carries a bounty (a story tag
+  // that moves with the piece, like the Mystery Piece).
+  _placeBounty() {
+    if (!this.hasKeepsake('poster') || (this.bossRule && this.bossRule.goal && (this.bossRule.goal.mystery || this.bossRule.goal.captureAll))) return;
+    const pool = [];
+    for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) {
+      const p = this.board.grid[r][c];
+      if (p && p.color === this.aiColor && ['knight', 'bishop', 'rook'].includes(p.type)) pool.push(p);
+    }
+    if (pool.length) pool[Math.floor(Math.random() * pool.length)].wanted = true;
+  },
+
+  // Where the wanted piece stands, or null.
+  bountySquare() {
+    for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) {
+      const p = this.board.grid[r][c];
+      if (p && p.wanted && p.color === this.aiColor) return { row: r, col: c, type: p.type };
+    }
+    return null;
+  },
+
+  // Taking the wanted piece pays the bounty (once per fight).
+  _collectBounty(captured) {
+    if (!captured || !captured.wanted || captured.color !== this.aiColor || this.powerUsed('bounty')) return;
+    this.powers = { ...this.powers, bounty: true };
+    const coins = Wallet.earn('bounty', this.BOUNTY);
+    this._itemMsg = { text: `Bounty collected: +${coins} coins`, until: performance.now() + 3200 };
+    if (audioManager.playVictory) audioManager.playVictory();
   },
 
   flipBoard() {
@@ -708,17 +1106,20 @@ const GameScreen = {
 
   // Plain locks last for the rest of one turn; timed ones until their ply.
   _expireLocks() {
-    this.lockedTiles = this.lockedTiles.filter(t => t.until && t.until > this.moveHistory.length);
+    this.lockedTiles = this.lockedTiles.filter(t => t.until && t.until > this.moveHistory.length &&
+      !(t.seal && !(this.board.grid[t.row][t.col] && this.board.grid[t.row][t.col].color === this.playerColor)));
   },
 
   // The Knight of the Mist: 8x8 booleans (true = hidden from you), or null.
   _hiddenSquares() {
-    if (!this.bossRule || !this.bossRule.fog || this.gameOver) return null;
+    if (!this.bossRule || !this.bossRule.fog || this.gameOver || this.lanternLit()) return null;
     const key = PixiGameScreen._getBoardKey(this.board);
     if (!this._fogCache || this._fogCache.key !== key) {
       const seen = BossRules.visibleSquares(this.board, this.playerColor);
-      const rows = this.bossRule.fogRows;   // a band of mist (the Rulekeeper), or the whole board
-      this._fogCache = { key, hidden: seen.map((row, r) => row.map(v => !v && (!rows || rows.includes(r)))) };
+      const rule = this.bossRule;
+      const rows = rule.fogRows;   // a band of mist (the Rulekeeper), a Great Board quarter, or the whole board
+      const misted = (r, c) => (rule.regions ? BossRules.regionAt(rule, { row: r, col: c }) === 'mist' : !rows || rows.includes(r));
+      this._fogCache = { key, hidden: seen.map((row, r) => row.map((v, c) => !v && misted(r, c))) };
     }
     return this._fogCache.hidden;
   },
@@ -769,6 +1170,23 @@ const GameScreen = {
     if (goal.promote && !bossMoved && move.promotion) {
       this._endTraining(true, 'crowned');
       return;
+    }
+    if (goal.relics && !bossMoved) {
+      const taken = BossRules.relicsTaken(rule, this.moveHistory, this.playerColor);
+      const before = BossRules.relicsTaken(rule, this.moveHistory.slice(0, -1), this.playerColor);
+      if (taken.length > before.length && typeof PixiBossFX !== 'undefined') PixiBossFX.relicTaken(move.to, taken.length, goal.relics.length);
+      if (taken.length >= goal.relics.length) {
+        this._endTraining(true, 'relics');
+        return;
+      }
+      if (taken.length > before.length) this._twistLine('relic', { left: goal.relics.length - taken.length });
+    }
+    if (goal.crossing && !bossMoved) {
+      const k = this.board.findKing(this.playerColor);
+      if (k && k.row === BossRules.crossingRow(this.playerColor)) {
+        this._endTraining(true, 'crossed');
+        return;
+      }
     }
     if (goal.survive && bossMoved && this._playerMoves() >= goal.survive) {
       this._endTraining(true, 'survived');
@@ -827,6 +1245,16 @@ const GameScreen = {
       if (fx) setTimeout(() => fx.banner('FOUND IT!', '#ffd35a'), 900);
     }
     return false;
+  },
+
+  // Memory missions: the rank the king started the crossing on.
+  _crossingStart() {
+    const rule = this.bossRule;
+    if (!this._crossStart || this._crossStart.rule !== rule) {
+      const k = BossRules.startBoard(rule, () => 0).findKing(this.playerColor);
+      this._crossStart = { rule, row: k ? k.row : (this.playerColor === 'white' ? 7 : 0) };
+    }
+    return this._crossStart.row;
   },
 
   // Moves until the next mystery hint.
@@ -889,8 +1317,24 @@ const GameScreen = {
       const n = Math.min(rule.goal.survive, this._playerMoves());
       return { label: 'MOVES SURVIVED', done: n, total: rule.goal.survive, slots: Math.min(rule.goal.survive, 15) };
     }
+    if (rule.goal && rule.goal.relics) {
+      const n = BossRules.relicsTaken(rule, this.moveHistory, this.playerColor).length;
+      return { label: 'RELICS FOUND', done: n, total: rule.goal.relics.length, slots: rule.goal.relics.length };
+    }
+    if (rule.goal && rule.goal.crossing) {
+      const start = this._crossingStart();
+      const total = Math.abs(start - BossRules.crossingRow(this.playerColor));
+      const n = this.gameOver && this.playerWon() ? total : Math.min(total, BossRules.crossingProgress(this.board, this.playerColor, start));
+      return { label: 'RANKS CROSSED', done: n, total, slots: total };
+    }
     if (rule.goal && rule.goal.promote) {
       return { label: 'PAWN CROWNED', done: this.gameOver && this.playerWon() ? 1 : 0, total: 1, slots: 1 };
+    }
+    if (rule.minigameTrial && rule.minigameTrial.all) {
+      // Joy Stick's lesson: every game, one by one.
+      const n = MiniGameManager.getAllowedGames(miniGameManager.allGames).length;
+      const t = this.trial || { played: ((store.getActiveSave() || {}).lesson || {}).at || 0 };
+      return { label: 'GAMES LEARNED', done: t.played, total: n, slots: n };
     }
     if (rule.minigameTrial) {
       const t = this.trial || { played: 0, won: 0 };
@@ -908,6 +1352,7 @@ const GameScreen = {
   // Called once the lesson cards are dismissed.
   _startTraining() {
     const rule = this.bossRule;
+    this._fightStart = performance.now();
     if (rule && rule.minigameTrial && !this.gameOver) this._runTrial();
   },
 
@@ -937,6 +1382,7 @@ const GameScreen = {
     const index = this.bossState.puzzle || 0;
     const solved = status.status === 'checkmate' && status.winner === this.playerColor;
     if (solved && index >= rule.puzzles.length - 1) return false;   // last one: a normal win
+    if (!solved) this.bossState.misses = (this.bossState.misses || 0) + 1;
     this.bossEvent = true;
     if (typeof PixiBossFX !== 'undefined') {
       PixiBossFX.banner(solved ? 'CHECKMATE!' : 'NOT MATE', solved ? '#7dea99' : '#ff6b6b');
@@ -980,6 +1426,7 @@ const GameScreen = {
       this._endTraining(true, 'trial');   // No WebGL: challenges cannot run, so the lesson is waived.
       return;
     }
+    if (spec.all) { this._runLesson(games, spec); return; }
     const order = games.sort(() => Math.random() - 0.5);
     this.trial = { played: 0, won: 0, games: spec.games, need: spec.need };
     const next = () => {
@@ -994,6 +1441,44 @@ const GameScreen = {
         else if (this.trial.won + left < this.trial.need) this._endTraining(false, 'trial');
         else setTimeout(next, 700);
       }, { failText: this.currentCharacter && this.currentCharacter.mission ? 'Keep going!' : 'Joy Stick: keep going!' });
+    };
+    setTimeout(next, 400);
+  },
+
+  // Joy Stick's lesson: every challenge once, in a fixed order. A lost game gets
+  // `retries` more tries, then counts as learned anyway, so the lesson always ends
+  // in a pass. Progress stays in the save (save.lesson), so leaving mid-way resumes.
+  _runLesson(games, spec) {
+    const saved = (store.getActiveSave() || {}).lesson || {};
+    const at = Math.min(saved.at || 0, games.length - 1);
+    this.trial = { played: at, won: at, firstTry: saved.firstTry || 0, games: games.length, need: games.length, lesson: true, tries: 0 };
+    const keep = () => store.setActiveSave({ lesson: { at: this.trial.played, firstTry: this.trial.firstTry } });
+    const next = () => {
+      if (this.gameOver || !this.trial) return;
+      const type = games[this.trial.played];
+      if (typeof PixiBossFX !== 'undefined' && this.trial.tries === 0) {
+        PixiBossFX.banner(`GAME ${this.trial.played + 1} / ${games.length}`, '#ff6fd8');
+      }
+      miniGameManager.startPracticeMiniGame(type, (result) => {
+        if (!this.trial) return;
+        const won = result === 'defended';
+        if (won && this.trial.tries === 0) this.trial.firstTry++;
+        if (won || this.trial.tries >= spec.retries) {
+          this.trial.played++;
+          this.trial.won = this.trial.played;
+          this.trial.tries = 0;
+        } else {
+          this.trial.tries++;
+        }
+        if (this.trial.played >= games.length) {
+          store.setActiveSave({ lesson: null });
+          this._endTraining(true, 'trial');
+          return;
+        }
+        keep();
+        store.saveProgress();
+        setTimeout(next, 700);
+      }, { failText: this.trial.tries >= spec.retries ? 'Joy Stick: lesson learned, next game!' : `Joy Stick: try again! (${spec.retries - this.trial.tries} left)` });
     };
     setTimeout(next, 400);
   },
@@ -1065,7 +1550,10 @@ const GameScreen = {
       this.aiCooldown = 900;
       store.update({ board: this.board, turn: this.turn, gameStatus: this.gameStatus });
       const line = this.REWIND_LINES[(this.bossState.rewindsUsed - 1) % this.REWIND_LINES.length];
-      if (this.currentCharacter) this._showDialogueBubble(line, this.currentCharacter);
+      if (this.currentCharacter) {
+        this._showDialogueBubble(line, this.currentCharacter);
+        this._setCharacterMood(this.currentCharacter, 'crack');   // his crystal has just cracked
+      }
     };
     if (typeof PixiBossFX !== 'undefined' && PixiBossFX.initialized) {
       PixiBossFX.rewind(steps, gift, theme, finish);
@@ -1090,7 +1578,7 @@ const GameScreen = {
 
   // Story and Custom games use random capture challenges, never Defenses.
   usesRandomChallenges(mode) {
-    return mode === 'story' || mode === 'custom';
+    return mode === 'story' || mode === 'custom' || mode === 'greatboard';
   },
 
   // Defenses only exist when the Chess 2.0 capture mini-games are on
@@ -1123,6 +1611,7 @@ const GameScreen = {
     const ch = this.currentCharacter;
     if (ch && (ch.trainer || ch.mission) && !this.playerWon()) return 'Try Again';
     if (ch && ch.mission && this.playerWon()) return 'Mission Clear!';
+    if (ch && ch.side && this.playerWon() && ch.side.winTitle) return ch.side.winTitle;
     if (this.isAIMode) return this.playerWon() ? 'You Win!' : 'You Lose';
     return this.getPlayerName(this.gameResult) + ' Wins!';
   },
@@ -1133,25 +1622,32 @@ const GameScreen = {
       case 'stalemate': return 'by Stalemate';
       case 'draw': return this.drawReason || 'by Draw';
       case 'resigned': return 'by Resignation';
-      case 'timeout': return 'The sand ran out';
+      case 'timeout': return this.currentCharacter && this.currentCharacter.theme !== 'obsidiancourt' ? 'Out of moves' : 'The sand ran out';
       case 'goal': return this.currentCharacter && this.currentCharacter.mission ? 'Goal reached' : 'Lesson complete';
       case 'crowned': return 'Your pawn was crowned';
       case 'survived': return 'You held out';
       case 'cleared': return 'Every piece taken';
       case 'mystery': return 'You caught the mystery piece';
+      case 'relics': return 'Every relic found';
+      case 'crossed': return 'You reached the far edge';
       case 'trial': return this.playerWon() ? 'Trial passed' : 'Not enough wins';
+      case 'superuser': return 'Super User win';
       default: return 'Game Over';
     }
+  },
+
+  // Whether render() will draw on the Canvas 2D overlay this frame. When it won't,
+  // the game loop leaves the overlay untouched instead of clearing it every frame.
+  drawsOverlay() {
+    return this.aiThinking || !!this.promotionPending || (this.comboDisplayTimer > 0 && this.captureCombo > 1);
   },
 
   render(ctx, dt) {
     const theme = ThemeManager.getTheme(store.get('theme'));
     const cols = theme.colors;
     if (typeof audioManager !== 'undefined' && typeof audioManager.setSuspense === 'function') {
-      audioManager.setSuspense(this.gameStatus === 'check' && !this.gameOver);
+      audioManager.setSuspense((this.gameStatus === 'check' || !!(this.bossRule && this.bossRule.tenseMusic)) && !this.gameOver);
     }
-
-    UIHelpers.drawDitheredRect(ctx, 0, 0, Layout.W, 3, cols.accent, '33');
 
     if (this.aiCooldown > 0) {
       this.aiCooldown -= dt * 1000;
@@ -1171,6 +1667,7 @@ const GameScreen = {
       const lm = this.lastMove;
       const lastMove = hidden && lm && (hidden[lm.from.row][lm.from.col] || hidden[lm.to.row][lm.to.col]) ? null : lm;
       PixiGameScreen.update(dt, {
+        backdrop: this._fightBackdrop(),
         board: this.board,
         selectedSquare: this.selectedSquare,
         legalMoves: filteredMoves,
@@ -1178,6 +1675,7 @@ const GameScreen = {
         checkSquare: inCheck ? this.board.findKing(this.turn) : null,
       });
       if (typeof PixiBossFX !== 'undefined' && this.bossRule) PixiBossFX.update(dt, this, hidden);
+      this._drawItemMarks();
     }
 
     if (typeof PixiGameHud !== 'undefined') {
@@ -1265,6 +1763,13 @@ const GameScreen = {
       case 'forward': this.stepForward(); break;
       case 'live': this.goToLive(); break;
       case 'undo': this.undo(); break;
+      case 'item_rewind': this.useItem('rewind'); break;
+      case 'item_hint': this.useItem('hint'); break;
+      case 'item_remove': this.useItem('remove'); break;
+      case 'power_hourglass': this.usePower('hourglass'); break;
+      case 'power_lantern': this.usePower('lantern'); break;
+      case 'power_seal': this.usePower('seal'); break;
+      case 'shop_hint': this._shopHint(); break;
       case 'flip': this.flipBoard(); break;
       case 'pause': PauseMenu.show(); break;
     }
@@ -1332,7 +1837,19 @@ const GameScreen = {
     const row = boardPos.row;
     const col = boardPos.col;
 
-    if (this._isLockedSquare(row, col)) {
+    // Remove a Piece: the next click picks the enemy piece (anything else cancels).
+    if (this.removeMode) {
+      if (!this._removePiece(row, col)) { this.removeMode = false; audioManager.playSelect(); }
+      return;
+    }
+    if (this.sealMode) {
+      if (!this._sealPiece(row, col)) { this.sealMode = false; audioManager.playSelect(); }
+      return;
+    }
+
+    // A sealed piece of yours can still move; other locked squares refuse the click.
+    const sealed = this.lockedTiles.some(t => t.seal && t.row === row && t.col === col);
+    if (this._isLockedSquare(row, col) && !sealed) {
       audioManager.playTileLock();
       return;
     }
@@ -1471,10 +1988,12 @@ const GameScreen = {
     // Random capture challenges (Story and Custom): the attacker plays; losing
     // cancels the capture and locks that square for the rest of the turn.
     const bossIsAttacker = this.mode === 'story' && isAIMove;
-    if (captured && bossIsAttacker && this.bossRule && this.bossRule.doubleTake) {
+    // Double take: ForkMaster's forks, or any fork that captures on a Great Board "forks" quarter.
+    const forksHere = BossRules.regionAt(this.bossRule, move.to) === 'forks';
+    if (captured && this.bossRule && ((bossIsAttacker && this.bossRule.doubleTake) || forksHere)) {
       move.doubleTake = BossRules.doubleTakeVictim(this.board, move);
     }
-    const challengeChance = BossRules.challengeChance(this.bossRule, captured || {}, bossIsAttacker);
+    const challengeChance = BossRules.challengeChance(this.bossRule, captured || {}, bossIsAttacker, move.to);
     if (captured && !this.gameplayMode && Math.random() < challengeChance && MiniGameManager.shouldTriggerMiniGame() &&
         CaptureRules.isChallengeable(this.board, move)) {
       const token = this._aiToken;
@@ -1484,6 +2003,7 @@ const GameScreen = {
         isAIMove,
         (winner) => {
           if (token !== this._aiToken) return;
+          this._countChallenge(isAIMove ? winner !== 'attacker' : winner === 'attacker');
           if (winner === 'attacker') {
             this.executeCaptureMove(move, piece, captured);
           } else {
@@ -1504,6 +2024,12 @@ const GameScreen = {
     if (!captured) this.captureCombo = 0;
     this.executeCaptureMove(move, piece, captured);
     return false;
+  },
+
+  // Challenges won and lost by the player in a story fight (for the stars).
+  _countChallenge(playerWon) {
+    const c = this.bossState.challenges || { won: 0, lost: 0 };
+    this.bossState.challenges = playerWon ? { ...c, won: c.won + 1 } : { ...c, lost: c.lost + 1 };
   },
 
   tryStartDefensiveMiniGame(move, piece, captured, isAIMove) {
@@ -1574,6 +2100,7 @@ const GameScreen = {
   executeCaptureMove(move, piece, captured) {
     if (captured) {
       const capturingColor = this.turn;
+      if (capturingColor === this.playerColor) this._collectBounty(captured);
       this.capturedPieces[capturingColor].push(captured);
       this.captureCombo++;
       if (this.gameplayMode) {
@@ -1621,7 +2148,9 @@ const GameScreen = {
   },
 
   revertMoveAndLockTile(move) {
-    const lockPlies = this.bossRule && this.bossRule.lockPlies;
+    const rule = this.bossRule;
+    // On the Great Board only the gears quarter locks squares for longer.
+    const lockPlies = rule && rule.lockPlies && (!rule.regions || BossRules.regionAt(rule, move.to) === 'gears') ? rule.lockPlies : 0;
     if (lockPlies && this.turn === this.playerColor) this._twistLine('lock');
     // A timed lock (CastlE) lasts `lockPlies` plies after the replacement move:
     // with 4, the square stays shut for 3 of that side's turns, this one included.
@@ -1699,7 +2228,7 @@ const GameScreen = {
       }
     }
     if (typeof audioManager.setSuspense === 'function') {
-      audioManager.setSuspense(this.gameStatus === 'check' && !this.gameOver);
+      audioManager.setSuspense((this.gameStatus === 'check' || !!(this.bossRule && this.bossRule.tenseMusic)) && !this.gameOver);
     }
 
     store.update({
@@ -1813,18 +2342,42 @@ const GameScreen = {
     }
   },
 
+  // A world can fight in front of different art than its theme's (worlds.js `fightBackdrop`),
+  // as long as the fight is in that world's theme.
+  _fightBackdrop() {
+    const world = this.mode === 'story' && this.currentCharacter && this.currentCharacter.world;
+    return world && world.fightBackdrop && store.get('theme') === world.art ? world.fightBackdrop : null;
+  },
+
+  // Characters with live art react to what they say (happy when they take a piece...),
+  // then settle back to their usual mood.
+  _setCharacterMood(character, category) {
+    const live = typeof LiveScenes !== 'undefined' && character && LiveScenes.character(character.id);
+    if (!live) return;
+    const def = LiveScenes.get(live);
+    const mood = def.moodFor ? def.moodFor(category) : null;
+    if (!mood) return;
+    LiveScenes.setMood(live, mood);
+    clearTimeout(this._moodTimer);
+    this._moodTimer = setTimeout(() => LiveScenes.setMood(live, def.moods[0]), 6000);
+  },
+
   _showDialogueBubble(text, character) {
     if (!PixiApp.stage || typeof PixiDialogueBubble === 'undefined') return;
     if (this._dialogueBubble) {
       this._dialogueBubble.dismiss();
     }
+    // The opponent on its stage speaks: the bubble comes out of its mouth.
+    const anchor = typeof PixiGameHud !== 'undefined' && PixiGameHud.mouthAnchor();
+    if (anchor) PixiGameHud.speak();
     const bubble = new PixiDialogueBubble({
       name: character.name,
       text: text,
       colors: character.colors,
       characterId: character.id,
       cols: ThemeManager.getTheme(store.get('theme')).colors,
-      duration: 5000,
+      duration: Math.max(4000, Math.min(7000, 2200 + text.length * 45)),
+      anchor,
     });
     PixiApp.stage.addChild(bubble);
     PixiApp.stage.sortableChildren = true;
@@ -1833,7 +2386,7 @@ const GameScreen = {
 
   // Against the AI the player resigns; in local 1v1 the side to move resigns.
   surrender() {
-    if (this.gameOver) return;
+    if (this.gameOver || !this.canSurrender()) return;
     const loser = this.isAIMode ? this.playerColor : this.turn;
     this._aiToken++;
     this.aiThinking = false;
@@ -1844,9 +2397,52 @@ const GameScreen = {
     audioManager.playGameOver();
   },
 
+  // Super User's W x3: the game (or trainer's test, mission, drill) ends as a
+  // win on the spot. In local 1v1 the side to move wins.
+  superWin() {
+    if (this.gameOver || this.reviewingAt !== null) return false;
+    this._aiToken = (this._aiToken || 0) + 1;
+    this.aiThinking = false;
+    this.promotionPending = null;
+    if (this.trial && this.trial.lesson) store.setActiveSave({ lesson: null });
+    this.gameOver = true;
+    this.gameStatus = 'superuser';
+    this.gameResult = this.isAIMode ? this.playerColor : this.turn;
+    this.handleGameEnd();
+    audioManager.playVictory();
+    if (typeof PixiGameScreen !== 'undefined' && PixiGameScreen.initialized) {
+      PixiGameScreen.spawnFireworks(Layout.cx, Layout.cy, [0xffd35a, 0xfff3c4, 0xffffff, 0xffaa00]);
+    }
+    store.update({ gameStatus: this.gameStatus, gameOver: true, gameResult: this.gameResult });
+    return true;
+  },
+
+  // The opening Pawnie game of a new save: no surrender, and quitting is not a loss.
+  canSurrender() {
+    const ch = this.currentCharacter;
+    const firstFight = this.mode === 'story' && ch && !ch.side && !ch.mission && ch.stage === 1 &&
+      StoryProgress.firstFightPending(store.getActiveSave());
+    return !firstFight;
+  },
+
+  // The Training Camp's first four trainers teach lessons: you leave one, not surrender it.
+  isLesson() {
+    const ch = this.currentCharacter;
+    return this.mode === 'story' && !!ch && !!ch.trainer && !ch.side && ch.stage < 6;
+  },
+
+  // Leaving a lesson is no loss: back to the Training Camp's map. Joy Stick's
+  // progress stays in the save, so the lesson picks up where it was left.
+  leaveLesson() {
+    this._aiToken = (this._aiToken || 0) + 1;
+    this.aiThinking = false;
+    const world = this.currentCharacter && this.currentCharacter.world;
+    switchScreen(world ? 'worldMissions' : 'worldMap', world ? { world: world.id } : undefined);
+  },
+
   // Leaving an AI game part-way counts as resigning; leaving a 1v1 game does not.
   quitToMenu() {
-    if (!this.gameOver && this.isAIMode && this.moveHistory.length > 0) {
+    if (!this.gameOver && this.isAIMode && this.moveHistory.length > 0 && this.canSurrender() && !this.isLesson()) {
       this.surrender();
     }
     switchScreen('home');
@@ -1856,6 +2452,10 @@ const GameScreen = {
     this.clearSavedGame();
     if (typeof DialogueManager !== 'undefined') DialogueManager.destroy();
     if (this._dialogueBubble) { this._dialogueBubble.dismiss(); this._dialogueBubble = null; }
+    // The opponent's live face reacts to the result: rattled when you win, gloating when you lose.
+    if (this.mode === 'story' && this.gameResult && this.gameResult !== 'draw') {
+      this._setCharacterMood(this.currentCharacter, this.playerWon() ? 'lowHealth' : 'bossCaptureBig');
+    }
 
     // Stats are kept from Player 1's point of view (the human against the AI).
     const stats = store.get('stats');
@@ -1873,21 +2473,67 @@ const GameScreen = {
       if (this.playerWon()) r.wins++;
       else r.losses++;
       store.setActiveSave({ record: { ...(save.record || {}), [id]: r } });
+      // Stars: the win plus the opponent's two objectives; the save keeps the best.
+      if (typeof StoryStars !== 'undefined' && StoryStars.has(this.currentCharacter)) {
+        const ctx = StoryStars.context({
+          won: this.playerWon(),
+          playerColor: this.playerColor,
+          aiColor: this.aiColor,
+          moveHistory: this.moveHistory,
+          capturedPieces: this.capturedPieces,
+          bossState: this.bossState,
+          trial: this.trial,
+          seconds: this._fightStart ? (performance.now() - this._fightStart) / 1000 : undefined,
+        });
+        const got = StoryStars.evaluate(this.currentCharacter, ctx);
+        const merged = StoryStars.merge(store.getActiveSave(), id, got);
+        store.setActiveSave({ stars: merged.stars });
+        this.starResult = { got, best: merged.best, fresh: merged.fresh, texts: StoryStars.texts(this.currentCharacter) };
+      }
+    }
+
+    // Coins for a win (side matches pay their own reward below).
+    this.reward = null;
+    const side = this.mode === 'story' && this.currentCharacter && this.currentCharacter.side;
+    if (typeof Wallet !== 'undefined' && this.playerWon() && !side) {
+      const ch = this.currentCharacter;
+      const reason = this.mode !== 'story' ? 'classicWin' : ch && ch.mission ? 'missionWin' : 'storyWin';
+      if (this.isAIMode) this.reward = { coins: Wallet.earn(reason), stars: 0 };
     }
 
     const mission = this.currentCharacter && this.currentCharacter.mission;
-    if (this.mode === 'story' && mission && this.playerWon()) {
+    if (side) {
+      // Tournament games, rivals, side quests and the Arena report back to their owner.
+      const result = !this.gameResult || this.gameResult === 'draw' ? 'draw' : this.playerWon() ? 'win' : 'loss';
+      this.reward = SideMatches.finish(this.currentCharacter, result, { moves: this.moveHistory.length });
+    } else if (this.mode === 'story' && mission && this.playerWon()) {
       // The world map plays the next step of the path.
       if (StoryMissions.markCleared(mission.world.id, mission.index)) {
         store.set('missionEvent', { world: mission.world.id, index: mission.index });
+      }
+    } else if (this.mode === 'story' && this.playerWon() && typeof NewGamePlus !== 'undefined' && NewGamePlus.active(store.getActiveSave())) {
+      // New Game+: the king travels on (no story scenes; the Training Camp is skipped).
+      const save = store.getActiveSave();
+      const stage = this.currentCharacter ? this.currentCharacter.stage : 1;
+      if (stage === save.maxUnlockedLevel && !save.ngCleared) {
+        store.set('storyMapEvent', { stage, ngPlus: true });
+        if (stage < CharacterManager.STAGE_COUNT) {
+          const next = NewGamePlus.nextStage(stage);
+          store.setActiveSave({ maxUnlockedLevel: next, storyLevel: next });
+        } else {
+          store.setActiveSave({ ngCleared: true, ngRuns: (save.ngRuns || 0) + 1 });
+        }
       }
     } else if (this.mode === 'story' && this.playerWon()) {
       const save = store.getActiveSave();
       const stage = this.currentCharacter ? this.currentCharacter.stage : 1;
       // A first win here plays the reward on the world map (restore, fragment, travel).
       // Only your next stage moves progress on (Super User can play ahead without skipping it).
-      if (stage === save.maxUnlockedLevel && !save.completed) {
-        store.set('storyMapEvent', { stage, fragment: stage >= 6 });
+      if (stage === save.maxUnlockedLevel && !save.completed && this.currentCharacter.trainer && stage < 6) {
+        // A lesson passed: the Training Camp's own map moves the king on to the next trainer.
+        store.set('missionEvent', { world: 'trainingcamp', index: stage - 2 });
+      } else if (stage === save.maxUnlockedLevel && !save.completed) {
+        store.set('storyMapEvent', { stage, fragment: StoryProgress.hasFragment(stage), keepsake: typeof Keepsakes !== 'undefined' && Keepsakes.forGuardian(this.currentCharacter.id) ? this.currentCharacter.id : null });
         store.set('storyScenePending', StoryScenes.after(stage));
       }
       if (stage === save.maxUnlockedLevel && stage < CharacterManager.STAGE_COUNT) {
@@ -1917,19 +2563,35 @@ const GameScreen = {
         this.init(this._lastInitData);
         break;
       case 'menu':
-        switchScreen('home');
+        switchScreen(this.mode === 'greatboard' ? 'greatBoard' : 'home');
         break;
       case 'map': {
         // A first win plays its story scene on the way back to the map; the
         // ending leads into the Credits instead.
+        if (this.currentCharacter && this.currentCharacter.side) {
+          SideMatches.back(this.currentCharacter);
+          break;
+        }
         if (this.currentCharacter && this.currentCharacter.mission) {
           switchScreen('worldMissions', { world: this.currentCharacter.world.id });
           break;
         }
         // Losing to a guardian goes back to its world's path.
         const home = this.currentCharacter && this.currentCharacter.world;
-        if (home && StoryMissions.forWorld(home.id) && !this.playerWon()) {
+        const ng = typeof NewGamePlus !== 'undefined' && NewGamePlus.active(store.getActiveSave());
+        if (home && StoryMissions.forWorld(home.id) && !this.playerWon() && !ng) {
           switchScreen('worldMissions', { world: home.id });
+          break;
+        }
+        // Worlds with their own place map: back to it after a loss, or after a lesson.
+        const place = home && !ng && typeof LiveScenes !== 'undefined' && LiveScenes.has('map_' + home.id);
+        if (place && (!this.playerWon() || (this.currentCharacter.trainer && this.currentCharacter.stage < 6))) {
+          switchScreen('worldMissions', { world: home.id });
+          break;
+        }
+        // Tournament worlds: back to the tournament after a loss to their guardian.
+        if (home && typeof Tournaments !== 'undefined' && Tournaments.forWorld(home.id) && !this.playerWon() && !ng) {
+          switchScreen('tournament', { world: home.id });
           break;
         }
         const scene = store.get('storyScenePending');

@@ -40,7 +40,7 @@ class TimingStrike extends Game3D {
 
     // Strike zone in front of the camera
     this.zoneAngle = Math.PI / 2;
-    this.zoneWidth = 0.55 - this.hard * 0.28;
+    this.zoneWidth = 0.6 - this.hard * 0.25;
     this.zone = new THREE.Mesh(new THREE.RingGeometry(TimingStrike.R - 0.5, TimingStrike.R + 0.5, 12, 1, this.zoneAngle - this.zoneWidth / 2, this.zoneWidth), new THREE.MeshBasicMaterial({ color: 0x3ee07f, transparent: true, opacity: 0.6, toneMapped: false, side: THREE.DoubleSide }));
     this.zone.rotation.x = Math.PI / 2;
     this.zone.position.y = 0.03;
@@ -59,7 +59,7 @@ class TimingStrike extends Game3D {
     const handle = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, TimingStrike.R, 6), new THREE.MeshStandardMaterial({ color: 0x6a4020 }));
     handle.rotation.z = Math.PI / 2;
     handle.position.x = TimingStrike.R / 2;
-    const head = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.7, 1.1), new THREE.MeshStandardMaterial({ color: 0x9a9ab0, metalness: 0.8, roughness: 0.3, flatShading: true }));
+    const head = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.6, 0.95), new THREE.MeshStandardMaterial({ color: 0x9a9ab0, metalness: 0.8, roughness: 0.3, flatShading: true }));
     head.position.x = TimingStrike.R;
     head.castShadow = true;
     this.arm.add(handle, head);
@@ -74,13 +74,14 @@ class TimingStrike extends Game3D {
     this.camera.lookAt(0, 0, 0.8);
 
     this.angle = Math.random() * Math.PI * 2;
-    this.speed = 2.6 + this.hard * 2.2;
+    this.speed = 2.5 + this.hard * 1.8;
     this.dir = 1;
-    this.strikes = this.isDuel ? 5 : 3;
+    // Enough swings that one unlucky miss doesn't decide it.
+    this.strikes = this.isDuel ? 6 : 5;
     this.used = 0;
     this.hits = 0;
-    this.need = Math.ceil(this.strikes * 0.6);
-    this.timeLimit = this.strikes * 4 + 4;
+    this.need = this.strikes - 2;
+    this.timeLimit = this.strikes * 3.5 + 4;
     this.swing = 0;
     this.stun = 0;
     this.flying = null;
@@ -174,7 +175,8 @@ class TimingStrike extends Game3D {
     if (this.swing > 0) this.swing = Math.max(0, this.swing - dt);
     // Hammer: raised while waiting, slams down during a swing.
     const k = this.swing > 0 ? Math.sin((1 - this.swing / 0.22) * Math.PI) : 0;
-    this.arm.rotation.z = this.swing > 0 ? 0.9 - k * 1.1 : 0.9 + Math.sin(this.time * 3) * 0.05 - (this.stun > 0 ? 0.9 : 0);
+    // Held low so the raised head never hides the far side of the ring.
+    this.arm.rotation.z = this.swing > 0 ? 0.45 - k * 0.65 : 0.45 + Math.sin(this.time * 3) * 0.05 - (this.stun > 0 ? 0.45 : 0);
     this.zone.material.opacity = 0.35 + 0.3 * Math.sin(this.time * 8) + (Math.abs(this._diff()) < this.zoneWidth / 2 ? 0.3 : 0);
     this.player.rotation.y = Math.sin(this.time * 2) * 0.2;
   }

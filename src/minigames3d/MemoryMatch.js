@@ -6,6 +6,9 @@ class MemoryMatch extends Game3D {
     super('Memory Match');
   }
 
+  // Each piece type has its own colour, so pairs read at a glance even from above.
+  static COLORS = { pawn: 0xff4d6d, knight: 0x4cc9f0, bishop: 0x3ee07f, rook: 0xffd166, queen: 0xc77dff, king: 0xff8c42 };
+
   setup() {
     const scene = this.scene;
     scene.background = new THREE.Color(0x120a26);
@@ -47,9 +50,18 @@ class MemoryMatch extends Game3D {
       hole.rotation.x = -Math.PI / 2;
       hole.position.set(x, 0.01, z);
       scene.add(hole);
-      const piece = Pieces3D.create(type, this.mine.color);
-      piece.position.set(x, -0.9, z);
-      piece.scale.setScalar(0.8);
+      const tint = MemoryMatch.COLORS[type];
+      const piece = Pieces3D.create(type, 'white', tint);
+      piece.traverse(o => {
+        if (!o.isMesh) return;
+        o.material.color.lerp(new THREE.Color(tint), 0.75);
+        o.material.emissiveIntensity = 0.45;
+      });
+      const stand = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.56, 0.12, 16), new THREE.MeshBasicMaterial({ color: tint, toneMapped: false }));
+      stand.position.y = -0.06;
+      piece.add(stand);
+      piece.position.set(x, -1.2, z);
+      piece.scale.setScalar(0.95);
       scene.add(piece);
       // Lids pop straight up and spin away, so an open lid never hides the row behind.
       const hinge = new THREE.Group();
@@ -66,7 +78,7 @@ class MemoryMatch extends Game3D {
     this.camera.position.set(0, 10, 6.2);
     this.camera.lookAt(0, 0, 0.5);
 
-    this.preview = 1.6 - this.hard * 0.7;
+    this.preview = 1.3 - this.hard * 0.5;
     this.picks = [];
     this.closeTimer = 0;
     this.found = 0;
@@ -172,7 +184,7 @@ class MemoryMatch extends Game3D {
       c.hinge.rotation.set(c.open * 0.6, c.open * Math.PI, 0);
       c.hinge.scale.setScalar(Math.max(0.001, 1 - c.open * 0.85));
       c.hinge.visible = c.open < 0.97;
-      c.piece.position.y = -0.9 + c.open * 1.15 + (c.matched ? Math.abs(Math.sin(this.time * 5 + i)) * 0.25 : 0);
+      c.piece.position.y = -1.2 + c.open * 1.45 + (c.matched ? Math.abs(Math.sin(this.time * 5 + i)) * 0.25 : 0);
       c.piece.rotation.y += dt * (c.matched ? 4 : 1);
       c.piece.rotation.x = -c.open * 0.55;
       const hot = this.keyCursor && i === this.cursor && !this.done;

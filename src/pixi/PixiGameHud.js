@@ -1,5 +1,14 @@
+// The fight screen's HUD: the two player panels, the status bar and the story tools.
+// In story fights the opponent stands on a stage in the right column: the live
+// character, big and animated (its moods follow the fight), with the speech bubble
+// coming out of its mouth (mouthAnchor()). The tools are icon buttons: the Shop's items
+// (rewind, hint, remove) and the keepsake powers (hourglass, lantern, seal); the status
+// bar's buttons are icons too (PixiToolIcons).
 const PixiGameHud = {
   container: null,
+  // Where the stage's character speaks from (screen px), or null.
+  mouth: null,
+  stageArt: null,
   initialized: false,
   _lastKey: null,
   // Clickable status-bar areas in game coordinates, read by GameScreen.handleClick.
@@ -21,16 +30,90 @@ const PixiGameHud = {
     const key = this._makeKey(game);
     if (key === this._lastKey) return;
     this._lastKey = key;
-    this.container.removeChildren();
+    // Destroy the old HUD (its text textures) instead of leaking it on every move.
+    for (const child of this.container.removeChildren()) child.destroy({ children: true });
 
     const theme = ThemeManager.getTheme(store.get('theme'));
     const cols = theme.colors;
     this.hitRects = [];
+    this.mouth = null;
+    this.stageArt = null;
     this._drawTopAccent(cols);
     const bottom = game.bottomColor;
     this._drawSidePanel(game, cols, 'left', bottom);
     this._drawSidePanel(game, cols, 'right', bottom === 'white' ? 'black' : 'white');
     this._drawStatusBar(game, cols);
+    if (game.itemsAvailable && game.itemsAvailable()) this._drawItems(game, cols);
+  },
+
+  // The tools of a story fight, as icon buttons: the Shop's items (with how many are
+  // left) and the keepsake powers you hold (once per fight).
+  _tools(game) {
+    const tools = [
+      { id: 'rewind', action: 'item_rewind', label: 'REWIND', icon: 'rewind', count: Wallet.count('rewind'), usable: game.canUseItem('rewind') },
+      { id: 'hint', action: 'item_hint', label: 'HINT', icon: 'hint', count: Wallet.count('hint'), usable: game.canUseItem('hint') },
+      { id: 'remove', action: 'item_remove', label: game.removeMode ? 'CANCEL' : 'REMOVE', icon: 'remove', count: Wallet.count('remove'),
+        usable: game.canUseItem('remove') || game.removeMode, active: game.removeMode, color: '#ff6a5a' },
+    ];
+    const labels = { hourglass: 'HOURGLASS', lantern: 'LANTERN', seal: 'SEAL' };
+    for (const id of game.KEEPSAKE_POWERS || []) {
+      if (!game.hasKeepsake || !game.hasKeepsake(id)) continue;
+      const ks = Keepsakes.get(id);
+      const active = (id === 'seal' && game.sealMode) || (id === 'lantern' && game.lanternLit());
+      tools.push({ id, action: 'power_' + id, label: id === 'seal' && game.sealMode ? 'CANCEL' : labels[id], keepsake: true,
+        used: game.powerUsed(id), usable: game.canUsePower(id) || active, active, color: ks.color });
+    }
+    return tools;
+  },
+
+  _drawItems(game, cols) {
+    const tools = this._tools(game);
+    const portrait = Layout.isPortrait;
+    let x, y, bw, bh, gap, perRow;
+    if (portrait) {
+      // In the bottom (your) panel, on the right: one row.
+      const boardBottom = PixiBoardRenderer.boardOffsetY + PixiBoardRenderer.squareSize * 8;
+      const gapY = PixiBoardRenderer.portraitGap || 20;
+      perRow = tools.length; gap = 6; bh = 62;
+      bw = Math.min(64, Math.floor((360 - gap * (perRow - 1)) / perRow));
+      x = Layout.W - 32 - 20 - (bw * perRow + gap * (perRow - 1)); y = boardBottom + gapY + 100;
+    } else {
+      perRow = 3; gap = 6; bw = 64; bh = 52;
+      const rows = Math.ceil(tools.length / perRow);
+      const h = 34 + rows * bh + (rows - 1) * gap + 14, px = 1006, py = this.LANDSCAPE.BOTTOM - h;
+      this._panel(px, py, 240, h, cols, { alpha: 0.68, strip: false });
+      this._text('TOOLS', px + 18, py + 12, { fontSize: 12, fontWeight: '900', fill: PixiColorUtil.alpha(cols.text, '77') });
+      x = px + 18; y = py + 34;
+    }
+    tools.forEach((t, i) => {
+      const bx = x + (i % perRow) * (bw + gap), by = y + Math.floor(i / perRow) * (bh + gap);
+      const accent = t.active ? (t.color || cols.accent) : t.usable ? (t.keepsake ? t.color : cols.accent) : PixiColorUtil.alpha(cols.text, '33');
+      const g = new PIXI.Graphics();
+      g.roundRect(bx, by, bw, bh, 6)
+        .fill({ color: PixiColorUtil.hexToNum(t.active ? '#3a1a2a' : cols.buttonBg), alpha: t.usable ? 0.85 : 0.35 })
+        .roundRect(bx, by, bw, bh, 6)
+        .stroke({ color: PixiColorUtil.hexToNum(accent), alpha: t.active ? 1 : 0.8, width: t.active ? 3 : 2 });
+      this.container.addChild(g);
+      const icon = t.keepsake ? PixiKeepsake.icon(t.id, 30) : PixiToolIcons.sprite(t.icon, 26);
+      icon.x = bx + bw / 2;
+      icon.y = by + (portrait ? 24 : 20);
+      if (!t.usable) icon.alpha = 0.4;
+      this.container.addChild(icon);
+      const label = this._text(t.label, bx + bw / 2, by + bh - (portrait ? 17 : 15), { fontSize: portrait ? 11 : 10, fontWeight: '900', fill: t.usable ? cols.text : PixiColorUtil.alpha(cols.text, '55') }, 0.5);
+      PixiPremiumUI.fitText(label, bw - 6);
+      // A badge in the corner: how many are left, or whether the power is spent.
+      const badge = t.keepsake ? (t.used ? 'USED' : '1') : String(t.count);
+      const on = t.keepsake ? !t.used : t.count > 0;
+      const bt = PixiPremiumUI.text(badge, { fontSize: 10, fontWeight: '900', fill: on ? '#1a1024' : '#bdb4cc' });
+      const bwid = Math.max(16, bt.width + 8);
+      this.container.addChild(new PIXI.Graphics().roundRect(bx + bw - bwid + 4, by - 5, bwid, 16, 8)
+        .fill(on ? PixiColorUtil.hexToNum(t.keepsake ? t.color : '#ffd24a') : 0x3a3446).stroke({ color: 0x1a1024, width: 2 }));
+      bt.anchor.set(0.5);
+      bt.x = bx + bw - bwid / 2 + 4; bt.y = by + 3;
+      this.container.addChild(bt);
+      // Every tool stays clickable: an item with none left points you to the Shop.
+      this.hitRects.push({ action: t.action, x: bx, y: by, w: bw, h: bh });
+    });
   },
 
   _makeKey(game) {
@@ -53,6 +136,15 @@ const PixiGameHud = {
       game.flipped,
       game.canUndo(),
       game.aiThinking,
+      // Story items: counts, what can be used, remove mode and the status note.
+      game.itemsAvailable && game.itemsAvailable()
+        ? ['rewind', 'hint', 'remove'].map(id => Wallet.count(id) + (game.canUseItem(id) ? 'y' : 'n')).join(',') : '',
+      game.itemsAvailable && game.itemsAvailable() && game.KEEPSAKE_POWERS
+        ? game.KEEPSAKE_POWERS.map(id => (game.hasKeepsake(id) ? 1 : 0) + (game.powerUsed(id) ? 'u' : '') + (game.canUsePower(id) ? 'y' : 'n')).join(',') : '',
+      game.removeMode,
+      game.sealMode,
+      game.lanternLit && game.lanternLit(),
+      game.itemMessage ? game.itemMessage() : '',
     ].join('|');
   },
 
@@ -108,6 +200,10 @@ const PixiGameHud = {
     }
     const isLeft = side === 'left';
     const x = isLeft ? 34 : 1006;
+    if (!isLeft && game.mode === 'story' && color === game.aiColor && game.currentCharacter) {
+      this._drawBossStage(game, cols, x, color);
+      return;
+    }
     // Tops line up with the board frame; lower panels fill down to its bottom.
     const y = this.LANDSCAPE.TOP;
     const w = 240;
@@ -138,10 +234,12 @@ const PixiGameHud = {
       .roundRect(x + w - 66, y + 28, 44, 44, 8)
       .stroke({ color: pieceStroke, alpha: 0.72, width: 2 });
     this.container.addChild(avatar);
-    const face = game.mode === 'story' ? this._storyFace(game, color) : null;
-    if (face) {
-      // Story: the opponent's portrait, and your king in this world's pieces.
-      const img = new PIXI.Sprite(face);
+    const ch = game.currentCharacter;
+    const live = game.mode === 'story' && color === game.aiColor && ch && typeof LiveScenes !== 'undefined' && LiveScenes.character(ch.id);
+    const face = !live && game.mode === 'story' ? this._storyFace(game, color) : null;
+    if (live || face) {
+      // Story: the opponent's portrait (animated if it has live art), and your king in this world's pieces.
+      const img = live ? LiveScenes.sprite(live, 'face') : new PIXI.Sprite(face);
       img.x = x + w - 64;
       img.y = y + 30;
       img.width = img.height = 40;
@@ -218,18 +316,6 @@ const PixiGameHud = {
       });
     }
 
-    if (game.mode === 'story' && color === game.aiColor && game.currentCharacter) {
-      this._panel(x, this.LANDSCAPE.LOWER_Y, w, 112, cols, { accent: game.currentCharacter.colors.primary, alpha: 0.68 });
-      this._text(game.currentCharacter.name, x + pad, this.LANDSCAPE.LOWER_Y + 34, {
-        fontSize: 16,
-        fontWeight: '900',
-        fill: game.currentCharacter.colors.primary,
-      });
-      this._text(game.currentCharacter.title || ('Level ' + game.currentCharacter.level), x + pad, this.LANDSCAPE.LOWER_Y + 60, {
-        fontSize: 14,
-        fill: PixiColorUtil.alpha(cols.text, '66'),
-      });
-    }
 
     if (isLeft && game.moveHistory.length > 0) {
       const L = this.LANDSCAPE;
@@ -248,6 +334,80 @@ const PixiGameHud = {
         });
       });
     }
+  },
+
+  // The story opponent's stage: the character itself, big and alive (its live scene,
+  // else its portrait), its name and title, whose turn it is and what it has taken.
+  STAGE: { SCALE: 3, H: 346 },
+
+  _drawBossStage(game, cols, x, color) {
+    const L = this.LANDSCAPE, w = 240, y = L.TOP, h = this.STAGE.H, pad = 16;
+    const ch = game.currentCharacter, S = this.STAGE.SCALE;
+    const isTurn = game.turn === color && !game.gameOver;
+    const accent = (ch.colors && ch.colors.primary) || cols.accent;
+    this._panel(x, y, w, h, cols, { active: isTurn, alpha: 0.72, accent, strip: false });
+    const aw = 62 * S, ah = 80 * S, ax = Math.round(x + (w - aw) / 2), ay = y + 16;
+    this.container.addChild(new PIXI.Graphics()
+      .rect(ax - 5, ay - 5, aw + 10, ah + 10).fill(0x0c0912)
+      .rect(ax - 3, ay - 3, aw + 6, ah + 6).stroke({ color: PixiColorUtil.hexToNum(accent), width: 2, alpha: 0.9 }));
+    const live = typeof LiveScenes !== 'undefined' && LiveScenes.character(ch.id);
+    let art = null;
+    if (live) {
+      art = LiveScenes.sprite(live);
+      art.x = ax; art.y = ay; art.width = aw; art.height = ah;
+      const f = (LiveScenes.get(live).frames || {}).face || [11, 4, 40, 40];
+      this.mouth = { x: ax + (f[0] + f[2] / 2) * S, y: ay + (f[1] + f[3] * 0.74) * S };
+    } else {
+      const face = this._storyFace(game, color);
+      if (face) {
+        art = new PIXI.Sprite(face);
+        art.width = art.height = aw;
+        art.x = ax; art.y = ay + (ah - aw) / 2;
+        this.mouth = { x: ax + aw / 2, y: art.y + aw * 0.72 };
+      } else this.mouth = { x: ax + aw / 2, y: ay + ah * 0.45 };
+    }
+    if (art) {
+      art._baseY = art.y;
+      this.container.addChild(art);
+    }
+    this.stageArt = art;
+
+    const ny = ay + ah + 10;
+    const name = this._text(ch.name, x + pad, ny, { fontSize: 19, fontWeight: '900', fill: isTurn ? accent : cols.text });
+    PixiPremiumUI.fitText(name, w - pad * 2);
+    const title = this._text(ch.title || ('Level ' + ch.level), x + pad, ny + 24, { fontSize: 13, fill: PixiColorUtil.alpha(cols.text, '88') });
+    PixiPremiumUI.fitText(title, w - pad * 2);
+
+    // Whose turn, then what he has taken.
+    const py = y + h - 32;
+    const pill = new PIXI.Graphics();
+    pill.roundRect(x + pad, py, 104, 22, 6)
+      .fill({ color: PixiColorUtil.hexToNum(isTurn ? accent : PixiColorUtil.alpha(cols.text, '22')), alpha: isTurn ? 0.22 : 0.42 })
+      .roundRect(x + pad, py, 104, 22, 6)
+      .stroke({ color: PixiColorUtil.hexToNum(isTurn ? accent : PixiColorUtil.alpha(cols.text, '44')), alpha: 0.7, width: 2 });
+    this.container.addChild(pill);
+    const thinking = isTurn && game.isAIMode && game.aiThinking;
+    this._text(thinking ? 'THINKING...' : isTurn ? 'HIS TURN' : 'WAITING', x + pad + 52, py + 4, { fontSize: 12, fontWeight: '900', fill: isTurn ? accent : PixiColorUtil.alpha(cols.text, '77') }, 0.5);
+    const captured = game.capturedPieces[color] || [];
+    const symbols = { pawn: 'p', knight: 'N', bishop: 'B', rook: 'R', queen: 'Q', king: 'K' };
+    const cap = this._text(captured.length ? captured.slice(0, 16).map(p => symbols[p.type] || '?').join(' ') : 'No captures', x + pad + 114, py + 3,
+      { fontSize: 14, fontWeight: '700', fill: captured.length ? '#aaaaaa' : PixiColorUtil.alpha(cols.text, '44') });
+    PixiPremiumUI.fitText(cap, w - pad * 2 - 114);
+  },
+
+  // Where the speech bubble's tail points: the stage character's mouth (landscape), or
+  // the top panel's face (portrait). Null outside story fights.
+  mouthAnchor() {
+    if (!this.mouth) return null;
+    return { x: this.mouth.x, y: this.mouth.y, dir: 'up', portrait: Layout.isPortrait };
+  },
+
+  // A little hop of the stage character as a line begins.
+  speak() {
+    const a = this.stageArt;
+    if (!a || a.destroyed || typeof gsap === 'undefined') return;
+    gsap.killTweensOf(a);
+    gsap.fromTo(a, { y: a._baseY - 6 }, { y: a._baseY, duration: 0.35, ease: 'bounce.out' });
   },
 
   // One line per move: "1. e4", "1... e5". A capture blocked by a minigame
@@ -290,9 +450,21 @@ const PixiGameHud = {
       .fill({ color: pieceColor, alpha: 0.95 })
       .roundRect(x + w - 76, y + 16, 52, 52, 10)
       .stroke({ color: pieceStroke, alpha: 0.72, width: 2 });
-    avatar.rect(x + w - 62, y + 27, 18, 24).fill({ color: color === 'white' ? 0x30244a : 0xf3e9c0, alpha: 0.95 });
-    avatar.rect(x + w - 67, y + 48, 28, 7).fill({ color: color === 'white' ? 0x30244a : 0xf3e9c0, alpha: 0.95 });
     this.container.addChild(avatar);
+    // Story: the opponent's live face (it speaks from here), your king in this world's pieces.
+    const ch = game.currentCharacter;
+    const live = game.mode === 'story' && color === game.aiColor && ch && typeof LiveScenes !== 'undefined' && LiveScenes.character(ch.id);
+    const face = !live && game.mode === 'story' ? this._storyFace(game, color) : null;
+    if (live || face) {
+      const img = live ? LiveScenes.sprite(live, 'face') : new PIXI.Sprite(face);
+      img.x = x + w - 74; img.y = y + 18;
+      img.width = img.height = 48;
+      this.container.addChild(img);
+      if (color === game.aiColor) { this.mouth = { x: img.x + 24, y: img.y + 44 }; img._baseY = img.y; this.stageArt = img; }
+    } else {
+      avatar.rect(x + w - 62, y + 27, 18, 24).fill({ color: color === 'white' ? 0x30244a : 0xf3e9c0, alpha: 0.95 });
+      avatar.rect(x + w - 67, y + 48, 28, 7).fill({ color: color === 'white' ? 0x30244a : 0xf3e9c0, alpha: 0.95 });
+    }
 
     const turnPill = new PIXI.Graphics();
     turnPill.roundRect(x + 280, y + 20, 160, 34, 8)
@@ -320,7 +492,9 @@ const PixiGameHud = {
       fontSize: 26, fontWeight: '700',
       fill: captured.length ? (color === 'white' ? '#e8e0d0' : '#aaaaaa') : PixiColorUtil.alpha(cols.text, '44'),
     });
-    PixiPremiumUI.fitText(cap, w - pad * 2 - 100);
+    // Your panel holds the item buttons on the right in story fights.
+    const itemsHere = color === game.playerColor && game.itemsAvailable && game.itemsAvailable();
+    PixiPremiumUI.fitText(cap, w - pad * 2 - (itemsHere ? 400 : 100));
 
     const values = { pawn: 1, knight: 3, bishop: 3, rook: 5, queen: 9, king: 0 };
     const whiteMat = game.capturedPieces.white.reduce((s, p) => s + (values[p.type] || 0), 0);
@@ -348,7 +522,8 @@ const PixiGameHud = {
     if (game.reviewingAt !== null) turnText = 'Reviewing move ' + game.reviewingAt;
     else if (game.isAIMode) turnText = game.turn === game.playerColor ? 'Your Turn' : game.getPlayerName(game.turn) + "'s Turn";
     else turnText = game.getPlayerName(game.turn) + "'s Turn";
-    const statusText = game.gameStatus === 'check' && game.reviewingAt === null ? 'CHECK!  ' + turnText : turnText;
+    const note = game.itemMessage ? game.itemMessage() : null;
+    const statusText = note || (game.gameStatus === 'check' && game.reviewingAt === null ? 'CHECK!  ' + turnText : turnText);
     const status = PixiPremiumUI.text(statusText, {
       fontSize: portrait ? 28 : 20,
       fontWeight: '900',
@@ -364,14 +539,17 @@ const PixiGameHud = {
     const btnY = y + Math.floor((h - btnH) / 2);
     const fs = portrait ? 16 : 14;
     const navEnabled = game.boardSnapshots.length > 1;
+    const bw = btnH + 6;
     const left = [
-      { label: '<', action: 'back', w: btnH, enabled: navEnabled && game.reviewingAt !== 0 },
-      { label: '>', action: 'forward', w: btnH, enabled: game.reviewingAt !== null },
-      { label: 'LIVE', action: 'live', w: portrait ? 64 : 62, enabled: game.reviewingAt !== null },
+      { icon: 'back', action: 'back', w: bw, enabled: navEnabled && game.reviewingAt !== 0 },
+      { icon: 'forward', action: 'forward', w: bw, enabled: game.reviewingAt !== null },
+      { icon: 'live', action: 'live', w: bw, enabled: game.reviewingAt !== null },
     ];
+    // In story fights undo is the Rewind tool.
+    const storyItems = game.itemsAvailable && game.itemsAvailable();
     const right = [
-      { label: 'UNDO', action: 'undo', w: portrait ? 80 : 72, enabled: game.canUndo() },
-      { label: 'FLIP', action: 'flip', w: portrait ? 72 : 64, enabled: true },
+      ...(storyItems ? [] : [{ icon: 'undo', action: 'undo', w: bw, enabled: game.canUndo() }]),
+      { icon: 'flip', action: 'flip', w: bw, enabled: true },
     ];
     let bx = x + 12;
     for (const b of left) { this._button(b, bx, btnY, btnH, fs, cols); bx += b.w + 6; }
@@ -386,6 +564,15 @@ const PixiGameHud = {
       .roundRect(bx, by, b.w, bh, 5)
       .stroke({ color: PixiColorUtil.hexToNum(b.enabled ? cols.accent : PixiColorUtil.alpha(cols.text, '33')), alpha: 0.7, width: 2 });
     this.container.addChild(g);
+    if (b.icon) {
+      const icon = PixiToolIcons.sprite(b.icon, Math.round(bh * 0.62));
+      icon.x = bx + b.w / 2;
+      icon.y = by + bh / 2;
+      icon.alpha = b.enabled ? 1 : 0.3;
+      this.container.addChild(icon);
+      if (b.enabled) this.hitRects.push({ action: b.action, x: bx, y: by, w: b.w, h: bh });
+      return;
+    }
     const t = PixiPremiumUI.text(b.label, {
       fontSize: b.label.length === 1 ? fontSize + 5 : fontSize,
       fontWeight: '900',
@@ -406,5 +593,7 @@ const PixiGameHud = {
     this.initialized = false;
     this._lastKey = null;
     this.hitRects = [];
+    this.mouth = null;
+    this.stageArt = null;
   },
 };

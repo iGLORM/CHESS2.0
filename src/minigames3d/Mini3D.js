@@ -3,11 +3,16 @@
 // One WebGL renderer is created on first use and kept for the whole session
 // (browsers cap WebGL contexts, so games never make their own). Each frame a
 // game renders its scene into a low-resolution target, a post shader adds the
-// arcade look (chromatic split, flash, scanlines, vignette, colour steps), and
-// the result is blitted into the 2D mini-game overlay with nearest-neighbour
-// scaling, so the 3D reads as chunky pixel art next to the rest of the game.
+// arcade look (chromatic split, flash, faint scanlines, vignette, light colour
+// steps), and the result is blitted into the 2D mini-game overlay with
+// nearest-neighbour scaling: slightly pixelated, so it still fits the pixel-art game.
 const Mini3D = {
-  PIXEL: 2.5,          // virtual pixels per rendered pixel
+  // Virtual pixels per rendered pixel (Settings > Graphics > 3D Mini-Games).
+  get PIXEL() {
+    if (this._pixel) return this._pixel;     // thumbnails render sharper
+    return typeof Graphics !== 'undefined' ? Graphics.mini3d().pixel : 1.6;
+  },
+  _pixel: null,
   renderer: null,
   target: null,
   post: null,
@@ -22,7 +27,7 @@ const Mini3D = {
       this.renderer.setPixelRatio(1);
       this.renderer.outputColorSpace = THREE.SRGBColorSpace;
       this.renderer.shadowMap.enabled = true;
-      this.renderer.shadowMap.type = THREE.BasicShadowMap;
+      this.renderer.shadowMap.type = THREE.PCFShadowMap;
       this.target = new THREE.WebGLRenderTarget(4, 4, {
         minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter, depthBuffer: true,
       });
@@ -47,6 +52,7 @@ const Mini3D = {
         flashColor: { value: new THREE.Color(1, 1, 1) },
         warp: { value: 0 },
         tint: { value: 0 },
+        retro: { value: 1 },
       },
       vertexShader: `
         varying vec2 vUv;
@@ -55,7 +61,7 @@ const Mini3D = {
       fragmentShader: `
         uniform sampler2D tDiffuse;
         uniform vec2 resolution;
-        uniform float time, aberration, flash, warp, tint;
+        uniform float time, aberration, flash, warp, tint, retro;
         uniform vec3 flashColor;
         varying vec2 vUv;
         void main() {
@@ -63,7 +69,7 @@ const Mini3D = {
           vec2 c = uv - 0.5;
           // Speed warp: pull the picture towards the edges.
           uv += c * dot(c, c) * warp;
-          vec2 dir = c * (aberration + 0.0025);
+          vec2 dir = c * (aberration + 0.001) * retro;
           vec3 col;
           col.r = texture2D(tDiffuse, uv + dir).r;
           col.g = texture2D(tDiffuse, uv).g;
@@ -72,15 +78,15 @@ const Mini3D = {
           col *= 1.15;
           col = clamp((col * (2.51 * col + 0.03)) / (col * (2.43 * col + 0.59) + 0.14), 0.0, 1.0);
           col = pow(col, vec3(1.0 / 2.2));
-          // Retro colour steps.
-          col = floor(col * 24.0 + 0.5) / 24.0;
+          // Light colour steps (a hint of retro banding).
+          col = mix(col, floor(col * 48.0 + 0.5) / 48.0, retro);
           // Scanlines on every other rendered row.
           float line = mod(floor(uv.y * resolution.y), 2.0);
-          col *= 0.93 + 0.07 * line;
+          col *= 1.0 - (0.025 - 0.025 * line) * retro;
           // Danger tint and vignette.
           col = mix(col, col * vec3(1.35, 0.55, 0.6), tint);
           float v = smoothstep(0.85, 0.25, length(c * vec2(1.1, 1.0)));
-          col *= mix(0.55, 1.0, v);
+          col *= mix(0.7, 1.0, v);
           col = mix(col, flashColor, flash);
           gl_FragColor = vec4(col, 1.0);
         }
@@ -101,6 +107,11 @@ const Mini3D = {
     const rw = Math.max(32, Math.round(w / this.PIXEL));
     const rh = Math.max(32, Math.round(h / this.PIXEL));
     const r = this.renderer;
+    const quality = typeof Graphics !== 'undefined' ? Graphics.mini3d() : { shadows: true };
+    if (r.shadowMap.enabled !== quality.shadows) {
+      r.shadowMap.enabled = quality.shadows;
+      scene.traverse(o => { if (o.material) [].concat(o.material).forEach(m => { m.needsUpdate = true; }); });
+    }
     const size = r.getSize(new THREE.Vector2());
     if (size.x !== rw || size.y !== rh) {
       r.setSize(rw, rh, false);
@@ -122,6 +133,7 @@ const Mini3D = {
     u.flash.value = (fx && fx.flash) || 0;
     u.warp.value = (fx && fx.warp) || 0;
     u.tint.value = (fx && fx.tint) || 0;
+    u.retro.value = typeof Graphics === 'undefined' || Graphics.retro() ? 1 : 0;
     if (fx && fx.flashColor) u.flashColor.value.set(fx.flashColor);
     r.render(this.post.scene, this.post.camera);
 
@@ -164,13 +176,13 @@ const Mini3D = {
       for (let i = 0; i < 90 && !game.done; i++) game.update(1 / 30);
       game.flash = 0;
       game.banner = null;
-      const pixel = this.PIXEL;
-      this.PIXEL = 1.5;
+      this._pixel = 1.1;
       game.render(ctx, 0, 0, w, h);
-      this.PIXEL = pixel;
+      this._pixel = null;
     } catch (e) {
       console.warn('3D thumbnail failed:', e);
     } finally {
+      this._pixel = null;
       if (quiet) audioManager._phrase = quiet;
       game.cleanup();
     }
@@ -223,7 +235,7 @@ const Mini3D = {
     return new THREE.MeshStandardMaterial({
       color: body,
       emissive: glow != null ? new THREE.Color(glow) : shade,
-      emissiveIntensity: glow != null ? 0.3 : 1,
+      emissiveIntensity: glow != null ? 0.5 : 1,
       roughness: white ? 0.45 : 0.3,
       metalness: white ? 0.05 : 0.35,
       flatShading: true,
@@ -373,11 +385,21 @@ const Pieces3D = {
       case 'king': {
         const body = this._lathe([...this._base(), [0.14, 0.66], [0.26, 0.71], [0.26, 0.74], [0.15, 0.77],
           [0.22, 0.98], [0.18, 1.02], [0, 1.03]]);
-        const v = new THREE.BoxGeometry(0.07, 0.24, 0.07);
-        v.translate(0, 1.13, 0);
-        const h = new THREE.BoxGeometry(0.2, 0.07, 0.07);
-        h.translate(0, 1.15, 0);
-        return [body, v, h];
+        // Crown top: a solid band, four short points and one big orb (the queen has
+        // a ring of eight small balls instead).
+        const band = new THREE.CylinderGeometry(0.2, 0.18, 0.07, 8);
+        band.translate(0, 1.04, 0);
+        const out = [body, band];
+        for (let i = 0; i < 4; i++) {
+          const a = i * Math.PI / 2 + Math.PI / 4;
+          const pt = new THREE.ConeGeometry(0.045, 0.1, 4);
+          pt.translate(Math.cos(a) * 0.16, 1.12, Math.sin(a) * 0.16);
+          out.push(pt);
+        }
+        const orb = new THREE.SphereGeometry(0.085, 6, 4);
+        orb.translate(0, 1.16, 0);
+        out.push(orb);
+        return out;
       }
       case 'knight': {
         const base = this._lathe([...this._base(), [0.2, 0.3], [0.26, 0.34], [0.26, 0.37], [0, 0.37]]);
@@ -401,7 +423,7 @@ const Pieces3D = {
     const group = new THREE.Group();
     const mat = Mini3D.pieceMaterial(color, glow, type);
     const pal = Mini3D.themePalette(color, type);
-    // Crowns, crosses and battlements pick up the theme's trim colour.
+    // Crowns, finials and battlements pick up the theme's trim colour.
     const trim = pal ? mat.clone() : mat;
     if (pal) trim.color.copy(pal.trim);
     this.geometries(type).forEach((geo, i) => {
@@ -594,7 +616,7 @@ class Game3D {
     this.rect = { x, y, w, h };
     const cam = this.camera;
     const saved = cam.position.clone();
-    if (this.shake > 0) {
+    if (this.shake > 0 && (typeof Graphics === 'undefined' || Graphics.shake())) {
       const s = this.shake * this.shake * 0.35;
       cam.position.x += (Math.random() - 0.5) * s;
       cam.position.y += (Math.random() - 0.5) * s;
@@ -735,6 +757,19 @@ class Game3D {
   // feet so you can always tell which one is yours.
   playerPiece() {
     const piece = Pieces3D.create(this.mine.type, this.mine.color);
+    // Dark sets vanish against the night scenes, so lift their shadows a little.
+    piece.traverse(o => {
+      if (!o.isMesh) return;
+      const c = o.material.color;
+      if (0.3 * c.r + 0.59 * c.g + 0.11 * c.b < 0.35) {
+        o.material = o.material.clone();
+        o.material.emissive.copy(c).lerp(new THREE.Color(0x8a7ab0), 0.5).multiplyScalar(0.55);
+      }
+    });
+    const pad = new THREE.Mesh(new THREE.CircleGeometry(0.5, 20), new THREE.MeshBasicMaterial({ color: 0x3ee07f, transparent: true, opacity: 0.28, toneMapped: false, depthWrite: false }));
+    pad.rotation.x = -Math.PI / 2;
+    pad.position.y = 0.025;
+    piece.add(pad);
     const ring = new THREE.Mesh(new THREE.RingGeometry(0.4, 0.5, 20), new THREE.MeshBasicMaterial({ color: 0x3ee07f, toneMapped: false, side: THREE.DoubleSide }));
     ring.rotation.x = -Math.PI / 2;
     ring.position.y = 0.03;

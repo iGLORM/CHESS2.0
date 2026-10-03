@@ -48,13 +48,13 @@ class WhackMole extends Game3D {
     this.malletPos = new THREE.Vector3(0, 0, 0);
 
     this.camera.fov = 48;
-    this.camera.position.set(0, 8, 6.5);
+    this.camera.position.set(0, 7.4, 5.6);
     this.camera.lookAt(0, 0, 0.3);
 
     this.goal = Math.round(8 + this.hard * 6 + (this.isDuel ? 2 : 0));
     this.whacked = 0;
-    this.timeLimit = 14 + this.goal * 0.35;
-    this.upTime = 1.15 - this.hard * 0.5;
+    this.timeLimit = 12 + this.goal * 0.4;
+    this.upTime = 1.05 - this.hard * 0.45;
     this.spawnT = 0.3;
     this.swing = 0;
     this.botT = 0.5;
@@ -72,6 +72,7 @@ class WhackMole extends Game3D {
       halo.position.y = 1.4;
       obj.add(halo);
     }
+    obj.scale.setScalar(1.3);
     obj.position.set(h.x, -1.3, h.z);
     this.scene.add(obj);
     h.mole = { obj, friend, t: 0, up: this.upTime * (0.8 + Math.random() * 0.4), hit: false };

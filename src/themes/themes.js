@@ -1,7 +1,30 @@
-// One theme per story world, in journey order, plus Custom. Each world's
-// board, pieces, background and song share its id. `short` labels the small
-// theme chips (Custom music/backdrop pickers).
+// The game's own theme (Chess 2.0, the default for new players), then one theme
+// per story world, in journey order, plus Custom. Each theme's board, pieces,
+// background and song share its id. `short` labels the small theme chips
+// (Custom music/backdrop pickers).
 const THEMES = [
+  // Always unlocked: the Great Board at dusk (src/themes/scenes/chess20.js).
+  {
+    id: 'chess20',
+    name: 'Chess 2.0',
+    short: 'Chess 2.0',
+    desc: 'The Great Board at dusk, pearl, violet and gold',
+    colors: {
+      lightSquare: '#efdfcc',
+      darkSquare: '#6a4a88',
+      lightPiece: '#fffaf0',
+      darkPiece: '#1c1030',
+      highlight: '#ffd24a',
+      legalMove: 'rgba(255,210,74,0.3)',
+      background: '#0c0820',
+      panel: '#1c1234',
+      text: '#fbeedc',
+      accent: '#ffc24a',
+      buttonBg: '#2e1e4a',
+      buttonHover: '#3e2862',
+      checkHighlight: '#ff4a6a',
+    },
+  },
   {
     id: 'pawnhollow',
     name: 'Pawn Hollow',
@@ -231,6 +254,28 @@ const THEMES = [
       buttonBg: '#1b1127',
       buttonHover: '#2b0d36',
       checkHighlight: '#ff2d8b',
+    },
+  },
+  // Unlocked by finishing the story: the Great Board made whole.
+  {
+    id: 'greatboard',
+    name: 'The Great Board',
+    short: 'Great Board',
+    desc: 'Ivory, lapis and gold: the board made whole',
+    colors: {
+      lightSquare: '#f2e8d0',
+      darkSquare: '#1e2860',
+      lightPiece: '#fffcf0',
+      darkPiece: '#141019',
+      highlight: '#ffd24a',
+      legalMove: 'rgba(255,210,74,0.3)',
+      background: '#070a1a',
+      panel: '#10142a',
+      text: '#f6eed8',
+      accent: '#ffc848',
+      buttonBg: '#1a2044',
+      buttonHover: '#263064',
+      checkHighlight: '#ff5a4a',
     },
   },
   {

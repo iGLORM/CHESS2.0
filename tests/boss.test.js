@@ -183,11 +183,28 @@ test("Sergeant Square's puzzles each have a mate in one", () => {
     });
     assert.ok(mates.length >= 1, `no mate in one in ${fen}`);
   }
+  assert.strictEqual(G.BossRules.get('sergeantsquare').puzzles.length, 10);
 });
 
-test("no challenges in the mate drill; every capture in Captain Capture's camp", () => {
+test("Captain Capture's endgames start legal, White to move and ahead", () => {
+  const rule = G.BossRules.get('captaincapture');
+  const value = { pawn: 1, knight: 3, bishop: 3, rook: 5, queen: 9, king: 0 };
+  rule.startFens.forEach((fen, i) => {
+    const b = G.BossRules.startBoard(rule, () => i / rule.startFens.length + 0.01);
+    assert.strictEqual(G.FEN.fromBoard(b, b.turn).split(' ')[0], fen.split(' ')[0]);
+    assert.strictEqual(b.turn, 'white');
+    const k = b.findKing('black');
+    assert.ok(!G.MoveGen.isSquareAttacked(b, k.row, k.col, 'white'), `${fen}: Black already in check`);
+    let score = 0;
+    for (const row of b.grid) for (const p of row) if (p && value[p.type] !== undefined) score += (p.color === 'white' ? 1 : -1) * value[p.type];
+    assert.ok(score >= 1, `${fen}: White is not ahead`);
+  });
+});
+
+test('no challenges against Pawnie or in the mate drill', () => {
+  assert.strictEqual(G.BossRules.challengeChance(G.BossRules.get('pawnie'), { type: 'queen' }, false), 0);
+  assert.strictEqual(G.BossRules.challengeChance(G.BossRules.get('pawnie'), { type: 'pawn' }, true), 0);
   assert.strictEqual(G.BossRules.challengeChance(G.BossRules.get('sergeantsquare'), { type: 'rook' }, false), 0);
-  assert.strictEqual(G.BossRules.challengeChance(G.BossRules.get('captaincapture'), { type: 'pawn' }, false), 1);
 });
 
 test('CastlE walls block sliding pieces and pawns for both sides, and cannot be taken', () => {
@@ -268,4 +285,31 @@ test('a promoted pawn keeps its mystery tag; armyLeft counts non-king pieces', (
   assert.ok(b.grid[0][0].mystery);
   assert.strictEqual(G.BossRules.armyLeft(b, 'white'), 1);
   assert.strictEqual(G.BossRules.armyLeft(b, 'black'), 0);
+});
+
+test('New Game+ stacks Bish-Bosh on Rook-E: no rooks for you, four bishops for him', () => {
+  const r = G.BossRules.stack(G.BossRules.get('rokee'), G.BossRules.get('bishbosh'));
+  assert.ok(r.twisted);
+  assert.ok(r.title.includes('The Iron Tower') && r.title.includes('Four Bishops'));
+  const b = G.BossRules.startBoard(r);
+  assert.strictEqual(count(b, 'black', 'bishop'), 4);
+  assert.strictEqual(count(b, 'white', 'rook'), 0);
+  assert.strictEqual(r.fen.split(' ')[2], 'kq');
+  assert.deepStrictEqual(Array.from(r.alwaysChallengeWhenTaking), ['rook']);
+});
+
+test('New Game+ stacking keeps walls off pieces and the tightest clock', () => {
+  const eg = G.BossRules.stack(G.BossRules.get('endgamer'), G.BossRules.get('castle'));
+  for (let i = 0; i < 20; i++) {
+    const b = G.BossRules.startBoard(eg, Math.random, []);
+    assert.ok(b.findKing('white') && b.findKing('black'), 'both kings survive the walls');
+  }
+  const gx = G.BossRules.stack(G.BossRules.get('grandmasterx'), G.BossRules.get('checkmate'));
+  assert.strictEqual(gx.moveLimit, 40);
+  assert.strictEqual(gx.rewinds, 2);
+  assert.ok(gx.everyCapture && gx.tenseMusic);
+  const q = G.BossRules.stack(G.BossRules.get('castle'), G.BossRules.get('queenie'));
+  const qb = G.BossRules.startBoard(q);
+  assert.strictEqual(count(qb, 'black', 'queen'), 2);
+  assert.strictEqual(qb.grid.flat().filter(p => p && p.type === 'wall').length, 4);
 });

@@ -22,12 +22,15 @@ function registerScreen(name, screenImpl) {
   screens[name] = screenImpl;
 }
 
-function switchScreen(name, data) {
+// opts.instant skips the fade to black: the screen that calls it has already drawn
+// its own transition (the world map zooming into a place map).
+function switchScreen(name, data, opts = {}) {
   if (transition.active) return;
   canvas.style.zIndex = '2';
   transition.active = true;
   transition.fadeOut = true;
-  transition.alpha = 0;
+  transition.instant = !!opts.instant;
+  transition.alpha = transition.instant ? 1 : 0;
   transition.nextScreen = name;
   transition.nextData = data;
 }
@@ -44,6 +47,7 @@ function _doSwitchScreen() {
     PixiMenuBackground.destroy();
   }
 
+  if (typeof ThemeManager !== 'undefined') ThemeManager.syncForScreen(transition.nextScreen);
   store.set('screen', transition.nextScreen);
   window.currentScreenData = transition.nextData;   // lets a screen be rebuilt as it was (Super User)
   currentScreen = screens[transition.nextScreen];
@@ -73,11 +77,52 @@ function resizeCanvas() {
   miniCanvas.height = canvas.height;
   ctx.imageSmoothingEnabled = false;
   miniCtx.imageSmoothingEnabled = false;
+  // Drawn below the screen's resolution: let the page smooth the picture up
+  // instead of doubling uneven pixel columns.
+  const smooth = currentRenderScale < Layout.nativeRenderScale - 0.01;
+  for (const c of [canvas, miniCanvas, document.getElementById('pixiCanvas')]) {
+    if (c) c.style.imageRendering = smooth ? 'auto' : '';
+  }
 }
 
+// Frames are capped (60 per second by default, Settings > Display > Frame Limit).
+// The desktop app draws as fast as asked, whatever the screen's refresh rate.
+const framePacer = Graphics.pacer();
+// The Canvas 2D overlay is full screen size; touching it makes the browser
+// composite it again, so it is only cleared when something was drawn on it.
+let overlayDirty = true;
+
 function gameLoop(timestamp) {
+  rafId = requestAnimationFrame(gameLoop);
+  if (!framePacer.ready(timestamp)) return;
+  drawFrame(timestamp);
+  // Pixi draws after the screens' per-frame updates (its own ticker is stopped, PixiApp).
+  if (PixiApp.initialized) PixiApp.app.ticker.update(timestamp);
+}
+
+function drawFrame(timestamp) {
   const dt = lastTime ? (timestamp - lastTime) / 1000 : 0.016;
   lastTime = timestamp;
+  if (typeof Graphics !== 'undefined') Graphics.tick(timestamp);
+
+  const pixiOnly = currentScreen && currentScreen.isPixiScreen;
+  const screenDraws = currentScreen && !pixiOnly && (!currentScreen.drawsOverlay || currentScreen.drawsOverlay());
+  if (!screenDraws && !PauseMenu.visible && !transition.active) {
+    if (overlayDirty) {
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      overlayDirty = false;
+    }
+    try {
+      // A hybrid screen still runs its per-frame logic; it draws nothing on the overlay.
+      if (pixiOnly && currentScreen.pixiUpdate) currentScreen.pixiUpdate(dt);
+      else if (currentScreen && currentScreen.render) currentScreen.render(ctx, dt);
+    } catch (e) {
+      console.error('Screen render error:', e);
+    }
+    return;
+  }
+  overlayDirty = true;
 
   const scaleX = canvas.width / Layout.W;
   const scaleY = canvas.height / Layout.H;
@@ -114,6 +159,12 @@ function gameLoop(timestamp) {
         } catch (e) {
           console.error('Screen switch error:', e);
         }
+        if (transition.instant) {
+          transition.instant = false;
+          transition.alpha = 0;
+          transition.active = false;
+          if (currentScreen && currentScreen.isPixiScreen) canvas.style.zIndex = '0';
+        }
       }
     } else {
       transition.alpha -= dt * transition.speed;
@@ -125,17 +176,19 @@ function gameLoop(timestamp) {
         }
       }
     }
-    ctx.fillStyle = `rgba(0,0,0,${transition.alpha})`;
-    ctx.fillRect(0, 0, Layout.W, Layout.H);
+    if (!transition.instant) {
+      ctx.fillStyle = `rgba(0,0,0,${transition.alpha})`;
+      ctx.fillRect(0, 0, Layout.W, Layout.H);
+    }
   }
-
-  rafId = requestAnimationFrame(gameLoop);
 }
 
 function initApp() {
   Layout.init();
 
-  const initialTheme = store.get('theme') || 'pawnhollow';
+  // The game opens outside story mode, on the player's own theme.
+  store.set('theme', ThemeManager.menuThemeId());
+  const initialTheme = store.get('theme') || 'chess20';
   TextureManager.preloadTheme(initialTheme);
   TextureManager.preloadCharacters();
 
@@ -146,6 +199,8 @@ function initApp() {
   registerScreen('worldMap', WorldMapScreen);
   registerScreen('storyScene', StoryScene);
   registerScreen('worldMissions', WorldMissionsScreen);
+  registerScreen('tournament', TournamentScreen);
+  registerScreen('shop', ShopScreen);
   registerScreen('game', GameScreen);
   registerScreen('settings', SettingsScreen);
   registerScreen('miniGamePractice', MiniGamePractice);
@@ -156,6 +211,8 @@ function initApp() {
   registerScreen('stats', StatsScreen);
   registerScreen('controls', ControlsScreen);
   registerScreen('trainingHub', TrainingHubScreen);
+  registerScreen('playMenu', PlayMenuScreen);
+  registerScreen('greatBoard', GreatBoardScreen);
   registerScreen('levelSelect', LevelSelectScreen);
   registerScreen('puzzle', PuzzleScreen);
   registerScreen('boardEditor', BoardEditorScreen);
@@ -275,6 +332,7 @@ function initApp() {
       }
       return;
     }
+    if (SuperUser.handleWinKey(e, currentScreen)) { e.preventDefault(); return; }
     if (store.get('miniGameActive')) {
       miniGameManager.handleKey(e.key);
       e.preventDefault();
@@ -288,6 +346,7 @@ function initApp() {
 
   document.addEventListener('keyup', (e) => {
     if (store.get('miniGameActive')) miniGameManager.handleKeyUp(e.key);
+    else if (currentScreen && currentScreen.handleKeyUp) currentScreen.handleKeyUp(e);
   });
 
   window.addEventListener('resize', () => {
@@ -322,6 +381,10 @@ function initApp() {
 
   resizeCanvas();
 
+  // Keep the language the game started in (the system's, for a new player).
+  const startSettings = store.get('settings') || {};
+  if (startSettings.language !== I18n.lang) store.set('settings', { ...startSettings, language: I18n.lang });
+
   // Text is baked into textures when a screen is built, so wait for the pixel
   // fonts before the first screen or it renders in a fallback font.
   const fontsReady = document.fonts && document.fonts.load
@@ -333,6 +396,8 @@ function initApp() {
         document.fonts.load('bold 16px "Pixelify Sans"'),
         document.fonts.load('16px "Silkscreen"'),
         document.fonts.load('bold 16px "Silkscreen"'),
+        I18n.loadFonts(),
+        I18n.ready,
       ]).catch(() => {}),
       new Promise(resolve => setTimeout(resolve, 2500)),
     ])
@@ -348,12 +413,17 @@ function initApp() {
     if (typeof PixiPremiumAssets !== 'undefined' && PixiPremiumAssets.preloadAll) {
       PixiPremiumAssets.preloadAll();
     }
+    if (typeof Graphics !== 'undefined') Graphics.apply();
     switchScreen('home');
   });
 
-  // Initialize audio on first user interaction
+  // Start the music right away. Electron allows it (see main.js); browsers and
+  // Telegram keep the audio suspended until the first click or key, below.
+  audioManager.init();
+  audioManager.startMusic();
   function initAudio() {
     audioManager.init();
+    if (audioManager.ctx && audioManager.ctx.state === 'suspended') audioManager.ctx.resume();
     audioManager.startMusic();
     document.removeEventListener('click', initAudio);
     document.removeEventListener('keydown', initAudio);

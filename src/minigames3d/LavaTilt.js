@@ -92,7 +92,7 @@ class LavaTilt extends Game3D {
     this.tiltZ = 0;
     this.lives = this.hard < 0.55 ? 2 : 1;
     this.maxLives = this.lives;
-    this.duration = 19 - this.hard * 5 + (this.isDuel ? 1 : 0);
+    this.duration = 20 - this.hard * 3 + (this.isDuel ? 1 : 0);
     this._respawn();
     this.falling = 0;
   }
@@ -124,7 +124,7 @@ class LavaTilt extends Game3D {
     const N = 8;
     this.start = { r: 7, c: 0 };
     this.goal = { r: 0, c: 7 };
-    const holeCount = Math.round(7 + this.hard * 9);
+    const holeCount = Math.round(6 + this.hard * 6);
     const bumperCount = Math.round(3 + this.hard * 3);
     for (let attempt = 0; attempt < 200; attempt++) {
       const holes = new Set();

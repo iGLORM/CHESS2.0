@@ -4,13 +4,19 @@ const PixiMinion = {
   _cache: {},
 
   isMinion(id) {
-    return typeof StoryMissions !== 'undefined' && !!StoryMissions.character(id);
+    return (typeof StoryMissions !== 'undefined' && !!StoryMissions.character(id)) ||
+      (typeof SideMatches !== 'undefined' && SideMatches.isMinion(id));
+  },
+
+  _char(id) {
+    return (typeof StoryMissions !== 'undefined' && StoryMissions.character(id)) ||
+      (typeof SideMatches !== 'undefined' && SideMatches.character(id));
   },
 
   // Square portrait, or the taller 238x292 card (same sizes as the holograms).
   texture(id, card = false) {
     const key = id + (card ? '_card' : '');
-    const ch = StoryMissions.character(id);
+    const ch = this._char(id);
     const img = TextureManager.getPieceTexture(ch.theme, 'black', ch.piece);
     const ready = img && (img.naturalWidth || img.width);
     if (this._cache[key]) return this._cache[key];

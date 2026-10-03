@@ -6,4 +6,5 @@ contextBridge.exposeInMainWorld('electron', {
   isFullscreen: () => ipcRenderer.invoke('is-fullscreen'),
   onFullscreenChange: (cb) => ipcRenderer.on('fullscreen-change', (_e, val) => cb(val)),
   quit: () => ipcRenderer.send('quit-app'),
+  setWindowSize: (w, h) => ipcRenderer.send('set-window-size', w, h),
 });

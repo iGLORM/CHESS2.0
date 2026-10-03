@@ -4,10 +4,16 @@
 //   beats  in order; `who` is a character id, 'narrator', or an extra speaker
 //          from STORY_SPEAKERS. `fx` plays an effect as the beat starts:
 //          crystal, fragment, crack, shatter, fragments, fuse, title (or a list).
+//          `mood` sets a live character's expression for that line (see its moods).
 //
-// The mystery: you wake in Pawn Hollow with no memory and a fragment. Each
-// guardian you beat lets slip a clue: you were the piece crossing the Great
-// Board when Grandmaster X (the First Piece) broke it to stop you.
+// The mystery: for an age the world has been splitting apart, crack by crack.
+// Then you fell into Pawn Hollow with a fragment, and the splitting stopped.
+// Every guardian you beat gives you a clue and sends you on to the next one
+// for something they hold (a key, a map, a poster). Some guardians are on your
+// side (Bish-Bosh, the Knight of the Mist, the EndGamer: they fight you only
+// because what a guardian keeps leaves them only when they lose); the others serve
+// Grandmaster X (the First Piece), who has been breaking the Great Board so no
+// piece could cross it, and broke it all at once when you nearly did.
 // When they play (StoryScenes.before / after): the prologue before Pawnie's
 // first match, the handover after the Training Camp, an interlude after each
 // guardian and the ending after Grandmaster X, which leads into the Credits.
@@ -24,108 +30,227 @@ const STORY_PIECES = {
 };
 
 const STORY_SCENES = {
-  // You wake with no memory. The only clue: the Hollow stopped fading the night you arrived.
+  // The world has been splitting apart for an age. It stopped the night you fell.
   prologue: {
     bg: 'pawnhollow',
     beats: [
-      { who: 'narrator', text: 'You wake in the hay behind a windmill. You do not remember your name. You do not remember how you got here.' },
-      { who: 'narrator', text: 'In your hand is a shard of glowing board.', fx: 'fragment' },
-      { who: 'pawnie', text: "You're awake! I'm Pawnie. You fell out of the sky three nights ago, holding that. The same night the Great Board shattered." },
-      { who: 'pawnie', text: 'Every world has been fading since. Every world except Pawn Hollow. It stopped fading the moment you landed here.' },
-      { who: 'pawnie', text: "So whoever you are... you matter. Nine guardians hold the other fragments. Maybe one of them knows who you are." },
-      { who: 'pawnie', text: "But first, let's see if you remember how to play. One normal game. Ready?" },
+      { who: 'narrator', text: 'For as long as anyone can remember, the world has been coming apart. Every year the rifts grow wider, and the lands drift further from each other.' },
+      { who: 'narrator', text: 'You wake in the hay behind a windmill. You do not remember your name. In your hand is a shard of glowing board.', fx: 'fragment' },
+      { who: 'pawnie', mood: 'surprised', text: "You're awake! I'm Pawnie. You fell out of the sky three nights ago, right into our village, holding that." },
+      { who: 'pawnie', mood: 'nervous', text: "And since you landed, the world has stopped breaking. Not one new crack, anywhere. That hasn't happened since before my grandpa's grandpa." },
+      { who: 'pawnie', mood: 'nervous', text: 'So whoever you are... you matter. The Great Board broke into four pieces. You hold one. The other three are kept by guardians, out past the rifts. Some are kind, some are not. One of them must know who you are.' },
+      { who: 'pawnie', mood: 'happy', text: "But first, let's see if you remember how to play. One normal game, no challenges. Ready?" },
     ],
   },
 
-  // The Camp notices you learn too fast.
+  // The Camp notices you learn too fast; Pawnie sends you to a friend.
   handover: {
     bg: 'trainingcamp',
     beats: [
-      { who: 'senseitactic', text: 'You do not learn like a beginner. You learn like someone remembering.' },
-      { who: 'pawnie', text: "I'll keep your fragment safe here... no. It's yours. It was always yours. Take it.", fx: 'fragment' },
-      { who: 'pawnie', text: "I'm staying in the Hollow. If it's still standing because of you, someone should be here when you come home." },
-      { who: 'pawnie', text: "Bish-Bosh guards the Slanted Sands. Go get some answers." },
+      { who: 'senseitactic', mood: 'intrigued', text: 'You do not learn like a beginner. You learn like someone remembering.' },
+      { who: 'pawnie', mood: 'nervous', text: "I'll keep your fragment safe here... no. It's yours. It was always yours. Take it.", fx: 'fragment' },
+      { who: 'pawnie', mood: 'happy', text: "I'm staying in the Hollow. If it's still whole because of you, someone should be here when you come home." },
+      { who: 'pawnie', mood: 'happy', text: "Go to the Slanted Sands first. Bish-Bosh is the only guardian who still sends us letters. He's a friend, in his own tilted way." },
     ],
   },
 
-  // Interludes, keyed by the stage just beaten: the loser lets slip a clue,
-  // the next guardian raises the stakes.
+  // Interludes, keyed by the stage just beaten: the loser gives a clue and sends
+  // you on for something the next guardian holds; then the next one speaks.
   after7: {
-    bg: 'ironkeep',
+    bg: 'slantedsands',
     beats: [
-      { who: 'bishbosh', text: 'Wait. Wait wait wait. I KNOW that walk. You crossed my sands before, the night the sky cracked!' },
-      { who: 'bishbosh', text: "You were heading for the far edge of the board. Nobody heads for the edge. What were you THINKING?" },
-      { who: 'rokee', text: "Bish-Bosh talks too much. If that is who I think it is, the Iron Keep's gates stay shut." },
+      { who: 'bishbosh', mood: 'shocked', text: 'Wait. Wait wait wait. I KNOW that walk. You crossed my sands before, the night the sky cracked!' },
+      { who: 'bishbosh', mood: 'gleeful', text: 'Sorry about the four bishops. What a guardian keeps only leaves them when they lose. Oldest rule of the Board. I WANTED to lose. Mostly.' },
+      { who: 'bishbosh', mood: 'scheming', text: 'You want answers? My old friend the Knight of the Mist sees everything from the Misty Moors. But the only road there runs through the Iron Keep.' },
+      { who: 'bishbosh', mood: 'huffy', text: "Rook-E holds the key to that road. He won't hand it over. He takes orders from somebody, and he never says who." },
+      { who: 'rokee', mood: 'stern', bg: 'ironkeep', text: "Bish-Bosh talks too much. If that is who I think it is, the Iron Keep's gates stay shut." },
     ],
   },
   after8: {
-    bg: 'mistymoors',
+    bg: 'ironkeep',
     beats: [
-      { who: 'rokee', text: 'I had orders, before the shattering: stop the piece that is crossing. You got past me then as well.' },
-      { who: 'rokee', text: 'Whose orders? I swore not to say. But I think you will find out.' },
-      { who: 'knightsade', text: "*from the fog* ... Every guardian is whispering about you now, and you still don't know your own name." },
+      { who: 'rokee', mood: 'strained', text: 'I had orders, long before the sky cracked: stop any piece that tries to cross. You got past me that night as well.' },
+      { who: 'rokee', mood: 'stern', text: 'Take the Iron Key, by right of siege. The road to the Moors is open. But my orders came sealed, and my brother CastlE keeps the seal.' },
+      { who: 'knightsade', mood: 'watching', bg: 'mistymoors', text: "*from the fog* ... So Bish-Bosh sent you. Good. I have waited a long time. Find me in my mist, and I'll tell you what I saw." },
     ],
   },
   after9: {
-    bg: 'royalpalace',
+    bg: 'mistymoors',
     beats: [
-      { who: 'knightsade', text: '*the mist parts* ... I saw it happen. You were three ranks from the far edge when the board broke under your feet.' },
-      { who: 'queenie', text: 'Three ranks? Nobody gets that close, darling. Nobody except...' },
-      { who: 'queenie', text: '...oh. Oh no. It is YOU. Guards! Hide the fragment! And somebody warn the Grandmaster!' },
+      { who: 'knightsade', mood: 'revealed', text: '*the mist parts* ... I saw it happen. You were three ranks from the far edge when the board broke under your feet.' },
+      { who: 'knightsade', mood: 'sly', text: 'The guardians all pretend to serve the Grandmaster. I only pretend better. And I know what they hide: a map of your crossing, every step you took.' },
+      { who: 'knightsade', mood: 'watching', text: 'Queenie keeps it in her palace, far to the south across the sea, where the great desert begins. Take my lantern. It shows what people try to hide.' },
+      { who: 'queenie', mood: 'smug', bg: 'royalpalace', text: 'A map? In MY palace? Darling, I have no idea what that hooded gossip is talking about.' },
     ],
   },
   after10: {
-    bg: 'clockworkcitadel',
+    bg: 'royalpalace',
     beats: [
-      { who: 'queenie', text: 'Fine. Grandmaster X gave me this palace to keep quiet. He was terrified of you, darling. Of YOU.' },
-      { who: 'queenie', text: 'He said if you ever reached the edge, the board would choose you, and he would be nothing at all.' },
-      { who: 'castle', text: 'Queenie always did sell secrets cheaply. My walls were not built to keep invaders out. They were built for one piece. You.' },
+      { who: 'queenie', mood: 'outraged', text: 'Fine! Grandmaster X gave me this palace to keep that map hidden. He was terrified of you, darling. Of YOU.' },
+      { who: 'queenie', mood: 'panicked', text: "But I don't have it any more! CastlE came for it. It's locked in the Clockwork Citadel now, behind walls he built for one piece only." },
+      { who: 'castle', mood: 'stern', bg: 'clockworkcitadel', text: 'Queenie always did sell secrets cheaply. My brother failed at the Keep. My walls will not. They were built for you.' },
     ],
   },
   after11: {
-    bg: 'grandlibrary',
+    bg: 'clockworkcitadel',
     beats: [
-      { who: 'castle', text: 'The walls have fallen. They were never going to hold you twice.' },
-      { who: 'endgamer', text: 'I have a book about you. Chapter one: a piece begins to cross. Final chapter: the board breaks.' },
-      { who: 'endgamer', text: 'Every page in between is blank. I have always wondered who would fill them in.' },
+      { who: 'castle', mood: 'resigned', text: 'The walls have fallen. They were never going to hold you twice.' },
+      { who: 'castle', mood: 'rattled', text: 'The map? Gone. The EndGamer borrowed it, and he never returns anything. It is in the Grand Library, across the ocean.' },
+      { who: 'endgamer', mood: 'calm', bg: 'grandlibrary', text: 'I have a book about you. Chapter one: a piece begins to cross. Final chapter: the board breaks.' },
+      { who: 'endgamer', mood: 'intrigued', text: 'Your map is here, and safe. I took it before the Grandmaster could burn it. Win it from me, and every page is yours.' },
     ],
   },
   after12: {
-    bg: 'forkedgulch',
+    bg: 'grandlibrary',
     beats: [
-      { who: 'endgamer', text: "Here is the page you are missing: the board did not break by accident. Someone broke it. With you standing on it." },
-      { who: 'forkmaster', text: "The bookworm's right for once. And there's a bounty on your head, partner. Posted by the one who did it." },
+      { who: 'endgamer', mood: 'grave', text: 'Read what your map shows. The world did not split by accident. For an age, someone has been breaking it, one crack at a time, so no piece could cross.' },
+      { who: 'endgamer', mood: 'grave', text: 'You nearly did. So he broke it all at once, with you on it. And when you fell, the breaking stopped. The board had already chosen you.' },
+      { who: 'endgamer', mood: 'pleased', text: "You will need proof of who did it. ForkMaster carries the bounty he was paid to hunt you with. Take it from him." },
+      { who: 'forkmaster', mood: 'smug', bg: 'forkedgulch', text: "The bookworm's right for once. There's a bounty on your head, partner, and I aim to collect it." },
     ],
   },
   after13: {
-    bg: 'obsidiancourt',
+    bg: 'forkedgulch',
     beats: [
-      { who: 'forkmaster', text: "Bounty's signed: Grandmaster X. He wants you stopped before you reach the edge. Again." },
-      { who: 'checkmate', text: 'The shattering should have finished you. It only took your memory. I will finish the job.' },
-      { who: 'checkmate', text: 'Forty moves. Then the sand runs out, and this time you stay down.' },
+      { who: 'forkmaster', mood: 'impressed', text: 'Alright, alright. Here, take the poster. Signed at the bottom: Grandmaster X. He wants you stopped before you reach the edge. Again.' },
+      { who: 'forkmaster', mood: 'rattled', text: 'Free advice: Checkmate works for him. He guards the last road at the Obsidian Court, and nobody gets past his hourglass.' },
+      { who: 'checkmate', mood: 'grim', bg: 'obsidiancourt', text: 'The breaking should have finished you. It only took your memory. I will finish the job.' },
+      { who: 'checkmate', mood: 'amused', text: 'Forty moves. Then the sand runs out, and this time you stay down.' },
     ],
   },
   after14: {
-    bg: 'crystal',
+    bg: 'obsidiancourt',
     beats: [
-      { who: 'checkmate', text: 'The sand has never stopped for anyone. It stopped for you. Go. He is waiting.' },
-      { who: 'grandmasterx', text: 'You. I broke the whole world to stop you, and you walked straight back into it.' },
-      { who: 'grandmasterx', text: 'One square from the edge. That is where you were. Come and finish it, if you can.' },
+      { who: 'checkmate', mood: 'shaken', text: 'The sand has never stopped for anyone. It stopped for you. Go. He is waiting.' },
+      { who: 'grandmasterx', mood: 'contempt', bg: 'crystal', text: 'You. I spent an age breaking this world so that no one could cross it, and you walked straight back in.' },
+      { who: 'grandmasterx', mood: 'cold', text: 'One square from the edge. That is where you were. Come and finish it, if you can.' },
     ],
   },
 
-  // The First Piece broke the board to stop you crossing; you finish the crossing.
+  // On the roads: a wandering rival blocks the way to the next guardian
+  // (SideContent: `road_<id>` before the first match, `roadwon_<id>` after the first win),
+  // and the Arena guards the road to the Obsidian Court.
+  road_saltbeard: {
+    bg: 'ironkeep',
+    beats: [
+      { who: 'narrator', text: 'The road north to the Iron Keep runs down to the Middle Sea. A ship with patched red sails is moored across the only ferry.' },
+      { who: 'saltbeard', text: "Arr! This sea's been mine since the rifts split the shore. Every piece that crosses pays Salt-Beard's toll." },
+      { who: 'saltbeard', text: "No coin? Then ye pay in challenges. Every capture, a fight. Beat me, and the ferry's yours." },
+    ],
+  },
+  roadwon_saltbeard: {
+    bg: 'ironkeep',
+    beats: [
+      { who: 'saltbeard', text: "Sunk by a landlubber! Fine, fine. The ferry's yours." },
+      { who: 'saltbeard', text: "A word, since ye beat me fair: the Keep's gate has been shut since the night the sky cracked. Rook-E has orders to stop anyone crossing. Whose orders, he never says." },
+    ],
+  },
+  road_frostbite: {
+    bg: 'clockworkcitadel',
+    beats: [
+      { who: 'narrator', text: 'Past the Iron Keep the road climbs into the high passes. Snow falls, though it is summer. In the middle of the path sits a very old, very cold pawn.' },
+      { who: 'frostbite', text: 'Brr. The pass is frozen, and so am I. I froze the night the Great Board broke. I have not moved since.' },
+      { who: 'frostbite', text: 'Nobody crosses my pass unless they can play around my ice. Two blocks, right in the middle. Mind them.' },
+    ],
+  },
+  roadwon_frostbite: {
+    bg: 'mistymoors',
+    beats: [
+      { who: 'frostbite', text: 'Hm. You warmed me up. First time in an age.' },
+      { who: 'frostbite', text: 'The Misty Moors are below. The Knight in the fog saw more than anyone that night. Listen to him. He only lies to his enemies.' },
+    ],
+  },
+  road_tidewitch: {
+    bg: 'mistymoors',
+    beats: [
+      { who: 'narrator', text: "The Moors end at a grey sea. Somewhere south, past the mist, lies Queenie's palace. On a rock above the water, someone is singing." },
+      { who: 'tidewitch', text: 'The tide brings me travellers, and the mist keeps them. The sea between here and the palace is mine.' },
+      { who: 'tidewitch', text: 'The middle of the board is under my mist. Win through it, and the waves will carry you south.' },
+    ],
+  },
+  roadwon_tidewitch: {
+    bg: 'royalpalace',
+    beats: [
+      { who: 'tidewitch', text: 'The mist parts for you. It has never done that before.' },
+      { who: 'tidewitch', text: 'Queenie pays me to keep this sea closed. She is afraid of something, little crossing piece. I think she is afraid of you.' },
+    ],
+  },
+  road_dunejester: {
+    bg: 'slantedsands',
+    beats: [
+      { who: 'narrator', text: 'From the Palace the road runs east across the great desert, toward the Clockwork Citadel. A striped silk tent stands right in the way. A bell jingles inside.' },
+      { who: 'dunejester', text: 'Ha-HA! A visitor! I am the Dune Jester, and this road is my stage. Nobody passes without laughing first.' },
+      { who: 'dunejester', text: 'My joke? I swapped everyone around while you slept. Your bishops jump now. My knights slide. Good luck, sleepyhead!' },
+    ],
+  },
+  roadwon_dunejester: {
+    bg: 'clockworkcitadel',
+    beats: [
+      { who: 'dunejester', text: 'You juggled four knights and did not drop one! Fine, the road is yours.' },
+      { who: 'dunejester', text: "A tip, free of charge: CastlE's walls were built for ONE piece only. Everyone in the desert knows which. Ha... you don't? Oh. Oh dear." },
+    ],
+  },
+  road_pacificghost: {
+    bg: 'obsidiancourt',
+    beats: [
+      { who: 'narrator', text: 'The Grand Library lies across the ocean. Halfway over, the sea goes still, and a pale lantern swings above the water.' },
+      { who: 'pacificghost', text: 'Ooooh. I have sailed this ocean since before the board broke. I saw you fall, you know. A little light, dropping out of the sky.' },
+      { who: 'pacificghost', text: 'Forty moves, traveller. Mate me in forty, or drift with me for ever.' },
+    ],
+  },
+  roadwon_pacificghost: {
+    bg: 'grandlibrary',
+    beats: [
+      { who: 'pacificghost', text: 'Mated... by the living. How refreshing.' },
+      { who: 'pacificghost', text: 'Go on to the Library. The EndGamer keeps a book about you. Read the last chapter first. Endings are where the truth hides.' },
+    ],
+  },
+  road_junglejack: {
+    bg: 'forkedgulch',
+    beats: [
+      { who: 'narrator', text: 'South of the Gulch, the canyon turns to jungle. Every vine forks two ways, and something big swings from branch to branch.' },
+      { who: 'junglejack', text: 'Ooo-ooo! The Obsidian Court is past my jungle. Nobody gets there without getting forked.' },
+      { who: 'junglejack', text: 'In my jungle, when one piece hits two, it takes both. Watch your pieces!' },
+    ],
+  },
+  roadwon_junglejack: {
+    bg: 'obsidiancourt',
+    beats: [
+      { who: 'junglejack', text: 'You swung past every fork! The jungle opens for you.' },
+      { who: 'junglejack', text: 'But the Court is guarded twice. Checkmate lets in nobody who has not proved themselves in the Arena. Go to the red sands of the south.' },
+    ],
+  },
+  arena_intro: {
+    bg: 'obsidiancourt',
+    beats: [
+      { who: 'narrator', text: 'In the red sands of the south stands the Arena, older than the rifts. The guardians you have beaten sit in its stands, and wait.' },
+      { who: 'checkmate', mood: 'grim', text: 'My Court opens only to one who wins here three times in a row. Those are my terms. They have never been met.' },
+      { who: 'narrator', text: 'The guardians you beat come down, one after another, each with their own rule. Lose once, and the streak starts over.' },
+    ],
+  },
+  arena_won: {
+    bg: 'obsidiancourt',
+    beats: [
+      { who: 'narrator', text: 'Three in a row. The old guardians rise to their feet, and the Arena shakes.' },
+      { who: 'checkmate', mood: 'grim', text: 'Three. As agreed. The Obsidian Court is open. Come, then, and bring your time with you. You will need all of it.' },
+    ],
+  },
+
+  // The First Piece broke the board, slowly and then all at once, to stop anyone
+  // crossing; you finish the crossing.
   ending: {
     bg: 'crystal',
     beats: [
       { who: 'narrator', text: "The third checkmate lands. Grandmaster X's crystal cracks from crown to base...", fx: ['crystal', 'crack'] },
       { who: 'narrator', text: '...and shatters. Inside stands one small, very old pawn.', fx: 'shatter' },
-      { who: 'firstpiece', text: 'I was the first piece ever to cross the Great Board. It chose me as its Guardian. I guarded it alone, for an age.' },
-      { who: 'firstpiece', text: 'Then you came, and you were going to reach the edge. It would choose you. So I broke it, with you on it.' },
-      { who: 'firstpiece', text: 'You lost your memory. The Hollow kept you safe. I lost everything else.' },
-      { who: 'narrator', text: 'The ten fragments rise from your hands and lock together.', fx: 'fragments' },
+      { who: 'firstpiece', mood: 'weary', text: 'I was the first piece ever to cross the Great Board. It chose me as its Guardian. I guarded it alone, for an age.' },
+      { who: 'firstpiece', mood: 'remorse', text: 'I grew afraid that someone would cross and take my place. So I began to break it, crack by crack, world by world, so no one ever could.' },
+      { who: 'firstpiece', mood: 'remorse', text: 'Then you came, and you almost reached the edge. I broke it all at once, with you on it. The moment you fell, it stopped breaking. It had chosen you.' },
+      { who: 'firstpiece', mood: 'remorse', text: 'You lost your memory. The Hollow kept you safe. I lost everything else.' },
+      { who: 'narrator', text: 'The four fragments rise from your hands and lock together.', fx: 'fragments' },
       { who: 'narrator', text: 'You take the last step and reach the far edge. The Great Board wakes, and the worlds drift home into one land.', fx: 'fuse', bg: 'pawnhollow' },
-      { who: 'firstpiece', text: 'It chose you. Just... do not guard it alone, like I did.' },
+      { who: 'narrator', text: 'In Pawn Hollow, Pawnie looks up at a whole sky. Far away, Bish-Bosh, the Knight of the Mist and the EndGamer look up too.' },
+      { who: 'firstpiece', mood: 'peace', text: 'It chose you. Just... do not guard it alone, like I did.' },
       { who: 'narrator', text: 'You remember now. You are the Guardian of the Great Board.', fx: 'title' },
     ],
   },
@@ -156,8 +281,16 @@ const StoryScenes = {
   },
 
   speaker(who) {
-    if (STORY_SPEAKERS[who]) return { id: who, ...STORY_SPEAKERS[who] };
+    if (STORY_SPEAKERS[who]) {
+      // Extra speakers with live art (src/themes/scenes/char_<id>.js) get a portrait card too.
+      const live = typeof LiveScenes !== 'undefined' && LiveScenes.character(who);
+      return { id: who, ...STORY_SPEAKERS[who], portrait: !!live };
+    }
     const ch = STORY_STAGES.find(c => c.id === who);
-    return ch ? { id: ch.id, name: ch.name, colors: ch.colors, portrait: true } : { id: who, name: who };
+    if (ch) return { id: ch.id, name: ch.name, colors: ch.colors, portrait: true };
+    // Wandering rivals stand as their piece.
+    const rival = typeof SideContent !== 'undefined' && SideContent.rival(who);
+    if (rival) return { id: rival.id, name: rival.name, piece: rival.piece, colors: rival.colors };
+    return { id: who, name: who };
   },
 };

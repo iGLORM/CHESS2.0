@@ -65,7 +65,7 @@ class SiegeCannon extends Game3D {
 
     // Enemy island
     this.island = new THREE.Group();
-    this.islandBase = new THREE.Vector3(0, 0, -10);
+    this.islandBase = new THREE.Vector3(0, 0, -9);
     this.island.position.copy(this.islandBase);
     const top = new THREE.Mesh(new THREE.BoxGeometry(5.2, 0.3, 5.2), new THREE.MeshStandardMaterial({ map: Mini3D.checkerTexture(5, '#d9c7a4', '#4a3470', 8) }));
     top.position.y = -0.15;
@@ -76,14 +76,14 @@ class SiegeCannon extends Game3D {
     this.island.add(top, under);
     scene.add(this.island);
 
-    const count = Math.round(4 + this.hard * 4);
+    const count = Math.round(4 + this.hard * 3);
     const cells = [];
     for (let r = 0; r < 5; r++) for (let c = 0; c < 5; c++) cells.push([r, c]);
     cells.sort(() => Math.random() - 0.5);
     this.targets = cells.slice(0, count).map(([r, c], i) => {
       const type = i === 0 ? this.enemy.type : (Math.random() < 0.6 ? 'pawn' : ['knight', 'bishop', 'rook'][(Math.random() * 3) | 0]);
       const obj = Pieces3D.create(type, this.enemyColor, 0xb01438);
-      obj.scale.setScalar(1.1);
+      obj.scale.setScalar(1.3);
       scene.add(obj);
       return { obj, local: new THREE.Vector3(c - 2, 0, r - 2), down: false, vel: null, spin: null };
     });
@@ -97,12 +97,13 @@ class SiegeCannon extends Game3D {
     scene.add(this.preview);
 
     this.camera.fov = 48;
-    this.camera.position.set(0, 3.2, 6.8);
-    this.camera.lookAt(0, 0.2, -7);
+    // High and off to the side, so the raised barrel never hides the island.
+    this.camera.position.set(2.2, 4.6, 7.4);
+    this.camera.lookAt(-0.3, -0.2, -6);
 
     this.yaw = 0;
     this.pitch = 0.45;
-    this.shots = 4 + (this.isDuel ? 1 : 0) + (this.hard < 0.3 ? 1 : 0);
+    this.shots = Math.ceil(count * 0.6) + 2 + (this.isDuel ? 1 : 0);
     this.maxShots = this.shots;
     this.timeLimit = 18 + this.maxShots;
     this.ball = null;

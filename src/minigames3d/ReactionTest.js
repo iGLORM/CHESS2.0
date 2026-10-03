@@ -49,11 +49,11 @@ class ReactionTest extends Game3D {
 
     this.player = this.playerPiece();
     this.player.scale.setScalar(1.8);
-    this.player.position.set(-3.5, 0, 0);
+    this.player.position.set(-3, 0, 0);
     this.player.rotation.y = Math.PI / 2;
     this.rival = Pieces3D.create(this.enemy.type, this.enemyColor, 0xb01438);
     this.rival.scale.setScalar(1.8);
-    this.rival.position.set(3.5, 0, 0);
+    this.rival.position.set(3, 0, 0);
     this.rival.rotation.y = -Math.PI / 2;
     scene.add(this.player, this.rival);
     this.muzzle = Mini3D.glowSprite(0xfff0a0, 2);
@@ -65,7 +65,7 @@ class ReactionTest extends Game3D {
     this.need = Math.ceil(this.rounds / 2);
     this.won = 0;
     this.lost = 0;
-    this.enemyTime = 0.52 - this.hard * 0.24;
+    this.enemyTime = 0.58 - this.hard * 0.18;
     this.times = [];
     this._round();
   }
@@ -79,8 +79,8 @@ class ReactionTest extends Game3D {
     this.botAt = 0.19 + (10 - this.botSkill) * 0.045 + Math.random() * 0.08;
     this.player.rotation.set(0, Math.PI / 2, 0);
     this.rival.rotation.set(0, -Math.PI / 2, 0);
-    this.player.position.set(-3.5, 0, 0);
-    this.rival.position.set(3.5, 0, 0);
+    this.player.position.set(-3, 0, 0);
+    this.rival.position.set(3, 0, 0);
     this.weedX = -12;
   }
 
@@ -178,7 +178,7 @@ class ReactionTest extends Game3D {
     this.weed.rotation.z -= dt * 6;
     // Camera: wide shot, slow push in while waiting, snap close on the draw.
     const tense = this.state === 'wait' ? Math.min(1, this.t / this.waitFor) : this.state === 'draw' ? 1 : 0.3;
-    const dist = 9 - tense * 3;
+    const dist = 11 - tense * 2.5;
     this.camera.position.set(Math.sin(this.time * 0.2) * 1.5, 1.6 + tense * 0.3, dist);
     this.camera.lookAt(0, 1, 0);
     this.sky.setRGB(1, 0.6 - tense * 0.15, 0.35 - tense * 0.15);

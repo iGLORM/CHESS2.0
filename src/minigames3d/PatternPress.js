@@ -51,13 +51,13 @@ class PatternPress extends Game3D {
     this.camera.position.set(0, 4.2, 7.5);
     this.camera.lookAt(0, 1, 0);
 
-    this.startLen = 3 + Math.round(this.hard * 2);
+    this.startLen = 3 + Math.round(this.hard * 1.5);
     this.rounds = this.isDuel ? 4 : 3;
     this.round = 0;
     this.seq = [];
     for (let i = 0; i < this.startLen + this.rounds; i++) this.seq.push((Math.random() * 4) | 0);
-    this.gap = 0.55 - this.hard * 0.22;
-    this.lives = this.hard < 0.5 ? 2 : 1;
+    this.gap = 0.55 - this.hard * 0.15;
+    this.lives = this.hard < 0.7 ? 2 : 1;
     this._startRound();
   }
 

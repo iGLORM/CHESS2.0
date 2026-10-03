@@ -1,13 +1,13 @@
 // Story-mode boss twists drawn on and around the board: the Knight of the Mist's
-// fog, CastlE's gear walls, locked squares, the Boss Rule status panel
-// (hourglass, crystal) and the one-off animations (double take, rewind).
+// fog, CastlE's gear walls, locked squares, the Great Board's four regions, the
+// Boss Rule status panel (hourglass, crystal) and the one-off animations
+// (double take, rewind).
 const PixiBossFX = {
   boardLayer: null,   // inside the board container, above the pieces
   hudLayer: null,     // on the stage, above the HUD
   initialized: false,
 
   PANEL: { X: 1006, Y: 402, W: 240, H: 150 },
-  FOG_COLOR: 0x1b2330,
   WALL_BRASS: 0xb58a4a,
   CRYSTAL: 0xc9a6ff,
 
@@ -30,8 +30,11 @@ const PixiBossFX = {
     this.lockLayer = new PIXI.Container();
     this.eyeLayer = new PIXI.Container();
     this.suspectLayer = new PIXI.Container();
+    this.relicLayer = new PIXI.Container();
+    this.edgeLayer = new PIXI.Container();
+    this.regionLayer = new PIXI.Container();
     this.fxLayer = new PIXI.Container();
-    this.boardLayer.addChild(this.lockLayer, this.wallLayer, this.fogLayer, this.eyeLayer, this.suspectLayer, this.fxLayer);
+    this.boardLayer.addChild(this.regionLayer, this.edgeLayer, this.lockLayer, this.wallLayer, this.relicLayer, this.fogLayer, this.eyeLayer, this.suspectLayer, this.fxLayer);
     this.panelLayer = new PIXI.Container();
     this.bannerLayer = new PIXI.Container();
     this.hudLayer.addChild(this.panelLayer, this.bannerLayer);
@@ -42,6 +45,10 @@ const PixiBossFX = {
     this._wallKey = null;
     this._panelKey = null;
     this._suspectKey = null;
+    this._relicKey = null;
+    this._edgeKey = null;
+    this._regionKey = null;
+    this._relics = [];
     this._badges = [];
     this._gears = [];
     this.initialized = true;
@@ -55,6 +62,8 @@ const PixiBossFX = {
     if (this.boardLayer) walk(this.boardLayer);
     if (this.hudLayer) walk(this.hudLayer);
     all.forEach(o => gsap.killTweensOf(o));   // an array of mixed targets is not matched
+    (this._relics || []).forEach(r => PixiShard.kill(r.shard));
+    this._relics = [];
     gsap.killTweensOf(this);
     if (this.boardLayer) this.boardLayer.destroy({ children: true });
     if (this.hudLayer) this.hudLayer.destroy({ children: true });
@@ -92,10 +101,117 @@ const PixiBossFX = {
       this._lockKey = lockKey;
     }
 
+    if (rule && rule.regions && this._regionKey !== layoutKey) {
+      this._drawRegions(rule.regions);
+      this._regionKey = layoutKey;
+    }
     this._updateFog(hidden, layoutKey, dt);
     this._applyPieceVisibility(hidden);
     if (rule && rule.goal && rule.goal.mystery) this._updateSuspects(game, hidden, layoutKey);
+    if (rule && rule.goal && rule.goal.relics) this._updateRelics(game, layoutKey);
+    if (rule && rule.goal && rule.goal.crossing) this._updateEdge(game, layoutKey);
     this._updatePanel(game, dt);
+  },
+
+  /* ------------------------------------------------------------------ */
+  /*  Relic Run: glowing board shards to pick up                         */
+  /* ------------------------------------------------------------------ */
+
+  _updateRelics(game, layoutKey) {
+    const rule = game.bossRule;
+    const left = game.gameOver && game.playerWon() ? [] : BossRules.relics(rule).filter(s =>
+      !BossRules.relicsTaken(rule, game.moveHistory, game.playerColor).some(t => t.row === s.row && t.col === s.col));
+    const occupied = left.map(s => (game.board.grid[s.row][s.col] ? 1 : 0)).join('');
+    const key = layoutKey + '|' + left.map(s => `${s.row}${s.col}`).join(',') + '|' + occupied;
+    if (key !== this._relicKey) {
+      this._relicKey = key;
+      this._relics.forEach(r => PixiShard.kill(r.shard));
+      this.relicLayer.removeChildren().forEach(c => { gsap.killTweensOf(c); c.destroy({ children: true }); });
+      this._relics = [];
+      const sq = PixiBoardRenderer.squareSize;
+      const theme = store.get('theme');
+      left.forEach((s, i) => {
+        const x = PixiBoardRenderer.squareX(s.col), y = PixiBoardRenderer.squareY(s.row);
+        const busy = !!game.board.grid[s.row][s.col];
+        const tile = new PIXI.Graphics()
+          .rect(x + 3, y + 3, sq - 6, sq - 6).fill({ color: 0xffe08a, alpha: 0.16 })
+          .rect(x + 3, y + 3, sq - 6, sq - 6).stroke({ color: 0xffe08a, alpha: 0.55, width: 2 });
+        const shard = PixiShard.create(busy ? sq * 0.13 : sq * 0.24, theme, { glow: !busy });
+        shard.x = busy ? x + sq * 0.8 : x + sq / 2;
+        shard.y = busy ? y + sq * 0.2 : y + sq / 2;
+        this.relicLayer.addChild(tile, shard);
+        this._relics.push({ tile, shard, baseY: shard.y, phase: i * 1.3 });
+      });
+    }
+    for (const r of this._relics) {
+      r.shard.y = r.baseY + Math.sin(this._time * 2.6 + r.phase) * 3;
+      r.shard.rotation = Math.sin(this._time * 1.4 + r.phase) * 0.18;
+      r.tile.alpha = 0.7 + Math.sin(this._time * 3 + r.phase) * 0.3;
+    }
+  },
+
+  // A relic flies up off its square with a burst of light.
+  relicTaken(at, n, total) {
+    if (!this.initialized) return;
+    const sq = PixiBoardRenderer.squareSize;
+    const cx = PixiBoardRenderer.squareX(at.col) + sq / 2, cy = PixiBoardRenderer.squareY(at.row) + sq / 2;
+    const shard = PixiShard.create(sq * 0.3, store.get('theme'), { sparkle: false });
+    shard.x = cx;
+    shard.y = cy;
+    this.fxLayer.addChild(shard);
+    gsap.timeline({ onComplete: () => shard.destroy({ children: true }) })
+      .to(shard, { y: cy - sq * 1.2, rotation: Math.PI * 2, duration: 0.7, ease: 'power2.out' })
+      .to(shard.scale, { x: 1.8, y: 1.8, duration: 0.7, ease: 'power2.out' }, '<')
+      .to(shard, { alpha: 0, duration: 0.3 });
+    for (let i = 0; i < 14; i++) {
+      const a = (i / 14) * Math.PI * 2;
+      const p = new PIXI.Graphics().rect(-3, -3, 6, 6).fill(i % 2 ? 0xffe08a : 0xffffff);
+      p.x = cx;
+      p.y = cy;
+      this.fxLayer.addChild(p);
+      gsap.to(p, { x: cx + Math.cos(a) * sq * 0.9, y: cy + Math.sin(a) * sq * 0.9, alpha: 0, duration: 0.6, ease: 'power2.out', onComplete: () => p.destroy() });
+    }
+    if (n < total) this.banner(`RELIC ${n} / ${total}`, '#ffe08a');
+    if (typeof audioManager !== 'undefined') audioManager.playSelect();
+  },
+
+  /* ------------------------------------------------------------------ */
+  /*  Memory: the far edge of the board glows, where the crossing ends   */
+  /* ------------------------------------------------------------------ */
+
+  _updateEdge(game, layoutKey) {
+    if (this._edgeKey !== layoutKey) {
+      this._edgeKey = layoutKey;
+      this.edgeLayer.removeChildren().forEach(c => c.destroy({ children: true }));
+      const sq = PixiBoardRenderer.squareSize;
+      const row = BossRules.crossingRow(game.playerColor);
+      const g = new PIXI.Graphics();
+      for (let col = 0; col < 8; col++) {
+        const x = PixiBoardRenderer.squareX(col), y = PixiBoardRenderer.squareY(row);
+        g.rect(x, y, sq, sq).fill({ color: 0xfff0b0, alpha: 0.2 });
+        g.rect(x + 2, y + 2, sq - 4, sq - 4).stroke({ color: 0xffe08a, alpha: 0.6, width: 2 });
+      }
+      this.edgeLayer.addChild(g);
+      // Motes of light rising off the edge.
+      this._motes = [];
+      for (let i = 0; i < 16; i++) {
+        const m = new PIXI.Graphics().rect(-2, -2, 4, 4).fill(i % 3 ? 0xffe08a : 0xffffff);
+        m.baseX = PixiBoardRenderer.squareX(i % 8) + sq * (0.2 + ((i * 37) % 60) / 100);
+        m.baseY = PixiBoardRenderer.squareY(row) + sq * 0.9;
+        m.phase = i * 0.61;
+        this.edgeLayer.addChild(m);
+        this._motes.push(m);
+      }
+      this._edgeGlow = g;
+    }
+    const sq = PixiBoardRenderer.squareSize;
+    if (this._edgeGlow) this._edgeGlow.alpha = 0.65 + Math.sin(this._time * 2.2) * 0.35;
+    for (const m of this._motes || []) {
+      const t = (this._time * 0.35 + m.phase) % 1;
+      m.x = m.baseX + Math.sin((t + m.phase) * 6) * 3;
+      m.y = m.baseY - t * sq * 0.8;
+      m.alpha = Math.sin(t * Math.PI) * 0.9;
+    }
   },
 
   /* ------------------------------------------------------------------ */
@@ -196,34 +312,65 @@ const PixiBossFX = {
   /*  Fog                                                                */
   /* ------------------------------------------------------------------ */
 
-  _mist() {
-    if (this._mistTexture) return this._mistTexture;
-    const size = 128;
+  // Fog colours from the board's theme: a dark base for hidden squares (light and
+  // dark squares still differ a little, so you can count them) and a pale mist.
+  _fogColours() {
+    const cols = ThemeManager.getCurrentColors();
+    const n = h => PixiColorUtil.hexToNum(h);
+    const mix = (a, b, t) => {
+      const ar = a >> 16 & 255, ag = a >> 8 & 255, ab = a & 255, br = b >> 16 & 255, bg = b >> 8 & 255, bb = b & 255;
+      return (Math.round(ar + (br - ar) * t) << 16) | (Math.round(ag + (bg - ag) * t) << 8) | Math.round(ab + (bb - ab) * t);
+    };
+    const bg = n(cols.background || '#0a0f10'), lt = n(cols.lightSquare || '#8e9a84'), dk = n(cols.darkSquare || '#4a5846');
+    const txt = n(cols.text || '#d6e4dc');
+    return {
+      light: mix(bg, lt, 0.34),
+      dark: mix(bg, dk, 0.36),
+      edge: mix(bg, dk, 0.22),
+      mist: mix(lt, txt, 0.55),
+      mistHi: mix(lt, 0xffffff, 0.7),
+      key: `${cols.background}|${cols.lightSquare}|${cols.darkSquare}|${cols.text}`,
+    };
+  },
+
+  // A tiling mist texture in pixel-art style: tileable value noise, cut into two
+  // tones with an ordered (Bayer) dither instead of soft gradients. One texel is
+  // one art pixel; the TilingSprite scales it up with sharp edges.
+  _mist(fc) {
+    if (this._mistTexture && this._mistKey === fc.key) return this._mistTexture;
+    if (this._mistTexture) this._mistTexture.destroy(true);
+    const size = 128, cell = 32, g = size / cell;
+    const rnd = [];
+    for (let i = 0; i < g * g; i++) rnd.push(Math.random());
+    const at = (x, y) => rnd[((y % g + g) % g) * g + ((x % g + g) % g)];
+    const smooth = t => t * t * (3 - 2 * t);
+    const noise = (x, y) => {
+      const fx = x / cell, fy = y / cell;
+      const ix = Math.floor(fx), iy = Math.floor(fy), tx = smooth(fx - ix), ty = smooth(fy - iy);
+      const a = at(ix, iy), b = at(ix + 1, iy), c = at(ix, iy + 1), d = at(ix + 1, iy + 1);
+      return a + (b - a) * tx + (c - a) * ty + (a - b - c + d) * tx * ty;
+    };
+    const BAY = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
     const c = document.createElement('canvas');
     c.width = c.height = size;
     const ctx = c.getContext('2d');
-    // Soft blobs drawn on a coarse pixel grid, wrapped so the texture tiles.
-    for (let i = 0; i < 26; i++) {
-      const x = Math.random() * size, y = Math.random() * size, r = 10 + Math.random() * 26;
-      for (const ox of [-size, 0, size]) {
-        for (const oy of [-size, 0, size]) {
-          const grad = ctx.createRadialGradient(x + ox, y + oy, 0, x + ox, y + oy, r);
-          grad.addColorStop(0, 'rgba(210,222,235,0.55)');
-          grad.addColorStop(1, 'rgba(210,222,235,0)');
-          ctx.fillStyle = grad;
-          ctx.fillRect(x + ox - r, y + oy - r, r * 2, r * 2);
-        }
+    const img = ctx.createImageData(size, size);
+    const rgb = v => [v >> 16 & 255, v >> 8 & 255, v & 255];
+    const M = rgb(fc.mist), H = rgb(fc.mistHi);
+    for (let y = 0; y < size; y++) {
+      for (let x = 0; x < size; x++) {
+        const v = noise(x, y) * 0.7 + noise(x * 2, y * 2) * 0.3;   // both octaves tile
+        const th = (BAY[(y & 3) * 4 + (x & 3)] + 0.5) / 16;
+        const i = (y * size + x) * 4;
+        let col = null, al = 0;
+        if (v > 0.7 + (th - 0.5) * 0.05) { col = H; al = 230; }         // bright cores
+        else if (v > 0.52 + (th - 0.5) * 0.07) { col = M; al = 190; }   // the mist body, a thin dithered edge
+        if (col) { img.data[i] = col[0]; img.data[i + 1] = col[1]; img.data[i + 2] = col[2]; img.data[i + 3] = al; }
       }
     }
-    // Quantise to chunky pixels so the mist matches the pixel-art board.
-    const px = 4;
-    const small = document.createElement('canvas');
-    small.width = small.height = size / px;
-    small.getContext('2d').drawImage(c, 0, 0, size / px, size / px);
-    ctx.clearRect(0, 0, size, size);
-    ctx.imageSmoothingEnabled = false;
-    ctx.drawImage(small, 0, 0, size, size);
+    ctx.putImageData(img, 0, 0);
     this._mistTexture = PIXI.Texture.from({ resource: c, scaleMode: 'nearest' });
+    this._mistKey = fc.key;
     return this._mistTexture;
   },
 
@@ -234,10 +381,11 @@ const PixiBossFX = {
       this._buildFog(hidden);
     }
     if (this._mistA) {
-      this._mistA.tilePosition.x += dt * 9;
-      this._mistA.tilePosition.y += dt * 3;
-      this._mistB.tilePosition.x -= dt * 5;
-      this._mistB.tilePosition.y += dt * 6;
+      // Whole art pixels only, so the drifting mist stays crisp.
+      this._mistT = (this._mistT || 0) + dt;
+      const t = this._mistT, px = this._mistPx;
+      this._mistA.tilePosition.set(Math.round(t * 2.2) * px, Math.round(t * 0.7) * px);
+      this._mistB.tilePosition.set(-Math.round(t * 1.3) * px, Math.round(t * 1.1) * px);
     }
   },
 
@@ -246,30 +394,63 @@ const PixiBossFX = {
     this._mistA = this._mistB = null;
     if (!hidden) return;
     const sq = PixiBoardRenderer.squareSize;
+    const fc = this._fogColours();
+    const px = Math.max(2, Math.round(sq / 20));        // one art pixel on screen
+    this._mistPx = px;
     const base = new PIXI.Graphics();
+    const fringe = new PIXI.Graphics();
     const mask = new PIXI.Graphics();
+    const BAY = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
+    const isHidden = (r, c) => r >= 0 && r < 8 && c >= 0 && c < 8 && hidden[r][c];
     let any = false;
     for (let r = 0; r < 8; r++) {
       for (let c = 0; c < 8; c++) {
-        if (!hidden[r][c]) continue;
-        any = true;
         const x = PixiBoardRenderer.squareX(c), y = PixiBoardRenderer.squareY(r);
-        base.rect(x, y, sq, sq).fill({ color: this.FOG_COLOR, alpha: 0.86 });
-        mask.rect(x, y, sq, sq).fill(0xffffff);
+        if (hidden[r][c]) {
+          any = true;
+          const light = (r + c) % 2 === 0;
+          base.rect(x, y, sq, sq).fill({ color: light ? fc.light : fc.dark, alpha: 0.95 });
+          mask.rect(x, y, sq, sq).fill(0xffffff);
+          continue;
+        }
+        // A clear square next to the fog gets a dithered fringe of mist creeping in,
+        // so the fog has a soft pixel edge instead of hard blocks.
+        const depth = Math.max(3, Math.round(sq * 0.22 / px));
+        const cells = Math.ceil(sq / px);
+        // Screen-space direction of each neighbour (the board may be flipped).
+        for (const [dr, dc] of [[-1, 0], [1, 0], [0, -1], [0, 1]]) {
+          if (!isHidden(r + dr, c + dc)) continue;
+          const ny = PixiBoardRenderer.squareY(r + dr) - y, nx = PixiBoardRenderer.squareX(c + dc) - x;
+          for (let d = 0; d < depth; d++) {
+            const density = 1 - (d + 0.5) / depth;
+            for (let k = 0; k < cells; k++) {
+              const bx = Math.round(x / px) + k, by = Math.round(y / px) + d;
+              if ((BAY[(by & 3) * 4 + (bx & 3)] + 0.5) / 16 > density * 0.85) continue;
+              let fx, fy;
+              if (ny < 0) { fx = x + k * px; fy = y + d * px; }
+              else if (ny > 0) { fx = x + k * px; fy = y + sq - (d + 1) * px; }
+              else if (nx < 0) { fx = x + d * px; fy = y + k * px; }
+              else { fx = x + sq - (d + 1) * px; fy = y + k * px; }
+              const w = Math.min(px, x + sq - fx), h = Math.min(px, y + sq - fy);
+              if (w > 0 && h > 0) fringe.rect(fx, fy, w, h).fill({ color: d < depth / 2 ? fc.dark : fc.mist, alpha: d < depth / 2 ? 0.7 : 0.35 });
+            }
+          }
+        }
       }
     }
-    if (!any) { base.destroy(); mask.destroy(); return; }
+    if (!any) { base.destroy(); fringe.destroy(); mask.destroy(); return; }
     const bx = PixiBoardRenderer.boardOffsetX, by = PixiBoardRenderer.boardOffsetY, size = sq * 8;
     const mist = new PIXI.Container();
-    this._mistA = new PIXI.TilingSprite({ texture: this._mist(), width: size, height: size });
-    this._mistB = new PIXI.TilingSprite({ texture: this._mist(), width: size, height: size });
-    this._mistB.tileScale.set(1.7);
-    this._mistA.alpha = 0.32;
-    this._mistB.alpha = 0.22;
-    this._mistA.tint = this._mistB.tint = 0xa9bccf;
+    const tex = this._mist(fc);
+    this._mistA = new PIXI.TilingSprite({ texture: tex, width: size, height: size });
+    this._mistB = new PIXI.TilingSprite({ texture: tex, width: size, height: size });
+    this._mistA.tileScale.set(px);
+    this._mistB.tileScale.set(px * 2);
+    this._mistA.alpha = 0.34;
+    this._mistB.alpha = 0.18;
     for (const m of [this._mistA, this._mistB]) { m.x = bx; m.y = by; mist.addChild(m); }
     mist.mask = mask;
-    this.fogLayer.addChild(base, mist, mask);
+    this.fogLayer.addChild(base, fringe, mist, mask);
   },
 
   _applyPieceVisibility(hidden) {
@@ -360,10 +541,35 @@ const PixiBossFX = {
     return g;
   },
 
+  // The Great Board: each quarter tinted with its world's colour, framed, and
+  // labelled at its outer corner.
+  _drawRegions(regions) {
+    this.regionLayer.removeChildren().forEach(c => c.destroy({ children: true }));
+    const sq = PixiBoardRenderer.squareSize;
+    for (const r of regions) {
+      const info = GreatBoard.REGIONS[r.rule];
+      const color = PixiColorUtil.hexToNum(info.color);
+      const xs = [PixiBoardRenderer.squareX(r.cols[0]), PixiBoardRenderer.squareX(r.cols[1])];
+      const ys = [PixiBoardRenderer.squareY(r.rows[0]), PixiBoardRenderer.squareY(r.rows[1])];
+      const x = Math.min(...xs), y = Math.min(...ys), w = sq * 4, h = sq * 4;
+      const g = new PIXI.Graphics()
+        .rect(x, y, w, h).fill({ color, alpha: 0.2 })
+        .rect(x + 2, y + 2, w - 4, h - 4).stroke({ color, alpha: 0.85, width: 4 });
+      this.regionLayer.addChild(g);
+      // The label sits in the quarter's square on the board's corner.
+      const cx = PixiBoardRenderer.squareX(r.cols[0] === 0 ? 0 : 7), cy = PixiBoardRenderer.squareY(r.rows[0] === 0 ? 0 : 7);
+      const label = new PIXI.Text({ text: info.short.toUpperCase(), style: { fontFamily: PixiTextStyles.FONT_TITLE, fontSize: 11, fill: info.color, stroke: { color: '#0a0812', width: 4 } } });
+      label.x = cx + (cx <= x ? 5 : sq - 5 - label.width);
+      label.y = cy + (cy <= y ? 4 : sq - 4 - label.height);
+      this.regionLayer.addChild(label);
+    }
+  },
+
   _drawLocks(tiles, ply) {
     this.lockLayer.removeChildren().forEach(c => c.destroy({ children: true }));
     const sq = PixiBoardRenderer.squareSize;
     for (const t of tiles) {
+      if (t.seal) continue;   // the Broken Seal's squares are drawn by GameScreen._drawItemMarks
       const x = PixiBoardRenderer.squareX(t.col), y = PixiBoardRenderer.squareY(t.row);
       const g = new PIXI.Graphics();
       g.rect(x + 2, y + 2, sq - 4, sq - 4).fill({ color: 0xff3348, alpha: 0.22 })
@@ -408,7 +614,8 @@ const PixiBossFX = {
       key = `mystery|${n}|${game._fogCache ? game._fogCache.key : ''}|${game.bossState.hint}|${game.mysteryHintIn()}|${game.movesLeft()}|${game.gameOver}|${Layout.orientation}`;
       if (key !== this._panelKey) this._drawMysteryPanel(cols, game, n);
     } else if (progress) {
-      key = `progress|${progress.label}|${progress.done}|${progress.failed || 0}|${Layout.orientation}`;
+      if (rule.moveLimit) progress.movesLeft = Math.max(0, game.movesLeft());
+      key = `progress|${progress.label}|${progress.done}|${progress.failed || 0}|${progress.movesLeft}|${Layout.orientation}`;
       if (key !== this._panelKey) this._drawProgressPanel(cols, progress);
     } else if (rule.moveLimit) {
       const left = game.movesLeft();
@@ -434,11 +641,20 @@ const PixiBossFX = {
     const x = p.X + 20;
     if (!small) this._panelText(info.label, x, p.Y + 26, { fontSize: 13, fontWeight: '900', fill: PixiColorUtil.alpha(cols.text, '88') });
     this._panelText(`${info.done} / ${info.total}`, x, p.Y + (small ? 8 : 46), { fontFamily: PixiTextStyles.FONT_TITLE, fontSize: small ? 26 : 36, fill: '#6fe3ff' });
+    if (info.movesLeft != null) {
+      const urgent = info.movesLeft <= 5;
+      this._panelText(`${info.movesLeft} moves left`, small ? x + 90 : x, p.Y + (small ? 14 : 88),
+        { fontSize: small ? 13 : 15, fontWeight: '900', fill: urgent ? '#ff8a7a' : PixiColorUtil.alpha(cols.text, 'cc') });
+    }
     const pips = new PIXI.Graphics();
-    const r = small ? 6 : 8, gap = small ? 16 : 24;
-    const py = p.Y + (small ? 48 : 118);
+    // Long tests (Joy Stick's eighteen games) wrap their pips onto two rows.
+    const perRow = info.slots > 10 ? Math.ceil(info.slots / 2) : info.slots;
+    const r = info.slots > 10 ? (small ? 5 : 7) : small ? 6 : 8;
+    const gap = Math.min(small ? 16 : 24, Math.floor(((small ? 170 : 200) - r * 2) / Math.max(1, perRow - 1)));
+    const py0 = p.Y + (small ? 48 : 118) - (perRow < info.slots ? r + 2 : 0);
     for (let i = 0; i < info.slots; i++) {
-      const cx = x + r + i * gap;
+      const cx = x + r + (i % perRow) * gap;
+      const py = py0 + Math.floor(i / perRow) * (r * 2 + 6);
       const state = i < info.done ? 'done' : i < info.done + (info.failed || 0) ? 'failed' : 'open';
       if (state === 'done') pips.circle(cx, py, r).fill(0x6fe3ff);
       else if (state === 'failed') pips.circle(cx, py, r).fill({ color: 0xff6b6b, alpha: 0.85 });

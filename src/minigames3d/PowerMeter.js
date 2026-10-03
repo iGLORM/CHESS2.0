@@ -73,23 +73,23 @@ class PowerMeter extends Game3D {
     // Crowd of enemy pieces watching
     for (let i = 0; i < 5; i++) {
       const p = Pieces3D.create(['pawn', 'pawn', 'knight', 'bishop', this.enemy.type][i], this.enemyColor);
-      p.position.set(-4 + i * 0.9, 0, 2.5 + (i % 2) * 0.6);
+      p.position.set(-4.6 + i * 0.9, 0, 0.6 + (i % 2) * 0.6);
       p.rotation.y = Math.PI * 0.8;
       scene.add(p);
     }
 
     this.camera.fov = 48;
-    this.camera.position.set(3.5, 3.6, 9);
+    this.camera.position.set(3.2, 3.8, 11.5);
     this.camera.lookAt(0, 3.4, 0);
 
-    this.swings = this.isDuel ? 5 : 3;
-    this.need = Math.ceil(this.swings * 0.6);
+    this.swings = this.isDuel ? 5 : 4;
+    this.need = this.swings - 1;
     this.used = 0;
     this.rings = 0;
     this.timeLimit = this.swings * 4.5 + 3;
     this.gaugeT = Math.random() * 3;
-    this.gaugeSpeed = 1.9 + this.hard * 1.6;
-    this.threshold = 0.84 + this.hard * 0.06;
+    this.gaugeSpeed = 2.2 + this.hard * 1.5;
+    this.threshold = 0.87 + this.hard * 0.06;
     this.swing = 0;
     this.puckV = 0;
     this.puckY = 0.3;
@@ -181,7 +181,7 @@ class PowerMeter extends Game3D {
     if (this.bellRing) this.bellGlow.material.opacity = 1;
     this.bell.rotation.z = this.bellRing ? Math.sin(this.time * 40) * 0.2 : this.bell.rotation.z * 0.9;
     this.camFollow += ((this.flying ? Math.max(3.4, this.puckY) : 3.4) - this.camFollow) * Math.min(1, dt * 4);
-    this.camera.position.set(3.5, this.camFollow + 0.2, 9);
+    this.camera.position.set(3.2, this.camFollow + 0.4, 11.5);
     this.camera.lookAt(0, this.camFollow, 0);
   }
 
