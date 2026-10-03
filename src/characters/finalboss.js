@@ -6,22 +6,21 @@
 //
 // It is a side match (SideMatches): GameScreen starts it from the Continue button
 // after a win over Grandmaster X, and the Soulbound Pixel map starts it again while
-// it is pending (save.unbound and not finished). Pawnie's plain chess is the only
-// rule he leaves out; the EndGamer's endgame start would replace the whole board,
-// so the EndGamer gives him nothing either.
+// it is pending (save.unbound and not finished). He leaves out Pawnie's plain chess
+// and the Knight of the Mist's fog (the owner's call, 2026-10-03); the EndGamer's
+// endgame start would replace the whole board, so the EndGamer gives him nothing either.
 const FinalBoss = {
   ID: 'final_unbound',
 
   RULE: {
     title: 'Every Power',
     lines: [
-      'He stole every guardian\'s power: four bishops and two queens for him, no rooks for you, the mist, the gear walls, double takes, and every capture a challenge he plays at full strength.',
+      'He stole every guardian\'s power: four bishops and two queens for him, no rooks for you, the gear walls, double takes, and every capture a challenge he plays at full strength.',
       'Checkmate him within 40 of your moves, or the board stays broken.',
     ],
     twisted: true,
     // Bish-Bosh's bishops, Queenie's corner queen; Rook-E takes your rooks.
     fen: 'qbbqkbbr/pppppppp/8/8/8/8/PPPPPPPP/1NBQKBN1 w - - 0 1',
-    fog: true,                                                    // the Knight of the Mist
     walls: [{ row: 4, col: 2 }, { row: 4, col: 5 }, { row: 3, col: 2 }, { row: 3, col: 5 }],   // Castle
     lockPlies: 4,
     doubleTake: true,                                             // ForkMaster
@@ -32,7 +31,7 @@ const FinalBoss = {
     maxBotSkill: true,
     weakestGames: true,
     tenseMusic: true,
-    signature: ['LavaTilt', 'RookStack', 'SiegeCannon', 'KnightCollapse', 'TimingStrike', 'ShieldBlock', 'ReactionTest', 'CheckmateRun'],
+    signature: ['LavaTilt', 'RookStack', 'SiegeCannon', 'TimingStrike', 'ShieldBlock', 'ReactionTest', 'CheckmateRun'],
   },
 
   // A save waiting for the last fight: Grandmaster X beaten, the story not finished.

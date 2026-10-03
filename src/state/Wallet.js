@@ -3,7 +3,9 @@
 // Stars belong to a story save: every star won in a story fight (the best kept per
 // stage, save.stars) plus bonus stars from side content (save.bonusStars), minus what
 // the save has spent (save.starsSpent). They buy story helpers: rewinds, hints,
-// removing an enemy piece, and the plane that carries your king across the map.
+// and removing an enemy piece. The plane that carries your king across the map is not
+// sold any more: Pawnie gives it after your first game (Wallet.givePlane, played by the
+// world map); saves that bought it got their stars back (Store.migrateSave).
 // Coins are one purse for the whole game (store.wallet.coins), earned by winning
 // matches, puzzles, tournaments, rivals and quests. They buy cosmetics, kept for the
 // whole game too (store.wallet.owned): plane paints, the piece your map token wears,
@@ -17,9 +19,6 @@ const SHOP_ITEMS = [
     desc: 'The engine lights up a strong move for you.' },
   { id: 'remove', currency: 'stars', price: 12, kind: 'item', name: 'Remove a Piece', icon: 'remove',
     desc: 'On your turn, lift one enemy piece off the board. Not the king or the queen.' },
-  // The plane is the big prize: most of the stars a whole story save can earn (about 80).
-  { id: 'plane', currency: 'stars', price: 60, kind: 'unlock', name: 'The Plane', icon: 'plane',
-    desc: 'Summon it on the world map and fly anywhere with WASD or ZQSD.' },
 
   // Coin items: cosmetics (whole game).
   { id: 'paint_sunset', currency: 'coins', price: 180, kind: 'paint', name: 'Sunset Paint', colors: ['#ff8a3c', '#ffd166', '#7a2a1a'],
@@ -140,6 +139,17 @@ const Wallet = {
     return !!(save && save.plane);
   },
 
+  // What the plane cost when the Shop sold it (refunded to saves that bought it).
+  PLANE_PRICE_WAS: 60,
+
+  // Pawnie's gift after the first game: the plane is yours.
+  givePlane() {
+    const save = store.getActiveSave();
+    if (!save || save.plane) return;
+    store.setActiveSave({ plane: true, planeGift: true });
+    store.saveProgress();
+  },
+
   /* ----------------------------- coins ----------------------------- */
 
   coins() {
@@ -157,7 +167,6 @@ const Wallet = {
     const item = this.item(id);
     if (!item) return false;
     if (item.free) return true;
-    if (item.kind === 'unlock') return id === 'plane' && this.hasPlane();
     if (item.kind === 'theme') return typeof ThemeManager !== 'undefined' && ThemeManager.isThemeUnlocked(item.themeId);
     return this._wallet().owned.includes(id);
   },
@@ -193,7 +202,6 @@ const Wallet = {
       if (!save) return { ok: false, reason: 'No story save' };
       const changes = { starsSpent: (save.starsSpent || 0) + this.price(id, save) };
       if (item.kind === 'item') changes.items = { ...(save.items || {}), [id]: this.count(id, save) + 1 };
-      if (id === 'plane') changes.plane = true;
       store.setActiveSave(changes);
     } else {
       const w = this._wallet();

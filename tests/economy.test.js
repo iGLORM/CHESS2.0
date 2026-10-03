@@ -1,6 +1,9 @@
 // Stars, coins and the Shop (Wallet), side matches and the side content on the map.
 const test = require('node:test');
 const assert = require('node:assert');
+const fs = require('fs');
+const path = require('path');
+const vm = require('vm');
 const { loadGame, ENGINE } = require('./load');
 
 const G = loadGame([...ENGINE, '../tests/stubs/store.js', 'engine/BossRules.js', 'engine/StoryStars.js',
@@ -27,15 +30,27 @@ test('buying a story item spends stars and adds one to the save', () => {
   assert.ok(Wallet.use('rewind'));
   assert.strictEqual(Wallet.count('rewind'), 0);
   assert.ok(!Wallet.use('rewind'));
-  assert.ok(!Wallet.buy('plane').ok, 'the plane costs more than 3 stars');
 });
 
-test('the plane is bought once', () => {
+test('the plane is not sold: Pawnie gives it, once', () => {
   fresh({ bonusStars: 70 });
-  assert.ok(Wallet.buy('plane').ok);
+  assert.strictEqual(Wallet.item('plane'), null);
+  assert.ok(!Wallet.buy('plane').ok);
+  assert.ok(!Wallet.hasPlane());
+  Wallet.givePlane();
   assert.ok(Wallet.hasPlane());
-  assert.strictEqual(Wallet.buy('plane').reason, 'owned');
-  assert.strictEqual(Wallet.stars(), 70 - Wallet.item('plane').price);
+  assert.strictEqual(Wallet.stars(), 70, 'a gift costs nothing');
+});
+
+test('a save that bought the plane gets its stars back, once', () => {
+  const ctx = vm.createContext({ console, Math, JSON, Date, localStorage: { getItem: () => null, setItem() {} } });
+  vm.runInContext(fs.readFileSync(path.join(__dirname, '../src/state/Store.js'), 'utf8'), ctx);
+  const Store = vm.runInContext('Store', ctx);
+  const bought = Store.migrateSave({ stages: 15, plane: true, starsSpent: 66 });
+  assert.strictEqual(bought.starsSpent, 6);
+  assert.ok(bought.planeGift);
+  assert.strictEqual(Store.migrateSave(bought).starsSpent, 6, 'not twice');
+  assert.strictEqual(Store.migrateSave({ stages: 15, starsSpent: 9 }).starsSpent, 9);
 });
 
 test('coins buy cosmetics, which are put on and can be taken off', () => {
@@ -57,7 +72,6 @@ test('the shop costs three times what it used to', () => {
   const was = { rewind: 2, hint: 1, remove: 4, paint_sunset: 60, paint_crystal: 150, token_queen: 80, token_pawn: 40 };
   for (const [id, price] of Object.entries(was)) assert.strictEqual(Wallet.item(id).price, price * 3, id);
   assert.strictEqual(Wallet.THEME_PRICE, 750);
-  assert.ok(Wallet.item('plane').price >= 60, 'the plane is the big prize');
 });
 
 test('characters: the King is yours from the start, others have a piece, colour and set', () => {

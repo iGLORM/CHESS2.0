@@ -285,7 +285,7 @@ I18n.add('fr', {
   "No. No! I do not lose. I have never lost. The board does not get to choose you.": "Non. Non ! Je ne perds pas. Je n'ai jamais perdu. L'échiquier n'a pas le droit de te choisir.",
   "Guardians! Everything I gave you, I take back. Every rule, every trick. Now.": "Gardiens ! Tout ce que je vous ai donné, je le reprends. Chaque règle, chaque ruse. Maintenant.",
   "Far away, the guardians cry out. Their powers tear loose from every world and stream across the sky towards him.": "Au loin, les gardiens crient. Leurs pouvoirs s'arrachent de chaque monde et traversent le ciel jusqu'à lui.",
-  "Bishops from the sands. Iron from the Keep. Mist from the moors. Queens, walls, forks, and the sand of the hourglass. Mine. All of it, mine.": "Des fous venus des sables. Le fer du donjon. La brume des landes. Des dames, des murs, des fourchettes et le sable du sablier. À moi. Tout est à moi.",
+  "Bishops from the sands. Iron from the Keep. Queens, walls, forks, and the sand of the hourglass. Mine. All of it, mine.": "Des fous venus des sables. Le fer du donjon. Des dames, des murs, des fourchettes et le sable du sablier. À moi. Tout est à moi.",
   "The ground drops away. When it stops, you stand on the Great Board itself, cracked and floating in the dark.": "Le sol se dérobe. Quand tout s'arrête, tu te tiens sur le Grand Échiquier lui-même, brisé et flottant dans le noir.",
   "One last game, on the board I broke. Forty moves, and every rule they ever had. Win, and it is yours.": "Une dernière partie, sur l'échiquier que j'ai brisé. Quarante coups, et toutes les règles qu'ils ont jamais eues. Gagne, et il est à toi.",
   "The Last Game": "La dernière partie",
