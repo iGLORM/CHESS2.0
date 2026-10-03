@@ -133,6 +133,7 @@ Reusable PixiJS v8 components replacing the Canvas 2D `UIHelpers.js`:
 | `PixiGameOverOverlay.js` | Result card: the menus' stepped panel over the dimmed board, crown and title pop-in, coins counting up, story stars, the opponent's last line, `PixiPremiumScene.button`s (`buttonRects` route Canvas clicks) |
 | `PixiAnimator.js` | GSAP-powered move/capture/shake/flash animations |
 | `PixiParticleFX.js` | Capture/move particle effects |
+| `PixiPlane.js` | Grandpa's biplane (the 96x50 pixel sprite of `scenes/plane_gift.js`, kept in step with it), repainted in `Wallet.planeColors()`: the world map, hand-flown plane, gift take-off and Shop all use `PixiPlane.make(colors)`; `SEAT` is where the king rides |
 | `PixiToolIcons.js` | 16x16 pixel icons drawn in code for the fight screen's buttons (rewind, hint, remove, back, forward, live, undo, flip) |
 
 ### Canvas 2D Rendering (`src/rendering/`) — Legacy, being replaced

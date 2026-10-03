@@ -176,6 +176,7 @@ LiveScenes.register({
     put(BACK, POLE.x, POLE.top - 1, C('#ffd070'));
 
     // ---------- the plane (a sprite, idling on the strip) ----------
+    // src/pixi/PixiPlane.js draws this same sprite for the map and the Shop: keep the two in step.
     const PW = 96, PH = 50;
     const PL = { w: PW, h: PH, px: new Uint32Array(PW * PH) };
     const sput = (x, y, c) => { x = Math.round(x); y = Math.round(y); if (x >= 0 && y >= 0 && x < PW && y < PH) PL.px[y * PW + x] = c; };

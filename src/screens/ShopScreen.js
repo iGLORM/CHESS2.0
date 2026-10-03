@@ -1014,23 +1014,10 @@ const ShopScreen = {
     return null;
   },
 
-  // The same little biplane the world map flies.
+  // The same biplane the world map flies (PixiPlane), in the given paint.
   _plane(colors) {
-    const [body, trim, shade] = colors.map(c => PixiPremiumScene.color(c));
-    const c = new PIXI.Container();
-    c.addChild(new PIXI.Graphics()
-      .rect(-25, -13, 9, 12).fill(0x1a1420).rect(-27, -5, 46, 12).fill(0x1a1420).rect(15, -4, 8, 10).fill(0x1a1420)
-      .rect(-11, -15, 28, 6).fill(0x1a1420).rect(-13, 3, 32, 6).fill(0x1a1420)
-      .rect(-24, -12, 7, 10).fill(trim)
-      .rect(-26, -4, 44, 10).fill(body)
-      .rect(-26, 3, 44, 3).fill(shade)
-      .rect(16, -3, 6, 8).fill(trim)
-      .rect(-10, -14, 26, 4).fill(body)
-      .rect(-10, -11, 26, 1).fill(shade)
-      .rect(-8, -10, 2, 7).fill(shade).rect(12, -10, 2, 7).fill(shade)
-      .rect(-12, 4, 30, 4).fill(trim)
-      .rect(-6, -4, 10, 3).fill(0x2a2a3a)
-      .rect(22, -9, 2, 20).fill({ color: 0xe8e8f0, alpha: 0.8 }));
+    const c = PixiPlane.make(colors);
+    c._prop.visible = false;
     return c;
   },
 
