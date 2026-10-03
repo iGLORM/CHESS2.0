@@ -176,8 +176,12 @@ settings keys still match (e.g. `ReactionTest` is "Quick Draw", `BarBalance` is 
 `MiniGameManager.GAMES_3D()` is the list. `MiniGameManager` (in `src/minigames/`, with `MiniGameUtils`)
 runs them on the overlay canvas. Without WebGL, captures skip the challenge.
 - `src/minigames3d/Mini3D.js` — one shared WebGLRenderer (never create another), a low-res render target
-  plus a retro post shader (tone map, chromatic split, scanlines, flash), blitted into the 2D overlay with
-  nearest scaling. Also `Pieces3D` (low-poly lathe chess pieces, coloured by sampling the active theme's
+  (3 virtual px per pixel at Medium, so it reads like the live scenes) plus a post shader (tone map, chromatic
+  split, Bayer-dithered colour steps, a dark outline at silhouettes found from the depth buffer, scanlines,
+  flash), blitted into the 2D overlay with nearest scaling. Boards use the theme's squares
+  (`Mini3D.boardColors()` / `themeChecker()`); the manager's frame is a stepped-corner pixel panel in the
+  theme's panel/accent colours (`MiniGameUtils.pixelRect`, `themeColors`). Gameplay colours stay fixed
+  (`MiniGameUtils.PALETTE`: green = yours, red = danger). Also `Pieces3D` (low-poly lathe chess pieces, coloured by sampling the active theme's
   piece sprites via `Mini3D.themePalette`; games build the player with `playerPiece()`, which is the
   captured piece plus a green ring), `Burst3D` (instanced debris), `Sfx3D`, and
   the `Game3D` base class (HUD helpers, pointer/key state, `bot(dt)` steering, `timeLimit`, `cleanup`).

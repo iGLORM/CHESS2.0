@@ -40,7 +40,7 @@ class MemoryMatch extends Game3D {
     }
     this.candles = candles;
 
-    const lidTex = Mini3D.checkerTexture(4, '#d8cff5', '#6a4ab0', 4);
+    const lidTex = Mini3D.themeChecker(4, 4);
     const lidMat = new THREE.MeshStandardMaterial({ map: lidTex, roughness: 0.4, flatShading: true });
     const holeMat = new THREE.MeshBasicMaterial({ color: 0x05030c });
     this.cards = deck.map((type, i) => {

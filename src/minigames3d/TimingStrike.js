@@ -15,7 +15,7 @@ class TimingStrike extends Game3D {
     this.lights({ sky: 0xffd9b0, ground: 0x3a1010, keyI: 2.4, shadows: true, shadowSize: 6, rim: 0xff6a3d });
 
     // Colosseum floor and walls
-    const floor = new THREE.Mesh(new THREE.CylinderGeometry(5, 5, 0.4, 24), new THREE.MeshStandardMaterial({ map: Mini3D.checkerTexture(10, '#c9a877', '#7a5a3a', 4), flatShading: true }));
+    const floor = new THREE.Mesh(new THREE.CylinderGeometry(5, 5, 0.4, 24), new THREE.MeshStandardMaterial({ map: Mini3D.themeChecker(10, 4), flatShading: true }));
     floor.position.y = -0.2;
     floor.receiveShadow = true;
     scene.add(floor);
@@ -193,9 +193,10 @@ class TimingStrike extends Game3D {
     this.hudText(ctx, 'SMASH IN THE GREEN ZONE', x + 16, y + 20, { size: 14, title: true, color: '#3ee07f' });
     for (let i = 0; i < this.strikes; i++) {
       const hit = i < this.used ? (i < this.hits ? '#3ee07f' : '#ff4d6d') : 'rgba(255,255,255,0.2)';
+      ctx.fillStyle = '#07080d';
+      ctx.fillRect(x + 14 + i * 26, y + 36, 24, 16);
       ctx.fillStyle = hit;
-      MiniGameUtils.roundRect(ctx, x + 16 + i * 26, y + 38, 20, 12, 4);
-      ctx.fill();
+      ctx.fillRect(x + 16 + i * 26, y + 38, 20, 12);
     }
     this.hudText(ctx, `HITS ${this.hits}/${this.need}`, x + w - 100, y + 22, { size: 18, align: 'right', color: '#ffd166' });
     this.hudTimer(ctx, x + w - 16, y + 22);

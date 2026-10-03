@@ -67,7 +67,7 @@ class SiegeCannon extends Game3D {
     this.island = new THREE.Group();
     this.islandBase = new THREE.Vector3(0, 0, -9);
     this.island.position.copy(this.islandBase);
-    const top = new THREE.Mesh(new THREE.BoxGeometry(5.2, 0.3, 5.2), new THREE.MeshStandardMaterial({ map: Mini3D.checkerTexture(5, '#d9c7a4', '#4a3470', 8) }));
+    const top = new THREE.Mesh(new THREE.BoxGeometry(5.2, 0.3, 5.2), new THREE.MeshStandardMaterial({ map: Mini3D.themeChecker(5, 8) }));
     top.position.y = -0.15;
     top.receiveShadow = true;
     const under = new THREE.Mesh(new THREE.ConeGeometry(3.4, 4, 6), new THREE.MeshStandardMaterial({ color: 0x3a2850, flatShading: true }));

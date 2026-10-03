@@ -22,7 +22,7 @@ test('defaults match the old fixed behaviour', () => {
   assert.strictEqual(G.fpsCap(), 60);
   assert.strictEqual(G.sceneRate(), 1);
   assert.strictEqual(G.particles(), 1);
-  assert.strictEqual(G.mini3d().pixel, 1.6);
+  assert.strictEqual(G.mini3d().pixel, 3);
   assert.strictEqual(G.renderCap(), Infinity);
 });
 

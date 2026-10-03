@@ -11,7 +11,7 @@ class DodgeFalling extends Game3D {
     scene.fog = new THREE.Fog(0x3a4a7a, 16, 40);
     this.lights({ sky: 0xc0d0ff, ground: 0x3a2a4a, keyI: 2.6, shadows: true, shadowSize: 7 });
 
-    const board = new THREE.Mesh(new THREE.BoxGeometry(8, 0.5, 8), new THREE.MeshStandardMaterial({ map: Mini3D.checkerTexture(8, '#e8dcc0', '#5a4a7a', 8), flatShading: true }));
+    const board = new THREE.Mesh(new THREE.BoxGeometry(8, 0.5, 8), new THREE.MeshStandardMaterial({ map: Mini3D.themeChecker(8, 8), flatShading: true }));
     board.position.y = -0.25;
     board.receiveShadow = true;
     scene.add(board);
