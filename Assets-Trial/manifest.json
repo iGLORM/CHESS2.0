@@ -1,21 +1,22 @@
 {
   "version": 2,
   "status": "candidates-only",
-  "count": 235,
+  "count": 345,
   "categories": {
     "backgrounds": 38,
     "characters": 16,
-    "icons": 58,
+    "icons": 111,
     "logos": 19,
-    "ui": 92,
+    "ui": 149,
     "effects": 12
   },
   "collections": {
     "original-studies": 204,
     "detailed-v2": 15,
-    "pixel-art-v3": 16
+    "pixel-art-v3": 16,
+    "pixel-art-v4-ui": 110
   },
-  "alpha_validation": "Every PNG is RGBA, with both transparent and visible pixels.",
+  "alpha_validation": "Every asset PNG is RGBA with transparent and visible pixels; only pixel-art-v4-ui/mockups/ may be opaque. Rejected attempts are excluded.",
   "assets": [
     {
       "path": "backgrounds/astral-observatory/01-distant.png",
@@ -2734,6 +2735,1986 @@
       ],
       "bytes": 1156977,
       "sha256": "af59e396d2303fc324c9347e1766ac0968726cfa6070457d3e5c09c59ca19502"
+    },
+    {
+      "path": "pixel-art-v4-ui/icons/back-arrow.png",
+      "name": "back arrow",
+      "category": "icons",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1254,
+      "height": 1254,
+      "transparent_percent": 66.56,
+      "visible_bounds": [
+        0,
+        49,
+        1224,
+        1254
+      ],
+      "bytes": 683211,
+      "sha256": "30d93e9146819e8d0f3dc828ca39dd9c355e9235a7875c74724d84695b627726"
+    },
+    {
+      "path": "pixel-art-v4-ui/icons/bar-chart.png",
+      "name": "bar chart",
+      "category": "icons",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1254,
+      "height": 1254,
+      "transparent_percent": 64.88,
+      "visible_bounds": [
+        0,
+        21,
+        1230,
+        1254
+      ],
+      "bytes": 787969,
+      "sha256": "bfcc0f3c7f324ce276ac37763a77644a748a4f53eeb95d2f391b43063da32155"
+    },
+    {
+      "path": "pixel-art-v4-ui/icons/board-fragment.png",
+      "name": "board fragment",
+      "category": "icons",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1254,
+      "height": 1254,
+      "transparent_percent": 53.53,
+      "visible_bounds": [
+        0,
+        33,
+        1238,
+        1254
+      ],
+      "bytes": 961021,
+      "sha256": "1b7548ad83cb9c1884494f6646023f7c7cc4272942a5d14598e8d0d2ef64c31c"
+    },
+    {
+      "path": "pixel-art-v4-ui/icons/check-mark.png",
+      "name": "check mark",
+      "category": "icons",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1254,
+      "height": 1254,
+      "transparent_percent": 75.92,
+      "visible_bounds": [
+        0,
+        50,
+        1222,
+        1254
+      ],
+      "bytes": 595927,
+      "sha256": "d92ede1f4b5f224cbed0ce28cf12928c12c539366de72a6d0913e766be143a3e"
+    },
+    {
+      "path": "pixel-art-v4-ui/icons/chess/ivory-gold-bishop.png",
+      "name": "ivory gold bishop",
+      "category": "icons",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1254,
+      "height": 1254,
+      "transparent_percent": 76.01,
+      "visible_bounds": [
+        0,
+        21,
+        1227,
+        1236
+      ],
+      "bytes": 634558,
+      "sha256": "14321d9bb0902926efa1cbf74b503a479e9cfe8252f121f696df6a1612f35d48"
+    },
+    {
+      "path": "pixel-art-v4-ui/icons/chess/ivory-gold-king.png",
+      "name": "ivory gold king",
+      "category": "icons",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1254,
+      "height": 1254,
+      "transparent_percent": 74.01,
+      "visible_bounds": [
+        0,
+        27,
+        1218,
+        1230
+      ],
+      "bytes": 672130,
+      "sha256": "a65ce1613e8b81ac935b05b6e78bf8b41b0ec2de3ec9d9b5197a20aa32c6d0ed"
+    },
+    {
+      "path": "pixel-art-v4-ui/icons/chess/ivory-gold-knight.png",
+      "name": "ivory gold knight",
+      "category": "icons",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1254,
+      "height": 1254,
+      "transparent_percent": 61.29,
+      "visible_bounds": [
+        0,
+        21,
+        1236,
+        1230
+      ],
+      "bytes": 887860,
+      "sha256": "182cc8037e5dc063bbbe7809b006e9f1812fb5b83b55b0bf050bca83b0c2e449"
+    },
+    {
+      "path": "pixel-art-v4-ui/icons/chess/ivory-gold-queen.png",
+      "name": "ivory gold queen",
+      "category": "icons",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1254,
+      "height": 1254,
+      "transparent_percent": 72.71,
+      "visible_bounds": [
+        33,
+        21,
+        1200,
+        1231
+      ],
+      "bytes": 679963,
+      "sha256": "350ae05ca8378a8698f4c92742abcf6f8b9931131c3a2cdaaadf11186c98cf4e"
+    },
+    {
+      "path": "pixel-art-v4-ui/icons/chess/ivory-gold-rook.png",
+      "name": "ivory gold rook",
+      "category": "icons",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1254,
+      "height": 1254,
+      "transparent_percent": 64.51,
+      "visible_bounds": [
+        0,
+        21,
+        1240,
+        1254
+      ],
+      "bytes": 824287,
+      "sha256": "2aaa69e4a4ccec79479b372a1c49648fd00556ceef8f80122707ab39dd12981c"
+    },
+    {
+      "path": "pixel-art-v4-ui/icons/chess/obsidian-silver-bishop.png",
+      "name": "obsidian silver bishop",
+      "category": "icons",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1254,
+      "height": 1254,
+      "transparent_percent": 77.24,
+      "visible_bounds": [
+        0,
+        21,
+        1218,
+        1254
+      ],
+      "bytes": 559097,
+      "sha256": "e5381cbd55c4de0fd4cafe512fa31dcf3cc4bf4cf4d542631836d076083dca8f"
+    },
+    {
+      "path": "pixel-art-v4-ui/icons/chess/obsidian-silver-queen.png",
+      "name": "obsidian silver queen",
+      "category": "icons",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1254,
+      "height": 1254,
+      "transparent_percent": 77.39,
+      "visible_bounds": [
+        41,
+        37,
+        1200,
+        1236
+      ],
+      "bytes": 562442,
+      "sha256": "aca98a26c3390d502b1972ac583c181bdcf766b724f5e1290b74a838630164fc"
+    },
+    {
+      "path": "pixel-art-v4-ui/icons/chess/obsidian-silver-rook.png",
+      "name": "obsidian silver rook",
+      "category": "icons",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1254,
+      "height": 1254,
+      "transparent_percent": 59.12,
+      "visible_bounds": [
+        24,
+        21,
+        1198,
+        1254
+      ],
+      "bytes": 878745,
+      "sha256": "4d76af239ef40e6eae0e1c06b5d8349d799b980ce63421801b0527d10060ade7"
+    },
+    {
+      "path": "pixel-art-v4-ui/icons/cross.png",
+      "name": "cross",
+      "category": "icons",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1254,
+      "height": 1254,
+      "transparent_percent": 65.89,
+      "visible_bounds": [
+        0,
+        46,
+        1228,
+        1230
+      ],
+      "bytes": 751389,
+      "sha256": "1880766f4725c9070ae727a12b55974eb25edf68488a17247afcb421e654b1a3"
+    },
+    {
+      "path": "pixel-art-v4-ui/icons/crossed-swords.png",
+      "name": "crossed swords",
+      "category": "icons",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1254,
+      "height": 1254,
+      "transparent_percent": 71.29,
+      "visible_bounds": [
+        0,
+        32,
+        1238,
+        1254
+      ],
+      "bytes": 660851,
+      "sha256": "4e608462739169798f2356e98432823d5c70ea021c86d81dc7c9def4938b8005"
+    },
+    {
+      "path": "pixel-art-v4-ui/icons/fog-cloud.png",
+      "name": "fog cloud",
+      "category": "icons",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1254,
+      "height": 1254,
+      "transparent_percent": 65.75,
+      "visible_bounds": [
+        57,
+        103,
+        1121,
+        1206
+      ],
+      "bytes": 656616,
+      "sha256": "623dd4b8935989d767cda8b9221758a314f517bc335599abc3f3e78dce72e858"
+    },
+    {
+      "path": "pixel-art-v4-ui/icons/fullscreen-arrows.png",
+      "name": "fullscreen arrows",
+      "category": "icons",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1254,
+      "height": 1254,
+      "transparent_percent": 63.36,
+      "visible_bounds": [
+        0,
+        21,
+        1234,
+        1238
+      ],
+      "bytes": 844041,
+      "sha256": "f31bdfc9985e9c10d44b242b2cbb9ac240484e3273b76b2b128aadb968c2f684"
+    },
+    {
+      "path": "pixel-art-v4-ui/icons/gem.png",
+      "name": "gem",
+      "category": "icons",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1254,
+      "height": 1254,
+      "transparent_percent": 76.07,
+      "visible_bounds": [
+        49,
+        57,
+        1199,
+        1230
+      ],
+      "bytes": 484724,
+      "sha256": "5921d6e19d292749d8501143d9472a4399115bc7faadfd56cf3bb76e71745900"
+    },
+    {
+      "path": "pixel-art-v4-ui/icons/gold-coin.png",
+      "name": "gold coin",
+      "category": "icons",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1254,
+      "height": 1254,
+      "transparent_percent": 51.41,
+      "visible_bounds": [
+        0,
+        21,
+        1224,
+        1254
+      ],
+      "bytes": 1091626,
+      "sha256": "2f68d57dcff53231866a2eff6ea79638685ea2ffa7df8d5837988e4d55c609ac"
+    },
+    {
+      "path": "pixel-art-v4-ui/icons/handshake.png",
+      "name": "handshake",
+      "category": "icons",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1254,
+      "height": 1254,
+      "transparent_percent": 66.98,
+      "visible_bounds": [
+        33,
+        21,
+        1222,
+        1238
+      ],
+      "bytes": 769107,
+      "sha256": "ed1b313fb9b6c22ae58fbe16fff5ea5c1121edf038b3537af2ed4992c93792a3"
+    },
+    {
+      "path": "pixel-art-v4-ui/icons/hint-lightbulb.png",
+      "name": "hint lightbulb",
+      "category": "icons",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1254,
+      "height": 1254,
+      "transparent_percent": 70.58,
+      "visible_bounds": [
+        41,
+        106,
+        1198,
+        1198
+      ],
+      "bytes": 563453,
+      "sha256": "5a4d823f9db14db623125c6fd592bf96968c799204effbb35a4ccdbad5b05c66"
+    },
+    {
+      "path": "pixel-art-v4-ui/icons/home.png",
+      "name": "home",
+      "category": "icons",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1254,
+      "height": 1254,
+      "transparent_percent": 54.78,
+      "visible_bounds": [
+        0,
+        17,
+        1234,
+        1254
+      ],
+      "bytes": 902321,
+      "sha256": "5cb5f5421797f95de65e1bb1b6c366606e974a4c2c3e67bfcf0558afec94a8fd"
+    },
+    {
+      "path": "pixel-art-v4-ui/icons/hourglass.png",
+      "name": "hourglass",
+      "category": "icons",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1254,
+      "height": 1254,
+      "transparent_percent": 63.85,
+      "visible_bounds": [
+        0,
+        20,
+        1240,
+        1254
+      ],
+      "bytes": 778830,
+      "sha256": "632f1fe542eb1e0f6b3869ac4cf51c5fb0c552e872a5897db00a6b2dcdbe4b77"
+    },
+    {
+      "path": "pixel-art-v4-ui/icons/info.png",
+      "name": "info",
+      "category": "icons",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1254,
+      "height": 1254,
+      "transparent_percent": 64.25,
+      "visible_bounds": [
+        41,
+        53,
+        1192,
+        1254
+      ],
+      "bytes": 636904,
+      "sha256": "8bff87b6b2b8258ae8fce9303dfd61e2dde35a3f3083c7d2169fbf4ddfb1e840"
+    },
+    {
+      "path": "pixel-art-v4-ui/icons/key.png",
+      "name": "key",
+      "category": "icons",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1254,
+      "height": 1254,
+      "transparent_percent": 80.19,
+      "visible_bounds": [
+        0,
+        21,
+        1226,
+        1238
+      ],
+      "bytes": 477399,
+      "sha256": "56c64013ecc3e670c363b2830a344be72ab397135863626830c880ccd428aa9b"
+    },
+    {
+      "path": "pixel-art-v4-ui/icons/keyboard.png",
+      "name": "keyboard",
+      "category": "icons",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1254,
+      "height": 1254,
+      "transparent_percent": 64.63,
+      "visible_bounds": [
+        0,
+        21,
+        1218,
+        1254
+      ],
+      "bytes": 680852,
+      "sha256": "6d06a925c8df479e9a6e608b9a5a386a7f6c0eba7496fe2e7b567afde954147b"
+    },
+    {
+      "path": "pixel-art-v4-ui/icons/lock-closed.png",
+      "name": "lock closed",
+      "category": "icons",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1254,
+      "height": 1254,
+      "transparent_percent": 61.48,
+      "visible_bounds": [
+        0,
+        21,
+        1222,
+        1254
+      ],
+      "bytes": 808670,
+      "sha256": "457c300b35b9592eb6ca3c49f04952074525d0ddc6b8bba4d686ea58f448fe91"
+    },
+    {
+      "path": "pixel-art-v4-ui/icons/lock-open.png",
+      "name": "lock open",
+      "category": "icons",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1254,
+      "height": 1254,
+      "transparent_percent": 65.44,
+      "visible_bounds": [
+        0,
+        21,
+        1230,
+        1254
+      ],
+      "bytes": 748377,
+      "sha256": "2c9a20d66e60b0b82a34e381a62439767bd6a0c7e07d210ae07f2f5b67b0743b"
+    },
+    {
+      "path": "pixel-art-v4-ui/icons/minus.png",
+      "name": "minus",
+      "category": "icons",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1254,
+      "height": 1254,
+      "transparent_percent": 83.06,
+      "visible_bounds": [
+        33,
+        52,
+        1253,
+        1198
+      ],
+      "bytes": 413829,
+      "sha256": "c3e9825b55f52e8ee23cb5a4bcaef4ff2cf22daa61cf8c86d3bcb0af03a1263b"
+    },
+    {
+      "path": "pixel-art-v4-ui/icons/mission-scroll.png",
+      "name": "mission scroll",
+      "category": "icons",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1254,
+      "height": 1254,
+      "transparent_percent": 54.45,
+      "visible_bounds": [
+        0,
+        10,
+        1254,
+        1238
+      ],
+      "bytes": 929493,
+      "sha256": "5212344b14c603c52600c7dc764c25e135e2530ccf2a890e43a5baa113e8fe35"
+    },
+    {
+      "path": "pixel-art-v4-ui/icons/music-note.png",
+      "name": "music note",
+      "category": "icons",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1254,
+      "height": 1254,
+      "transparent_percent": 68.36,
+      "visible_bounds": [
+        0,
+        51,
+        1234,
+        1254
+      ],
+      "bytes": 655706,
+      "sha256": "b37149606608b5724cada620a389ef7ca0d2d75b39189fe71c74f4d8a50a0983"
+    },
+    {
+      "path": "pixel-art-v4-ui/icons/mystery-piece.png",
+      "name": "mystery piece",
+      "category": "icons",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1254,
+      "height": 1254,
+      "transparent_percent": 73.97,
+      "visible_bounds": [
+        0,
+        21,
+        1216,
+        1254
+      ],
+      "bytes": 589000,
+      "sha256": "817a9ef837b76796b9087251086e629e5a25663bc318449350b337c2fecfe0e0"
+    },
+    {
+      "path": "pixel-art-v4-ui/icons/open-book.png",
+      "name": "open book",
+      "category": "icons",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1254,
+      "height": 1254,
+      "transparent_percent": 53.87,
+      "visible_bounds": [
+        0,
+        52,
+        1244,
+        1214
+      ],
+      "bytes": 915394,
+      "sha256": "f30feac8a4c3e4d8403997fe05385033b3e4c3175b0e436670e9c99281fa4043"
+    },
+    {
+      "path": "pixel-art-v4-ui/icons/paint-palette.png",
+      "name": "paint palette",
+      "category": "icons",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1254,
+      "height": 1254,
+      "transparent_percent": 55.86,
+      "visible_bounds": [
+        0,
+        37,
+        1222,
+        1214
+      ],
+      "bytes": 994592,
+      "sha256": "45e986760f5f5cd71b7434f0176c2e971d0861635a68710594578fc07245040b"
+    },
+    {
+      "path": "pixel-art-v4-ui/icons/pause.png",
+      "name": "pause",
+      "category": "icons",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1254,
+      "height": 1254,
+      "transparent_percent": 75.25,
+      "visible_bounds": [
+        41,
+        40,
+        1198,
+        1254
+      ],
+      "bytes": 608200,
+      "sha256": "b5138cf6b346730ce30060e9cd9a68ef241c5f0007531570d183f0eeeb23d78b"
+    },
+    {
+      "path": "pixel-art-v4-ui/icons/play.png",
+      "name": "play",
+      "category": "icons",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1254,
+      "height": 1254,
+      "transparent_percent": 77.12,
+      "visible_bounds": [
+        0,
+        30,
+        1198,
+        1254
+      ],
+      "bytes": 562241,
+      "sha256": "f3ae63c9898f50475ea9295888bd8984187bb68eee3c027e00b314f1bc964366"
+    },
+    {
+      "path": "pixel-art-v4-ui/icons/plus.png",
+      "name": "plus",
+      "category": "icons",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1254,
+      "height": 1254,
+      "transparent_percent": 75.36,
+      "visible_bounds": [
+        57,
+        120,
+        1192,
+        1254
+      ],
+      "bytes": 569806,
+      "sha256": "d7ee63334dc99c86f21920bc4a24dd7758136ba643c7227ac7e42e95d4f665c4"
+    },
+    {
+      "path": "pixel-art-v4-ui/icons/puzzle-piece.png",
+      "name": "puzzle piece",
+      "category": "icons",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1254,
+      "height": 1254,
+      "transparent_percent": 64.37,
+      "visible_bounds": [
+        0,
+        21,
+        1232,
+        1254
+      ],
+      "bytes": 753286,
+      "sha256": "ad07fe87eaee45b9f0ca5595ed743d2577198b21d2d6d78f16cb8ee1ea3b9700"
+    },
+    {
+      "path": "pixel-art-v4-ui/icons/restart.png",
+      "name": "restart",
+      "category": "icons",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1254,
+      "height": 1254,
+      "transparent_percent": 73.31,
+      "visible_bounds": [
+        55,
+        49,
+        1230,
+        1222
+      ],
+      "bytes": 586370,
+      "sha256": "e1574fd2cf98692942be5753544bfcba448804776c4810d1b3991e7dab84e1b0"
+    },
+    {
+      "path": "pixel-art-v4-ui/icons/rewind-arrow.png",
+      "name": "rewind arrow",
+      "category": "icons",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1254,
+      "height": 1254,
+      "transparent_percent": 71.4,
+      "visible_bounds": [
+        33,
+        21,
+        1160,
+        1214
+      ],
+      "bytes": 651335,
+      "sha256": "dafb69ec67cb703bdd8cf93f6c07b5d6ebcb53ef767a220f832f6d6520f30f09"
+    },
+    {
+      "path": "pixel-art-v4-ui/icons/save-crystal.png",
+      "name": "save crystal",
+      "category": "icons",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1254,
+      "height": 1254,
+      "transparent_percent": 62.76,
+      "visible_bounds": [
+        0,
+        51,
+        1202,
+        1254
+      ],
+      "bytes": 718103,
+      "sha256": "5ebe4e5b0d567b93bc784890807e39def507f174e22a391e4770337b94c9cf9f"
+    },
+    {
+      "path": "pixel-art-v4-ui/icons/settings-gear.png",
+      "name": "settings gear",
+      "category": "icons",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1254,
+      "height": 1254,
+      "transparent_percent": 55.74,
+      "visible_bounds": [
+        0,
+        39,
+        1222,
+        1238
+      ],
+      "bytes": 828660,
+      "sha256": "6b40f27ddd65652f72ea67b729e034fba8445fe16a4ed599155807dc81b31a78"
+    },
+    {
+      "path": "pixel-art-v4-ui/icons/shield.png",
+      "name": "shield",
+      "category": "icons",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1254,
+      "height": 1254,
+      "transparent_percent": 61.75,
+      "visible_bounds": [
+        59,
+        21,
+        1212,
+        1230
+      ],
+      "bytes": 757765,
+      "sha256": "20ba182333925c1be601f0c688c888d8b966980824dc07f0c4da432420f71425"
+    },
+    {
+      "path": "pixel-art-v4-ui/icons/sound-off.png",
+      "name": "sound off",
+      "category": "icons",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1254,
+      "height": 1254,
+      "transparent_percent": 66.52,
+      "visible_bounds": [
+        0,
+        21,
+        1234,
+        1230
+      ],
+      "bytes": 682386,
+      "sha256": "548dba6fda8594919b86bdc4a0f212d013e9c973e4c4d3d8d994d8aa9b5257d3"
+    },
+    {
+      "path": "pixel-art-v4-ui/icons/sound-on.png",
+      "name": "sound on",
+      "category": "icons",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1254,
+      "height": 1254,
+      "transparent_percent": 63.46,
+      "visible_bounds": [
+        0,
+        21,
+        1222,
+        1254
+      ],
+      "bytes": 772864,
+      "sha256": "b6a8af1588d28e969c033ecff843a48f2059181692010feb84031d52e5928cde"
+    },
+    {
+      "path": "pixel-art-v4-ui/icons/star.png",
+      "name": "star",
+      "category": "icons",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1254,
+      "height": 1254,
+      "transparent_percent": 62.92,
+      "visible_bounds": [
+        0,
+        53,
+        1238,
+        1222
+      ],
+      "bytes": 805961,
+      "sha256": "83fcd64d5dec748eb92280a9a00f2744e758d187760a6014d9cc5fb4c16ef059"
+    },
+    {
+      "path": "pixel-art-v4-ui/icons/stone-wall.png",
+      "name": "stone wall",
+      "category": "icons",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1254,
+      "height": 1254,
+      "transparent_percent": 61.51,
+      "visible_bounds": [
+        0,
+        52,
+        1204,
+        1198
+      ],
+      "bytes": 783043,
+      "sha256": "ff22098b3a6b6e0a06527ced817d551bb7c3ad43f2bfeb4aec0b8a4b6cf825e2"
+    },
+    {
+      "path": "pixel-art-v4-ui/icons/stopwatch.png",
+      "name": "stopwatch",
+      "category": "icons",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1254,
+      "height": 1254,
+      "transparent_percent": 54.59,
+      "visible_bounds": [
+        0,
+        16,
+        1244,
+        1254
+      ],
+      "bytes": 975289,
+      "sha256": "538e7d74dd455a43347d6f44193a9d65755d33c8bea4c33653ff9f37abcce60f"
+    },
+    {
+      "path": "pixel-art-v4-ui/icons/trash.png",
+      "name": "trash",
+      "category": "icons",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1254,
+      "height": 1254,
+      "transparent_percent": 58.87,
+      "visible_bounds": [
+        0,
+        21,
+        1240,
+        1254
+      ],
+      "bytes": 858146,
+      "sha256": "d58e8ae6771a7556b9af175e0722993681432ec2d86c477c862cb18cc1eebf95"
+    },
+    {
+      "path": "pixel-art-v4-ui/icons/trophy.png",
+      "name": "trophy",
+      "category": "icons",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1254,
+      "height": 1254,
+      "transparent_percent": 61.86,
+      "visible_bounds": [
+        0,
+        7,
+        1236,
+        1254
+      ],
+      "bytes": 853059,
+      "sha256": "e2f90c5daa900757d1a378584c0c90d048617bd7d7694298726ee381069a29cd"
+    },
+    {
+      "path": "pixel-art-v4-ui/icons/undo.png",
+      "name": "undo",
+      "category": "icons",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1254,
+      "height": 1254,
+      "transparent_percent": 67.16,
+      "visible_bounds": [
+        0,
+        20,
+        1235,
+        1254
+      ],
+      "bytes": 818440,
+      "sha256": "b69d802ae64bd3cfb53caa9e50eec20eaa7b390cce58ff43fe50ea847606135f"
+    },
+    {
+      "path": "pixel-art-v4-ui/icons/warning.png",
+      "name": "warning",
+      "category": "icons",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1254,
+      "height": 1254,
+      "transparent_percent": 65.89,
+      "visible_bounds": [
+        0,
+        19,
+        1240,
+        1254
+      ],
+      "bytes": 704155,
+      "sha256": "b8ebdc311113f396910369a43a6650566c827f0e2fb2641ad0a505f937c21e20"
+    },
+    {
+      "path": "pixel-art-v4-ui/icons/white-flag.png",
+      "name": "white flag",
+      "category": "icons",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1254,
+      "height": 1254,
+      "transparent_percent": 72.44,
+      "visible_bounds": [
+        33,
+        48,
+        1222,
+        1198
+      ],
+      "bytes": 547546,
+      "sha256": "f18118d47e4b74aad8bfeb3f1e6190e7c63db72811f9b1eb682d8ca9506004dc"
+    },
+    {
+      "path": "pixel-art-v4-ui/icons/world-map.png",
+      "name": "world map",
+      "category": "icons",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1254,
+      "height": 1254,
+      "transparent_percent": 52.42,
+      "visible_bounds": [
+        0,
+        21,
+        1244,
+        1254
+      ],
+      "bytes": 1145035,
+      "sha256": "4ef17d1aac505782e4d2cfdd5f840e411f78684b5d2aebcdba97b8ddb46393bc"
+    },
+    {
+      "path": "pixel-art-v4-ui/ui/core/back-button.png",
+      "name": "back button",
+      "category": "ui",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1254,
+      "height": 1254,
+      "transparent_percent": 48.87,
+      "visible_bounds": [
+        0,
+        19,
+        1244,
+        1254
+      ],
+      "bytes": 1005215,
+      "sha256": "e3e6d8542ad88e9f4cc875db01a9ab5befdf34f8f42769882a122f76b3c5556c"
+    },
+    {
+      "path": "pixel-art-v4-ui/ui/core/card-frame-selected.png",
+      "name": "card frame selected",
+      "category": "ui",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1086,
+      "height": 1448,
+      "transparent_percent": 57.37,
+      "visible_bounds": [
+        0,
+        5,
+        1082,
+        1448
+      ],
+      "bytes": 1182937,
+      "sha256": "98e45ae3dec5b6fff63ef23c40454af95308a04cdac12051982a5bdaa57a867b"
+    },
+    {
+      "path": "pixel-art-v4-ui/ui/core/card-frame.png",
+      "name": "card frame",
+      "category": "ui",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1086,
+      "height": 1448,
+      "transparent_percent": 58.9,
+      "visible_bounds": [
+        0,
+        14,
+        1082,
+        1448
+      ],
+      "bytes": 1113542,
+      "sha256": "c61ba35ee9a4ef6f190b37000aa7314f76be49695baee95bfc7bc7ce9327fcd1"
+    },
+    {
+      "path": "pixel-art-v4-ui/ui/core/checkbox-checked.png",
+      "name": "checkbox checked",
+      "category": "ui",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1254,
+      "height": 1254,
+      "transparent_percent": 55.28,
+      "visible_bounds": [
+        0,
+        21,
+        1220,
+        1230
+      ],
+      "bytes": 910057,
+      "sha256": "20d2bf4b91156e8a2d8513b8cd2ec1ef7f4384178edc33fa987000b32a706672"
+    },
+    {
+      "path": "pixel-art-v4-ui/ui/core/checkbox-unchecked.png",
+      "name": "checkbox unchecked",
+      "category": "ui",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1254,
+      "height": 1254,
+      "transparent_percent": 55.15,
+      "visible_bounds": [
+        0,
+        55,
+        1240,
+        1254
+      ],
+      "bytes": 887503,
+      "sha256": "49e498249c243d84daa60683ed16b6a5b33be01b83234ad0bd8a307f6b9004db"
+    },
+    {
+      "path": "pixel-art-v4-ui/ui/core/close-button.png",
+      "name": "close button",
+      "category": "ui",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1254,
+      "height": 1254,
+      "transparent_percent": 52.35,
+      "visible_bounds": [
+        0,
+        21,
+        1236,
+        1254
+      ],
+      "bytes": 1067346,
+      "sha256": "5f109e8c7db0e1072d63fba978ba3df6a78fe4ba1301694764a98b302e4fd0c4"
+    },
+    {
+      "path": "pixel-art-v4-ui/ui/core/corner-ornament.png",
+      "name": "corner ornament",
+      "category": "ui",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1254,
+      "height": 1254,
+      "transparent_percent": 66.27,
+      "visible_bounds": [
+        0,
+        19,
+        1236,
+        1254
+      ],
+      "bytes": 744432,
+      "sha256": "60413105783c53b40248dd2e2e07d5899332526839fff4d2a13c29378be0eb18"
+    },
+    {
+      "path": "pixel-art-v4-ui/ui/core/cursor-hover-hand.png",
+      "name": "cursor hover hand",
+      "category": "ui",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1254,
+      "height": 1254,
+      "transparent_percent": 74.28,
+      "visible_bounds": [
+        0,
+        19,
+        1226,
+        1234
+      ],
+      "bytes": 663090,
+      "sha256": "d6918f8f1c9cdc660c6f056ac6d580873db6e236e53c37d16259f7f2f2484c3e"
+    },
+    {
+      "path": "pixel-art-v4-ui/ui/core/cursor-pointer.png",
+      "name": "cursor pointer",
+      "category": "ui",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1254,
+      "height": 1254,
+      "transparent_percent": 68.52,
+      "visible_bounds": [
+        0,
+        21,
+        1202,
+        1230
+      ],
+      "bytes": 761636,
+      "sha256": "79bcd9415360bdd1451ce372d86bbaf5bc3d0d6dad68e3db04cc803153593045"
+    },
+    {
+      "path": "pixel-art-v4-ui/ui/core/danger-button-hover.png",
+      "name": "danger button hover",
+      "category": "ui",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 2172,
+      "height": 724,
+      "transparent_percent": 51.5,
+      "visible_bounds": [
+        17,
+        0,
+        2137,
+        724
+      ],
+      "bytes": 1109573,
+      "sha256": "8451ccb50759b14afb78c89d86349c62f21b12cd4fe8b26618b56a297c50ba81"
+    },
+    {
+      "path": "pixel-art-v4-ui/ui/core/danger-button-normal.png",
+      "name": "danger button normal",
+      "category": "ui",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 2172,
+      "height": 724,
+      "transparent_percent": 52.46,
+      "visible_bounds": [
+        23,
+        9,
+        2116,
+        724
+      ],
+      "bytes": 1040156,
+      "sha256": "2cd801d17561093e191684eba48f377c05c7c948885e87cedc3f12b15d8f11e9"
+    },
+    {
+      "path": "pixel-art-v4-ui/ui/core/dialog-panel.png",
+      "name": "dialog panel",
+      "category": "ui",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1586,
+      "height": 992,
+      "transparent_percent": 67.95,
+      "visible_bounds": [
+        42,
+        23,
+        1554,
+        992
+      ],
+      "bytes": 826760,
+      "sha256": "8b58d9d64b9fa31dc1fefdf10948ac7b1a393cf292f191418963cfd969e12c34"
+    },
+    {
+      "path": "pixel-art-v4-ui/ui/core/dropdown-field.png",
+      "name": "dropdown field",
+      "category": "ui",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1983,
+      "height": 793,
+      "transparent_percent": 67.77,
+      "visible_bounds": [
+        0,
+        23,
+        1969,
+        769
+      ],
+      "bytes": 588410,
+      "sha256": "cd60cc850ff3717917a4f56b3bc33a8f37a6fa0503773470dcec5435abccad51"
+    },
+    {
+      "path": "pixel-art-v4-ui/ui/core/heart-bar-frame.png",
+      "name": "heart bar frame",
+      "category": "ui",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 2172,
+      "height": 724,
+      "transparent_percent": 67.68,
+      "visible_bounds": [
+        23,
+        20,
+        2154,
+        724
+      ],
+      "bytes": 732839,
+      "sha256": "9e0a38524bca4cc316f49e060625ba7937fa309b93a450200063874464ca6a9b"
+    },
+    {
+      "path": "pixel-art-v4-ui/ui/core/horizontal-divider.png",
+      "name": "horizontal divider",
+      "category": "ui",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 2172,
+      "height": 724,
+      "transparent_percent": 83.45,
+      "visible_bounds": [
+        31,
+        122,
+        2118,
+        699
+      ],
+      "bytes": 423435,
+      "sha256": "3cf4425debaa8e0354d5e78f221aa7d35a29df47d5f6152a2f776a3e4d6966b5"
+    },
+    {
+      "path": "pixel-art-v4-ui/ui/core/name-plate.png",
+      "name": "name plate",
+      "category": "ui",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 2172,
+      "height": 724,
+      "transparent_percent": 53.24,
+      "visible_bounds": [
+        15,
+        6,
+        2168,
+        724
+      ],
+      "bytes": 882634,
+      "sha256": "7def5a758e316f198f2f97069d72bdea68f557b0d7bd0a3770e30a171a551ea1"
+    },
+    {
+      "path": "pixel-art-v4-ui/ui/core/new-ribbon.png",
+      "name": "new ribbon",
+      "category": "ui",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1774,
+      "height": 887,
+      "transparent_percent": 49.35,
+      "visible_bounds": [
+        14,
+        21,
+        1760,
+        887
+      ],
+      "bytes": 1038056,
+      "sha256": "9f6506277955dfd9434a4c1ab3431efea048dc50fdf34dd1eca4114132369d77"
+    },
+    {
+      "path": "pixel-art-v4-ui/ui/core/notification-badge.png",
+      "name": "notification badge",
+      "category": "ui",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1254,
+      "height": 1254,
+      "transparent_percent": 65.84,
+      "visible_bounds": [
+        41,
+        39,
+        1234,
+        1230
+      ],
+      "bytes": 651111,
+      "sha256": "436e7e8b7bb8bcd1fd430f9960469b323b90732abca7a13bd7bd942cdbd39f20"
+    },
+    {
+      "path": "pixel-art-v4-ui/ui/core/primary-button-disabled.png",
+      "name": "primary button disabled",
+      "category": "ui",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 2172,
+      "height": 724,
+      "transparent_percent": 41.85,
+      "visible_bounds": [
+        0,
+        3,
+        2142,
+        724
+      ],
+      "bytes": 1230856,
+      "sha256": "a6c8521bfea8dcd533640405207acd6a9463341896d0822eeb7bbe7fcd91f5f2"
+    },
+    {
+      "path": "pixel-art-v4-ui/ui/core/primary-button-hover.png",
+      "name": "primary button hover",
+      "category": "ui",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 2172,
+      "height": 724,
+      "transparent_percent": 42.1,
+      "visible_bounds": [
+        24,
+        33,
+        2171,
+        724
+      ],
+      "bytes": 1300648,
+      "sha256": "a4753bc6ec79216d0b4fa69a6a68a0173941deea5e7fa34128ed6bcb5c2761c6"
+    },
+    {
+      "path": "pixel-art-v4-ui/ui/core/primary-button-normal.png",
+      "name": "primary button normal",
+      "category": "ui",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 2172,
+      "height": 724,
+      "transparent_percent": 43.18,
+      "visible_bounds": [
+        37,
+        8,
+        2166,
+        708
+      ],
+      "bytes": 1211881,
+      "sha256": "89e837ef05777ae5267facf449eca79a17f29ecc4047e95f8ff1a6001c233e07"
+    },
+    {
+      "path": "pixel-art-v4-ui/ui/core/primary-button-pressed.png",
+      "name": "primary button pressed",
+      "category": "ui",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 2172,
+      "height": 724,
+      "transparent_percent": 42.72,
+      "visible_bounds": [
+        38,
+        41,
+        2137,
+        700
+      ],
+      "bytes": 1260226,
+      "sha256": "1b10af9873d1e28bc3bb29657393d8602bd532097eb6a021d62011ffbab23da8"
+    },
+    {
+      "path": "pixel-art-v4-ui/ui/core/progress-bar-fill.png",
+      "name": "progress bar fill",
+      "category": "ui",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 2172,
+      "height": 724,
+      "transparent_percent": 76.36,
+      "visible_bounds": [
+        0,
+        110,
+        2132,
+        603
+      ],
+      "bytes": 395643,
+      "sha256": "52fc94b9bbe42bb77ca6d6a34059180ede67939b4b748f5bdcc2f903abc676c3"
+    },
+    {
+      "path": "pixel-art-v4-ui/ui/core/progress-bar-frame.png",
+      "name": "progress bar frame",
+      "category": "ui",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 2172,
+      "height": 724,
+      "transparent_percent": 75.95,
+      "visible_bounds": [
+        19,
+        37,
+        2154,
+        700
+      ],
+      "bytes": 604618,
+      "sha256": "c246c24506dacfaf2f89ed8a4ea3f7d3ec4751a07a08cb6f780efb91cb94e498"
+    },
+    {
+      "path": "pixel-art-v4-ui/ui/core/round-button-hover.png",
+      "name": "round button hover",
+      "category": "ui",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1254,
+      "height": 1254,
+      "transparent_percent": 50.94,
+      "visible_bounds": [
+        0,
+        43,
+        1208,
+        1254
+      ],
+      "bytes": 1003934,
+      "sha256": "25bee56bf34264de52635616558b54b43102fecaec881f5c2abaef586061f3dd"
+    },
+    {
+      "path": "pixel-art-v4-ui/ui/core/round-button-normal.png",
+      "name": "round button normal",
+      "category": "ui",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1254,
+      "height": 1254,
+      "transparent_percent": 51.19,
+      "visible_bounds": [
+        41,
+        47,
+        1222,
+        1200
+      ],
+      "bytes": 952013,
+      "sha256": "5e2ab50477f4d38beaa6efefe43a26672a0ed1eaf5361acc8d571a804486bca9"
+    },
+    {
+      "path": "pixel-art-v4-ui/ui/core/secondary-button-disabled.png",
+      "name": "secondary button disabled",
+      "category": "ui",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 2172,
+      "height": 724,
+      "transparent_percent": 57.71,
+      "visible_bounds": [
+        116,
+        39,
+        2057,
+        724
+      ],
+      "bytes": 783292,
+      "sha256": "3ac9e2fa59cd3247b72df8a53a617182e9478004fd09b4a5ff845ebeac32d903"
+    },
+    {
+      "path": "pixel-art-v4-ui/ui/core/secondary-button-hover.png",
+      "name": "secondary button hover",
+      "category": "ui",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 2172,
+      "height": 724,
+      "transparent_percent": 57.29,
+      "visible_bounds": [
+        57,
+        95,
+        2144,
+        710
+      ],
+      "bytes": 799375,
+      "sha256": "bf026723a3852d0757d94f78e8d5f76c25b56033c84c3990a72717926d8e71f4"
+    },
+    {
+      "path": "pixel-art-v4-ui/ui/core/secondary-button-normal.png",
+      "name": "secondary button normal",
+      "category": "ui",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 2172,
+      "height": 724,
+      "transparent_percent": 57.85,
+      "visible_bounds": [
+        119,
+        29,
+        2053,
+        724
+      ],
+      "bytes": 751137,
+      "sha256": "e13f31b23349ed8fde8e30fa5c316149077a5436feb2463ab533ac2e3f4edb38"
+    },
+    {
+      "path": "pixel-art-v4-ui/ui/core/secondary-button-pressed.png",
+      "name": "secondary button pressed",
+      "category": "ui",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 2172,
+      "height": 724,
+      "transparent_percent": 57.55,
+      "visible_bounds": [
+        39,
+        9,
+        2134,
+        698
+      ],
+      "bytes": 787722,
+      "sha256": "9cb5b96b3dfab556ea69f812ca6295ea17bbbca695537830d1883eebbe0a4a2a"
+    },
+    {
+      "path": "pixel-art-v4-ui/ui/core/slider-knob.png",
+      "name": "slider knob",
+      "category": "ui",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1254,
+      "height": 1254,
+      "transparent_percent": 64.81,
+      "visible_bounds": [
+        0,
+        21,
+        1236,
+        1254
+      ],
+      "bytes": 732116,
+      "sha256": "f26d827d41b53df0ce0a0f4fd9dc0b5312174989c8c155806866b4ab9f6c388f"
+    },
+    {
+      "path": "pixel-art-v4-ui/ui/core/slider-track.png",
+      "name": "slider track",
+      "category": "ui",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 2172,
+      "height": 724,
+      "transparent_percent": 69.97,
+      "visible_bounds": [
+        0,
+        35,
+        2160,
+        710
+      ],
+      "bytes": 687155,
+      "sha256": "5efb584c6d0d91394e925731a516771c74def5d341f1d1bd3799a6ea70e1549d"
+    },
+    {
+      "path": "pixel-art-v4-ui/ui/core/speech-bubble.png",
+      "name": "speech bubble",
+      "category": "ui",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 2172,
+      "height": 724,
+      "transparent_percent": 44.65,
+      "visible_bounds": [
+        27,
+        19,
+        2146,
+        708
+      ],
+      "bytes": 904088,
+      "sha256": "acc910f4a5ec27d778838b6b7509a691d9162f4b7cb819ce32b37936e199844c"
+    },
+    {
+      "path": "pixel-art-v4-ui/ui/core/square-button-hover.png",
+      "name": "square button hover",
+      "category": "ui",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1254,
+      "height": 1254,
+      "transparent_percent": 40.86,
+      "visible_bounds": [
+        43,
+        23,
+        1234,
+        1254
+      ],
+      "bytes": 1120755,
+      "sha256": "0fb3e5dcbd40f99faa125d84be593fd8a115b2b9f8f80ca6dd10ab08ee6a95fe"
+    },
+    {
+      "path": "pixel-art-v4-ui/ui/core/square-button-normal.png",
+      "name": "square button normal",
+      "category": "ui",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1254,
+      "height": 1254,
+      "transparent_percent": 40.85,
+      "visible_bounds": [
+        0,
+        0,
+        1236,
+        1254
+      ],
+      "bytes": 1061509,
+      "sha256": "e6cc9151ff38e4df5d61ef98de4853c7a4c7b3030bf569003ebd9ec1ef59a6d5"
+    },
+    {
+      "path": "pixel-art-v4-ui/ui/core/square-button-pressed.png",
+      "name": "square button pressed",
+      "category": "ui",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1254,
+      "height": 1254,
+      "transparent_percent": 40.77,
+      "visible_bounds": [
+        95,
+        0,
+        1174,
+        1254
+      ],
+      "bytes": 1094702,
+      "sha256": "de75340fcb7a8581a44fbe9906a7f9a21572e2edd46f43bb7cba85fe48203550"
+    },
+    {
+      "path": "pixel-art-v4-ui/ui/core/star-empty.png",
+      "name": "star empty",
+      "category": "ui",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1254,
+      "height": 1254,
+      "transparent_percent": 62.39,
+      "visible_bounds": [
+        0,
+        19,
+        1240,
+        1254
+      ],
+      "bytes": 883537,
+      "sha256": "1bbcea9e5b2a7673070a67b60d4c1d923b7e9b52c84adc0a61156267a68defb0"
+    },
+    {
+      "path": "pixel-art-v4-ui/ui/core/star-full.png",
+      "name": "star full",
+      "category": "ui",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1254,
+      "height": 1254,
+      "transparent_percent": 62.3,
+      "visible_bounds": [
+        34,
+        21,
+        1253,
+        1228
+      ],
+      "bytes": 909304,
+      "sha256": "391f6f7a8a479fc2abd588bb03c1ca854e23e72852d71db41d8c1bfe9ce3c338"
+    },
+    {
+      "path": "pixel-art-v4-ui/ui/core/star-half.png",
+      "name": "star half",
+      "category": "ui",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1254,
+      "height": 1254,
+      "transparent_percent": 62.39,
+      "visible_bounds": [
+        0,
+        40,
+        1234,
+        1230
+      ],
+      "bytes": 894630,
+      "sha256": "4d2184007a80e7d1f3dce087af313f45bba36177bb4d007d21c9b5cc8b3e6da3"
+    },
+    {
+      "path": "pixel-art-v4-ui/ui/core/tab-active.png",
+      "name": "tab active",
+      "category": "ui",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 2172,
+      "height": 724,
+      "transparent_percent": 43.63,
+      "visible_bounds": [
+        49,
+        50,
+        2124,
+        674
+      ],
+      "bytes": 1106239,
+      "sha256": "4fac1adad7c2091331567454478fef728955bc4733dbaa34a0435dadb21223d9"
+    },
+    {
+      "path": "pixel-art-v4-ui/ui/core/tab-inactive.png",
+      "name": "tab inactive",
+      "category": "ui",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 2172,
+      "height": 724,
+      "transparent_percent": 43.76,
+      "visible_bounds": [
+        0,
+        0,
+        2145,
+        700
+      ],
+      "bytes": 1028253,
+      "sha256": "25693c6cdceaf68dbf3a6316bca1f83fc95392f20df31b49cd7443d61652684e"
+    },
+    {
+      "path": "pixel-art-v4-ui/ui/core/text-input-field.png",
+      "name": "text input field",
+      "category": "ui",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 2172,
+      "height": 724,
+      "transparent_percent": 59.01,
+      "visible_bounds": [
+        33,
+        11,
+        2154,
+        724
+      ],
+      "bytes": 762993,
+      "sha256": "52a22e27533ddeca0668a2177707fe9509ff6eb3005a78aa243fbf937e2170fd"
+    },
+    {
+      "path": "pixel-art-v4-ui/ui/core/title-ribbon.png",
+      "name": "title ribbon",
+      "category": "ui",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 2172,
+      "height": 724,
+      "transparent_percent": 47.49,
+      "visible_bounds": [
+        0,
+        0,
+        2159,
+        724
+      ],
+      "bytes": 1023769,
+      "sha256": "2c853122101294f626e952e46d6b56d6a203b051d72a4e7376bb4961362371f5"
+    },
+    {
+      "path": "pixel-art-v4-ui/ui/core/toggle-off.png",
+      "name": "toggle off",
+      "category": "ui",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1774,
+      "height": 887,
+      "transparent_percent": 48.13,
+      "visible_bounds": [
+        66,
+        25,
+        1754,
+        871
+      ],
+      "bytes": 1128585,
+      "sha256": "d90b1f71ceb6c7e7f9cd3de380cd08d596a2e7f81306616aeb0c3a3b6ddf343e"
+    },
+    {
+      "path": "pixel-art-v4-ui/ui/core/toggle-on.png",
+      "name": "toggle on",
+      "category": "ui",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1774,
+      "height": 887,
+      "transparent_percent": 48.71,
+      "visible_bounds": [
+        0,
+        0,
+        1758,
+        887
+      ],
+      "bytes": 1100538,
+      "sha256": "d5d15ae569295192e7aecca88e993626f983da3e4f793136353159eefbb0d3ed"
+    },
+    {
+      "path": "pixel-art-v4-ui/ui/core/tooltip-box.png",
+      "name": "tooltip box",
+      "category": "ui",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 2172,
+      "height": 724,
+      "transparent_percent": 45.61,
+      "visible_bounds": [
+        28,
+        19,
+        2145,
+        702
+      ],
+      "bytes": 939021,
+      "sha256": "a694ea8182c12f079e3b488433490d0fc2396f45d3ff053b9cdbe0e25d39c847"
+    },
+    {
+      "path": "pixel-art-v4-ui/ui/game/black-turn-medallion.png",
+      "name": "black turn medallion",
+      "category": "ui",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1254,
+      "height": 1254,
+      "transparent_percent": 48.84,
+      "visible_bounds": [
+        0,
+        21,
+        1236,
+        1254
+      ],
+      "bytes": 1057095,
+      "sha256": "1ab6b2a9ec0dae62dfa776ca44c108701209b26f6a27204d1227ee7bcadd48f3"
+    },
+    {
+      "path": "pixel-art-v4-ui/ui/game/board-frame.png",
+      "name": "board frame",
+      "category": "ui",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1254,
+      "height": 1254,
+      "transparent_percent": 62.36,
+      "visible_bounds": [
+        0,
+        15,
+        1224,
+        1254
+      ],
+      "bytes": 1017181,
+      "sha256": "82d13e0a7696e45da8c582b7296f209c15ecf627e087a7cd5e4e0fe14f8f2bc9"
+    },
+    {
+      "path": "pixel-art-v4-ui/ui/game/captured-pieces-tray.png",
+      "name": "captured pieces tray",
+      "category": "ui",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1983,
+      "height": 793,
+      "transparent_percent": 60.24,
+      "visible_bounds": [
+        14,
+        84,
+        1970,
+        793
+      ],
+      "bytes": 830749,
+      "sha256": "0d6209acfe5c7f3e9e7030205634cc11fc60c0371160aa423e1a81be8dca10d0"
+    },
+    {
+      "path": "pixel-art-v4-ui/ui/game/chess-clock-frame.png",
+      "name": "chess clock frame",
+      "category": "ui",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1774,
+      "height": 887,
+      "transparent_percent": 56.67,
+      "visible_bounds": [
+        0,
+        21,
+        1758,
+        854
+      ],
+      "bytes": 1019586,
+      "sha256": "803d2197d5dc557693ca077b209b809b47efc635314dd48856c5b2be42fbf342"
+    },
+    {
+      "path": "pixel-art-v4-ui/ui/game/hint-token.png",
+      "name": "hint token",
+      "category": "ui",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1254,
+      "height": 1254,
+      "transparent_percent": 65.14,
+      "visible_bounds": [
+        0,
+        21,
+        1236,
+        1254
+      ],
+      "bytes": 820760,
+      "sha256": "d49110de3d820477666b3838f2b458e8b47315ba515b32418368cf85f08dae4a"
+    },
+    {
+      "path": "pixel-art-v4-ui/ui/game/move-history-frame.png",
+      "name": "move history frame",
+      "category": "ui",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 887,
+      "height": 1774,
+      "transparent_percent": 67.95,
+      "visible_bounds": [
+        33,
+        30,
+        887,
+        1774
+      ],
+      "bytes": 917588,
+      "sha256": "9d23eb784585120d8caa2d32124d9554d885170810a85fc1525704f3fc2bd6a0"
+    },
+    {
+      "path": "pixel-art-v4-ui/ui/game/opponent-portrait-frame.png",
+      "name": "opponent portrait frame",
+      "category": "ui",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1254,
+      "height": 1254,
+      "transparent_percent": 53.95,
+      "visible_bounds": [
+        0,
+        0,
+        1240,
+        1254
+      ],
+      "bytes": 1236683,
+      "sha256": "5ad7f8d79e5606435cc3bf266c837b4b4bd64cede563d4e9eb15447e2adc6ea9"
+    },
+    {
+      "path": "pixel-art-v4-ui/ui/game/player-portrait-frame.png",
+      "name": "player portrait frame",
+      "category": "ui",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1254,
+      "height": 1254,
+      "transparent_percent": 53.25,
+      "visible_bounds": [
+        0,
+        0,
+        1240,
+        1254
+      ],
+      "bytes": 1249819,
+      "sha256": "5ec5054b66109860858b0b47b641153dd246c6998762a4a5e83ebbc1e7d26a83"
+    },
+    {
+      "path": "pixel-art-v4-ui/ui/game/side-panel.png",
+      "name": "side panel",
+      "category": "ui",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 793,
+      "height": 1983,
+      "transparent_percent": 62.33,
+      "visible_bounds": [
+        0,
+        11,
+        777,
+        1983
+      ],
+      "bytes": 971967,
+      "sha256": "1e3c3115b2709f29b5a3d90967e3f11d8b7a217f73c7b99863441775113e579f"
+    },
+    {
+      "path": "pixel-art-v4-ui/ui/game/status-bar.png",
+      "name": "status bar",
+      "category": "ui",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1774,
+      "height": 887,
+      "transparent_percent": 86.19,
+      "visible_bounds": [
+        206,
+        158,
+        1679,
+        831
+      ],
+      "bytes": 440508,
+      "sha256": "f902c71ded9187dce33d03bf92db42a79ae2a5b9f24d90b6ffa4b335e52ebf30"
+    },
+    {
+      "path": "pixel-art-v4-ui/ui/game/white-turn-medallion.png",
+      "name": "white turn medallion",
+      "category": "ui",
+      "collection": "pixel-art-v4-ui",
+      "status": "candidate",
+      "width": 1254,
+      "height": 1254,
+      "transparent_percent": 50.85,
+      "visible_bounds": [
+        0,
+        38,
+        1235,
+        1254
+      ],
+      "bytes": 1005995,
+      "sha256": "5513e47da3dbb82fb128807377b8a50a466da8f45067cb6c2c53526c59b97006"
     },
     {
       "path": "ui/brass_clockwork/badges/diamond.png",

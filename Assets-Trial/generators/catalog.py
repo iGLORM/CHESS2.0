@@ -19,7 +19,7 @@ def png_info(path):
         if kind==b'IDAT': compressed+=chunk
     assert depth==8 and color in (2,6) and interlace==0, f'Unsupported PNG encoding: {path}'
     channels=4 if color==6 else 3; stride=w*channels; raw=zlib.decompress(compressed)
-    prev=bytearray(stride); offset=0; transparent=visible=0; bounds=[w,h,0,0]
+    prev=bytearray(stride); offset=0; transparent=visible=0; histogram=[0]*256; bounds=[w,h,0,0]
     for y in range(h):
         filt=raw[offset];offset+=1; row=bytearray(raw[offset:offset+stride]);offset+=stride
         for x in range(stride):
@@ -36,11 +36,12 @@ def png_info(path):
             row[x]=(row[x]+value)&255
         for x in range(w):
             alpha=row[x*channels+3] if channels==4 else 255
+            histogram[alpha]+=1
             if alpha==0: transparent+=1
             else:
                 visible+=1;bounds=[min(bounds[0],x),min(bounds[1],y),max(bounds[2],x+1),max(bounds[3],y+1)]
         prev=row
-    return dict(width=w,height=h,rgba=channels==4,transparent=transparent,visible=visible,bounds=bounds if visible else None)
+    return dict(width=w,height=h,rgba=channels==4,alpha_histogram=histogram,transparent=transparent,visible=visible,bounds=bounds if visible else None)
 
 def main():
     assets=[]

@@ -1,0 +1,200 @@
+[
+  {
+    "path": "ui/game/board-frame.png",
+    "section": "B",
+    "world": null,
+    "state": null,
+    "size": [
+      1254,
+      1254
+    ],
+    "source": "built-in imagegen",
+    "postprocessing": "none",
+    "prompt_path": "prompts/ui/game/board-frame.txt",
+    "source_path": "/Users/yacineboufe/.codex/generated_images/01a0df9e-f09b-7cf2-8de8-c88af5c118e4/exec-90de1095-a33a-477e-b82e-905e5bdaf5de.png",
+    "references": [
+      "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/icons/jeweled-chess-crown.png"
+    ],
+    "review": "accepted after visual review and alpha validation"
+  },
+  {
+    "path": "ui/game/side-panel.png",
+    "section": "B",
+    "world": null,
+    "state": null,
+    "size": [
+      793,
+      1983
+    ],
+    "source": "built-in imagegen",
+    "postprocessing": "none",
+    "prompt_path": "prompts/ui/game/side-panel.txt",
+    "source_path": "/Users/yacineboufe/.codex/generated_images/01a0df9e-f09b-7cf2-8de8-c88af5c118e4/exec-5699b290-2812-4ac2-a788-d0e1f42ad8f8.png",
+    "references": [
+      "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/icons/jeweled-chess-crown.png"
+    ],
+    "review": "accepted after visual review and alpha validation"
+  },
+  {
+    "path": "ui/game/captured-pieces-tray.png",
+    "section": "B",
+    "world": null,
+    "state": null,
+    "size": [
+      1983,
+      793
+    ],
+    "source": "built-in imagegen",
+    "postprocessing": "none",
+    "prompt_path": "prompts/ui/game/captured-pieces-tray.txt",
+    "source_path": "/Users/yacineboufe/.codex/generated_images/01a0df9e-f09b-7cf2-8de8-c88af5c118e4/exec-c6dd6007-5146-4480-8f5a-1667f1a1a2e7.png",
+    "references": [
+      "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/icons/jeweled-chess-crown.png"
+    ],
+    "review": "accepted after visual review and alpha validation"
+  },
+  {
+    "path": "ui/game/move-history-frame.png",
+    "section": "B",
+    "world": null,
+    "state": null,
+    "size": [
+      887,
+      1774
+    ],
+    "source": "built-in imagegen",
+    "postprocessing": "none",
+    "prompt_path": "prompts/ui/game/move-history-frame.txt",
+    "source_path": "/Users/yacineboufe/.codex/generated_images/01a0df9e-f09b-7cf2-8de8-c88af5c118e4/exec-1f891b34-7351-4679-888a-7431051b7696.png",
+    "references": [
+      "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/icons/jeweled-chess-crown.png"
+    ],
+    "review": "accepted after visual review and alpha validation"
+  },
+  {
+    "path": "ui/game/player-portrait-frame.png",
+    "section": "B",
+    "world": null,
+    "state": null,
+    "size": [
+      1254,
+      1254
+    ],
+    "source": "built-in imagegen",
+    "postprocessing": "none",
+    "prompt_path": "prompts/ui/game/player-portrait-frame.txt",
+    "source_path": "/Users/yacineboufe/.codex/generated_images/01a0df9e-f09b-7cf2-8de8-c88af5c118e4/exec-1b4b0225-8633-4b63-8fc0-a1007595a5f4.png",
+    "references": [
+      "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/icons/jeweled-chess-crown.png"
+    ],
+    "review": "accepted after visual review and alpha validation"
+  },
+  {
+    "path": "ui/game/chess-clock-frame.png",
+    "section": "B",
+    "world": null,
+    "state": null,
+    "size": [
+      1774,
+      887
+    ],
+    "source": "built-in imagegen",
+    "postprocessing": "none",
+    "prompt_path": "prompts/ui/game/chess-clock-frame.txt",
+    "source_path": "/Users/yacineboufe/.codex/generated_images/01a0df9e-f09b-7cf2-8de8-c88af5c118e4/exec-d3e2d8a5-ded4-4dcc-9ee6-c3797206cf62.png",
+    "references": [
+      "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/icons/jeweled-chess-crown.png"
+    ],
+    "review": "accepted after visual review and alpha validation"
+  },
+  {
+    "path": "ui/game/hint-token.png",
+    "section": "B",
+    "world": null,
+    "state": null,
+    "size": [
+      1254,
+      1254
+    ],
+    "source": "built-in imagegen",
+    "postprocessing": "none",
+    "prompt_path": "prompts/ui/game/hint-token.txt",
+    "source_path": "/Users/yacineboufe/.codex/generated_images/01a0df9e-f09b-7cf2-8de8-c88af5c118e4/exec-fdfb86b5-6757-439c-8b0c-19a813ce1662.png",
+    "references": [
+      "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/icons/jeweled-chess-crown.png"
+    ],
+    "review": "accepted after visual review and alpha validation"
+  },
+  {
+    "path": "ui/game/status-bar.png",
+    "section": "B",
+    "world": null,
+    "state": null,
+    "size": [
+      1774,
+      887
+    ],
+    "source": "built-in imagegen",
+    "postprocessing": "none",
+    "prompt_path": "prompts/ui/game/status-bar.txt",
+    "source_path": "/Users/yacineboufe/.codex/generated_images/01a0df9e-f09b-7cf2-8de8-c88af5c118e4/exec-2d744da9-0075-4c36-a610-dedce2aabacb.png",
+    "references": [
+      "/Users/yacineboufe/.codex/generated_images/01a0df9e-f09b-7cf2-8de8-c88af5c118e4/exec-0bee14aa-fb6c-4ad8-9d02-936f795e204f.png"
+    ],
+    "review": "accepted after visual review and alpha validation"
+  },
+  {
+    "path": "ui/game/opponent-portrait-frame.png",
+    "section": "B",
+    "world": null,
+    "state": null,
+    "size": [
+      1254,
+      1254
+    ],
+    "source": "built-in imagegen",
+    "postprocessing": "none",
+    "prompt_path": "prompts/ui/game/opponent-portrait-frame.txt",
+    "source_path": "/Users/yacineboufe/.codex/generated_images/01a0df9e-f09b-7cf2-8de8-c88af5c118e4/exec-8a7d5a11-d5cf-4361-9cad-20e0010d6266.png",
+    "references": [
+      "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/icons/jeweled-chess-crown.png"
+    ],
+    "review": "accepted after visual review and alpha validation"
+  },
+  {
+    "path": "ui/game/white-turn-medallion.png",
+    "section": "B",
+    "world": null,
+    "state": null,
+    "size": [
+      1254,
+      1254
+    ],
+    "source": "built-in imagegen",
+    "postprocessing": "none",
+    "prompt_path": "prompts/ui/game/white-turn-medallion.txt",
+    "source_path": "/Users/yacineboufe/.codex/generated_images/01a0df9e-f09b-7cf2-8de8-c88af5c118e4/exec-11a9499a-d1da-4884-8269-abea79f16b3f.png",
+    "references": [
+      "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/icons/jeweled-chess-crown.png"
+    ],
+    "review": "accepted after visual review and alpha validation"
+  },
+  {
+    "path": "ui/game/black-turn-medallion.png",
+    "section": "B",
+    "world": null,
+    "state": null,
+    "size": [
+      1254,
+      1254
+    ],
+    "source": "built-in imagegen",
+    "postprocessing": "none",
+    "prompt_path": "prompts/ui/game/black-turn-medallion.txt",
+    "source_path": "/Users/yacineboufe/.codex/generated_images/01a0df9e-f09b-7cf2-8de8-c88af5c118e4/exec-2bd9b33f-52b4-4679-a157-db6248bdc367.png",
+    "references": [
+      "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/icons/jeweled-chess-crown.png"
+    ],
+    "review": "accepted after visual review and alpha validation"
+  }
+]

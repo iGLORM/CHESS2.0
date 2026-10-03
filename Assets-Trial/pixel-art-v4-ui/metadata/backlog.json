@@ -1,0 +1,1063 @@
+{
+  "reason": "Built-in imagegen returned usage_limit_reached (HTTP 429). No fallback used.",
+  "remainingC": [
+    {
+      "path": "icons/chess/ivory-gold-pawn.png",
+      "section": "C",
+      "type": "chess piece icon",
+      "desc": "standalone simple chess pawn with a spherical head and tiered pedestal. Single recognizable playing piece, frontal view except knight profile, stable stepped pedestal. Ornament restrained so its silhouette stays unmistakable.",
+      "material": "Ivory carved body, antique gold fittings and ruby jewels; accent #ffcf40.",
+      "framing": "Square 1:1 canvas. Complete piece centered in middle 72% with 14% empty transparent margins all around. Consistent piece scale relative to its family.",
+      "logical": "64x64",
+      "scale": 16,
+      "refs": [
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/icons/jeweled-chess-crown.png"
+      ],
+      "prompt": "Use case: stylized-concept\nAsset type: chess piece icon\nStyle reference: Image 1: STYLE reference only — match its square pixels and shading; do NOT copy its subject.\nPrimary request: ONE finished Chess 2.0 standalone simple chess pawn with a spherical head and tiered pedestal. Single recognizable playing piece, frontal view except knight profile, stable stepped pedestal. Ornament restrained so its silhouette stays unmistakable.\nMaterials & palette: Ivory carved body, antique gold fittings and ruby jewels; accent #ffcf40. 32-colour limited palette, 4 discrete shade levels per material.\nComposition/framing: Square 1:1 canvas. Complete piece centered in middle 72% with 14% empty transparent margins all around. Consistent piece scale relative to its family.\nPixel treatment: PIXEL ART. Authentic hand-pixelled 16-bit / 32-bit JRPG interface sprite. Elaborate beautiful detail drawn exclusively with discrete PIXEL CLUSTERS. Hard stairstep contours, discrete pixel clusters, 32-color palette, 4 discrete shade levels per material, deliberate pixel dithering. Think professional Aseprite sprite drawn with pencil tool and nearest neighbor enlarged. Specular highlights are individual square pixels and short pixel staircases. Approximately 64x64 logical pixels shown enlarged 16x nearest-neighbour; every SQUARE PIXEL visibly large.\nOutput: genuine transparent RGBA background.\nConstraints: no text; no antialiasing; no smooth curves; no smooth gradients; no 3D render; no subpixel details; no painted microtexture; no glow or shadow outside the silhouette; no checkerboard drawn in the image; no watermark; no signatures; one asset only."
+    },
+    {
+      "path": "icons/chess/obsidian-silver-king.png",
+      "section": "C",
+      "type": "chess piece icon",
+      "desc": "standalone tall royal chess king with a cross finial. Single recognizable playing piece, frontal view except knight profile, stable stepped pedestal. Ornament restrained so its silhouette stays unmistakable.",
+      "material": "Polished obsidian body, bright silver fittings and ruby jewels; accent #c91e46.",
+      "framing": "Square 1:1 canvas. Complete piece centered in middle 72% with 14% empty transparent margins all around. Consistent piece scale relative to its family.",
+      "logical": "64x64",
+      "scale": 16,
+      "refs": [
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/icons/jeweled-chess-crown.png"
+      ],
+      "prompt": "Use case: stylized-concept\nAsset type: chess piece icon\nStyle reference: Image 1: STYLE reference only — match its square pixels and shading; do NOT copy its subject.\nPrimary request: ONE finished Chess 2.0 standalone tall royal chess king with a cross finial. Single recognizable playing piece, frontal view except knight profile, stable stepped pedestal. Ornament restrained so its silhouette stays unmistakable.\nMaterials & palette: Polished obsidian body, bright silver fittings and ruby jewels; accent #c91e46. 32-colour limited palette, 4 discrete shade levels per material.\nComposition/framing: Square 1:1 canvas. Complete piece centered in middle 72% with 14% empty transparent margins all around. Consistent piece scale relative to its family.\nPixel treatment: PIXEL ART. Authentic hand-pixelled 16-bit / 32-bit JRPG interface sprite. Elaborate beautiful detail drawn exclusively with discrete PIXEL CLUSTERS. Hard stairstep contours, discrete pixel clusters, 32-color palette, 4 discrete shade levels per material, deliberate pixel dithering. Think professional Aseprite sprite drawn with pencil tool and nearest neighbor enlarged. Specular highlights are individual square pixels and short pixel staircases. Approximately 64x64 logical pixels shown enlarged 16x nearest-neighbour; every SQUARE PIXEL visibly large.\nOutput: genuine transparent RGBA background.\nConstraints: no text; no antialiasing; no smooth curves; no smooth gradients; no 3D render; no subpixel details; no painted microtexture; no glow or shadow outside the silhouette; no checkerboard drawn in the image; no watermark; no signatures; one asset only."
+    },
+    {
+      "path": "icons/chess/obsidian-silver-knight.png",
+      "section": "C",
+      "type": "chess piece icon",
+      "desc": "standalone classic chess knight with an elegantly curved horse head in profile. Single recognizable playing piece, frontal view except knight profile, stable stepped pedestal. Ornament restrained so its silhouette stays unmistakable.",
+      "material": "Polished obsidian body, bright silver fittings and ruby jewels; accent #c91e46.",
+      "framing": "Square 1:1 canvas. Complete piece centered in middle 72% with 14% empty transparent margins all around. Consistent piece scale relative to its family.",
+      "logical": "64x64",
+      "scale": 16,
+      "refs": [
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/icons/jeweled-chess-crown.png"
+      ],
+      "prompt": "Use case: stylized-concept\nAsset type: chess piece icon\nStyle reference: Image 1: STYLE reference only — match its square pixels and shading; do NOT copy its subject.\nPrimary request: ONE finished Chess 2.0 standalone classic chess knight with an elegantly curved horse head in profile. Single recognizable playing piece, frontal view except knight profile, stable stepped pedestal. Ornament restrained so its silhouette stays unmistakable.\nMaterials & palette: Polished obsidian body, bright silver fittings and ruby jewels; accent #c91e46. 32-colour limited palette, 4 discrete shade levels per material.\nComposition/framing: Square 1:1 canvas. Complete piece centered in middle 72% with 14% empty transparent margins all around. Consistent piece scale relative to its family.\nPixel treatment: PIXEL ART. Authentic hand-pixelled 16-bit / 32-bit JRPG interface sprite. Elaborate beautiful detail drawn exclusively with discrete PIXEL CLUSTERS. Hard stairstep contours, discrete pixel clusters, 32-color palette, 4 discrete shade levels per material, deliberate pixel dithering. Think professional Aseprite sprite drawn with pencil tool and nearest neighbor enlarged. Specular highlights are individual square pixels and short pixel staircases. Approximately 64x64 logical pixels shown enlarged 16x nearest-neighbour; every SQUARE PIXEL visibly large.\nOutput: genuine transparent RGBA background.\nConstraints: no text; no antialiasing; no smooth curves; no smooth gradients; no 3D render; no subpixel details; no painted microtexture; no glow or shadow outside the silhouette; no checkerboard drawn in the image; no watermark; no signatures; one asset only."
+    },
+    {
+      "path": "icons/chess/obsidian-silver-pawn.png",
+      "section": "C",
+      "type": "chess piece icon",
+      "desc": "standalone simple chess pawn with a spherical head and tiered pedestal. Single recognizable playing piece, frontal view except knight profile, stable stepped pedestal. Ornament restrained so its silhouette stays unmistakable.",
+      "material": "Polished obsidian body, bright silver fittings and ruby jewels; accent #c91e46.",
+      "framing": "Square 1:1 canvas. Complete piece centered in middle 72% with 14% empty transparent margins all around. Consistent piece scale relative to its family.",
+      "logical": "64x64",
+      "scale": 16,
+      "refs": [
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/icons/jeweled-chess-crown.png"
+      ],
+      "prompt": "Use case: stylized-concept\nAsset type: chess piece icon\nStyle reference: Image 1: STYLE reference only — match its square pixels and shading; do NOT copy its subject.\nPrimary request: ONE finished Chess 2.0 standalone simple chess pawn with a spherical head and tiered pedestal. Single recognizable playing piece, frontal view except knight profile, stable stepped pedestal. Ornament restrained so its silhouette stays unmistakable.\nMaterials & palette: Polished obsidian body, bright silver fittings and ruby jewels; accent #c91e46. 32-colour limited palette, 4 discrete shade levels per material.\nComposition/framing: Square 1:1 canvas. Complete piece centered in middle 72% with 14% empty transparent margins all around. Consistent piece scale relative to its family.\nPixel treatment: PIXEL ART. Authentic hand-pixelled 16-bit / 32-bit JRPG interface sprite. Elaborate beautiful detail drawn exclusively with discrete PIXEL CLUSTERS. Hard stairstep contours, discrete pixel clusters, 32-color palette, 4 discrete shade levels per material, deliberate pixel dithering. Think professional Aseprite sprite drawn with pencil tool and nearest neighbor enlarged. Specular highlights are individual square pixels and short pixel staircases. Approximately 64x64 logical pixels shown enlarged 16x nearest-neighbour; every SQUARE PIXEL visibly large.\nOutput: genuine transparent RGBA background.\nConstraints: no text; no antialiasing; no smooth curves; no smooth gradients; no 3D render; no subpixel details; no painted microtexture; no glow or shadow outside the silhouette; no checkerboard drawn in the image; no watermark; no signatures; one asset only."
+    },
+    {
+      "path": "icons/missions/puzzle.png",
+      "section": "C",
+      "type": "mission-type icon",
+      "desc": "a single interlocking golden jigsaw puzzle piece with a central ruby",
+      "material": "Royal kit: carved obsidian, raised antique gold scrollwork, ruby gemstones, small ivory pearl studs; accent #ffcf40.",
+      "logical": "64x64",
+      "scale": 16,
+      "refs": [
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/icons/jeweled-chess-crown.png"
+      ],
+      "prompt": "Use case: stylized-concept\nAsset type: mission-type icon\nStyle reference: Image 1: STYLE reference only — match its square pixels and shading; do NOT copy its subject.\nPrimary request: ONE finished Chess 2.0 a single interlocking golden jigsaw puzzle piece with a central ruby\nMaterials & palette: Royal kit: carved obsidian, raised antique gold scrollwork, ruby gemstones, small ivory pearl studs; accent #ffcf40. 32-colour limited palette, 4 discrete shade levels per material.\nComposition/framing: 1:1, centred complete silhouette with 12% safe transparent margin on all sides.\nPixel treatment: PIXEL ART. Authentic hand-pixelled 16-bit / 32-bit JRPG interface sprite. Elaborate beautiful detail drawn exclusively with discrete PIXEL CLUSTERS. Hard stairstep contours, discrete pixel clusters, 32-color palette, 4 discrete shade levels per material, deliberate pixel dithering. Think professional Aseprite sprite drawn with pencil tool and nearest neighbor enlarged. Specular highlights are individual square pixels and short pixel staircases. Approximately 64x64 logical pixels shown enlarged 16x nearest-neighbour; every SQUARE PIXEL visibly large.\nOutput: genuine transparent RGBA background.\nConstraints: no text; no antialiasing; no smooth curves; no smooth gradients; no 3D render; no subpixel details; no painted microtexture; no glow or shadow outside the silhouette; no checkerboard drawn in the image; no watermark; no signatures; one asset only."
+    },
+    {
+      "path": "icons/missions/challenges.png",
+      "section": "C",
+      "type": "mission-type icon",
+      "desc": "a pair of crossed small swords behind a centered ruby shield, one unified insignia",
+      "material": "Royal kit: carved obsidian, raised antique gold scrollwork, ruby gemstones, small ivory pearl studs; accent #ffcf40.",
+      "logical": "64x64",
+      "scale": 16,
+      "refs": [
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/icons/jeweled-chess-crown.png"
+      ],
+      "prompt": "Use case: stylized-concept\nAsset type: mission-type icon\nStyle reference: Image 1: STYLE reference only — match its square pixels and shading; do NOT copy its subject.\nPrimary request: ONE finished Chess 2.0 a pair of crossed small swords behind a centered ruby shield, one unified insignia\nMaterials & palette: Royal kit: carved obsidian, raised antique gold scrollwork, ruby gemstones, small ivory pearl studs; accent #ffcf40. 32-colour limited palette, 4 discrete shade levels per material.\nComposition/framing: 1:1, centred complete silhouette with 12% safe transparent margin on all sides.\nPixel treatment: PIXEL ART. Authentic hand-pixelled 16-bit / 32-bit JRPG interface sprite. Elaborate beautiful detail drawn exclusively with discrete PIXEL CLUSTERS. Hard stairstep contours, discrete pixel clusters, 32-color palette, 4 discrete shade levels per material, deliberate pixel dithering. Think professional Aseprite sprite drawn with pencil tool and nearest neighbor enlarged. Specular highlights are individual square pixels and short pixel staircases. Approximately 64x64 logical pixels shown enlarged 16x nearest-neighbour; every SQUARE PIXEL visibly large.\nOutput: genuine transparent RGBA background.\nConstraints: no text; no antialiasing; no smooth curves; no smooth gradients; no 3D render; no subpixel details; no painted microtexture; no glow or shadow outside the silhouette; no checkerboard drawn in the image; no watermark; no signatures; one asset only."
+    },
+    {
+      "path": "icons/missions/hunt.png",
+      "section": "C",
+      "type": "mission-type icon",
+      "desc": "a golden magnifying glass over a small obsidian pawn silhouette, one unified insignia",
+      "material": "Royal kit: carved obsidian, raised antique gold scrollwork, ruby gemstones, small ivory pearl studs; accent #ffcf40.",
+      "logical": "64x64",
+      "scale": 16,
+      "refs": [
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/icons/jeweled-chess-crown.png"
+      ],
+      "prompt": "Use case: stylized-concept\nAsset type: mission-type icon\nStyle reference: Image 1: STYLE reference only — match its square pixels and shading; do NOT copy its subject.\nPrimary request: ONE finished Chess 2.0 a golden magnifying glass over a small obsidian pawn silhouette, one unified insignia\nMaterials & palette: Royal kit: carved obsidian, raised antique gold scrollwork, ruby gemstones, small ivory pearl studs; accent #ffcf40. 32-colour limited palette, 4 discrete shade levels per material.\nComposition/framing: 1:1, centred complete silhouette with 12% safe transparent margin on all sides.\nPixel treatment: PIXEL ART. Authentic hand-pixelled 16-bit / 32-bit JRPG interface sprite. Elaborate beautiful detail drawn exclusively with discrete PIXEL CLUSTERS. Hard stairstep contours, discrete pixel clusters, 32-color palette, 4 discrete shade levels per material, deliberate pixel dithering. Think professional Aseprite sprite drawn with pencil tool and nearest neighbor enlarged. Specular highlights are individual square pixels and short pixel staircases. Approximately 64x64 logical pixels shown enlarged 16x nearest-neighbour; every SQUARE PIXEL visibly large.\nOutput: genuine transparent RGBA background.\nConstraints: no text; no antialiasing; no smooth curves; no smooth gradients; no 3D render; no subpixel details; no painted microtexture; no glow or shadow outside the silhouette; no checkerboard drawn in the image; no watermark; no signatures; one asset only."
+    },
+    {
+      "path": "icons/missions/rule-taster.png",
+      "section": "C",
+      "type": "mission-type icon",
+      "desc": "an open ivory rulebook with a tiny golden chess rook resting on the blank pages, no letters",
+      "material": "Royal kit: carved obsidian, raised antique gold scrollwork, ruby gemstones, small ivory pearl studs; accent #ffcf40.",
+      "logical": "64x64",
+      "scale": 16,
+      "refs": [
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/icons/jeweled-chess-crown.png"
+      ],
+      "prompt": "Use case: stylized-concept\nAsset type: mission-type icon\nStyle reference: Image 1: STYLE reference only — match its square pixels and shading; do NOT copy its subject.\nPrimary request: ONE finished Chess 2.0 an open ivory rulebook with a tiny golden chess rook resting on the blank pages, no letters\nMaterials & palette: Royal kit: carved obsidian, raised antique gold scrollwork, ruby gemstones, small ivory pearl studs; accent #ffcf40. 32-colour limited palette, 4 discrete shade levels per material.\nComposition/framing: 1:1, centred complete silhouette with 12% safe transparent margin on all sides.\nPixel treatment: PIXEL ART. Authentic hand-pixelled 16-bit / 32-bit JRPG interface sprite. Elaborate beautiful detail drawn exclusively with discrete PIXEL CLUSTERS. Hard stairstep contours, discrete pixel clusters, 32-color palette, 4 discrete shade levels per material, deliberate pixel dithering. Think professional Aseprite sprite drawn with pencil tool and nearest neighbor enlarged. Specular highlights are individual square pixels and short pixel staircases. Approximately 64x64 logical pixels shown enlarged 16x nearest-neighbour; every SQUARE PIXEL visibly large.\nOutput: genuine transparent RGBA background.\nConstraints: no text; no antialiasing; no smooth curves; no smooth gradients; no 3D render; no subpixel details; no painted microtexture; no glow or shadow outside the silhouette; no checkerboard drawn in the image; no watermark; no signatures; one asset only."
+    },
+    {
+      "path": "icons/missions/wild-card.png",
+      "section": "C",
+      "type": "mission-type icon",
+      "desc": "a fanned pair of dark playing cards with a single large ruby star on the top card, no numbers or letters",
+      "material": "Royal kit: carved obsidian, raised antique gold scrollwork, ruby gemstones, small ivory pearl studs; accent #ffcf40.",
+      "logical": "64x64",
+      "scale": 16,
+      "refs": [
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/icons/jeweled-chess-crown.png"
+      ],
+      "prompt": "Use case: stylized-concept\nAsset type: mission-type icon\nStyle reference: Image 1: STYLE reference only — match its square pixels and shading; do NOT copy its subject.\nPrimary request: ONE finished Chess 2.0 a fanned pair of dark playing cards with a single large ruby star on the top card, no numbers or letters\nMaterials & palette: Royal kit: carved obsidian, raised antique gold scrollwork, ruby gemstones, small ivory pearl studs; accent #ffcf40. 32-colour limited palette, 4 discrete shade levels per material.\nComposition/framing: 1:1, centred complete silhouette with 12% safe transparent margin on all sides.\nPixel treatment: PIXEL ART. Authentic hand-pixelled 16-bit / 32-bit JRPG interface sprite. Elaborate beautiful detail drawn exclusively with discrete PIXEL CLUSTERS. Hard stairstep contours, discrete pixel clusters, 32-color palette, 4 discrete shade levels per material, deliberate pixel dithering. Think professional Aseprite sprite drawn with pencil tool and nearest neighbor enlarged. Specular highlights are individual square pixels and short pixel staircases. Approximately 64x64 logical pixels shown enlarged 16x nearest-neighbour; every SQUARE PIXEL visibly large.\nOutput: genuine transparent RGBA background.\nConstraints: no text; no antialiasing; no smooth curves; no smooth gradients; no 3D render; no subpixel details; no painted microtexture; no glow or shadow outside the silhouette; no checkerboard drawn in the image; no watermark; no signatures; one asset only."
+    }
+  ],
+  "worldBaseJobs": [
+    {
+      "path": "ui/worlds/pawnhollow/primary-button-normal.png",
+      "world": "pawnhollow",
+      "section": "D",
+      "state": "normal",
+      "type": "game UI button",
+      "desc": "blank primary button with small edge ornaments inspired by a lantern beside a tiny thatched cottage. Large uninterrupted quiet label bed occupies 70% of interior.",
+      "framing": "Wide 3:1 asset on landscape canvas, full silhouette centered within middle 78% of canvas, safe transparent margin at least 10%. Blank label area.",
+      "logical": "192x64",
+      "scale": 8,
+      "material": "Pawn Hollow world style block: Carved warm oak, thatch rope bindings and lantern amber glass; cosy village joinery; accent #f2a53a; pale highlight #fbecc8.",
+      "refs": [
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/icons/jeweled-chess-crown.png",
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/ui/royal-obsidian-gold-button.png"
+      ],
+      "prompt": "Use case: stylized-concept\nAsset type: game UI button\nStyle reference: Image 1: STYLE reference only — match its square pixels and shading; do NOT copy its subject.\nPrimary request: ONE finished Chess 2.0 blank primary button with small edge ornaments inspired by a lantern beside a tiny thatched cottage. Large uninterrupted quiet label bed occupies 70% of interior.\nMaterials & palette: Pawn Hollow world style block: Carved warm oak, thatch rope bindings and lantern amber glass; cosy village joinery; accent #f2a53a; pale highlight #fbecc8. 32-colour limited palette, 4 discrete shade levels per material.\nComposition/framing: Wide 3:1 asset on landscape canvas, full silhouette centered within middle 78% of canvas, safe transparent margin at least 10%. Blank label area.\nPixel treatment: PIXEL ART. Authentic hand-pixelled 16-bit / 32-bit JRPG interface sprite. Elaborate beautiful detail drawn exclusively with discrete PIXEL CLUSTERS. Hard stairstep contours, discrete pixel clusters, 32-color palette, 4 discrete shade levels per material, deliberate pixel dithering. Think professional Aseprite sprite drawn with pencil tool and nearest neighbor enlarged. Specular highlights are individual square pixels and short pixel staircases. Approximately 192x64 logical pixels shown enlarged 8x nearest-neighbour; every SQUARE PIXEL visibly large.\nOutput: genuine transparent RGBA background.\nConstraints: no text; no antialiasing; no smooth curves; no smooth gradients; no 3D render; no subpixel details; no painted microtexture; no glow or shadow outside the silhouette; no checkerboard drawn in the image; no watermark; no signatures; one asset only."
+    },
+    {
+      "path": "ui/worlds/pawnhollow/panel-frame.png",
+      "world": "pawnhollow",
+      "section": "D",
+      "state": null,
+      "type": "dialog panel frame",
+      "desc": "ornate rectangular dialog FRAME ONLY, open empty TRANSPARENT center. Corner carvings inspired by a lantern beside a tiny thatched cottage, restrained straight rails.",
+      "framing": "Landscape 16:10 frame, center opening occupying 78% of frame is pure alpha zero. No backplate. Full frame within middle 80% canvas with safe margins.",
+      "logical": "256x160",
+      "scale": 8,
+      "material": "Pawn Hollow world style block: Carved warm oak, thatch rope bindings and lantern amber glass; cosy village joinery; accent #f2a53a; pale highlight #fbecc8.",
+      "refs": [
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/icons/jeweled-chess-crown.png",
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/ui/royal-obsidian-gold-button.png"
+      ],
+      "prompt": "Use case: stylized-concept\nAsset type: dialog panel frame\nStyle reference: Image 1: STYLE reference only — match its square pixels and shading; do NOT copy its subject.\nPrimary request: ONE finished Chess 2.0 ornate rectangular dialog FRAME ONLY, open empty TRANSPARENT center. Corner carvings inspired by a lantern beside a tiny thatched cottage, restrained straight rails.\nMaterials & palette: Pawn Hollow world style block: Carved warm oak, thatch rope bindings and lantern amber glass; cosy village joinery; accent #f2a53a; pale highlight #fbecc8. 32-colour limited palette, 4 discrete shade levels per material.\nComposition/framing: Landscape 16:10 frame, center opening occupying 78% of frame is pure alpha zero. No backplate. Full frame within middle 80% canvas with safe margins.\nPixel treatment: PIXEL ART. Authentic hand-pixelled 16-bit / 32-bit JRPG interface sprite. Elaborate beautiful detail drawn exclusively with discrete PIXEL CLUSTERS. Hard stairstep contours, discrete pixel clusters, 32-color palette, 4 discrete shade levels per material, deliberate pixel dithering. Think professional Aseprite sprite drawn with pencil tool and nearest neighbor enlarged. Specular highlights are individual square pixels and short pixel staircases. Approximately 256x160 logical pixels shown enlarged 8x nearest-neighbour; every SQUARE PIXEL visibly large.\nOutput: genuine transparent RGBA background.\nConstraints: no text; no antialiasing; no smooth curves; no smooth gradients; no 3D render; no subpixel details; no painted microtexture; no glow or shadow outside the silhouette; no checkerboard drawn in the image; no watermark; no signatures; one asset only."
+    },
+    {
+      "path": "ui/worlds/pawnhollow/title-banner.png",
+      "world": "pawnhollow",
+      "section": "D",
+      "state": null,
+      "type": "title ribbon banner",
+      "desc": "blank title ribbon/banner with folded tails and small decorative end fittings inspired by a lantern beside a tiny thatched cottage. Broad blank center for title text.",
+      "framing": "Wide 4:1 banner, centered within middle 78% canvas. Entire tails visible. Label area70% totally blank.",
+      "logical": "192x48",
+      "scale": 8,
+      "material": "Pawn Hollow world style block: Carved warm oak, thatch rope bindings and lantern amber glass; cosy village joinery; accent #f2a53a; pale highlight #fbecc8.",
+      "refs": [
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/icons/jeweled-chess-crown.png",
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/ui/royal-obsidian-gold-button.png"
+      ],
+      "prompt": "Use case: stylized-concept\nAsset type: title ribbon banner\nStyle reference: Image 1: STYLE reference only — match its square pixels and shading; do NOT copy its subject.\nPrimary request: ONE finished Chess 2.0 blank title ribbon/banner with folded tails and small decorative end fittings inspired by a lantern beside a tiny thatched cottage. Broad blank center for title text.\nMaterials & palette: Pawn Hollow world style block: Carved warm oak, thatch rope bindings and lantern amber glass; cosy village joinery; accent #f2a53a; pale highlight #fbecc8. 32-colour limited palette, 4 discrete shade levels per material.\nComposition/framing: Wide 4:1 banner, centered within middle 78% canvas. Entire tails visible. Label area70% totally blank.\nPixel treatment: PIXEL ART. Authentic hand-pixelled 16-bit / 32-bit JRPG interface sprite. Elaborate beautiful detail drawn exclusively with discrete PIXEL CLUSTERS. Hard stairstep contours, discrete pixel clusters, 32-color palette, 4 discrete shade levels per material, deliberate pixel dithering. Think professional Aseprite sprite drawn with pencil tool and nearest neighbor enlarged. Specular highlights are individual square pixels and short pixel staircases. Approximately 192x48 logical pixels shown enlarged 8x nearest-neighbour; every SQUARE PIXEL visibly large.\nOutput: genuine transparent RGBA background.\nConstraints: no text; no antialiasing; no smooth curves; no smooth gradients; no 3D render; no subpixel details; no painted microtexture; no glow or shadow outside the silhouette; no checkerboard drawn in the image; no watermark; no signatures; one asset only."
+    },
+    {
+      "path": "ui/worlds/pawnhollow/map-node.png",
+      "world": "pawnhollow",
+      "section": "D",
+      "state": "unlocked",
+      "type": "world-map node medallion",
+      "desc": "round world-map node medallion featuring a lantern beside a tiny thatched cottage. Single emblem, no letters, unlocked state.",
+      "framing": "Square1:1 with round stepped medallion occupying middle72% and transparent corners and margins.",
+      "logical": "64x64",
+      "scale": 8,
+      "material": "Pawn Hollow world style block: Carved warm oak, thatch rope bindings and lantern amber glass; cosy village joinery; accent #f2a53a; pale highlight #fbecc8.",
+      "refs": [
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/icons/jeweled-chess-crown.png",
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/ui/royal-obsidian-gold-button.png"
+      ],
+      "prompt": "Use case: stylized-concept\nAsset type: world-map node medallion\nStyle reference: Image 1: STYLE reference only — match its square pixels and shading; do NOT copy its subject.\nPrimary request: ONE finished Chess 2.0 round world-map node medallion featuring a lantern beside a tiny thatched cottage. Single emblem, no letters, unlocked state.\nMaterials & palette: Pawn Hollow world style block: Carved warm oak, thatch rope bindings and lantern amber glass; cosy village joinery; accent #f2a53a; pale highlight #fbecc8. 32-colour limited palette, 4 discrete shade levels per material.\nComposition/framing: Square1:1 with round stepped medallion occupying middle72% and transparent corners and margins.\nPixel treatment: PIXEL ART. Authentic hand-pixelled 16-bit / 32-bit JRPG interface sprite. Elaborate beautiful detail drawn exclusively with discrete PIXEL CLUSTERS. Hard stairstep contours, discrete pixel clusters, 32-color palette, 4 discrete shade levels per material, deliberate pixel dithering. Think professional Aseprite sprite drawn with pencil tool and nearest neighbor enlarged. Specular highlights are individual square pixels and short pixel staircases. Approximately 64x64 logical pixels shown enlarged 8x nearest-neighbour; every SQUARE PIXEL visibly large.\nOutput: genuine transparent RGBA background.\nConstraints: no text; no antialiasing; no smooth curves; no smooth gradients; no 3D render; no subpixel details; no painted microtexture; no glow or shadow outside the silhouette; no checkerboard drawn in the image; no watermark; no signatures; one asset only."
+    },
+    {
+      "path": "ui/worlds/pawnhollow/corner-ornament.png",
+      "world": "pawnhollow",
+      "section": "D",
+      "state": null,
+      "type": "board-frame corner ornament",
+      "desc": "single L-shaped upper-left board-frame corner fitting, carved with motif details inspired by a lantern beside a tiny thatched cottage. Open inside elbow, no full frame.",
+      "framing": "Square1:1, one complete L corner centered within middle72%, transparent elsewhere.",
+      "logical": "64x64",
+      "scale": 8,
+      "material": "Pawn Hollow world style block: Carved warm oak, thatch rope bindings and lantern amber glass; cosy village joinery; accent #f2a53a; pale highlight #fbecc8.",
+      "refs": [
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/icons/jeweled-chess-crown.png",
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/ui/royal-obsidian-gold-button.png"
+      ],
+      "prompt": "Use case: stylized-concept\nAsset type: board-frame corner ornament\nStyle reference: Image 1: STYLE reference only — match its square pixels and shading; do NOT copy its subject.\nPrimary request: ONE finished Chess 2.0 single L-shaped upper-left board-frame corner fitting, carved with motif details inspired by a lantern beside a tiny thatched cottage. Open inside elbow, no full frame.\nMaterials & palette: Pawn Hollow world style block: Carved warm oak, thatch rope bindings and lantern amber glass; cosy village joinery; accent #f2a53a; pale highlight #fbecc8. 32-colour limited palette, 4 discrete shade levels per material.\nComposition/framing: Square1:1, one complete L corner centered within middle72%, transparent elsewhere.\nPixel treatment: PIXEL ART. Authentic hand-pixelled 16-bit / 32-bit JRPG interface sprite. Elaborate beautiful detail drawn exclusively with discrete PIXEL CLUSTERS. Hard stairstep contours, discrete pixel clusters, 32-color palette, 4 discrete shade levels per material, deliberate pixel dithering. Think professional Aseprite sprite drawn with pencil tool and nearest neighbor enlarged. Specular highlights are individual square pixels and short pixel staircases. Approximately 64x64 logical pixels shown enlarged 8x nearest-neighbour; every SQUARE PIXEL visibly large.\nOutput: genuine transparent RGBA background.\nConstraints: no text; no antialiasing; no smooth curves; no smooth gradients; no 3D render; no subpixel details; no painted microtexture; no glow or shadow outside the silhouette; no checkerboard drawn in the image; no watermark; no signatures; one asset only."
+    },
+    {
+      "path": "ui/worlds/trainingcamp/primary-button-normal.png",
+      "world": "trainingcamp",
+      "section": "D",
+      "state": "normal",
+      "type": "game UI button",
+      "desc": "blank primary button with small edge ornaments inspired by a bamboo dojo gate enclosing a cyan training pawn. Large uninterrupted quiet label bed occupies 70% of interior.",
+      "framing": "Wide 3:1 asset on landscape canvas, full silhouette centered within middle 78% of canvas, safe transparent margin at least 10%. Blank label area.",
+      "logical": "192x64",
+      "scale": 8,
+      "material": "The Training Camp world style block: Dojo bamboo, dark lacquer and precise cyan holographic inlay lines; accent #6fe3ff; pale highlight #eee6ff.",
+      "refs": [
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/icons/jeweled-chess-crown.png",
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/ui/royal-obsidian-gold-button.png"
+      ],
+      "prompt": "Use case: stylized-concept\nAsset type: game UI button\nStyle reference: Image 1: STYLE reference only — match its square pixels and shading; do NOT copy its subject.\nPrimary request: ONE finished Chess 2.0 blank primary button with small edge ornaments inspired by a bamboo dojo gate enclosing a cyan training pawn. Large uninterrupted quiet label bed occupies 70% of interior.\nMaterials & palette: The Training Camp world style block: Dojo bamboo, dark lacquer and precise cyan holographic inlay lines; accent #6fe3ff; pale highlight #eee6ff. 32-colour limited palette, 4 discrete shade levels per material.\nComposition/framing: Wide 3:1 asset on landscape canvas, full silhouette centered within middle 78% of canvas, safe transparent margin at least 10%. Blank label area.\nPixel treatment: PIXEL ART. Authentic hand-pixelled 16-bit / 32-bit JRPG interface sprite. Elaborate beautiful detail drawn exclusively with discrete PIXEL CLUSTERS. Hard stairstep contours, discrete pixel clusters, 32-color palette, 4 discrete shade levels per material, deliberate pixel dithering. Think professional Aseprite sprite drawn with pencil tool and nearest neighbor enlarged. Specular highlights are individual square pixels and short pixel staircases. Approximately 192x64 logical pixels shown enlarged 8x nearest-neighbour; every SQUARE PIXEL visibly large.\nOutput: genuine transparent RGBA background.\nConstraints: no text; no antialiasing; no smooth curves; no smooth gradients; no 3D render; no subpixel details; no painted microtexture; no glow or shadow outside the silhouette; no checkerboard drawn in the image; no watermark; no signatures; one asset only."
+    },
+    {
+      "path": "ui/worlds/trainingcamp/panel-frame.png",
+      "world": "trainingcamp",
+      "section": "D",
+      "state": null,
+      "type": "dialog panel frame",
+      "desc": "ornate rectangular dialog FRAME ONLY, open empty TRANSPARENT center. Corner carvings inspired by a bamboo dojo gate enclosing a cyan training pawn, restrained straight rails.",
+      "framing": "Landscape 16:10 frame, center opening occupying 78% of frame is pure alpha zero. No backplate. Full frame within middle 80% canvas with safe margins.",
+      "logical": "256x160",
+      "scale": 8,
+      "material": "The Training Camp world style block: Dojo bamboo, dark lacquer and precise cyan holographic inlay lines; accent #6fe3ff; pale highlight #eee6ff.",
+      "refs": [
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/icons/jeweled-chess-crown.png",
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/ui/royal-obsidian-gold-button.png"
+      ],
+      "prompt": "Use case: stylized-concept\nAsset type: dialog panel frame\nStyle reference: Image 1: STYLE reference only — match its square pixels and shading; do NOT copy its subject.\nPrimary request: ONE finished Chess 2.0 ornate rectangular dialog FRAME ONLY, open empty TRANSPARENT center. Corner carvings inspired by a bamboo dojo gate enclosing a cyan training pawn, restrained straight rails.\nMaterials & palette: The Training Camp world style block: Dojo bamboo, dark lacquer and precise cyan holographic inlay lines; accent #6fe3ff; pale highlight #eee6ff. 32-colour limited palette, 4 discrete shade levels per material.\nComposition/framing: Landscape 16:10 frame, center opening occupying 78% of frame is pure alpha zero. No backplate. Full frame within middle 80% canvas with safe margins.\nPixel treatment: PIXEL ART. Authentic hand-pixelled 16-bit / 32-bit JRPG interface sprite. Elaborate beautiful detail drawn exclusively with discrete PIXEL CLUSTERS. Hard stairstep contours, discrete pixel clusters, 32-color palette, 4 discrete shade levels per material, deliberate pixel dithering. Think professional Aseprite sprite drawn with pencil tool and nearest neighbor enlarged. Specular highlights are individual square pixels and short pixel staircases. Approximately 256x160 logical pixels shown enlarged 8x nearest-neighbour; every SQUARE PIXEL visibly large.\nOutput: genuine transparent RGBA background.\nConstraints: no text; no antialiasing; no smooth curves; no smooth gradients; no 3D render; no subpixel details; no painted microtexture; no glow or shadow outside the silhouette; no checkerboard drawn in the image; no watermark; no signatures; one asset only."
+    },
+    {
+      "path": "ui/worlds/trainingcamp/title-banner.png",
+      "world": "trainingcamp",
+      "section": "D",
+      "state": null,
+      "type": "title ribbon banner",
+      "desc": "blank title ribbon/banner with folded tails and small decorative end fittings inspired by a bamboo dojo gate enclosing a cyan training pawn. Broad blank center for title text.",
+      "framing": "Wide 4:1 banner, centered within middle 78% canvas. Entire tails visible. Label area70% totally blank.",
+      "logical": "192x48",
+      "scale": 8,
+      "material": "The Training Camp world style block: Dojo bamboo, dark lacquer and precise cyan holographic inlay lines; accent #6fe3ff; pale highlight #eee6ff.",
+      "refs": [
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/icons/jeweled-chess-crown.png",
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/ui/royal-obsidian-gold-button.png"
+      ],
+      "prompt": "Use case: stylized-concept\nAsset type: title ribbon banner\nStyle reference: Image 1: STYLE reference only — match its square pixels and shading; do NOT copy its subject.\nPrimary request: ONE finished Chess 2.0 blank title ribbon/banner with folded tails and small decorative end fittings inspired by a bamboo dojo gate enclosing a cyan training pawn. Broad blank center for title text.\nMaterials & palette: The Training Camp world style block: Dojo bamboo, dark lacquer and precise cyan holographic inlay lines; accent #6fe3ff; pale highlight #eee6ff. 32-colour limited palette, 4 discrete shade levels per material.\nComposition/framing: Wide 4:1 banner, centered within middle 78% canvas. Entire tails visible. Label area70% totally blank.\nPixel treatment: PIXEL ART. Authentic hand-pixelled 16-bit / 32-bit JRPG interface sprite. Elaborate beautiful detail drawn exclusively with discrete PIXEL CLUSTERS. Hard stairstep contours, discrete pixel clusters, 32-color palette, 4 discrete shade levels per material, deliberate pixel dithering. Think professional Aseprite sprite drawn with pencil tool and nearest neighbor enlarged. Specular highlights are individual square pixels and short pixel staircases. Approximately 192x48 logical pixels shown enlarged 8x nearest-neighbour; every SQUARE PIXEL visibly large.\nOutput: genuine transparent RGBA background.\nConstraints: no text; no antialiasing; no smooth curves; no smooth gradients; no 3D render; no subpixel details; no painted microtexture; no glow or shadow outside the silhouette; no checkerboard drawn in the image; no watermark; no signatures; one asset only."
+    },
+    {
+      "path": "ui/worlds/trainingcamp/map-node.png",
+      "world": "trainingcamp",
+      "section": "D",
+      "state": "unlocked",
+      "type": "world-map node medallion",
+      "desc": "round world-map node medallion featuring a bamboo dojo gate enclosing a cyan training pawn. Single emblem, no letters, unlocked state.",
+      "framing": "Square1:1 with round stepped medallion occupying middle72% and transparent corners and margins.",
+      "logical": "64x64",
+      "scale": 8,
+      "material": "The Training Camp world style block: Dojo bamboo, dark lacquer and precise cyan holographic inlay lines; accent #6fe3ff; pale highlight #eee6ff.",
+      "refs": [
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/icons/jeweled-chess-crown.png",
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/ui/royal-obsidian-gold-button.png"
+      ],
+      "prompt": "Use case: stylized-concept\nAsset type: world-map node medallion\nStyle reference: Image 1: STYLE reference only — match its square pixels and shading; do NOT copy its subject.\nPrimary request: ONE finished Chess 2.0 round world-map node medallion featuring a bamboo dojo gate enclosing a cyan training pawn. Single emblem, no letters, unlocked state.\nMaterials & palette: The Training Camp world style block: Dojo bamboo, dark lacquer and precise cyan holographic inlay lines; accent #6fe3ff; pale highlight #eee6ff. 32-colour limited palette, 4 discrete shade levels per material.\nComposition/framing: Square1:1 with round stepped medallion occupying middle72% and transparent corners and margins.\nPixel treatment: PIXEL ART. Authentic hand-pixelled 16-bit / 32-bit JRPG interface sprite. Elaborate beautiful detail drawn exclusively with discrete PIXEL CLUSTERS. Hard stairstep contours, discrete pixel clusters, 32-color palette, 4 discrete shade levels per material, deliberate pixel dithering. Think professional Aseprite sprite drawn with pencil tool and nearest neighbor enlarged. Specular highlights are individual square pixels and short pixel staircases. Approximately 64x64 logical pixels shown enlarged 8x nearest-neighbour; every SQUARE PIXEL visibly large.\nOutput: genuine transparent RGBA background.\nConstraints: no text; no antialiasing; no smooth curves; no smooth gradients; no 3D render; no subpixel details; no painted microtexture; no glow or shadow outside the silhouette; no checkerboard drawn in the image; no watermark; no signatures; one asset only."
+    },
+    {
+      "path": "ui/worlds/trainingcamp/corner-ornament.png",
+      "world": "trainingcamp",
+      "section": "D",
+      "state": null,
+      "type": "board-frame corner ornament",
+      "desc": "single L-shaped upper-left board-frame corner fitting, carved with motif details inspired by a bamboo dojo gate enclosing a cyan training pawn. Open inside elbow, no full frame.",
+      "framing": "Square1:1, one complete L corner centered within middle72%, transparent elsewhere.",
+      "logical": "64x64",
+      "scale": 8,
+      "material": "The Training Camp world style block: Dojo bamboo, dark lacquer and precise cyan holographic inlay lines; accent #6fe3ff; pale highlight #eee6ff.",
+      "refs": [
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/icons/jeweled-chess-crown.png",
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/ui/royal-obsidian-gold-button.png"
+      ],
+      "prompt": "Use case: stylized-concept\nAsset type: board-frame corner ornament\nStyle reference: Image 1: STYLE reference only — match its square pixels and shading; do NOT copy its subject.\nPrimary request: ONE finished Chess 2.0 single L-shaped upper-left board-frame corner fitting, carved with motif details inspired by a bamboo dojo gate enclosing a cyan training pawn. Open inside elbow, no full frame.\nMaterials & palette: The Training Camp world style block: Dojo bamboo, dark lacquer and precise cyan holographic inlay lines; accent #6fe3ff; pale highlight #eee6ff. 32-colour limited palette, 4 discrete shade levels per material.\nComposition/framing: Square1:1, one complete L corner centered within middle72%, transparent elsewhere.\nPixel treatment: PIXEL ART. Authentic hand-pixelled 16-bit / 32-bit JRPG interface sprite. Elaborate beautiful detail drawn exclusively with discrete PIXEL CLUSTERS. Hard stairstep contours, discrete pixel clusters, 32-color palette, 4 discrete shade levels per material, deliberate pixel dithering. Think professional Aseprite sprite drawn with pencil tool and nearest neighbor enlarged. Specular highlights are individual square pixels and short pixel staircases. Approximately 64x64 logical pixels shown enlarged 8x nearest-neighbour; every SQUARE PIXEL visibly large.\nOutput: genuine transparent RGBA background.\nConstraints: no text; no antialiasing; no smooth curves; no smooth gradients; no 3D render; no subpixel details; no painted microtexture; no glow or shadow outside the silhouette; no checkerboard drawn in the image; no watermark; no signatures; one asset only."
+    },
+    {
+      "path": "ui/worlds/slantedsands/primary-button-normal.png",
+      "world": "slantedsands",
+      "section": "D",
+      "state": "normal",
+      "type": "game UI button",
+      "desc": "blank primary button with small edge ornaments inspired by a jackal head beneath a geometric sun. Large uninterrupted quiet label bed occupies 70% of interior.",
+      "framing": "Wide 3:1 asset on landscape canvas, full silhouette centered within middle 78% of canvas, safe transparent margin at least 10%. Blank label area.",
+      "logical": "192x64",
+      "scale": 8,
+      "material": "The Slanted Sands world style block: Sun-bleached tilted sandstone, turquoise inlay and hammered sun gold; accent #ff7a2a; pale highlight #f8e4b4.",
+      "refs": [
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/icons/jeweled-chess-crown.png",
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/ui/royal-obsidian-gold-button.png"
+      ],
+      "prompt": "Use case: stylized-concept\nAsset type: game UI button\nStyle reference: Image 1: STYLE reference only — match its square pixels and shading; do NOT copy its subject.\nPrimary request: ONE finished Chess 2.0 blank primary button with small edge ornaments inspired by a jackal head beneath a geometric sun. Large uninterrupted quiet label bed occupies 70% of interior.\nMaterials & palette: The Slanted Sands world style block: Sun-bleached tilted sandstone, turquoise inlay and hammered sun gold; accent #ff7a2a; pale highlight #f8e4b4. 32-colour limited palette, 4 discrete shade levels per material.\nComposition/framing: Wide 3:1 asset on landscape canvas, full silhouette centered within middle 78% of canvas, safe transparent margin at least 10%. Blank label area.\nPixel treatment: PIXEL ART. Authentic hand-pixelled 16-bit / 32-bit JRPG interface sprite. Elaborate beautiful detail drawn exclusively with discrete PIXEL CLUSTERS. Hard stairstep contours, discrete pixel clusters, 32-color palette, 4 discrete shade levels per material, deliberate pixel dithering. Think professional Aseprite sprite drawn with pencil tool and nearest neighbor enlarged. Specular highlights are individual square pixels and short pixel staircases. Approximately 192x64 logical pixels shown enlarged 8x nearest-neighbour; every SQUARE PIXEL visibly large.\nOutput: genuine transparent RGBA background.\nConstraints: no text; no antialiasing; no smooth curves; no smooth gradients; no 3D render; no subpixel details; no painted microtexture; no glow or shadow outside the silhouette; no checkerboard drawn in the image; no watermark; no signatures; one asset only."
+    },
+    {
+      "path": "ui/worlds/slantedsands/panel-frame.png",
+      "world": "slantedsands",
+      "section": "D",
+      "state": null,
+      "type": "dialog panel frame",
+      "desc": "ornate rectangular dialog FRAME ONLY, open empty TRANSPARENT center. Corner carvings inspired by a jackal head beneath a geometric sun, restrained straight rails.",
+      "framing": "Landscape 16:10 frame, center opening occupying 78% of frame is pure alpha zero. No backplate. Full frame within middle 80% canvas with safe margins.",
+      "logical": "256x160",
+      "scale": 8,
+      "material": "The Slanted Sands world style block: Sun-bleached tilted sandstone, turquoise inlay and hammered sun gold; accent #ff7a2a; pale highlight #f8e4b4.",
+      "refs": [
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/icons/jeweled-chess-crown.png",
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/ui/royal-obsidian-gold-button.png"
+      ],
+      "prompt": "Use case: stylized-concept\nAsset type: dialog panel frame\nStyle reference: Image 1: STYLE reference only — match its square pixels and shading; do NOT copy its subject.\nPrimary request: ONE finished Chess 2.0 ornate rectangular dialog FRAME ONLY, open empty TRANSPARENT center. Corner carvings inspired by a jackal head beneath a geometric sun, restrained straight rails.\nMaterials & palette: The Slanted Sands world style block: Sun-bleached tilted sandstone, turquoise inlay and hammered sun gold; accent #ff7a2a; pale highlight #f8e4b4. 32-colour limited palette, 4 discrete shade levels per material.\nComposition/framing: Landscape 16:10 frame, center opening occupying 78% of frame is pure alpha zero. No backplate. Full frame within middle 80% canvas with safe margins.\nPixel treatment: PIXEL ART. Authentic hand-pixelled 16-bit / 32-bit JRPG interface sprite. Elaborate beautiful detail drawn exclusively with discrete PIXEL CLUSTERS. Hard stairstep contours, discrete pixel clusters, 32-color palette, 4 discrete shade levels per material, deliberate pixel dithering. Think professional Aseprite sprite drawn with pencil tool and nearest neighbor enlarged. Specular highlights are individual square pixels and short pixel staircases. Approximately 256x160 logical pixels shown enlarged 8x nearest-neighbour; every SQUARE PIXEL visibly large.\nOutput: genuine transparent RGBA background.\nConstraints: no text; no antialiasing; no smooth curves; no smooth gradients; no 3D render; no subpixel details; no painted microtexture; no glow or shadow outside the silhouette; no checkerboard drawn in the image; no watermark; no signatures; one asset only."
+    },
+    {
+      "path": "ui/worlds/slantedsands/title-banner.png",
+      "world": "slantedsands",
+      "section": "D",
+      "state": null,
+      "type": "title ribbon banner",
+      "desc": "blank title ribbon/banner with folded tails and small decorative end fittings inspired by a jackal head beneath a geometric sun. Broad blank center for title text.",
+      "framing": "Wide 4:1 banner, centered within middle 78% canvas. Entire tails visible. Label area70% totally blank.",
+      "logical": "192x48",
+      "scale": 8,
+      "material": "The Slanted Sands world style block: Sun-bleached tilted sandstone, turquoise inlay and hammered sun gold; accent #ff7a2a; pale highlight #f8e4b4.",
+      "refs": [
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/icons/jeweled-chess-crown.png",
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/ui/royal-obsidian-gold-button.png"
+      ],
+      "prompt": "Use case: stylized-concept\nAsset type: title ribbon banner\nStyle reference: Image 1: STYLE reference only — match its square pixels and shading; do NOT copy its subject.\nPrimary request: ONE finished Chess 2.0 blank title ribbon/banner with folded tails and small decorative end fittings inspired by a jackal head beneath a geometric sun. Broad blank center for title text.\nMaterials & palette: The Slanted Sands world style block: Sun-bleached tilted sandstone, turquoise inlay and hammered sun gold; accent #ff7a2a; pale highlight #f8e4b4. 32-colour limited palette, 4 discrete shade levels per material.\nComposition/framing: Wide 4:1 banner, centered within middle 78% canvas. Entire tails visible. Label area70% totally blank.\nPixel treatment: PIXEL ART. Authentic hand-pixelled 16-bit / 32-bit JRPG interface sprite. Elaborate beautiful detail drawn exclusively with discrete PIXEL CLUSTERS. Hard stairstep contours, discrete pixel clusters, 32-color palette, 4 discrete shade levels per material, deliberate pixel dithering. Think professional Aseprite sprite drawn with pencil tool and nearest neighbor enlarged. Specular highlights are individual square pixels and short pixel staircases. Approximately 192x48 logical pixels shown enlarged 8x nearest-neighbour; every SQUARE PIXEL visibly large.\nOutput: genuine transparent RGBA background.\nConstraints: no text; no antialiasing; no smooth curves; no smooth gradients; no 3D render; no subpixel details; no painted microtexture; no glow or shadow outside the silhouette; no checkerboard drawn in the image; no watermark; no signatures; one asset only."
+    },
+    {
+      "path": "ui/worlds/slantedsands/map-node.png",
+      "world": "slantedsands",
+      "section": "D",
+      "state": "unlocked",
+      "type": "world-map node medallion",
+      "desc": "round world-map node medallion featuring a jackal head beneath a geometric sun. Single emblem, no letters, unlocked state.",
+      "framing": "Square1:1 with round stepped medallion occupying middle72% and transparent corners and margins.",
+      "logical": "64x64",
+      "scale": 8,
+      "material": "The Slanted Sands world style block: Sun-bleached tilted sandstone, turquoise inlay and hammered sun gold; accent #ff7a2a; pale highlight #f8e4b4.",
+      "refs": [
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/icons/jeweled-chess-crown.png",
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/ui/royal-obsidian-gold-button.png"
+      ],
+      "prompt": "Use case: stylized-concept\nAsset type: world-map node medallion\nStyle reference: Image 1: STYLE reference only — match its square pixels and shading; do NOT copy its subject.\nPrimary request: ONE finished Chess 2.0 round world-map node medallion featuring a jackal head beneath a geometric sun. Single emblem, no letters, unlocked state.\nMaterials & palette: The Slanted Sands world style block: Sun-bleached tilted sandstone, turquoise inlay and hammered sun gold; accent #ff7a2a; pale highlight #f8e4b4. 32-colour limited palette, 4 discrete shade levels per material.\nComposition/framing: Square1:1 with round stepped medallion occupying middle72% and transparent corners and margins.\nPixel treatment: PIXEL ART. Authentic hand-pixelled 16-bit / 32-bit JRPG interface sprite. Elaborate beautiful detail drawn exclusively with discrete PIXEL CLUSTERS. Hard stairstep contours, discrete pixel clusters, 32-color palette, 4 discrete shade levels per material, deliberate pixel dithering. Think professional Aseprite sprite drawn with pencil tool and nearest neighbor enlarged. Specular highlights are individual square pixels and short pixel staircases. Approximately 64x64 logical pixels shown enlarged 8x nearest-neighbour; every SQUARE PIXEL visibly large.\nOutput: genuine transparent RGBA background.\nConstraints: no text; no antialiasing; no smooth curves; no smooth gradients; no 3D render; no subpixel details; no painted microtexture; no glow or shadow outside the silhouette; no checkerboard drawn in the image; no watermark; no signatures; one asset only."
+    },
+    {
+      "path": "ui/worlds/slantedsands/corner-ornament.png",
+      "world": "slantedsands",
+      "section": "D",
+      "state": null,
+      "type": "board-frame corner ornament",
+      "desc": "single L-shaped upper-left board-frame corner fitting, carved with motif details inspired by a jackal head beneath a geometric sun. Open inside elbow, no full frame.",
+      "framing": "Square1:1, one complete L corner centered within middle72%, transparent elsewhere.",
+      "logical": "64x64",
+      "scale": 8,
+      "material": "The Slanted Sands world style block: Sun-bleached tilted sandstone, turquoise inlay and hammered sun gold; accent #ff7a2a; pale highlight #f8e4b4.",
+      "refs": [
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/icons/jeweled-chess-crown.png",
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/ui/royal-obsidian-gold-button.png"
+      ],
+      "prompt": "Use case: stylized-concept\nAsset type: board-frame corner ornament\nStyle reference: Image 1: STYLE reference only — match its square pixels and shading; do NOT copy its subject.\nPrimary request: ONE finished Chess 2.0 single L-shaped upper-left board-frame corner fitting, carved with motif details inspired by a jackal head beneath a geometric sun. Open inside elbow, no full frame.\nMaterials & palette: The Slanted Sands world style block: Sun-bleached tilted sandstone, turquoise inlay and hammered sun gold; accent #ff7a2a; pale highlight #f8e4b4. 32-colour limited palette, 4 discrete shade levels per material.\nComposition/framing: Square1:1, one complete L corner centered within middle72%, transparent elsewhere.\nPixel treatment: PIXEL ART. Authentic hand-pixelled 16-bit / 32-bit JRPG interface sprite. Elaborate beautiful detail drawn exclusively with discrete PIXEL CLUSTERS. Hard stairstep contours, discrete pixel clusters, 32-color palette, 4 discrete shade levels per material, deliberate pixel dithering. Think professional Aseprite sprite drawn with pencil tool and nearest neighbor enlarged. Specular highlights are individual square pixels and short pixel staircases. Approximately 64x64 logical pixels shown enlarged 8x nearest-neighbour; every SQUARE PIXEL visibly large.\nOutput: genuine transparent RGBA background.\nConstraints: no text; no antialiasing; no smooth curves; no smooth gradients; no 3D render; no subpixel details; no painted microtexture; no glow or shadow outside the silhouette; no checkerboard drawn in the image; no watermark; no signatures; one asset only."
+    },
+    {
+      "path": "ui/worlds/ironkeep/primary-button-normal.png",
+      "world": "ironkeep",
+      "section": "D",
+      "state": "normal",
+      "type": "game UI button",
+      "desc": "blank primary button with small edge ornaments inspired by a fortress tower above a forge anvil. Large uninterrupted quiet label bed occupies 70% of interior.",
+      "framing": "Wide 3:1 asset on landscape canvas, full silhouette centered within middle 78% of canvas, safe transparent margin at least 10%. Blank label area.",
+      "logical": "192x64",
+      "scale": 8,
+      "material": "The Iron Keep world style block: Riveted blackened iron and steel, forge-orange cracks contained within the metal; accent #ff7a2a; pale highlight #e4e8ee.",
+      "refs": [
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/icons/jeweled-chess-crown.png",
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/ui/royal-obsidian-gold-button.png"
+      ],
+      "prompt": "Use case: stylized-concept\nAsset type: game UI button\nStyle reference: Image 1: STYLE reference only — match its square pixels and shading; do NOT copy its subject.\nPrimary request: ONE finished Chess 2.0 blank primary button with small edge ornaments inspired by a fortress tower above a forge anvil. Large uninterrupted quiet label bed occupies 70% of interior.\nMaterials & palette: The Iron Keep world style block: Riveted blackened iron and steel, forge-orange cracks contained within the metal; accent #ff7a2a; pale highlight #e4e8ee. 32-colour limited palette, 4 discrete shade levels per material.\nComposition/framing: Wide 3:1 asset on landscape canvas, full silhouette centered within middle 78% of canvas, safe transparent margin at least 10%. Blank label area.\nPixel treatment: PIXEL ART. Authentic hand-pixelled 16-bit / 32-bit JRPG interface sprite. Elaborate beautiful detail drawn exclusively with discrete PIXEL CLUSTERS. Hard stairstep contours, discrete pixel clusters, 32-color palette, 4 discrete shade levels per material, deliberate pixel dithering. Think professional Aseprite sprite drawn with pencil tool and nearest neighbor enlarged. Specular highlights are individual square pixels and short pixel staircases. Approximately 192x64 logical pixels shown enlarged 8x nearest-neighbour; every SQUARE PIXEL visibly large.\nOutput: genuine transparent RGBA background.\nConstraints: no text; no antialiasing; no smooth curves; no smooth gradients; no 3D render; no subpixel details; no painted microtexture; no glow or shadow outside the silhouette; no checkerboard drawn in the image; no watermark; no signatures; one asset only."
+    },
+    {
+      "path": "ui/worlds/ironkeep/panel-frame.png",
+      "world": "ironkeep",
+      "section": "D",
+      "state": null,
+      "type": "dialog panel frame",
+      "desc": "ornate rectangular dialog FRAME ONLY, open empty TRANSPARENT center. Corner carvings inspired by a fortress tower above a forge anvil, restrained straight rails.",
+      "framing": "Landscape 16:10 frame, center opening occupying 78% of frame is pure alpha zero. No backplate. Full frame within middle 80% canvas with safe margins.",
+      "logical": "256x160",
+      "scale": 8,
+      "material": "The Iron Keep world style block: Riveted blackened iron and steel, forge-orange cracks contained within the metal; accent #ff7a2a; pale highlight #e4e8ee.",
+      "refs": [
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/icons/jeweled-chess-crown.png",
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/ui/royal-obsidian-gold-button.png"
+      ],
+      "prompt": "Use case: stylized-concept\nAsset type: dialog panel frame\nStyle reference: Image 1: STYLE reference only — match its square pixels and shading; do NOT copy its subject.\nPrimary request: ONE finished Chess 2.0 ornate rectangular dialog FRAME ONLY, open empty TRANSPARENT center. Corner carvings inspired by a fortress tower above a forge anvil, restrained straight rails.\nMaterials & palette: The Iron Keep world style block: Riveted blackened iron and steel, forge-orange cracks contained within the metal; accent #ff7a2a; pale highlight #e4e8ee. 32-colour limited palette, 4 discrete shade levels per material.\nComposition/framing: Landscape 16:10 frame, center opening occupying 78% of frame is pure alpha zero. No backplate. Full frame within middle 80% canvas with safe margins.\nPixel treatment: PIXEL ART. Authentic hand-pixelled 16-bit / 32-bit JRPG interface sprite. Elaborate beautiful detail drawn exclusively with discrete PIXEL CLUSTERS. Hard stairstep contours, discrete pixel clusters, 32-color palette, 4 discrete shade levels per material, deliberate pixel dithering. Think professional Aseprite sprite drawn with pencil tool and nearest neighbor enlarged. Specular highlights are individual square pixels and short pixel staircases. Approximately 256x160 logical pixels shown enlarged 8x nearest-neighbour; every SQUARE PIXEL visibly large.\nOutput: genuine transparent RGBA background.\nConstraints: no text; no antialiasing; no smooth curves; no smooth gradients; no 3D render; no subpixel details; no painted microtexture; no glow or shadow outside the silhouette; no checkerboard drawn in the image; no watermark; no signatures; one asset only."
+    },
+    {
+      "path": "ui/worlds/ironkeep/title-banner.png",
+      "world": "ironkeep",
+      "section": "D",
+      "state": null,
+      "type": "title ribbon banner",
+      "desc": "blank title ribbon/banner with folded tails and small decorative end fittings inspired by a fortress tower above a forge anvil. Broad blank center for title text.",
+      "framing": "Wide 4:1 banner, centered within middle 78% canvas. Entire tails visible. Label area70% totally blank.",
+      "logical": "192x48",
+      "scale": 8,
+      "material": "The Iron Keep world style block: Riveted blackened iron and steel, forge-orange cracks contained within the metal; accent #ff7a2a; pale highlight #e4e8ee.",
+      "refs": [
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/icons/jeweled-chess-crown.png",
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/ui/royal-obsidian-gold-button.png"
+      ],
+      "prompt": "Use case: stylized-concept\nAsset type: title ribbon banner\nStyle reference: Image 1: STYLE reference only — match its square pixels and shading; do NOT copy its subject.\nPrimary request: ONE finished Chess 2.0 blank title ribbon/banner with folded tails and small decorative end fittings inspired by a fortress tower above a forge anvil. Broad blank center for title text.\nMaterials & palette: The Iron Keep world style block: Riveted blackened iron and steel, forge-orange cracks contained within the metal; accent #ff7a2a; pale highlight #e4e8ee. 32-colour limited palette, 4 discrete shade levels per material.\nComposition/framing: Wide 4:1 banner, centered within middle 78% canvas. Entire tails visible. Label area70% totally blank.\nPixel treatment: PIXEL ART. Authentic hand-pixelled 16-bit / 32-bit JRPG interface sprite. Elaborate beautiful detail drawn exclusively with discrete PIXEL CLUSTERS. Hard stairstep contours, discrete pixel clusters, 32-color palette, 4 discrete shade levels per material, deliberate pixel dithering. Think professional Aseprite sprite drawn with pencil tool and nearest neighbor enlarged. Specular highlights are individual square pixels and short pixel staircases. Approximately 192x48 logical pixels shown enlarged 8x nearest-neighbour; every SQUARE PIXEL visibly large.\nOutput: genuine transparent RGBA background.\nConstraints: no text; no antialiasing; no smooth curves; no smooth gradients; no 3D render; no subpixel details; no painted microtexture; no glow or shadow outside the silhouette; no checkerboard drawn in the image; no watermark; no signatures; one asset only."
+    },
+    {
+      "path": "ui/worlds/ironkeep/map-node.png",
+      "world": "ironkeep",
+      "section": "D",
+      "state": "unlocked",
+      "type": "world-map node medallion",
+      "desc": "round world-map node medallion featuring a fortress tower above a forge anvil. Single emblem, no letters, unlocked state.",
+      "framing": "Square1:1 with round stepped medallion occupying middle72% and transparent corners and margins.",
+      "logical": "64x64",
+      "scale": 8,
+      "material": "The Iron Keep world style block: Riveted blackened iron and steel, forge-orange cracks contained within the metal; accent #ff7a2a; pale highlight #e4e8ee.",
+      "refs": [
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/icons/jeweled-chess-crown.png",
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/ui/royal-obsidian-gold-button.png"
+      ],
+      "prompt": "Use case: stylized-concept\nAsset type: world-map node medallion\nStyle reference: Image 1: STYLE reference only — match its square pixels and shading; do NOT copy its subject.\nPrimary request: ONE finished Chess 2.0 round world-map node medallion featuring a fortress tower above a forge anvil. Single emblem, no letters, unlocked state.\nMaterials & palette: The Iron Keep world style block: Riveted blackened iron and steel, forge-orange cracks contained within the metal; accent #ff7a2a; pale highlight #e4e8ee. 32-colour limited palette, 4 discrete shade levels per material.\nComposition/framing: Square1:1 with round stepped medallion occupying middle72% and transparent corners and margins.\nPixel treatment: PIXEL ART. Authentic hand-pixelled 16-bit / 32-bit JRPG interface sprite. Elaborate beautiful detail drawn exclusively with discrete PIXEL CLUSTERS. Hard stairstep contours, discrete pixel clusters, 32-color palette, 4 discrete shade levels per material, deliberate pixel dithering. Think professional Aseprite sprite drawn with pencil tool and nearest neighbor enlarged. Specular highlights are individual square pixels and short pixel staircases. Approximately 64x64 logical pixels shown enlarged 8x nearest-neighbour; every SQUARE PIXEL visibly large.\nOutput: genuine transparent RGBA background.\nConstraints: no text; no antialiasing; no smooth curves; no smooth gradients; no 3D render; no subpixel details; no painted microtexture; no glow or shadow outside the silhouette; no checkerboard drawn in the image; no watermark; no signatures; one asset only."
+    },
+    {
+      "path": "ui/worlds/ironkeep/corner-ornament.png",
+      "world": "ironkeep",
+      "section": "D",
+      "state": null,
+      "type": "board-frame corner ornament",
+      "desc": "single L-shaped upper-left board-frame corner fitting, carved with motif details inspired by a fortress tower above a forge anvil. Open inside elbow, no full frame.",
+      "framing": "Square1:1, one complete L corner centered within middle72%, transparent elsewhere.",
+      "logical": "64x64",
+      "scale": 8,
+      "material": "The Iron Keep world style block: Riveted blackened iron and steel, forge-orange cracks contained within the metal; accent #ff7a2a; pale highlight #e4e8ee.",
+      "refs": [
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/icons/jeweled-chess-crown.png",
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/ui/royal-obsidian-gold-button.png"
+      ],
+      "prompt": "Use case: stylized-concept\nAsset type: board-frame corner ornament\nStyle reference: Image 1: STYLE reference only — match its square pixels and shading; do NOT copy its subject.\nPrimary request: ONE finished Chess 2.0 single L-shaped upper-left board-frame corner fitting, carved with motif details inspired by a fortress tower above a forge anvil. Open inside elbow, no full frame.\nMaterials & palette: The Iron Keep world style block: Riveted blackened iron and steel, forge-orange cracks contained within the metal; accent #ff7a2a; pale highlight #e4e8ee. 32-colour limited palette, 4 discrete shade levels per material.\nComposition/framing: Square1:1, one complete L corner centered within middle72%, transparent elsewhere.\nPixel treatment: PIXEL ART. Authentic hand-pixelled 16-bit / 32-bit JRPG interface sprite. Elaborate beautiful detail drawn exclusively with discrete PIXEL CLUSTERS. Hard stairstep contours, discrete pixel clusters, 32-color palette, 4 discrete shade levels per material, deliberate pixel dithering. Think professional Aseprite sprite drawn with pencil tool and nearest neighbor enlarged. Specular highlights are individual square pixels and short pixel staircases. Approximately 64x64 logical pixels shown enlarged 8x nearest-neighbour; every SQUARE PIXEL visibly large.\nOutput: genuine transparent RGBA background.\nConstraints: no text; no antialiasing; no smooth curves; no smooth gradients; no 3D render; no subpixel details; no painted microtexture; no glow or shadow outside the silhouette; no checkerboard drawn in the image; no watermark; no signatures; one asset only."
+    },
+    {
+      "path": "ui/worlds/mistymoors/primary-button-normal.png",
+      "world": "mistymoors",
+      "section": "D",
+      "state": "normal",
+      "type": "game UI button",
+      "desc": "blank primary button with small edge ornaments inspired by a ring of mossy standing stones with a ghost-green central gem. Large uninterrupted quiet label bed occupies 70% of interior.",
+      "framing": "Wide 3:1 asset on landscape canvas, full silhouette centered within middle 78% of canvas, safe transparent margin at least 10%. Blank label area.",
+      "logical": "192x64",
+      "scale": 8,
+      "material": "The Misty Moors world style block: Mossy standing stone, dark peat and pale ghost-green geometric runes without letters; accent #9ff0d0; pale highlight #d6e4dc.",
+      "refs": [
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/icons/jeweled-chess-crown.png",
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/ui/royal-obsidian-gold-button.png"
+      ],
+      "prompt": "Use case: stylized-concept\nAsset type: game UI button\nStyle reference: Image 1: STYLE reference only — match its square pixels and shading; do NOT copy its subject.\nPrimary request: ONE finished Chess 2.0 blank primary button with small edge ornaments inspired by a ring of mossy standing stones with a ghost-green central gem. Large uninterrupted quiet label bed occupies 70% of interior.\nMaterials & palette: The Misty Moors world style block: Mossy standing stone, dark peat and pale ghost-green geometric runes without letters; accent #9ff0d0; pale highlight #d6e4dc. 32-colour limited palette, 4 discrete shade levels per material.\nComposition/framing: Wide 3:1 asset on landscape canvas, full silhouette centered within middle 78% of canvas, safe transparent margin at least 10%. Blank label area.\nPixel treatment: PIXEL ART. Authentic hand-pixelled 16-bit / 32-bit JRPG interface sprite. Elaborate beautiful detail drawn exclusively with discrete PIXEL CLUSTERS. Hard stairstep contours, discrete pixel clusters, 32-color palette, 4 discrete shade levels per material, deliberate pixel dithering. Think professional Aseprite sprite drawn with pencil tool and nearest neighbor enlarged. Specular highlights are individual square pixels and short pixel staircases. Approximately 192x64 logical pixels shown enlarged 8x nearest-neighbour; every SQUARE PIXEL visibly large.\nOutput: genuine transparent RGBA background.\nConstraints: no text; no antialiasing; no smooth curves; no smooth gradients; no 3D render; no subpixel details; no painted microtexture; no glow or shadow outside the silhouette; no checkerboard drawn in the image; no watermark; no signatures; one asset only."
+    },
+    {
+      "path": "ui/worlds/mistymoors/panel-frame.png",
+      "world": "mistymoors",
+      "section": "D",
+      "state": null,
+      "type": "dialog panel frame",
+      "desc": "ornate rectangular dialog FRAME ONLY, open empty TRANSPARENT center. Corner carvings inspired by a ring of mossy standing stones with a ghost-green central gem, restrained straight rails.",
+      "framing": "Landscape 16:10 frame, center opening occupying 78% of frame is pure alpha zero. No backplate. Full frame within middle 80% canvas with safe margins.",
+      "logical": "256x160",
+      "scale": 8,
+      "material": "The Misty Moors world style block: Mossy standing stone, dark peat and pale ghost-green geometric runes without letters; accent #9ff0d0; pale highlight #d6e4dc.",
+      "refs": [
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/icons/jeweled-chess-crown.png",
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/ui/royal-obsidian-gold-button.png"
+      ],
+      "prompt": "Use case: stylized-concept\nAsset type: dialog panel frame\nStyle reference: Image 1: STYLE reference only — match its square pixels and shading; do NOT copy its subject.\nPrimary request: ONE finished Chess 2.0 ornate rectangular dialog FRAME ONLY, open empty TRANSPARENT center. Corner carvings inspired by a ring of mossy standing stones with a ghost-green central gem, restrained straight rails.\nMaterials & palette: The Misty Moors world style block: Mossy standing stone, dark peat and pale ghost-green geometric runes without letters; accent #9ff0d0; pale highlight #d6e4dc. 32-colour limited palette, 4 discrete shade levels per material.\nComposition/framing: Landscape 16:10 frame, center opening occupying 78% of frame is pure alpha zero. No backplate. Full frame within middle 80% canvas with safe margins.\nPixel treatment: PIXEL ART. Authentic hand-pixelled 16-bit / 32-bit JRPG interface sprite. Elaborate beautiful detail drawn exclusively with discrete PIXEL CLUSTERS. Hard stairstep contours, discrete pixel clusters, 32-color palette, 4 discrete shade levels per material, deliberate pixel dithering. Think professional Aseprite sprite drawn with pencil tool and nearest neighbor enlarged. Specular highlights are individual square pixels and short pixel staircases. Approximately 256x160 logical pixels shown enlarged 8x nearest-neighbour; every SQUARE PIXEL visibly large.\nOutput: genuine transparent RGBA background.\nConstraints: no text; no antialiasing; no smooth curves; no smooth gradients; no 3D render; no subpixel details; no painted microtexture; no glow or shadow outside the silhouette; no checkerboard drawn in the image; no watermark; no signatures; one asset only."
+    },
+    {
+      "path": "ui/worlds/mistymoors/title-banner.png",
+      "world": "mistymoors",
+      "section": "D",
+      "state": null,
+      "type": "title ribbon banner",
+      "desc": "blank title ribbon/banner with folded tails and small decorative end fittings inspired by a ring of mossy standing stones with a ghost-green central gem. Broad blank center for title text.",
+      "framing": "Wide 4:1 banner, centered within middle 78% canvas. Entire tails visible. Label area70% totally blank.",
+      "logical": "192x48",
+      "scale": 8,
+      "material": "The Misty Moors world style block: Mossy standing stone, dark peat and pale ghost-green geometric runes without letters; accent #9ff0d0; pale highlight #d6e4dc.",
+      "refs": [
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/icons/jeweled-chess-crown.png",
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/ui/royal-obsidian-gold-button.png"
+      ],
+      "prompt": "Use case: stylized-concept\nAsset type: title ribbon banner\nStyle reference: Image 1: STYLE reference only — match its square pixels and shading; do NOT copy its subject.\nPrimary request: ONE finished Chess 2.0 blank title ribbon/banner with folded tails and small decorative end fittings inspired by a ring of mossy standing stones with a ghost-green central gem. Broad blank center for title text.\nMaterials & palette: The Misty Moors world style block: Mossy standing stone, dark peat and pale ghost-green geometric runes without letters; accent #9ff0d0; pale highlight #d6e4dc. 32-colour limited palette, 4 discrete shade levels per material.\nComposition/framing: Wide 4:1 banner, centered within middle 78% canvas. Entire tails visible. Label area70% totally blank.\nPixel treatment: PIXEL ART. Authentic hand-pixelled 16-bit / 32-bit JRPG interface sprite. Elaborate beautiful detail drawn exclusively with discrete PIXEL CLUSTERS. Hard stairstep contours, discrete pixel clusters, 32-color palette, 4 discrete shade levels per material, deliberate pixel dithering. Think professional Aseprite sprite drawn with pencil tool and nearest neighbor enlarged. Specular highlights are individual square pixels and short pixel staircases. Approximately 192x48 logical pixels shown enlarged 8x nearest-neighbour; every SQUARE PIXEL visibly large.\nOutput: genuine transparent RGBA background.\nConstraints: no text; no antialiasing; no smooth curves; no smooth gradients; no 3D render; no subpixel details; no painted microtexture; no glow or shadow outside the silhouette; no checkerboard drawn in the image; no watermark; no signatures; one asset only."
+    },
+    {
+      "path": "ui/worlds/mistymoors/map-node.png",
+      "world": "mistymoors",
+      "section": "D",
+      "state": "unlocked",
+      "type": "world-map node medallion",
+      "desc": "round world-map node medallion featuring a ring of mossy standing stones with a ghost-green central gem. Single emblem, no letters, unlocked state.",
+      "framing": "Square1:1 with round stepped medallion occupying middle72% and transparent corners and margins.",
+      "logical": "64x64",
+      "scale": 8,
+      "material": "The Misty Moors world style block: Mossy standing stone, dark peat and pale ghost-green geometric runes without letters; accent #9ff0d0; pale highlight #d6e4dc.",
+      "refs": [
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/icons/jeweled-chess-crown.png",
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/ui/royal-obsidian-gold-button.png"
+      ],
+      "prompt": "Use case: stylized-concept\nAsset type: world-map node medallion\nStyle reference: Image 1: STYLE reference only — match its square pixels and shading; do NOT copy its subject.\nPrimary request: ONE finished Chess 2.0 round world-map node medallion featuring a ring of mossy standing stones with a ghost-green central gem. Single emblem, no letters, unlocked state.\nMaterials & palette: The Misty Moors world style block: Mossy standing stone, dark peat and pale ghost-green geometric runes without letters; accent #9ff0d0; pale highlight #d6e4dc. 32-colour limited palette, 4 discrete shade levels per material.\nComposition/framing: Square1:1 with round stepped medallion occupying middle72% and transparent corners and margins.\nPixel treatment: PIXEL ART. Authentic hand-pixelled 16-bit / 32-bit JRPG interface sprite. Elaborate beautiful detail drawn exclusively with discrete PIXEL CLUSTERS. Hard stairstep contours, discrete pixel clusters, 32-color palette, 4 discrete shade levels per material, deliberate pixel dithering. Think professional Aseprite sprite drawn with pencil tool and nearest neighbor enlarged. Specular highlights are individual square pixels and short pixel staircases. Approximately 64x64 logical pixels shown enlarged 8x nearest-neighbour; every SQUARE PIXEL visibly large.\nOutput: genuine transparent RGBA background.\nConstraints: no text; no antialiasing; no smooth curves; no smooth gradients; no 3D render; no subpixel details; no painted microtexture; no glow or shadow outside the silhouette; no checkerboard drawn in the image; no watermark; no signatures; one asset only."
+    },
+    {
+      "path": "ui/worlds/mistymoors/corner-ornament.png",
+      "world": "mistymoors",
+      "section": "D",
+      "state": null,
+      "type": "board-frame corner ornament",
+      "desc": "single L-shaped upper-left board-frame corner fitting, carved with motif details inspired by a ring of mossy standing stones with a ghost-green central gem. Open inside elbow, no full frame.",
+      "framing": "Square1:1, one complete L corner centered within middle72%, transparent elsewhere.",
+      "logical": "64x64",
+      "scale": 8,
+      "material": "The Misty Moors world style block: Mossy standing stone, dark peat and pale ghost-green geometric runes without letters; accent #9ff0d0; pale highlight #d6e4dc.",
+      "refs": [
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/icons/jeweled-chess-crown.png",
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/ui/royal-obsidian-gold-button.png"
+      ],
+      "prompt": "Use case: stylized-concept\nAsset type: board-frame corner ornament\nStyle reference: Image 1: STYLE reference only — match its square pixels and shading; do NOT copy its subject.\nPrimary request: ONE finished Chess 2.0 single L-shaped upper-left board-frame corner fitting, carved with motif details inspired by a ring of mossy standing stones with a ghost-green central gem. Open inside elbow, no full frame.\nMaterials & palette: The Misty Moors world style block: Mossy standing stone, dark peat and pale ghost-green geometric runes without letters; accent #9ff0d0; pale highlight #d6e4dc. 32-colour limited palette, 4 discrete shade levels per material.\nComposition/framing: Square1:1, one complete L corner centered within middle72%, transparent elsewhere.\nPixel treatment: PIXEL ART. Authentic hand-pixelled 16-bit / 32-bit JRPG interface sprite. Elaborate beautiful detail drawn exclusively with discrete PIXEL CLUSTERS. Hard stairstep contours, discrete pixel clusters, 32-color palette, 4 discrete shade levels per material, deliberate pixel dithering. Think professional Aseprite sprite drawn with pencil tool and nearest neighbor enlarged. Specular highlights are individual square pixels and short pixel staircases. Approximately 64x64 logical pixels shown enlarged 8x nearest-neighbour; every SQUARE PIXEL visibly large.\nOutput: genuine transparent RGBA background.\nConstraints: no text; no antialiasing; no smooth curves; no smooth gradients; no 3D render; no subpixel details; no painted microtexture; no glow or shadow outside the silhouette; no checkerboard drawn in the image; no watermark; no signatures; one asset only."
+    },
+    {
+      "path": "ui/worlds/royalpalace/primary-button-normal.png",
+      "world": "royalpalace",
+      "section": "D",
+      "state": "normal",
+      "type": "game UI button",
+      "desc": "blank primary button with small edge ornaments inspired by a golden royal crown with a rose below it. Large uninterrupted quiet label bed occupies 70% of interior.",
+      "framing": "Wide 3:1 asset on landscape canvas, full silhouette centered within middle 78% of canvas, safe transparent margin at least 10%. Blank label area.",
+      "logical": "192x64",
+      "scale": 8,
+      "material": "The Royal Palace world style block: White marble, rose enamel, polished gold and small pearl fittings; accent #ffcf40; pale highlight #fbeaf0.",
+      "refs": [
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/icons/jeweled-chess-crown.png",
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/ui/royal-obsidian-gold-button.png"
+      ],
+      "prompt": "Use case: stylized-concept\nAsset type: game UI button\nStyle reference: Image 1: STYLE reference only — match its square pixels and shading; do NOT copy its subject.\nPrimary request: ONE finished Chess 2.0 blank primary button with small edge ornaments inspired by a golden royal crown with a rose below it. Large uninterrupted quiet label bed occupies 70% of interior.\nMaterials & palette: The Royal Palace world style block: White marble, rose enamel, polished gold and small pearl fittings; accent #ffcf40; pale highlight #fbeaf0. 32-colour limited palette, 4 discrete shade levels per material.\nComposition/framing: Wide 3:1 asset on landscape canvas, full silhouette centered within middle 78% of canvas, safe transparent margin at least 10%. Blank label area.\nPixel treatment: PIXEL ART. Authentic hand-pixelled 16-bit / 32-bit JRPG interface sprite. Elaborate beautiful detail drawn exclusively with discrete PIXEL CLUSTERS. Hard stairstep contours, discrete pixel clusters, 32-color palette, 4 discrete shade levels per material, deliberate pixel dithering. Think professional Aseprite sprite drawn with pencil tool and nearest neighbor enlarged. Specular highlights are individual square pixels and short pixel staircases. Approximately 192x64 logical pixels shown enlarged 8x nearest-neighbour; every SQUARE PIXEL visibly large.\nOutput: genuine transparent RGBA background.\nConstraints: no text; no antialiasing; no smooth curves; no smooth gradients; no 3D render; no subpixel details; no painted microtexture; no glow or shadow outside the silhouette; no checkerboard drawn in the image; no watermark; no signatures; one asset only."
+    },
+    {
+      "path": "ui/worlds/royalpalace/panel-frame.png",
+      "world": "royalpalace",
+      "section": "D",
+      "state": null,
+      "type": "dialog panel frame",
+      "desc": "ornate rectangular dialog FRAME ONLY, open empty TRANSPARENT center. Corner carvings inspired by a golden royal crown with a rose below it, restrained straight rails.",
+      "framing": "Landscape 16:10 frame, center opening occupying 78% of frame is pure alpha zero. No backplate. Full frame within middle 80% canvas with safe margins.",
+      "logical": "256x160",
+      "scale": 8,
+      "material": "The Royal Palace world style block: White marble, rose enamel, polished gold and small pearl fittings; accent #ffcf40; pale highlight #fbeaf0.",
+      "refs": [
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/icons/jeweled-chess-crown.png",
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/ui/royal-obsidian-gold-button.png"
+      ],
+      "prompt": "Use case: stylized-concept\nAsset type: dialog panel frame\nStyle reference: Image 1: STYLE reference only — match its square pixels and shading; do NOT copy its subject.\nPrimary request: ONE finished Chess 2.0 ornate rectangular dialog FRAME ONLY, open empty TRANSPARENT center. Corner carvings inspired by a golden royal crown with a rose below it, restrained straight rails.\nMaterials & palette: The Royal Palace world style block: White marble, rose enamel, polished gold and small pearl fittings; accent #ffcf40; pale highlight #fbeaf0. 32-colour limited palette, 4 discrete shade levels per material.\nComposition/framing: Landscape 16:10 frame, center opening occupying 78% of frame is pure alpha zero. No backplate. Full frame within middle 80% canvas with safe margins.\nPixel treatment: PIXEL ART. Authentic hand-pixelled 16-bit / 32-bit JRPG interface sprite. Elaborate beautiful detail drawn exclusively with discrete PIXEL CLUSTERS. Hard stairstep contours, discrete pixel clusters, 32-color palette, 4 discrete shade levels per material, deliberate pixel dithering. Think professional Aseprite sprite drawn with pencil tool and nearest neighbor enlarged. Specular highlights are individual square pixels and short pixel staircases. Approximately 256x160 logical pixels shown enlarged 8x nearest-neighbour; every SQUARE PIXEL visibly large.\nOutput: genuine transparent RGBA background.\nConstraints: no text; no antialiasing; no smooth curves; no smooth gradients; no 3D render; no subpixel details; no painted microtexture; no glow or shadow outside the silhouette; no checkerboard drawn in the image; no watermark; no signatures; one asset only."
+    },
+    {
+      "path": "ui/worlds/royalpalace/title-banner.png",
+      "world": "royalpalace",
+      "section": "D",
+      "state": null,
+      "type": "title ribbon banner",
+      "desc": "blank title ribbon/banner with folded tails and small decorative end fittings inspired by a golden royal crown with a rose below it. Broad blank center for title text.",
+      "framing": "Wide 4:1 banner, centered within middle 78% canvas. Entire tails visible. Label area70% totally blank.",
+      "logical": "192x48",
+      "scale": 8,
+      "material": "The Royal Palace world style block: White marble, rose enamel, polished gold and small pearl fittings; accent #ffcf40; pale highlight #fbeaf0.",
+      "refs": [
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/icons/jeweled-chess-crown.png",
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/ui/royal-obsidian-gold-button.png"
+      ],
+      "prompt": "Use case: stylized-concept\nAsset type: title ribbon banner\nStyle reference: Image 1: STYLE reference only — match its square pixels and shading; do NOT copy its subject.\nPrimary request: ONE finished Chess 2.0 blank title ribbon/banner with folded tails and small decorative end fittings inspired by a golden royal crown with a rose below it. Broad blank center for title text.\nMaterials & palette: The Royal Palace world style block: White marble, rose enamel, polished gold and small pearl fittings; accent #ffcf40; pale highlight #fbeaf0. 32-colour limited palette, 4 discrete shade levels per material.\nComposition/framing: Wide 4:1 banner, centered within middle 78% canvas. Entire tails visible. Label area70% totally blank.\nPixel treatment: PIXEL ART. Authentic hand-pixelled 16-bit / 32-bit JRPG interface sprite. Elaborate beautiful detail drawn exclusively with discrete PIXEL CLUSTERS. Hard stairstep contours, discrete pixel clusters, 32-color palette, 4 discrete shade levels per material, deliberate pixel dithering. Think professional Aseprite sprite drawn with pencil tool and nearest neighbor enlarged. Specular highlights are individual square pixels and short pixel staircases. Approximately 192x48 logical pixels shown enlarged 8x nearest-neighbour; every SQUARE PIXEL visibly large.\nOutput: genuine transparent RGBA background.\nConstraints: no text; no antialiasing; no smooth curves; no smooth gradients; no 3D render; no subpixel details; no painted microtexture; no glow or shadow outside the silhouette; no checkerboard drawn in the image; no watermark; no signatures; one asset only."
+    },
+    {
+      "path": "ui/worlds/royalpalace/map-node.png",
+      "world": "royalpalace",
+      "section": "D",
+      "state": "unlocked",
+      "type": "world-map node medallion",
+      "desc": "round world-map node medallion featuring a golden royal crown with a rose below it. Single emblem, no letters, unlocked state.",
+      "framing": "Square1:1 with round stepped medallion occupying middle72% and transparent corners and margins.",
+      "logical": "64x64",
+      "scale": 8,
+      "material": "The Royal Palace world style block: White marble, rose enamel, polished gold and small pearl fittings; accent #ffcf40; pale highlight #fbeaf0.",
+      "refs": [
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/icons/jeweled-chess-crown.png",
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/ui/royal-obsidian-gold-button.png"
+      ],
+      "prompt": "Use case: stylized-concept\nAsset type: world-map node medallion\nStyle reference: Image 1: STYLE reference only — match its square pixels and shading; do NOT copy its subject.\nPrimary request: ONE finished Chess 2.0 round world-map node medallion featuring a golden royal crown with a rose below it. Single emblem, no letters, unlocked state.\nMaterials & palette: The Royal Palace world style block: White marble, rose enamel, polished gold and small pearl fittings; accent #ffcf40; pale highlight #fbeaf0. 32-colour limited palette, 4 discrete shade levels per material.\nComposition/framing: Square1:1 with round stepped medallion occupying middle72% and transparent corners and margins.\nPixel treatment: PIXEL ART. Authentic hand-pixelled 16-bit / 32-bit JRPG interface sprite. Elaborate beautiful detail drawn exclusively with discrete PIXEL CLUSTERS. Hard stairstep contours, discrete pixel clusters, 32-color palette, 4 discrete shade levels per material, deliberate pixel dithering. Think professional Aseprite sprite drawn with pencil tool and nearest neighbor enlarged. Specular highlights are individual square pixels and short pixel staircases. Approximately 64x64 logical pixels shown enlarged 8x nearest-neighbour; every SQUARE PIXEL visibly large.\nOutput: genuine transparent RGBA background.\nConstraints: no text; no antialiasing; no smooth curves; no smooth gradients; no 3D render; no subpixel details; no painted microtexture; no glow or shadow outside the silhouette; no checkerboard drawn in the image; no watermark; no signatures; one asset only."
+    },
+    {
+      "path": "ui/worlds/royalpalace/corner-ornament.png",
+      "world": "royalpalace",
+      "section": "D",
+      "state": null,
+      "type": "board-frame corner ornament",
+      "desc": "single L-shaped upper-left board-frame corner fitting, carved with motif details inspired by a golden royal crown with a rose below it. Open inside elbow, no full frame.",
+      "framing": "Square1:1, one complete L corner centered within middle72%, transparent elsewhere.",
+      "logical": "64x64",
+      "scale": 8,
+      "material": "The Royal Palace world style block: White marble, rose enamel, polished gold and small pearl fittings; accent #ffcf40; pale highlight #fbeaf0.",
+      "refs": [
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/icons/jeweled-chess-crown.png",
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/ui/royal-obsidian-gold-button.png"
+      ],
+      "prompt": "Use case: stylized-concept\nAsset type: board-frame corner ornament\nStyle reference: Image 1: STYLE reference only — match its square pixels and shading; do NOT copy its subject.\nPrimary request: ONE finished Chess 2.0 single L-shaped upper-left board-frame corner fitting, carved with motif details inspired by a golden royal crown with a rose below it. Open inside elbow, no full frame.\nMaterials & palette: The Royal Palace world style block: White marble, rose enamel, polished gold and small pearl fittings; accent #ffcf40; pale highlight #fbeaf0. 32-colour limited palette, 4 discrete shade levels per material.\nComposition/framing: Square1:1, one complete L corner centered within middle72%, transparent elsewhere.\nPixel treatment: PIXEL ART. Authentic hand-pixelled 16-bit / 32-bit JRPG interface sprite. Elaborate beautiful detail drawn exclusively with discrete PIXEL CLUSTERS. Hard stairstep contours, discrete pixel clusters, 32-color palette, 4 discrete shade levels per material, deliberate pixel dithering. Think professional Aseprite sprite drawn with pencil tool and nearest neighbor enlarged. Specular highlights are individual square pixels and short pixel staircases. Approximately 64x64 logical pixels shown enlarged 8x nearest-neighbour; every SQUARE PIXEL visibly large.\nOutput: genuine transparent RGBA background.\nConstraints: no text; no antialiasing; no smooth curves; no smooth gradients; no 3D render; no subpixel details; no painted microtexture; no glow or shadow outside the silhouette; no checkerboard drawn in the image; no watermark; no signatures; one asset only."
+    },
+    {
+      "path": "ui/worlds/clockworkcitadel/primary-button-normal.png",
+      "world": "clockworkcitadel",
+      "section": "D",
+      "state": "normal",
+      "type": "game UI button",
+      "desc": "blank primary button with small edge ornaments inspired by a large brass gear enclosing a teal clock without numerals. Large uninterrupted quiet label bed occupies 70% of interior.",
+      "framing": "Wide 3:1 asset on landscape canvas, full silhouette centered within middle 78% of canvas, safe transparent margin at least 10%. Blank label area.",
+      "logical": "192x64",
+      "scale": 8,
+      "material": "The Clockwork Citadel world style block: Brass gears, dark bronze, teal glass and riveted steam fittings; accent #4ae0d0; pale highlight #f2dcae.",
+      "refs": [
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/icons/jeweled-chess-crown.png",
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/ui/royal-obsidian-gold-button.png"
+      ],
+      "prompt": "Use case: stylized-concept\nAsset type: game UI button\nStyle reference: Image 1: STYLE reference only — match its square pixels and shading; do NOT copy its subject.\nPrimary request: ONE finished Chess 2.0 blank primary button with small edge ornaments inspired by a large brass gear enclosing a teal clock without numerals. Large uninterrupted quiet label bed occupies 70% of interior.\nMaterials & palette: The Clockwork Citadel world style block: Brass gears, dark bronze, teal glass and riveted steam fittings; accent #4ae0d0; pale highlight #f2dcae. 32-colour limited palette, 4 discrete shade levels per material.\nComposition/framing: Wide 3:1 asset on landscape canvas, full silhouette centered within middle 78% of canvas, safe transparent margin at least 10%. Blank label area.\nPixel treatment: PIXEL ART. Authentic hand-pixelled 16-bit / 32-bit JRPG interface sprite. Elaborate beautiful detail drawn exclusively with discrete PIXEL CLUSTERS. Hard stairstep contours, discrete pixel clusters, 32-color palette, 4 discrete shade levels per material, deliberate pixel dithering. Think professional Aseprite sprite drawn with pencil tool and nearest neighbor enlarged. Specular highlights are individual square pixels and short pixel staircases. Approximately 192x64 logical pixels shown enlarged 8x nearest-neighbour; every SQUARE PIXEL visibly large.\nOutput: genuine transparent RGBA background.\nConstraints: no text; no antialiasing; no smooth curves; no smooth gradients; no 3D render; no subpixel details; no painted microtexture; no glow or shadow outside the silhouette; no checkerboard drawn in the image; no watermark; no signatures; one asset only."
+    },
+    {
+      "path": "ui/worlds/clockworkcitadel/panel-frame.png",
+      "world": "clockworkcitadel",
+      "section": "D",
+      "state": null,
+      "type": "dialog panel frame",
+      "desc": "ornate rectangular dialog FRAME ONLY, open empty TRANSPARENT center. Corner carvings inspired by a large brass gear enclosing a teal clock without numerals, restrained straight rails.",
+      "framing": "Landscape 16:10 frame, center opening occupying 78% of frame is pure alpha zero. No backplate. Full frame within middle 80% canvas with safe margins.",
+      "logical": "256x160",
+      "scale": 8,
+      "material": "The Clockwork Citadel world style block: Brass gears, dark bronze, teal glass and riveted steam fittings; accent #4ae0d0; pale highlight #f2dcae.",
+      "refs": [
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/icons/jeweled-chess-crown.png",
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/ui/royal-obsidian-gold-button.png"
+      ],
+      "prompt": "Use case: stylized-concept\nAsset type: dialog panel frame\nStyle reference: Image 1: STYLE reference only — match its square pixels and shading; do NOT copy its subject.\nPrimary request: ONE finished Chess 2.0 ornate rectangular dialog FRAME ONLY, open empty TRANSPARENT center. Corner carvings inspired by a large brass gear enclosing a teal clock without numerals, restrained straight rails.\nMaterials & palette: The Clockwork Citadel world style block: Brass gears, dark bronze, teal glass and riveted steam fittings; accent #4ae0d0; pale highlight #f2dcae. 32-colour limited palette, 4 discrete shade levels per material.\nComposition/framing: Landscape 16:10 frame, center opening occupying 78% of frame is pure alpha zero. No backplate. Full frame within middle 80% canvas with safe margins.\nPixel treatment: PIXEL ART. Authentic hand-pixelled 16-bit / 32-bit JRPG interface sprite. Elaborate beautiful detail drawn exclusively with discrete PIXEL CLUSTERS. Hard stairstep contours, discrete pixel clusters, 32-color palette, 4 discrete shade levels per material, deliberate pixel dithering. Think professional Aseprite sprite drawn with pencil tool and nearest neighbor enlarged. Specular highlights are individual square pixels and short pixel staircases. Approximately 256x160 logical pixels shown enlarged 8x nearest-neighbour; every SQUARE PIXEL visibly large.\nOutput: genuine transparent RGBA background.\nConstraints: no text; no antialiasing; no smooth curves; no smooth gradients; no 3D render; no subpixel details; no painted microtexture; no glow or shadow outside the silhouette; no checkerboard drawn in the image; no watermark; no signatures; one asset only."
+    },
+    {
+      "path": "ui/worlds/clockworkcitadel/title-banner.png",
+      "world": "clockworkcitadel",
+      "section": "D",
+      "state": null,
+      "type": "title ribbon banner",
+      "desc": "blank title ribbon/banner with folded tails and small decorative end fittings inspired by a large brass gear enclosing a teal clock without numerals. Broad blank center for title text.",
+      "framing": "Wide 4:1 banner, centered within middle 78% canvas. Entire tails visible. Label area70% totally blank.",
+      "logical": "192x48",
+      "scale": 8,
+      "material": "The Clockwork Citadel world style block: Brass gears, dark bronze, teal glass and riveted steam fittings; accent #4ae0d0; pale highlight #f2dcae.",
+      "refs": [
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/icons/jeweled-chess-crown.png",
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/ui/royal-obsidian-gold-button.png"
+      ],
+      "prompt": "Use case: stylized-concept\nAsset type: title ribbon banner\nStyle reference: Image 1: STYLE reference only — match its square pixels and shading; do NOT copy its subject.\nPrimary request: ONE finished Chess 2.0 blank title ribbon/banner with folded tails and small decorative end fittings inspired by a large brass gear enclosing a teal clock without numerals. Broad blank center for title text.\nMaterials & palette: The Clockwork Citadel world style block: Brass gears, dark bronze, teal glass and riveted steam fittings; accent #4ae0d0; pale highlight #f2dcae. 32-colour limited palette, 4 discrete shade levels per material.\nComposition/framing: Wide 4:1 banner, centered within middle 78% canvas. Entire tails visible. Label area70% totally blank.\nPixel treatment: PIXEL ART. Authentic hand-pixelled 16-bit / 32-bit JRPG interface sprite. Elaborate beautiful detail drawn exclusively with discrete PIXEL CLUSTERS. Hard stairstep contours, discrete pixel clusters, 32-color palette, 4 discrete shade levels per material, deliberate pixel dithering. Think professional Aseprite sprite drawn with pencil tool and nearest neighbor enlarged. Specular highlights are individual square pixels and short pixel staircases. Approximately 192x48 logical pixels shown enlarged 8x nearest-neighbour; every SQUARE PIXEL visibly large.\nOutput: genuine transparent RGBA background.\nConstraints: no text; no antialiasing; no smooth curves; no smooth gradients; no 3D render; no subpixel details; no painted microtexture; no glow or shadow outside the silhouette; no checkerboard drawn in the image; no watermark; no signatures; one asset only."
+    },
+    {
+      "path": "ui/worlds/clockworkcitadel/map-node.png",
+      "world": "clockworkcitadel",
+      "section": "D",
+      "state": "unlocked",
+      "type": "world-map node medallion",
+      "desc": "round world-map node medallion featuring a large brass gear enclosing a teal clock without numerals. Single emblem, no letters, unlocked state.",
+      "framing": "Square1:1 with round stepped medallion occupying middle72% and transparent corners and margins.",
+      "logical": "64x64",
+      "scale": 8,
+      "material": "The Clockwork Citadel world style block: Brass gears, dark bronze, teal glass and riveted steam fittings; accent #4ae0d0; pale highlight #f2dcae.",
+      "refs": [
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/icons/jeweled-chess-crown.png",
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/ui/royal-obsidian-gold-button.png"
+      ],
+      "prompt": "Use case: stylized-concept\nAsset type: world-map node medallion\nStyle reference: Image 1: STYLE reference only — match its square pixels and shading; do NOT copy its subject.\nPrimary request: ONE finished Chess 2.0 round world-map node medallion featuring a large brass gear enclosing a teal clock without numerals. Single emblem, no letters, unlocked state.\nMaterials & palette: The Clockwork Citadel world style block: Brass gears, dark bronze, teal glass and riveted steam fittings; accent #4ae0d0; pale highlight #f2dcae. 32-colour limited palette, 4 discrete shade levels per material.\nComposition/framing: Square1:1 with round stepped medallion occupying middle72% and transparent corners and margins.\nPixel treatment: PIXEL ART. Authentic hand-pixelled 16-bit / 32-bit JRPG interface sprite. Elaborate beautiful detail drawn exclusively with discrete PIXEL CLUSTERS. Hard stairstep contours, discrete pixel clusters, 32-color palette, 4 discrete shade levels per material, deliberate pixel dithering. Think professional Aseprite sprite drawn with pencil tool and nearest neighbor enlarged. Specular highlights are individual square pixels and short pixel staircases. Approximately 64x64 logical pixels shown enlarged 8x nearest-neighbour; every SQUARE PIXEL visibly large.\nOutput: genuine transparent RGBA background.\nConstraints: no text; no antialiasing; no smooth curves; no smooth gradients; no 3D render; no subpixel details; no painted microtexture; no glow or shadow outside the silhouette; no checkerboard drawn in the image; no watermark; no signatures; one asset only."
+    },
+    {
+      "path": "ui/worlds/clockworkcitadel/corner-ornament.png",
+      "world": "clockworkcitadel",
+      "section": "D",
+      "state": null,
+      "type": "board-frame corner ornament",
+      "desc": "single L-shaped upper-left board-frame corner fitting, carved with motif details inspired by a large brass gear enclosing a teal clock without numerals. Open inside elbow, no full frame.",
+      "framing": "Square1:1, one complete L corner centered within middle72%, transparent elsewhere.",
+      "logical": "64x64",
+      "scale": 8,
+      "material": "The Clockwork Citadel world style block: Brass gears, dark bronze, teal glass and riveted steam fittings; accent #4ae0d0; pale highlight #f2dcae.",
+      "refs": [
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/icons/jeweled-chess-crown.png",
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/ui/royal-obsidian-gold-button.png"
+      ],
+      "prompt": "Use case: stylized-concept\nAsset type: board-frame corner ornament\nStyle reference: Image 1: STYLE reference only — match its square pixels and shading; do NOT copy its subject.\nPrimary request: ONE finished Chess 2.0 single L-shaped upper-left board-frame corner fitting, carved with motif details inspired by a large brass gear enclosing a teal clock without numerals. Open inside elbow, no full frame.\nMaterials & palette: The Clockwork Citadel world style block: Brass gears, dark bronze, teal glass and riveted steam fittings; accent #4ae0d0; pale highlight #f2dcae. 32-colour limited palette, 4 discrete shade levels per material.\nComposition/framing: Square1:1, one complete L corner centered within middle72%, transparent elsewhere.\nPixel treatment: PIXEL ART. Authentic hand-pixelled 16-bit / 32-bit JRPG interface sprite. Elaborate beautiful detail drawn exclusively with discrete PIXEL CLUSTERS. Hard stairstep contours, discrete pixel clusters, 32-color palette, 4 discrete shade levels per material, deliberate pixel dithering. Think professional Aseprite sprite drawn with pencil tool and nearest neighbor enlarged. Specular highlights are individual square pixels and short pixel staircases. Approximately 64x64 logical pixels shown enlarged 8x nearest-neighbour; every SQUARE PIXEL visibly large.\nOutput: genuine transparent RGBA background.\nConstraints: no text; no antialiasing; no smooth curves; no smooth gradients; no 3D render; no subpixel details; no painted microtexture; no glow or shadow outside the silhouette; no checkerboard drawn in the image; no watermark; no signatures; one asset only."
+    },
+    {
+      "path": "ui/worlds/grandlibrary/primary-button-normal.png",
+      "world": "grandlibrary",
+      "section": "D",
+      "state": "normal",
+      "type": "game UI button",
+      "desc": "blank primary button with small edge ornaments inspired by an open blank book beneath one candle. Large uninterrupted quiet label bed occupies 70% of interior.",
+      "framing": "Wide 3:1 asset on landscape canvas, full silhouette centered within middle 78% of canvas, safe transparent margin at least 10%. Blank label area.",
+      "logical": "192x64",
+      "scale": 8,
+      "material": "The Grand Library world style block: Leather-bound book covers, brass clasps, warm parchment and candle amber; accent #ffc860; pale highlight #f4e2c4.",
+      "refs": [
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/icons/jeweled-chess-crown.png",
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/ui/royal-obsidian-gold-button.png"
+      ],
+      "prompt": "Use case: stylized-concept\nAsset type: game UI button\nStyle reference: Image 1: STYLE reference only — match its square pixels and shading; do NOT copy its subject.\nPrimary request: ONE finished Chess 2.0 blank primary button with small edge ornaments inspired by an open blank book beneath one candle. Large uninterrupted quiet label bed occupies 70% of interior.\nMaterials & palette: The Grand Library world style block: Leather-bound book covers, brass clasps, warm parchment and candle amber; accent #ffc860; pale highlight #f4e2c4. 32-colour limited palette, 4 discrete shade levels per material.\nComposition/framing: Wide 3:1 asset on landscape canvas, full silhouette centered within middle 78% of canvas, safe transparent margin at least 10%. Blank label area.\nPixel treatment: PIXEL ART. Authentic hand-pixelled 16-bit / 32-bit JRPG interface sprite. Elaborate beautiful detail drawn exclusively with discrete PIXEL CLUSTERS. Hard stairstep contours, discrete pixel clusters, 32-color palette, 4 discrete shade levels per material, deliberate pixel dithering. Think professional Aseprite sprite drawn with pencil tool and nearest neighbor enlarged. Specular highlights are individual square pixels and short pixel staircases. Approximately 192x64 logical pixels shown enlarged 8x nearest-neighbour; every SQUARE PIXEL visibly large.\nOutput: genuine transparent RGBA background.\nConstraints: no text; no antialiasing; no smooth curves; no smooth gradients; no 3D render; no subpixel details; no painted microtexture; no glow or shadow outside the silhouette; no checkerboard drawn in the image; no watermark; no signatures; one asset only."
+    },
+    {
+      "path": "ui/worlds/grandlibrary/panel-frame.png",
+      "world": "grandlibrary",
+      "section": "D",
+      "state": null,
+      "type": "dialog panel frame",
+      "desc": "ornate rectangular dialog FRAME ONLY, open empty TRANSPARENT center. Corner carvings inspired by an open blank book beneath one candle, restrained straight rails.",
+      "framing": "Landscape 16:10 frame, center opening occupying 78% of frame is pure alpha zero. No backplate. Full frame within middle 80% canvas with safe margins.",
+      "logical": "256x160",
+      "scale": 8,
+      "material": "The Grand Library world style block: Leather-bound book covers, brass clasps, warm parchment and candle amber; accent #ffc860; pale highlight #f4e2c4.",
+      "refs": [
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/icons/jeweled-chess-crown.png",
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/ui/royal-obsidian-gold-button.png"
+      ],
+      "prompt": "Use case: stylized-concept\nAsset type: dialog panel frame\nStyle reference: Image 1: STYLE reference only — match its square pixels and shading; do NOT copy its subject.\nPrimary request: ONE finished Chess 2.0 ornate rectangular dialog FRAME ONLY, open empty TRANSPARENT center. Corner carvings inspired by an open blank book beneath one candle, restrained straight rails.\nMaterials & palette: The Grand Library world style block: Leather-bound book covers, brass clasps, warm parchment and candle amber; accent #ffc860; pale highlight #f4e2c4. 32-colour limited palette, 4 discrete shade levels per material.\nComposition/framing: Landscape 16:10 frame, center opening occupying 78% of frame is pure alpha zero. No backplate. Full frame within middle 80% canvas with safe margins.\nPixel treatment: PIXEL ART. Authentic hand-pixelled 16-bit / 32-bit JRPG interface sprite. Elaborate beautiful detail drawn exclusively with discrete PIXEL CLUSTERS. Hard stairstep contours, discrete pixel clusters, 32-color palette, 4 discrete shade levels per material, deliberate pixel dithering. Think professional Aseprite sprite drawn with pencil tool and nearest neighbor enlarged. Specular highlights are individual square pixels and short pixel staircases. Approximately 256x160 logical pixels shown enlarged 8x nearest-neighbour; every SQUARE PIXEL visibly large.\nOutput: genuine transparent RGBA background.\nConstraints: no text; no antialiasing; no smooth curves; no smooth gradients; no 3D render; no subpixel details; no painted microtexture; no glow or shadow outside the silhouette; no checkerboard drawn in the image; no watermark; no signatures; one asset only."
+    },
+    {
+      "path": "ui/worlds/grandlibrary/title-banner.png",
+      "world": "grandlibrary",
+      "section": "D",
+      "state": null,
+      "type": "title ribbon banner",
+      "desc": "blank title ribbon/banner with folded tails and small decorative end fittings inspired by an open blank book beneath one candle. Broad blank center for title text.",
+      "framing": "Wide 4:1 banner, centered within middle 78% canvas. Entire tails visible. Label area70% totally blank.",
+      "logical": "192x48",
+      "scale": 8,
+      "material": "The Grand Library world style block: Leather-bound book covers, brass clasps, warm parchment and candle amber; accent #ffc860; pale highlight #f4e2c4.",
+      "refs": [
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/icons/jeweled-chess-crown.png",
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/ui/royal-obsidian-gold-button.png"
+      ],
+      "prompt": "Use case: stylized-concept\nAsset type: title ribbon banner\nStyle reference: Image 1: STYLE reference only — match its square pixels and shading; do NOT copy its subject.\nPrimary request: ONE finished Chess 2.0 blank title ribbon/banner with folded tails and small decorative end fittings inspired by an open blank book beneath one candle. Broad blank center for title text.\nMaterials & palette: The Grand Library world style block: Leather-bound book covers, brass clasps, warm parchment and candle amber; accent #ffc860; pale highlight #f4e2c4. 32-colour limited palette, 4 discrete shade levels per material.\nComposition/framing: Wide 4:1 banner, centered within middle 78% canvas. Entire tails visible. Label area70% totally blank.\nPixel treatment: PIXEL ART. Authentic hand-pixelled 16-bit / 32-bit JRPG interface sprite. Elaborate beautiful detail drawn exclusively with discrete PIXEL CLUSTERS. Hard stairstep contours, discrete pixel clusters, 32-color palette, 4 discrete shade levels per material, deliberate pixel dithering. Think professional Aseprite sprite drawn with pencil tool and nearest neighbor enlarged. Specular highlights are individual square pixels and short pixel staircases. Approximately 192x48 logical pixels shown enlarged 8x nearest-neighbour; every SQUARE PIXEL visibly large.\nOutput: genuine transparent RGBA background.\nConstraints: no text; no antialiasing; no smooth curves; no smooth gradients; no 3D render; no subpixel details; no painted microtexture; no glow or shadow outside the silhouette; no checkerboard drawn in the image; no watermark; no signatures; one asset only."
+    },
+    {
+      "path": "ui/worlds/grandlibrary/map-node.png",
+      "world": "grandlibrary",
+      "section": "D",
+      "state": "unlocked",
+      "type": "world-map node medallion",
+      "desc": "round world-map node medallion featuring an open blank book beneath one candle. Single emblem, no letters, unlocked state.",
+      "framing": "Square1:1 with round stepped medallion occupying middle72% and transparent corners and margins.",
+      "logical": "64x64",
+      "scale": 8,
+      "material": "The Grand Library world style block: Leather-bound book covers, brass clasps, warm parchment and candle amber; accent #ffc860; pale highlight #f4e2c4.",
+      "refs": [
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/icons/jeweled-chess-crown.png",
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/ui/royal-obsidian-gold-button.png"
+      ],
+      "prompt": "Use case: stylized-concept\nAsset type: world-map node medallion\nStyle reference: Image 1: STYLE reference only — match its square pixels and shading; do NOT copy its subject.\nPrimary request: ONE finished Chess 2.0 round world-map node medallion featuring an open blank book beneath one candle. Single emblem, no letters, unlocked state.\nMaterials & palette: The Grand Library world style block: Leather-bound book covers, brass clasps, warm parchment and candle amber; accent #ffc860; pale highlight #f4e2c4. 32-colour limited palette, 4 discrete shade levels per material.\nComposition/framing: Square1:1 with round stepped medallion occupying middle72% and transparent corners and margins.\nPixel treatment: PIXEL ART. Authentic hand-pixelled 16-bit / 32-bit JRPG interface sprite. Elaborate beautiful detail drawn exclusively with discrete PIXEL CLUSTERS. Hard stairstep contours, discrete pixel clusters, 32-color palette, 4 discrete shade levels per material, deliberate pixel dithering. Think professional Aseprite sprite drawn with pencil tool and nearest neighbor enlarged. Specular highlights are individual square pixels and short pixel staircases. Approximately 64x64 logical pixels shown enlarged 8x nearest-neighbour; every SQUARE PIXEL visibly large.\nOutput: genuine transparent RGBA background.\nConstraints: no text; no antialiasing; no smooth curves; no smooth gradients; no 3D render; no subpixel details; no painted microtexture; no glow or shadow outside the silhouette; no checkerboard drawn in the image; no watermark; no signatures; one asset only."
+    },
+    {
+      "path": "ui/worlds/grandlibrary/corner-ornament.png",
+      "world": "grandlibrary",
+      "section": "D",
+      "state": null,
+      "type": "board-frame corner ornament",
+      "desc": "single L-shaped upper-left board-frame corner fitting, carved with motif details inspired by an open blank book beneath one candle. Open inside elbow, no full frame.",
+      "framing": "Square1:1, one complete L corner centered within middle72%, transparent elsewhere.",
+      "logical": "64x64",
+      "scale": 8,
+      "material": "The Grand Library world style block: Leather-bound book covers, brass clasps, warm parchment and candle amber; accent #ffc860; pale highlight #f4e2c4.",
+      "refs": [
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/icons/jeweled-chess-crown.png",
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/ui/royal-obsidian-gold-button.png"
+      ],
+      "prompt": "Use case: stylized-concept\nAsset type: board-frame corner ornament\nStyle reference: Image 1: STYLE reference only — match its square pixels and shading; do NOT copy its subject.\nPrimary request: ONE finished Chess 2.0 single L-shaped upper-left board-frame corner fitting, carved with motif details inspired by an open blank book beneath one candle. Open inside elbow, no full frame.\nMaterials & palette: The Grand Library world style block: Leather-bound book covers, brass clasps, warm parchment and candle amber; accent #ffc860; pale highlight #f4e2c4. 32-colour limited palette, 4 discrete shade levels per material.\nComposition/framing: Square1:1, one complete L corner centered within middle72%, transparent elsewhere.\nPixel treatment: PIXEL ART. Authentic hand-pixelled 16-bit / 32-bit JRPG interface sprite. Elaborate beautiful detail drawn exclusively with discrete PIXEL CLUSTERS. Hard stairstep contours, discrete pixel clusters, 32-color palette, 4 discrete shade levels per material, deliberate pixel dithering. Think professional Aseprite sprite drawn with pencil tool and nearest neighbor enlarged. Specular highlights are individual square pixels and short pixel staircases. Approximately 64x64 logical pixels shown enlarged 8x nearest-neighbour; every SQUARE PIXEL visibly large.\nOutput: genuine transparent RGBA background.\nConstraints: no text; no antialiasing; no smooth curves; no smooth gradients; no 3D render; no subpixel details; no painted microtexture; no glow or shadow outside the silhouette; no checkerboard drawn in the image; no watermark; no signatures; one asset only."
+    },
+    {
+      "path": "ui/worlds/forkedgulch/primary-button-normal.png",
+      "world": "forkedgulch",
+      "section": "D",
+      "state": "normal",
+      "type": "game UI button",
+      "desc": "blank primary button with small edge ornaments inspired by a horseshoe enclosing a red-rock desert mesa. Large uninterrupted quiet label bed occupies 70% of interior.",
+      "framing": "Wide 3:1 asset on landscape canvas, full silhouette centered within middle 78% of canvas, safe transparent margin at least 10%. Blank label area.",
+      "logical": "192x64",
+      "scale": 8,
+      "material": "Forked Gulch world style block: Weathered frontier wood, horseshoe iron, red rock and scarlet cloth; accent #e8402a; pale highlight #f0d6b0.",
+      "refs": [
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/icons/jeweled-chess-crown.png",
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/ui/royal-obsidian-gold-button.png"
+      ],
+      "prompt": "Use case: stylized-concept\nAsset type: game UI button\nStyle reference: Image 1: STYLE reference only — match its square pixels and shading; do NOT copy its subject.\nPrimary request: ONE finished Chess 2.0 blank primary button with small edge ornaments inspired by a horseshoe enclosing a red-rock desert mesa. Large uninterrupted quiet label bed occupies 70% of interior.\nMaterials & palette: Forked Gulch world style block: Weathered frontier wood, horseshoe iron, red rock and scarlet cloth; accent #e8402a; pale highlight #f0d6b0. 32-colour limited palette, 4 discrete shade levels per material.\nComposition/framing: Wide 3:1 asset on landscape canvas, full silhouette centered within middle 78% of canvas, safe transparent margin at least 10%. Blank label area.\nPixel treatment: PIXEL ART. Authentic hand-pixelled 16-bit / 32-bit JRPG interface sprite. Elaborate beautiful detail drawn exclusively with discrete PIXEL CLUSTERS. Hard stairstep contours, discrete pixel clusters, 32-color palette, 4 discrete shade levels per material, deliberate pixel dithering. Think professional Aseprite sprite drawn with pencil tool and nearest neighbor enlarged. Specular highlights are individual square pixels and short pixel staircases. Approximately 192x64 logical pixels shown enlarged 8x nearest-neighbour; every SQUARE PIXEL visibly large.\nOutput: genuine transparent RGBA background.\nConstraints: no text; no antialiasing; no smooth curves; no smooth gradients; no 3D render; no subpixel details; no painted microtexture; no glow or shadow outside the silhouette; no checkerboard drawn in the image; no watermark; no signatures; one asset only."
+    },
+    {
+      "path": "ui/worlds/forkedgulch/panel-frame.png",
+      "world": "forkedgulch",
+      "section": "D",
+      "state": null,
+      "type": "dialog panel frame",
+      "desc": "ornate rectangular dialog FRAME ONLY, open empty TRANSPARENT center. Corner carvings inspired by a horseshoe enclosing a red-rock desert mesa, restrained straight rails.",
+      "framing": "Landscape 16:10 frame, center opening occupying 78% of frame is pure alpha zero. No backplate. Full frame within middle 80% canvas with safe margins.",
+      "logical": "256x160",
+      "scale": 8,
+      "material": "Forked Gulch world style block: Weathered frontier wood, horseshoe iron, red rock and scarlet cloth; accent #e8402a; pale highlight #f0d6b0.",
+      "refs": [
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/icons/jeweled-chess-crown.png",
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/ui/royal-obsidian-gold-button.png"
+      ],
+      "prompt": "Use case: stylized-concept\nAsset type: dialog panel frame\nStyle reference: Image 1: STYLE reference only — match its square pixels and shading; do NOT copy its subject.\nPrimary request: ONE finished Chess 2.0 ornate rectangular dialog FRAME ONLY, open empty TRANSPARENT center. Corner carvings inspired by a horseshoe enclosing a red-rock desert mesa, restrained straight rails.\nMaterials & palette: Forked Gulch world style block: Weathered frontier wood, horseshoe iron, red rock and scarlet cloth; accent #e8402a; pale highlight #f0d6b0. 32-colour limited palette, 4 discrete shade levels per material.\nComposition/framing: Landscape 16:10 frame, center opening occupying 78% of frame is pure alpha zero. No backplate. Full frame within middle 80% canvas with safe margins.\nPixel treatment: PIXEL ART. Authentic hand-pixelled 16-bit / 32-bit JRPG interface sprite. Elaborate beautiful detail drawn exclusively with discrete PIXEL CLUSTERS. Hard stairstep contours, discrete pixel clusters, 32-color palette, 4 discrete shade levels per material, deliberate pixel dithering. Think professional Aseprite sprite drawn with pencil tool and nearest neighbor enlarged. Specular highlights are individual square pixels and short pixel staircases. Approximately 256x160 logical pixels shown enlarged 8x nearest-neighbour; every SQUARE PIXEL visibly large.\nOutput: genuine transparent RGBA background.\nConstraints: no text; no antialiasing; no smooth curves; no smooth gradients; no 3D render; no subpixel details; no painted microtexture; no glow or shadow outside the silhouette; no checkerboard drawn in the image; no watermark; no signatures; one asset only."
+    },
+    {
+      "path": "ui/worlds/forkedgulch/title-banner.png",
+      "world": "forkedgulch",
+      "section": "D",
+      "state": null,
+      "type": "title ribbon banner",
+      "desc": "blank title ribbon/banner with folded tails and small decorative end fittings inspired by a horseshoe enclosing a red-rock desert mesa. Broad blank center for title text.",
+      "framing": "Wide 4:1 banner, centered within middle 78% canvas. Entire tails visible. Label area70% totally blank.",
+      "logical": "192x48",
+      "scale": 8,
+      "material": "Forked Gulch world style block: Weathered frontier wood, horseshoe iron, red rock and scarlet cloth; accent #e8402a; pale highlight #f0d6b0.",
+      "refs": [
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/icons/jeweled-chess-crown.png",
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/ui/royal-obsidian-gold-button.png"
+      ],
+      "prompt": "Use case: stylized-concept\nAsset type: title ribbon banner\nStyle reference: Image 1: STYLE reference only — match its square pixels and shading; do NOT copy its subject.\nPrimary request: ONE finished Chess 2.0 blank title ribbon/banner with folded tails and small decorative end fittings inspired by a horseshoe enclosing a red-rock desert mesa. Broad blank center for title text.\nMaterials & palette: Forked Gulch world style block: Weathered frontier wood, horseshoe iron, red rock and scarlet cloth; accent #e8402a; pale highlight #f0d6b0. 32-colour limited palette, 4 discrete shade levels per material.\nComposition/framing: Wide 4:1 banner, centered within middle 78% canvas. Entire tails visible. Label area70% totally blank.\nPixel treatment: PIXEL ART. Authentic hand-pixelled 16-bit / 32-bit JRPG interface sprite. Elaborate beautiful detail drawn exclusively with discrete PIXEL CLUSTERS. Hard stairstep contours, discrete pixel clusters, 32-color palette, 4 discrete shade levels per material, deliberate pixel dithering. Think professional Aseprite sprite drawn with pencil tool and nearest neighbor enlarged. Specular highlights are individual square pixels and short pixel staircases. Approximately 192x48 logical pixels shown enlarged 8x nearest-neighbour; every SQUARE PIXEL visibly large.\nOutput: genuine transparent RGBA background.\nConstraints: no text; no antialiasing; no smooth curves; no smooth gradients; no 3D render; no subpixel details; no painted microtexture; no glow or shadow outside the silhouette; no checkerboard drawn in the image; no watermark; no signatures; one asset only."
+    },
+    {
+      "path": "ui/worlds/forkedgulch/map-node.png",
+      "world": "forkedgulch",
+      "section": "D",
+      "state": "unlocked",
+      "type": "world-map node medallion",
+      "desc": "round world-map node medallion featuring a horseshoe enclosing a red-rock desert mesa. Single emblem, no letters, unlocked state.",
+      "framing": "Square1:1 with round stepped medallion occupying middle72% and transparent corners and margins.",
+      "logical": "64x64",
+      "scale": 8,
+      "material": "Forked Gulch world style block: Weathered frontier wood, horseshoe iron, red rock and scarlet cloth; accent #e8402a; pale highlight #f0d6b0.",
+      "refs": [
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/icons/jeweled-chess-crown.png",
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/ui/royal-obsidian-gold-button.png"
+      ],
+      "prompt": "Use case: stylized-concept\nAsset type: world-map node medallion\nStyle reference: Image 1: STYLE reference only — match its square pixels and shading; do NOT copy its subject.\nPrimary request: ONE finished Chess 2.0 round world-map node medallion featuring a horseshoe enclosing a red-rock desert mesa. Single emblem, no letters, unlocked state.\nMaterials & palette: Forked Gulch world style block: Weathered frontier wood, horseshoe iron, red rock and scarlet cloth; accent #e8402a; pale highlight #f0d6b0. 32-colour limited palette, 4 discrete shade levels per material.\nComposition/framing: Square1:1 with round stepped medallion occupying middle72% and transparent corners and margins.\nPixel treatment: PIXEL ART. Authentic hand-pixelled 16-bit / 32-bit JRPG interface sprite. Elaborate beautiful detail drawn exclusively with discrete PIXEL CLUSTERS. Hard stairstep contours, discrete pixel clusters, 32-color palette, 4 discrete shade levels per material, deliberate pixel dithering. Think professional Aseprite sprite drawn with pencil tool and nearest neighbor enlarged. Specular highlights are individual square pixels and short pixel staircases. Approximately 64x64 logical pixels shown enlarged 8x nearest-neighbour; every SQUARE PIXEL visibly large.\nOutput: genuine transparent RGBA background.\nConstraints: no text; no antialiasing; no smooth curves; no smooth gradients; no 3D render; no subpixel details; no painted microtexture; no glow or shadow outside the silhouette; no checkerboard drawn in the image; no watermark; no signatures; one asset only."
+    },
+    {
+      "path": "ui/worlds/forkedgulch/corner-ornament.png",
+      "world": "forkedgulch",
+      "section": "D",
+      "state": null,
+      "type": "board-frame corner ornament",
+      "desc": "single L-shaped upper-left board-frame corner fitting, carved with motif details inspired by a horseshoe enclosing a red-rock desert mesa. Open inside elbow, no full frame.",
+      "framing": "Square1:1, one complete L corner centered within middle72%, transparent elsewhere.",
+      "logical": "64x64",
+      "scale": 8,
+      "material": "Forked Gulch world style block: Weathered frontier wood, horseshoe iron, red rock and scarlet cloth; accent #e8402a; pale highlight #f0d6b0.",
+      "refs": [
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/icons/jeweled-chess-crown.png",
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/ui/royal-obsidian-gold-button.png"
+      ],
+      "prompt": "Use case: stylized-concept\nAsset type: board-frame corner ornament\nStyle reference: Image 1: STYLE reference only — match its square pixels and shading; do NOT copy its subject.\nPrimary request: ONE finished Chess 2.0 single L-shaped upper-left board-frame corner fitting, carved with motif details inspired by a horseshoe enclosing a red-rock desert mesa. Open inside elbow, no full frame.\nMaterials & palette: Forked Gulch world style block: Weathered frontier wood, horseshoe iron, red rock and scarlet cloth; accent #e8402a; pale highlight #f0d6b0. 32-colour limited palette, 4 discrete shade levels per material.\nComposition/framing: Square1:1, one complete L corner centered within middle72%, transparent elsewhere.\nPixel treatment: PIXEL ART. Authentic hand-pixelled 16-bit / 32-bit JRPG interface sprite. Elaborate beautiful detail drawn exclusively with discrete PIXEL CLUSTERS. Hard stairstep contours, discrete pixel clusters, 32-color palette, 4 discrete shade levels per material, deliberate pixel dithering. Think professional Aseprite sprite drawn with pencil tool and nearest neighbor enlarged. Specular highlights are individual square pixels and short pixel staircases. Approximately 64x64 logical pixels shown enlarged 8x nearest-neighbour; every SQUARE PIXEL visibly large.\nOutput: genuine transparent RGBA background.\nConstraints: no text; no antialiasing; no smooth curves; no smooth gradients; no 3D render; no subpixel details; no painted microtexture; no glow or shadow outside the silhouette; no checkerboard drawn in the image; no watermark; no signatures; one asset only."
+    },
+    {
+      "path": "ui/worlds/obsidiancourt/primary-button-normal.png",
+      "world": "obsidiancourt",
+      "section": "D",
+      "state": "normal",
+      "type": "game UI button",
+      "desc": "blank primary button with small edge ornaments inspired by a jagged black-glass throne above a contained ember gem. Large uninterrupted quiet label bed occupies 70% of interior.",
+      "framing": "Wide 3:1 asset on landscape canvas, full silhouette centered within middle 78% of canvas, safe transparent margin at least 10%. Blank label area.",
+      "logical": "192x64",
+      "scale": 8,
+      "material": "The Obsidian Court world style block: Volcanic black glass with angular ember-orange veins and charred iron mounts; accent #ff6a20; pale highlight #eee2dc.",
+      "refs": [
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/icons/jeweled-chess-crown.png",
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/ui/royal-obsidian-gold-button.png"
+      ],
+      "prompt": "Use case: stylized-concept\nAsset type: game UI button\nStyle reference: Image 1: STYLE reference only — match its square pixels and shading; do NOT copy its subject.\nPrimary request: ONE finished Chess 2.0 blank primary button with small edge ornaments inspired by a jagged black-glass throne above a contained ember gem. Large uninterrupted quiet label bed occupies 70% of interior.\nMaterials & palette: The Obsidian Court world style block: Volcanic black glass with angular ember-orange veins and charred iron mounts; accent #ff6a20; pale highlight #eee2dc. 32-colour limited palette, 4 discrete shade levels per material.\nComposition/framing: Wide 3:1 asset on landscape canvas, full silhouette centered within middle 78% of canvas, safe transparent margin at least 10%. Blank label area.\nPixel treatment: PIXEL ART. Authentic hand-pixelled 16-bit / 32-bit JRPG interface sprite. Elaborate beautiful detail drawn exclusively with discrete PIXEL CLUSTERS. Hard stairstep contours, discrete pixel clusters, 32-color palette, 4 discrete shade levels per material, deliberate pixel dithering. Think professional Aseprite sprite drawn with pencil tool and nearest neighbor enlarged. Specular highlights are individual square pixels and short pixel staircases. Approximately 192x64 logical pixels shown enlarged 8x nearest-neighbour; every SQUARE PIXEL visibly large.\nOutput: genuine transparent RGBA background.\nConstraints: no text; no antialiasing; no smooth curves; no smooth gradients; no 3D render; no subpixel details; no painted microtexture; no glow or shadow outside the silhouette; no checkerboard drawn in the image; no watermark; no signatures; one asset only."
+    },
+    {
+      "path": "ui/worlds/obsidiancourt/panel-frame.png",
+      "world": "obsidiancourt",
+      "section": "D",
+      "state": null,
+      "type": "dialog panel frame",
+      "desc": "ornate rectangular dialog FRAME ONLY, open empty TRANSPARENT center. Corner carvings inspired by a jagged black-glass throne above a contained ember gem, restrained straight rails.",
+      "framing": "Landscape 16:10 frame, center opening occupying 78% of frame is pure alpha zero. No backplate. Full frame within middle 80% canvas with safe margins.",
+      "logical": "256x160",
+      "scale": 8,
+      "material": "The Obsidian Court world style block: Volcanic black glass with angular ember-orange veins and charred iron mounts; accent #ff6a20; pale highlight #eee2dc.",
+      "refs": [
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/icons/jeweled-chess-crown.png",
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/ui/royal-obsidian-gold-button.png"
+      ],
+      "prompt": "Use case: stylized-concept\nAsset type: dialog panel frame\nStyle reference: Image 1: STYLE reference only — match its square pixels and shading; do NOT copy its subject.\nPrimary request: ONE finished Chess 2.0 ornate rectangular dialog FRAME ONLY, open empty TRANSPARENT center. Corner carvings inspired by a jagged black-glass throne above a contained ember gem, restrained straight rails.\nMaterials & palette: The Obsidian Court world style block: Volcanic black glass with angular ember-orange veins and charred iron mounts; accent #ff6a20; pale highlight #eee2dc. 32-colour limited palette, 4 discrete shade levels per material.\nComposition/framing: Landscape 16:10 frame, center opening occupying 78% of frame is pure alpha zero. No backplate. Full frame within middle 80% canvas with safe margins.\nPixel treatment: PIXEL ART. Authentic hand-pixelled 16-bit / 32-bit JRPG interface sprite. Elaborate beautiful detail drawn exclusively with discrete PIXEL CLUSTERS. Hard stairstep contours, discrete pixel clusters, 32-color palette, 4 discrete shade levels per material, deliberate pixel dithering. Think professional Aseprite sprite drawn with pencil tool and nearest neighbor enlarged. Specular highlights are individual square pixels and short pixel staircases. Approximately 256x160 logical pixels shown enlarged 8x nearest-neighbour; every SQUARE PIXEL visibly large.\nOutput: genuine transparent RGBA background.\nConstraints: no text; no antialiasing; no smooth curves; no smooth gradients; no 3D render; no subpixel details; no painted microtexture; no glow or shadow outside the silhouette; no checkerboard drawn in the image; no watermark; no signatures; one asset only."
+    },
+    {
+      "path": "ui/worlds/obsidiancourt/title-banner.png",
+      "world": "obsidiancourt",
+      "section": "D",
+      "state": null,
+      "type": "title ribbon banner",
+      "desc": "blank title ribbon/banner with folded tails and small decorative end fittings inspired by a jagged black-glass throne above a contained ember gem. Broad blank center for title text.",
+      "framing": "Wide 4:1 banner, centered within middle 78% canvas. Entire tails visible. Label area70% totally blank.",
+      "logical": "192x48",
+      "scale": 8,
+      "material": "The Obsidian Court world style block: Volcanic black glass with angular ember-orange veins and charred iron mounts; accent #ff6a20; pale highlight #eee2dc.",
+      "refs": [
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/icons/jeweled-chess-crown.png",
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/ui/royal-obsidian-gold-button.png"
+      ],
+      "prompt": "Use case: stylized-concept\nAsset type: title ribbon banner\nStyle reference: Image 1: STYLE reference only — match its square pixels and shading; do NOT copy its subject.\nPrimary request: ONE finished Chess 2.0 blank title ribbon/banner with folded tails and small decorative end fittings inspired by a jagged black-glass throne above a contained ember gem. Broad blank center for title text.\nMaterials & palette: The Obsidian Court world style block: Volcanic black glass with angular ember-orange veins and charred iron mounts; accent #ff6a20; pale highlight #eee2dc. 32-colour limited palette, 4 discrete shade levels per material.\nComposition/framing: Wide 4:1 banner, centered within middle 78% canvas. Entire tails visible. Label area70% totally blank.\nPixel treatment: PIXEL ART. Authentic hand-pixelled 16-bit / 32-bit JRPG interface sprite. Elaborate beautiful detail drawn exclusively with discrete PIXEL CLUSTERS. Hard stairstep contours, discrete pixel clusters, 32-color palette, 4 discrete shade levels per material, deliberate pixel dithering. Think professional Aseprite sprite drawn with pencil tool and nearest neighbor enlarged. Specular highlights are individual square pixels and short pixel staircases. Approximately 192x48 logical pixels shown enlarged 8x nearest-neighbour; every SQUARE PIXEL visibly large.\nOutput: genuine transparent RGBA background.\nConstraints: no text; no antialiasing; no smooth curves; no smooth gradients; no 3D render; no subpixel details; no painted microtexture; no glow or shadow outside the silhouette; no checkerboard drawn in the image; no watermark; no signatures; one asset only."
+    },
+    {
+      "path": "ui/worlds/obsidiancourt/map-node.png",
+      "world": "obsidiancourt",
+      "section": "D",
+      "state": "unlocked",
+      "type": "world-map node medallion",
+      "desc": "round world-map node medallion featuring a jagged black-glass throne above a contained ember gem. Single emblem, no letters, unlocked state.",
+      "framing": "Square1:1 with round stepped medallion occupying middle72% and transparent corners and margins.",
+      "logical": "64x64",
+      "scale": 8,
+      "material": "The Obsidian Court world style block: Volcanic black glass with angular ember-orange veins and charred iron mounts; accent #ff6a20; pale highlight #eee2dc.",
+      "refs": [
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/icons/jeweled-chess-crown.png",
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/ui/royal-obsidian-gold-button.png"
+      ],
+      "prompt": "Use case: stylized-concept\nAsset type: world-map node medallion\nStyle reference: Image 1: STYLE reference only — match its square pixels and shading; do NOT copy its subject.\nPrimary request: ONE finished Chess 2.0 round world-map node medallion featuring a jagged black-glass throne above a contained ember gem. Single emblem, no letters, unlocked state.\nMaterials & palette: The Obsidian Court world style block: Volcanic black glass with angular ember-orange veins and charred iron mounts; accent #ff6a20; pale highlight #eee2dc. 32-colour limited palette, 4 discrete shade levels per material.\nComposition/framing: Square1:1 with round stepped medallion occupying middle72% and transparent corners and margins.\nPixel treatment: PIXEL ART. Authentic hand-pixelled 16-bit / 32-bit JRPG interface sprite. Elaborate beautiful detail drawn exclusively with discrete PIXEL CLUSTERS. Hard stairstep contours, discrete pixel clusters, 32-color palette, 4 discrete shade levels per material, deliberate pixel dithering. Think professional Aseprite sprite drawn with pencil tool and nearest neighbor enlarged. Specular highlights are individual square pixels and short pixel staircases. Approximately 64x64 logical pixels shown enlarged 8x nearest-neighbour; every SQUARE PIXEL visibly large.\nOutput: genuine transparent RGBA background.\nConstraints: no text; no antialiasing; no smooth curves; no smooth gradients; no 3D render; no subpixel details; no painted microtexture; no glow or shadow outside the silhouette; no checkerboard drawn in the image; no watermark; no signatures; one asset only."
+    },
+    {
+      "path": "ui/worlds/obsidiancourt/corner-ornament.png",
+      "world": "obsidiancourt",
+      "section": "D",
+      "state": null,
+      "type": "board-frame corner ornament",
+      "desc": "single L-shaped upper-left board-frame corner fitting, carved with motif details inspired by a jagged black-glass throne above a contained ember gem. Open inside elbow, no full frame.",
+      "framing": "Square1:1, one complete L corner centered within middle72%, transparent elsewhere.",
+      "logical": "64x64",
+      "scale": 8,
+      "material": "The Obsidian Court world style block: Volcanic black glass with angular ember-orange veins and charred iron mounts; accent #ff6a20; pale highlight #eee2dc.",
+      "refs": [
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/icons/jeweled-chess-crown.png",
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/ui/royal-obsidian-gold-button.png"
+      ],
+      "prompt": "Use case: stylized-concept\nAsset type: board-frame corner ornament\nStyle reference: Image 1: STYLE reference only — match its square pixels and shading; do NOT copy its subject.\nPrimary request: ONE finished Chess 2.0 single L-shaped upper-left board-frame corner fitting, carved with motif details inspired by a jagged black-glass throne above a contained ember gem. Open inside elbow, no full frame.\nMaterials & palette: The Obsidian Court world style block: Volcanic black glass with angular ember-orange veins and charred iron mounts; accent #ff6a20; pale highlight #eee2dc. 32-colour limited palette, 4 discrete shade levels per material.\nComposition/framing: Square1:1, one complete L corner centered within middle72%, transparent elsewhere.\nPixel treatment: PIXEL ART. Authentic hand-pixelled 16-bit / 32-bit JRPG interface sprite. Elaborate beautiful detail drawn exclusively with discrete PIXEL CLUSTERS. Hard stairstep contours, discrete pixel clusters, 32-color palette, 4 discrete shade levels per material, deliberate pixel dithering. Think professional Aseprite sprite drawn with pencil tool and nearest neighbor enlarged. Specular highlights are individual square pixels and short pixel staircases. Approximately 64x64 logical pixels shown enlarged 8x nearest-neighbour; every SQUARE PIXEL visibly large.\nOutput: genuine transparent RGBA background.\nConstraints: no text; no antialiasing; no smooth curves; no smooth gradients; no 3D render; no subpixel details; no painted microtexture; no glow or shadow outside the silhouette; no checkerboard drawn in the image; no watermark; no signatures; one asset only."
+    },
+    {
+      "path": "ui/worlds/crystal/primary-button-normal.png",
+      "world": "crystal",
+      "section": "D",
+      "state": "normal",
+      "type": "game UI button",
+      "desc": "blank primary button with small edge ornaments inspired by a violet crystal cluster around a magenta chess king silhouette. Large uninterrupted quiet label bed occupies 70% of interior.",
+      "framing": "Wide 3:1 asset on landscape canvas, full silhouette centered within middle 78% of canvas, safe transparent margin at least 10%. Blank label area.",
+      "logical": "192x64",
+      "scale": 8,
+      "material": "Soulbound Pixel world style block: Violet crystal, dark amethyst and magenta light represented only by flat solid pixel facets; accent #d932ff; pale highlight #f4f0e8.",
+      "refs": [
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/icons/jeweled-chess-crown.png",
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/ui/royal-obsidian-gold-button.png"
+      ],
+      "prompt": "Use case: stylized-concept\nAsset type: game UI button\nStyle reference: Image 1: STYLE reference only — match its square pixels and shading; do NOT copy its subject.\nPrimary request: ONE finished Chess 2.0 blank primary button with small edge ornaments inspired by a violet crystal cluster around a magenta chess king silhouette. Large uninterrupted quiet label bed occupies 70% of interior.\nMaterials & palette: Soulbound Pixel world style block: Violet crystal, dark amethyst and magenta light represented only by flat solid pixel facets; accent #d932ff; pale highlight #f4f0e8. 32-colour limited palette, 4 discrete shade levels per material.\nComposition/framing: Wide 3:1 asset on landscape canvas, full silhouette centered within middle 78% of canvas, safe transparent margin at least 10%. Blank label area.\nPixel treatment: PIXEL ART. Authentic hand-pixelled 16-bit / 32-bit JRPG interface sprite. Elaborate beautiful detail drawn exclusively with discrete PIXEL CLUSTERS. Hard stairstep contours, discrete pixel clusters, 32-color palette, 4 discrete shade levels per material, deliberate pixel dithering. Think professional Aseprite sprite drawn with pencil tool and nearest neighbor enlarged. Specular highlights are individual square pixels and short pixel staircases. Approximately 192x64 logical pixels shown enlarged 8x nearest-neighbour; every SQUARE PIXEL visibly large.\nOutput: genuine transparent RGBA background.\nConstraints: no text; no antialiasing; no smooth curves; no smooth gradients; no 3D render; no subpixel details; no painted microtexture; no glow or shadow outside the silhouette; no checkerboard drawn in the image; no watermark; no signatures; one asset only."
+    },
+    {
+      "path": "ui/worlds/crystal/panel-frame.png",
+      "world": "crystal",
+      "section": "D",
+      "state": null,
+      "type": "dialog panel frame",
+      "desc": "ornate rectangular dialog FRAME ONLY, open empty TRANSPARENT center. Corner carvings inspired by a violet crystal cluster around a magenta chess king silhouette, restrained straight rails.",
+      "framing": "Landscape 16:10 frame, center opening occupying 78% of frame is pure alpha zero. No backplate. Full frame within middle 80% canvas with safe margins.",
+      "logical": "256x160",
+      "scale": 8,
+      "material": "Soulbound Pixel world style block: Violet crystal, dark amethyst and magenta light represented only by flat solid pixel facets; accent #d932ff; pale highlight #f4f0e8.",
+      "refs": [
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/icons/jeweled-chess-crown.png",
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/ui/royal-obsidian-gold-button.png"
+      ],
+      "prompt": "Use case: stylized-concept\nAsset type: dialog panel frame\nStyle reference: Image 1: STYLE reference only — match its square pixels and shading; do NOT copy its subject.\nPrimary request: ONE finished Chess 2.0 ornate rectangular dialog FRAME ONLY, open empty TRANSPARENT center. Corner carvings inspired by a violet crystal cluster around a magenta chess king silhouette, restrained straight rails.\nMaterials & palette: Soulbound Pixel world style block: Violet crystal, dark amethyst and magenta light represented only by flat solid pixel facets; accent #d932ff; pale highlight #f4f0e8. 32-colour limited palette, 4 discrete shade levels per material.\nComposition/framing: Landscape 16:10 frame, center opening occupying 78% of frame is pure alpha zero. No backplate. Full frame within middle 80% canvas with safe margins.\nPixel treatment: PIXEL ART. Authentic hand-pixelled 16-bit / 32-bit JRPG interface sprite. Elaborate beautiful detail drawn exclusively with discrete PIXEL CLUSTERS. Hard stairstep contours, discrete pixel clusters, 32-color palette, 4 discrete shade levels per material, deliberate pixel dithering. Think professional Aseprite sprite drawn with pencil tool and nearest neighbor enlarged. Specular highlights are individual square pixels and short pixel staircases. Approximately 256x160 logical pixels shown enlarged 8x nearest-neighbour; every SQUARE PIXEL visibly large.\nOutput: genuine transparent RGBA background.\nConstraints: no text; no antialiasing; no smooth curves; no smooth gradients; no 3D render; no subpixel details; no painted microtexture; no glow or shadow outside the silhouette; no checkerboard drawn in the image; no watermark; no signatures; one asset only."
+    },
+    {
+      "path": "ui/worlds/crystal/title-banner.png",
+      "world": "crystal",
+      "section": "D",
+      "state": null,
+      "type": "title ribbon banner",
+      "desc": "blank title ribbon/banner with folded tails and small decorative end fittings inspired by a violet crystal cluster around a magenta chess king silhouette. Broad blank center for title text.",
+      "framing": "Wide 4:1 banner, centered within middle 78% canvas. Entire tails visible. Label area70% totally blank.",
+      "logical": "192x48",
+      "scale": 8,
+      "material": "Soulbound Pixel world style block: Violet crystal, dark amethyst and magenta light represented only by flat solid pixel facets; accent #d932ff; pale highlight #f4f0e8.",
+      "refs": [
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/icons/jeweled-chess-crown.png",
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/ui/royal-obsidian-gold-button.png"
+      ],
+      "prompt": "Use case: stylized-concept\nAsset type: title ribbon banner\nStyle reference: Image 1: STYLE reference only — match its square pixels and shading; do NOT copy its subject.\nPrimary request: ONE finished Chess 2.0 blank title ribbon/banner with folded tails and small decorative end fittings inspired by a violet crystal cluster around a magenta chess king silhouette. Broad blank center for title text.\nMaterials & palette: Soulbound Pixel world style block: Violet crystal, dark amethyst and magenta light represented only by flat solid pixel facets; accent #d932ff; pale highlight #f4f0e8. 32-colour limited palette, 4 discrete shade levels per material.\nComposition/framing: Wide 4:1 banner, centered within middle 78% canvas. Entire tails visible. Label area70% totally blank.\nPixel treatment: PIXEL ART. Authentic hand-pixelled 16-bit / 32-bit JRPG interface sprite. Elaborate beautiful detail drawn exclusively with discrete PIXEL CLUSTERS. Hard stairstep contours, discrete pixel clusters, 32-color palette, 4 discrete shade levels per material, deliberate pixel dithering. Think professional Aseprite sprite drawn with pencil tool and nearest neighbor enlarged. Specular highlights are individual square pixels and short pixel staircases. Approximately 192x48 logical pixels shown enlarged 8x nearest-neighbour; every SQUARE PIXEL visibly large.\nOutput: genuine transparent RGBA background.\nConstraints: no text; no antialiasing; no smooth curves; no smooth gradients; no 3D render; no subpixel details; no painted microtexture; no glow or shadow outside the silhouette; no checkerboard drawn in the image; no watermark; no signatures; one asset only."
+    },
+    {
+      "path": "ui/worlds/crystal/map-node.png",
+      "world": "crystal",
+      "section": "D",
+      "state": "unlocked",
+      "type": "world-map node medallion",
+      "desc": "round world-map node medallion featuring a violet crystal cluster around a magenta chess king silhouette. Single emblem, no letters, unlocked state.",
+      "framing": "Square1:1 with round stepped medallion occupying middle72% and transparent corners and margins.",
+      "logical": "64x64",
+      "scale": 8,
+      "material": "Soulbound Pixel world style block: Violet crystal, dark amethyst and magenta light represented only by flat solid pixel facets; accent #d932ff; pale highlight #f4f0e8.",
+      "refs": [
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/icons/jeweled-chess-crown.png",
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/ui/royal-obsidian-gold-button.png"
+      ],
+      "prompt": "Use case: stylized-concept\nAsset type: world-map node medallion\nStyle reference: Image 1: STYLE reference only — match its square pixels and shading; do NOT copy its subject.\nPrimary request: ONE finished Chess 2.0 round world-map node medallion featuring a violet crystal cluster around a magenta chess king silhouette. Single emblem, no letters, unlocked state.\nMaterials & palette: Soulbound Pixel world style block: Violet crystal, dark amethyst and magenta light represented only by flat solid pixel facets; accent #d932ff; pale highlight #f4f0e8. 32-colour limited palette, 4 discrete shade levels per material.\nComposition/framing: Square1:1 with round stepped medallion occupying middle72% and transparent corners and margins.\nPixel treatment: PIXEL ART. Authentic hand-pixelled 16-bit / 32-bit JRPG interface sprite. Elaborate beautiful detail drawn exclusively with discrete PIXEL CLUSTERS. Hard stairstep contours, discrete pixel clusters, 32-color palette, 4 discrete shade levels per material, deliberate pixel dithering. Think professional Aseprite sprite drawn with pencil tool and nearest neighbor enlarged. Specular highlights are individual square pixels and short pixel staircases. Approximately 64x64 logical pixels shown enlarged 8x nearest-neighbour; every SQUARE PIXEL visibly large.\nOutput: genuine transparent RGBA background.\nConstraints: no text; no antialiasing; no smooth curves; no smooth gradients; no 3D render; no subpixel details; no painted microtexture; no glow or shadow outside the silhouette; no checkerboard drawn in the image; no watermark; no signatures; one asset only."
+    },
+    {
+      "path": "ui/worlds/crystal/corner-ornament.png",
+      "world": "crystal",
+      "section": "D",
+      "state": null,
+      "type": "board-frame corner ornament",
+      "desc": "single L-shaped upper-left board-frame corner fitting, carved with motif details inspired by a violet crystal cluster around a magenta chess king silhouette. Open inside elbow, no full frame.",
+      "framing": "Square1:1, one complete L corner centered within middle72%, transparent elsewhere.",
+      "logical": "64x64",
+      "scale": 8,
+      "material": "Soulbound Pixel world style block: Violet crystal, dark amethyst and magenta light represented only by flat solid pixel facets; accent #d932ff; pale highlight #f4f0e8.",
+      "refs": [
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/icons/jeweled-chess-crown.png",
+        "/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/ui/royal-obsidian-gold-button.png"
+      ],
+      "prompt": "Use case: stylized-concept\nAsset type: board-frame corner ornament\nStyle reference: Image 1: STYLE reference only — match its square pixels and shading; do NOT copy its subject.\nPrimary request: ONE finished Chess 2.0 single L-shaped upper-left board-frame corner fitting, carved with motif details inspired by a violet crystal cluster around a magenta chess king silhouette. Open inside elbow, no full frame.\nMaterials & palette: Soulbound Pixel world style block: Violet crystal, dark amethyst and magenta light represented only by flat solid pixel facets; accent #d932ff; pale highlight #f4f0e8. 32-colour limited palette, 4 discrete shade levels per material.\nComposition/framing: Square1:1, one complete L corner centered within middle72%, transparent elsewhere.\nPixel treatment: PIXEL ART. Authentic hand-pixelled 16-bit / 32-bit JRPG interface sprite. Elaborate beautiful detail drawn exclusively with discrete PIXEL CLUSTERS. Hard stairstep contours, discrete pixel clusters, 32-color palette, 4 discrete shade levels per material, deliberate pixel dithering. Think professional Aseprite sprite drawn with pencil tool and nearest neighbor enlarged. Specular highlights are individual square pixels and short pixel staircases. Approximately 64x64 logical pixels shown enlarged 8x nearest-neighbour; every SQUARE PIXEL visibly large.\nOutput: genuine transparent RGBA background.\nConstraints: no text; no antialiasing; no smooth curves; no smooth gradients; no 3D render; no subpixel details; no painted microtexture; no glow or shadow outside the silhouette; no checkerboard drawn in the image; no watermark; no signatures; one asset only."
+    }
+  ]
+}

@@ -1,5 +1,6 @@
 import json,sys,shutil,importlib.util
 from pathlib import Path
+sys.dont_write_bytecode=True
 root=Path('Assets-Trial/pixel-art-v4-ui')
 spec=importlib.util.spec_from_file_location('catalog','Assets-Trial/generators/catalog.py');cat=importlib.util.module_from_spec(spec);spec.loader.exec_module(cat)
 job=json.loads(sys.stdin.read())
@@ -12,5 +13,5 @@ meta=root/'metadata'/ (job['section']+'.json');rows=json.loads(meta.read_text())
 rows=[r for r in rows if r['path']!=job['path']]
 rows.append(dict(path=job['path'],section=job['section'],world=job.get('world'),state=job.get('state'),size=[info['width'],info['height']],source='built-in imagegen',postprocessing='none',prompt_path=prompt_path,source_path=job['source_path'],references=job['refs'],review='accepted after visual review and alpha validation'))
 meta.write_text(json.dumps(rows,indent=2)+'\n')
-print(job['path'],info)
+print(job['path'], {k:v for k,v in info.items() if k!='alpha_histogram'})
 

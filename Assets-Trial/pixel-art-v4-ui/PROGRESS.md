@@ -1,5 +1,7 @@
 # Progress
 
-In progress: Section A, Royal UI kit. 9 accepted PNGs saved with exact prompts and metadata.
+A: 46 accepted.
+B: 11 accepted; five highlights withheld after generation and alpha-edit attempts. Low-opacity requests were unreliable and filled tiles retained smooth shading. Details in metadata/withheld.json.
+C: in progress — 14 accepted navigation, audio and reward icons; more icons generating. D–H pending.
 
-B–H pending. Corrections made for secondary silver materials, danger-button margins and round-frame proportions. No game integration.
+All accepted images copied unchanged with exact prompts and metadata. No integration or commits.

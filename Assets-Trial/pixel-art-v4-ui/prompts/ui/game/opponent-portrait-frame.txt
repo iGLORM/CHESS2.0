@@ -1,0 +1,12 @@
+Use case: stylized-concept
+Asset type: chess game UI opponent-portrait-frame
+Style reference: Image 1: STYLE reference only — match its square pixels and shading; do NOT copy its subject.
+Primary request: ONE finished Chess 2.0 square opponent portrait FRAME in obsidian-silver with ruby corners, fully transparent central opening, no portrait
+Materials & palette: Royal kit: carved obsidian, raised antique gold scrollwork, ruby gemstones, small ivory pearl studs; accent #ffcf40. 32-colour limited palette, 4 discrete shade levels per material.
+Composition/framing: 1:1, 12% margins, 75% transparent centre.
+Pixel treatment: PIXEL ART. Authentic hand-pixelled 16-bit / 32-bit JRPG interface sprite. Elaborate beautiful detail drawn exclusively with discrete PIXEL CLUSTERS. Hard stairstep contours, discrete pixel clusters, 32-color palette, 4 discrete shade levels per material, deliberate pixel dithering. Think professional Aseprite sprite drawn with pencil tool and nearest neighbor enlarged. Specular highlights are individual square pixels and short pixel staircases. Approximately 96x96 logical pixels shown enlarged 8x nearest-neighbour; every SQUARE PIXEL visibly large.
+Output: genuine transparent RGBA background.
+Constraints: no text; no antialiasing; no smooth curves; no smooth gradients; no 3D render; no subpixel details; no painted microtexture; no glow or shadow outside the silhouette; no checkerboard drawn in the image; no watermark; no signatures; one asset only.
+
+Attached reference images (in order):
+/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/icons/jeweled-chess-crown.png
