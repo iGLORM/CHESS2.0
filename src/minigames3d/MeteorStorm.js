@@ -53,9 +53,9 @@ class MeteorStorm extends Game3D {
     this.camera.lookAt(0, 1, 0);
 
     this.meteors = [];
-    this.goal = Math.round(10 + this.hard * 8 + (this.isDuel ? 3 : 0));
+    this.goal = Math.round(9 + this.hard * 5 + (this.isDuel ? 3 : 0));
     this.killed = 0;
-    this.shieldHP = this.hard > 0.6 ? 2 : 3;
+    this.shieldHP = this.hard > 0.75 ? 2 : 3;
     this.maxHP = this.shieldHP;
     this.spawnTimer = 0.2;
     this.keyCooldown = 0;
@@ -64,22 +64,23 @@ class MeteorStorm extends Game3D {
 
   _spawn() {
     // Mostly from the visible half, across the top and sides.
-    const a = (Math.random() - 0.5) * Math.PI * 1.3;
-    const el = 0.15 + Math.random() * 1.1;
-    const dir = new THREE.Vector3(Math.sin(a) * Math.cos(el), Math.sin(el), Math.cos(a) * Math.cos(el) * 0.6 + 0.2).normalize();
+    // Anywhere around the planet in the camera's view, never from behind the camera.
+    const a = Math.random() * Math.PI * 2;
+    const dir = new THREE.Vector3(Math.cos(a), Math.sin(a) * 0.62 + 0.12, -0.35 + Math.random() * 0.3).normalize();
     const types = ['pawn', 'pawn', 'knight', 'bishop', 'rook', this.enemy.type];
     const obj = Pieces3D.create(types[(Math.random() * types.length) | 0], this.enemyColor, 0xff4400);
     obj.scale.setScalar(0.7);
     const fire = Mini3D.glowSprite(0xff6a1a, 2.2);
     fire.position.y = 0.5;
     obj.add(fire);
-    obj.position.copy(dir.clone().multiplyScalar(17));
+    // Close enough to be on screen from the moment they appear.
+    obj.position.copy(dir.clone().multiplyScalar(9.5));
     this.scene.add(obj);
     const big = Math.random() < this.hard * 0.3;
     if (big) obj.scale.setScalar(1.2);
     this.meteors.push({
       obj, big,
-      speed: (2.4 + this.hard * 2 + Math.random()) * (big ? 0.7 : 1),
+      speed: (1.7 + this.hard * 1.2 + Math.random() * 0.7) * (big ? 0.7 : 1),
       spin: new THREE.Vector3(Math.random() * 3, Math.random() * 3, Math.random() * 3),
       wobble: Math.random() * 6,
     });
@@ -199,8 +200,8 @@ class MeteorStorm extends Game3D {
     this.spawnTimer -= dt;
     if (this.spawnTimer <= 0) {
       this._spawn();
-      if (this.hard > 0.5 && Math.random() < 0.3) this._spawn();
-      this.spawnTimer = Math.max(0.35, 1.0 - this.hard * 0.45 - this.killed * 0.012);
+      if (this.hard > 0.6 && Math.random() < 0.2) this._spawn();
+      this.spawnTimer = Math.max(0.55, 1.15 - this.hard * 0.35 - this.killed * 0.01);
     }
     for (let i = this.meteors.length - 1; i >= 0; i--) {
       const m = this.meteors[i];

@@ -16,7 +16,6 @@ const PuzzleScreen = {
   _startTime: 0,
   _elapsedSeconds: 0,
   _stars: 0,
-  _solutionMoveIndex: 0,
   _coachText: '',
   _timerText: null,
   _coachTextObj: null,
@@ -29,6 +28,7 @@ const PuzzleScreen = {
     this._lastInitData = data || {};
     this._levelId = data && data.levelId;
     this._source = (data && data.source) || 'curriculum';
+    this._session = (this._session || 0) + 1;
 
     if (this._levelId) {
       this._level = TRAINING_LEVELS.find(l => l.id === this._levelId);
@@ -38,10 +38,12 @@ const PuzzleScreen = {
       }
       this._board = FEN.toBoard(this._level.fen);
       this._sideToMove = this._level.sideToMove || 'white';
+      this._line = [this._level.solution.primary, ...(this._level.solution.continuation || [])];
     } else if (data && data.fen) {
       this._level = null;
+      this._line = null;
       this._board = FEN.toBoard(data.fen);
-      this._sideToMove = data.fen.split(' ')[1] === 'w' ? 'white' : 'black';
+      this._sideToMove = this._board.turn;
     } else {
       switchScreen('trainingHub');
       return;
@@ -51,12 +53,14 @@ const PuzzleScreen = {
     this._selectedSquare = null;
     this._legalMoves = [];
     this._hintsUsed = 0;
+    this._revealed = false;
     this._moveCount = 0;
     this._wrongMoveCount = 0;
     this._startTime = Date.now();
     this._elapsedSeconds = 0;
     this._stars = 0;
-    this._solutionMoveIndex = 0;
+    this._lineIdx = 0;
+    this._result = null;
     this._completionOverlay = null;
 
     this.build();
@@ -70,10 +74,10 @@ const PuzzleScreen = {
     const H = PixiPremiumScene.H;
     const s = Layout.uiScale || 1;
     const isPortrait = Layout.isPortrait;
-    const themeId = store.get('theme') || 'pawnhollow';
+    const themeId = store.get('theme') || 'chess20';
 
-    const title = this._level ? `Level ${this._level.id}` : 'Custom Puzzle';
-    const subtitle = this._level ? this._level.title : 'Find the best move';
+    const title = this._level ? `Level ${this._level.id}` : 'Your Position';
+    const subtitle = this._level ? this._level.title : `Play it out as ${this._sideToMove === 'white' ? 'White' : 'Black'} against the coach`;
 
     this.pixiContainer = PixiPremiumScene.root(title, subtitle, {
       footer: false,
@@ -194,7 +198,7 @@ const PuzzleScreen = {
           card.addChild(star);
           this._starGraphics.push({ g: star, cx: sx, cy: sy, r: starSize / 2 });
         }
-        this._hintCountText.text = '0/3';
+        this._hintCountText.text = this._level ? '0/3' : '0';
       },
     });
 
@@ -314,19 +318,13 @@ const PuzzleScreen = {
     const piece = this._board.getPiece(row, col);
 
     if (this._selectedSquare) {
-      const move = this._legalMoves.find(m =>
-        m.to.row === row && m.to.col === col && !m.promotion
-      );
-      if (move) {
+      const targets = this._legalMoves.filter(m => m.to.row === row && m.to.col === col);
+      if (targets.length > 0) {
+        // Promotions: take the queen unless the solution wants another piece.
+        const wanted = this._line && this._line[this._lineIdx];
+        const move = targets.find(m => wanted && this._moveToUci(m) === wanted)
+          || targets.find(m => !m.promotion || m.promotion === 'queen') || targets[0];
         this._attemptMove(move);
-        return;
-      }
-      const promoMoves = this._legalMoves.filter(m =>
-        m.to.row === row && m.to.col === col && m.promotion
-      );
-      if (promoMoves.length > 0) {
-        const queenPromo = promoMoves.find(m => m.promotion === 'queen') || promoMoves[0];
-        this._attemptMove(queenPromo);
         return;
       }
     }
@@ -353,200 +351,265 @@ const PuzzleScreen = {
   // --- Move logic ---
 
   _moveToUci(move) {
-    const fromFile = String.fromCharCode(97 + move.from.col);
-    const fromRank = 8 - move.from.row;
-    const toFile = String.fromCharCode(97 + move.to.col);
-    const toRank = 8 - move.to.row;
-    let uci = `${fromFile}${fromRank}${toFile}${toRank}`;
-    if (move.promotion) {
-      const promoMap = { queen: 'q', rook: 'r', bishop: 'b', knight: 'n' };
-      uci += promoMap[move.promotion] || 'q';
+    return BotPersonality.moveToUci(move);
+  },
+
+  _clearSelection() {
+    this._selectedSquare = null;
+    this._legalMoves = [];
+    PixiBoardRenderer.clearHighlights();
+  },
+
+  // True while this screen is still showing the same attempt (timers and
+  // engine replies can arrive after the player has left or retried).
+  _alive(session) {
+    return session === this._session && this.pixiContainer && !this.pixiContainer.destroyed;
+  },
+
+  // Plays a move on the board with its animation and sound, then calls done.
+  _applyMove(move, color, done) {
+    const session = this._session;
+    const themeId = store.get('theme') || 'chess20';
+    const captured = this._board.getPiece(move.to.row, move.to.col);
+    if (captured) {
+      // Remove the captured sprite first so the tween never touches a destroyed one.
+      const capKey = `${move.to.col},${move.to.row}`;
+      const capSprite = PixiBoardRenderer.pieceSprites[capKey];
+      if (capSprite) {
+        if (capSprite.parent) capSprite.parent.removeChild(capSprite);
+        capSprite.destroy();
+        delete PixiBoardRenderer.pieceSprites[capKey];
+      }
     }
-    return uci;
+    MoveExecutor.executeMove(this._board, move, color);
+    PixiBoardRenderer.movePiece(move.from.col, move.from.row, move.to.col, move.to.row, themeId, () => {
+      if (!this._alive(session)) return;
+      PixiBoardRenderer.setPieces(this._board, themeId);
+      PixiBoardRenderer.clearHighlights();
+      PixiBoardRenderer.highlightSquare(move.from.col, move.from.row, 0xffe066, 0.22);
+      PixiBoardRenderer.highlightSquare(move.to.col, move.to.row, 0xffe066, 0.32);
+      if (done) done();
+    });
+    if (typeof audioManager !== 'undefined') {
+      if (captured && typeof audioManager.playCapture === 'function') audioManager.playCapture();
+      else if (typeof audioManager.playMove === 'function') audioManager.playMove();
+    }
   },
 
   _attemptMove(move) {
     this._moveCount++;
-    const themeId = store.get('theme') || 'pawnhollow';
-    const uci = this._moveToUci(move);
-    const isCorrect = this._isSolutionMove(uci);
-
-    if (isCorrect) {
-      const captured = this._board.getPiece(move.to.row, move.to.col);
-
-      // Remove captured piece sprite immediately to avoid GSAP null ref
-      if (captured) {
-        const capKey = `${move.to.col},${move.to.row}`;
-        const capSprite = PixiBoardRenderer.pieceSprites[capKey];
-        if (capSprite) {
-          if (capSprite.parent) capSprite.parent.removeChild(capSprite);
-          capSprite.destroy();
-          delete PixiBoardRenderer.pieceSprites[capKey];
-        }
-      }
-
-      MoveExecutor.executeMove(this._board, move, this._sideToMove);
-
-      PixiBoardRenderer.movePiece(
-        move.from.col, move.from.row,
-        move.to.col, move.to.row,
-        themeId, () => {
-          PixiBoardRenderer.setPieces(this._board, themeId);
-          this._afterCorrectMove();
-        }
-      );
-
-      if (captured && typeof audioManager !== 'undefined' && typeof audioManager.playCapture === 'function') {
-        audioManager.playCapture();
-      } else if (typeof audioManager !== 'undefined' && typeof audioManager.playMove === 'function') {
-        audioManager.playMove();
-      }
-    } else {
-      this._wrongMoveCount++;
-      this._state = 'wrongMove';
-      this._setCoachText(CoachCharacter.getLine('wrongMove'));
-      PixiBoardRenderer.flash(0xff4444);
-      PixiBoardRenderer.shake(6);
-      if (typeof audioManager !== 'undefined' && typeof audioManager.playError === 'function') {
-        audioManager.playError();
-      }
-
-      setTimeout(() => {
-        if (this._state === 'wrongMove') {
-          this._state = 'playing';
-        }
-      }, 1500);
+    this._clearSelection();
+    this._updateInfoDisplay();
+    if (!this._level) {
+      this._sandboxMove(move);
+      return;
     }
 
-    this._selectedSquare = null;
-    this._legalMoves = [];
-    PixiBoardRenderer.clearHighlights();
-    this._updateInfoDisplay();
+    const uci = this._moveToUci(move);
+    if (this._isSolutionMove(uci, move)) {
+      this._state = 'animating';
+      this._applyMove(move, this._sideToMove, () => this._afterCorrectMove());
+      return;
+    }
+
+    // Not the move we had in mind: let Stockfish judge whether it wins just as well.
+    const session = this._session;
+    this._state = 'checking';
+    this._setCoachText(CoachCharacter.getLine('checking'));
+    this._engineAccepts(move).then((ok) => {
+      if (!this._alive(session)) return;
+      if (ok) {
+        this._state = 'animating';
+        this._applyMove(move, this._sideToMove, () => {
+          this._setCoachText(CoachCharacter.getLine('alsoWorks'));
+          this._solvePuzzle(true);
+        });
+      } else {
+        this._wrongMove();
+      }
+    });
   },
 
-  _isSolutionMove(uci) {
-    if (!this._level) return true;
+  _wrongMove() {
+    const session = this._session;
+    this._wrongMoveCount++;
+    this._state = 'wrongMove';
+    this._setCoachText(CoachCharacter.getLine('wrongMove'));
+    PixiBoardRenderer.flash(0xff4444);
+    PixiBoardRenderer.shake(6);
+    if (typeof audioManager !== 'undefined' && typeof audioManager.playError === 'function') {
+      audioManager.playError();
+    }
+    setTimeout(() => {
+      if (this._alive(session) && this._state === 'wrongMove') this._state = 'playing';
+    }, 700);
+  },
 
-    const sol = this._level.solution;
-    if (this._solutionMoveIndex === 0) {
-      return uci === sol.primary || (sol.alternatives && sol.alternatives.includes(uci));
+  // The next move of the solution line, or any other checkmate on the last move.
+  _isSolutionMove(uci, move) {
+    const line = this._line;
+    if (uci === line[this._lineIdx]) return true;
+    if (this._lineIdx === 0 && (this._level.solution.alternatives || []).includes(uci)) return true;
+    return this._lineIdx === line.length - 1 && this._givesMate(move);
+  },
+
+  _givesMate(move) {
+    const after = this._board.clone();
+    MoveExecutor.executeMove(after, move, this._sideToMove);
+    return GameRules.isCheckmate(after, after.turn);
+  },
+
+  // Player's score for a position with the other side to move, in centipawns
+  // (mates count as +/-100000), or null if Stockfish can't answer.
+  async _scoreAfter(move) {
+    const after = this._board.clone();
+    MoveExecutor.executeMove(after, move, this._sideToMove);
+    const status = GameRules.getGameStatus(after, after.turn);
+    if (status.status === 'checkmate') return 100000;
+    if (status.status === 'stalemate' || status.status === 'draw') return 0;
+    const res = await BotPersonality.analyse(FEN.fromBoard(after, after.turn), 12);
+    if (!res) return null;
+    if (res.mate !== null) return res.mate < 0 ? 100000 : -100000;
+    return res.scoreCp === null ? null : -res.scoreCp;
+  },
+
+  // A different move counts only when the intended one wins and this one wins about as well.
+  async _engineAccepts(move) {
+    try {
+      const legal = GameRules.getLegalMoves(this._board, this._sideToMove);
+      const intended = BotPersonality._uciToMove(this._line[this._lineIdx], legal);
+      if (!intended) return false;
+      const target = await this._scoreAfter(intended);
+      if (target === null || target < 300) return false;
+      const mine = await this._scoreAfter(move);
+      return mine !== null && mine >= 300 && mine >= Math.min(target, 20000) - 150;
+    } catch (_) {
+      return false;
     }
-    if (sol.continuation && sol.continuation.length > 0) {
-      const playerMoveIdx = Math.floor(this._solutionMoveIndex / 2) * 2;
-      if (playerMoveIdx < sol.continuation.length) {
-        return uci === sol.continuation[playerMoveIdx];
-      }
-    }
-    return true;
   },
 
   _afterCorrectMove() {
-    this._solutionMoveIndex++;
-    this._setCoachText(CoachCharacter.getLine('good'));
-
-    if (!this._level) {
+    this._lineIdx++;
+    const reply = this._line[this._lineIdx];
+    if (!reply) {
       this._solvePuzzle();
       return;
     }
-
-    const sol = this._level.solution;
-    const hasCont = sol.continuation && sol.continuation.length > 0;
-
-    if (hasCont) {
-      const opponentIdx = this._solutionMoveIndex - 1;
-      if (opponentIdx < sol.continuation.length) {
-        const opponentUci = sol.continuation[opponentIdx];
-        this._solutionMoveIndex++;
-        this._playOpponentMove(opponentUci, () => {
-          const nextPlayerIdx = this._solutionMoveIndex - 1;
-          if (nextPlayerIdx < sol.continuation.length) {
-            this._state = 'playing';
-            this._setCoachText(CoachCharacter.getLine('good'));
-          } else {
-            this._solvePuzzle();
-          }
-        });
-        return;
-      }
-    }
-
-    this._solvePuzzle();
+    // The opponent's scripted reply, then it's the player's turn again.
+    this._setCoachText(CoachCharacter.getLine('good'));
+    const session = this._session;
+    setTimeout(() => {
+      if (!this._alive(session)) return;
+      const opp = this._sideToMove === 'white' ? 'black' : 'white';
+      const move = BotPersonality._uciToMove(reply, GameRules.getLegalMoves(this._board, opp));
+      if (!move) { this._solvePuzzle(); return; }
+      this._applyMove(move, opp, () => {
+        this._lineIdx++;
+        if (this._lineIdx >= this._line.length) { this._solvePuzzle(); return; }
+        this._state = 'playing';
+        this._setCoachText(CoachCharacter.getLine('levelStart'));
+      });
+    }, 450);
   },
 
-  _playOpponentMove(uci, callback) {
-    const opponentColor = this._sideToMove === 'white' ? 'black' : 'white';
-    const legalMoves = GameRules.getLegalMoves(this._board, opponentColor);
-    const move = BotPersonality._uciToMove(uci, legalMoves);
+  // --- Custom positions: play them out against Stockfish ---
 
-    if (!move) {
-      if (callback) callback();
-      return;
+  _sandboxMove(move) {
+    const session = this._session;
+    this._state = 'animating';
+    this._applyMove(move, this._sideToMove, () => {
+      const opp = this._sideToMove === 'white' ? 'black' : 'white';
+      if (this._sandboxOver(opp)) return;
+      this._setCoachText(CoachCharacter.getLine('opponentThinking'));
+      const fen = FEN.fromBoard(this._board, opp);
+      const started = Date.now();
+      BotPersonality.bestMove(fen, { skill: 20, movetime: 700 }).then((uci) => {
+        if (!this._alive(session)) return;
+        const legal = GameRules.getLegalMoves(this._board, opp);
+        const reply = (uci && BotPersonality._uciToMove(uci, legal)) || legal[Math.floor(Math.random() * legal.length)];
+        setTimeout(() => {
+          if (!this._alive(session)) return;
+          this._applyMove(reply, opp, () => {
+            if (this._sandboxOver(this._sideToMove)) return;
+            this._state = 'playing';
+            this._setCoachText(this._board.inCheck ? 'Check! Get your king to safety.' : 'Your move.');
+          });
+        }, Math.max(0, 450 - (Date.now() - started)));
+      });
+    });
+  },
+
+  // Ends the custom game if `color` (to move) is mated, stalemated or it's a draw.
+  _sandboxOver(color) {
+    const status = GameRules.getGameStatus(this._board, color);
+    if (status.status === 'checkmate') {
+      this._result = status.winner === this._sideToMove ? 'win' : 'loss';
+    } else if (status.status === 'stalemate' || status.status === 'draw') {
+      this._result = 'draw';
+    } else {
+      return false;
     }
-
-    const themeId = store.get('theme') || 'pawnhollow';
-    setTimeout(() => {
-      const captured = this._board.getPiece(move.to.row, move.to.col);
-      if (captured) {
-        const capKey = `${move.to.col},${move.to.row}`;
-        const capSprite = PixiBoardRenderer.pieceSprites[capKey];
-        if (capSprite) {
-          if (capSprite.parent) capSprite.parent.removeChild(capSprite);
-          capSprite.destroy();
-          delete PixiBoardRenderer.pieceSprites[capKey];
-        }
-      }
-
-      MoveExecutor.executeMove(this._board, move, opponentColor);
-
-      PixiBoardRenderer.movePiece(
-        move.from.col, move.from.row,
-        move.to.col, move.to.row,
-        themeId, () => {
-          PixiBoardRenderer.setPieces(this._board, themeId);
-          if (callback) callback();
-        }
-      );
-
-      if (typeof audioManager !== 'undefined' && typeof audioManager.playMove === 'function') {
-        audioManager.playMove();
-      }
-    }, 600);
+    this._state = 'solved';
+    this._elapsedSeconds = Math.floor((Date.now() - this._startTime) / 1000);
+    this._setCoachText(CoachCharacter.getLine({ win: 'sandboxWin', loss: 'sandboxLoss', draw: 'sandboxDraw' }[this._result]));
+    if (this._result === 'win') this._updateStarDisplay(3, ThemeManager.getCurrentColors());
+    const session = this._session;
+    setTimeout(() => { if (this._alive(session)) this._showCompletionOverlay(); }, 700);
+    return true;
   },
 
   // --- Puzzle completion ---
 
-  _solvePuzzle() {
+  _solvePuzzle(keepCoachText) {
     this._state = 'solved';
+    this._result = 'win';
     this._elapsedSeconds = Math.floor((Date.now() - this._startTime) / 1000);
     this._stars = this._calculateStars();
-    this._setCoachText(CoachCharacter.getLine('solved'));
+    if (!keepCoachText) this._setCoachText(CoachCharacter.getLine('solved'));
 
     const cols = ThemeManager.getCurrentColors();
     this._updateStarDisplay(this._stars, cols);
+    this._saveProgress();
 
+    const session = this._session;
+    setTimeout(() => { if (this._alive(session)) this._showCompletionOverlay(); }, 700);
+  },
+
+  // Super User's W x3: solves the puzzle (or wins the board-editor game) at once.
+  superWin() {
+    if (!this._board || this._state === 'solved') return false;
+    this._session = (this._session || 0) + 1;   // drop any pending reply or check
     if (this._level) {
-      this._saveProgress();
+      this._solvePuzzle();
+    } else {
+      this._state = 'solved';
+      this._result = 'win';
+      this._elapsedSeconds = Math.floor((Date.now() - this._startTime) / 1000);
+      this._setCoachText(CoachCharacter.getLine('sandboxWin'));
+      this._updateStarDisplay(3, ThemeManager.getCurrentColors());
+      const session = this._session;
+      setTimeout(() => { if (this._alive(session)) this._showCompletionOverlay(); }, 700);
     }
-
-    setTimeout(() => this._showCompletionOverlay(), 600);
+    if (typeof audioManager !== 'undefined' && audioManager.playVictory) audioManager.playVictory();
+    return true;
   },
 
   _calculateStars() {
-    if (!this._level) return 3;
+    if (this._revealed) return 1;
     const targets = this._level.starTargets;
-
-    if (this._hintsUsed > (targets.maxHintsForThree || 0)) {
-      if (this._elapsedSeconds <= targets.twoStarSeconds) return 2;
-      return 1;
+    const t = this._elapsedSeconds;
+    if (this._hintsUsed > (targets.maxHintsForThree || 0) || this._wrongMoveCount > 0) {
+      return (t <= targets.twoStarSeconds && this._hintsUsed <= 1 && this._wrongMoveCount <= 1) ? 2 : 1;
     }
-
-    if (this._elapsedSeconds <= targets.threeStarSeconds && this._wrongMoveCount === 0) return 3;
-    if (this._elapsedSeconds <= targets.twoStarSeconds) return 2;
-    return 1;
+    if (t <= targets.threeStarSeconds) return 3;
+    return t <= targets.twoStarSeconds ? 2 : 1;
   },
 
   _saveProgress() {
     const progress = store.get('trainingProgress');
+    progress.levels = progress.levels || {};
+    progress.coachMemory = progress.coachMemory || { missedTags: {} };
+    progress.coachMemory.missedTags = progress.coachMemory.missedTags || {};
     const levelData = progress.levels[this._level.id] || {};
     const prevStars = levelData.stars || 0;
 
@@ -562,17 +625,22 @@ const PuzzleScreen = {
     progress.totalStars = Object.values(progress.levels)
       .reduce((sum, l) => sum + (l.stars || 0), 0);
 
-    progress.currentStreak = (progress.currentStreak || 0) + 1;
-    progress.bestStreak = Math.max(progress.bestStreak || 0, progress.currentStreak);
-    progress.lastPlayedDate = new Date().toISOString().split('T')[0];
+    // The streak counts days in a row with at least one solved puzzle.
+    const today = new Date().toISOString().split('T')[0];
+    const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+    if (progress.lastPlayedDate !== today) {
+      progress.currentStreak = progress.lastPlayedDate === yesterday ? (progress.currentStreak || 0) + 1 : 1;
+    }
+    progress.bestStreak = Math.max(progress.bestStreak || 0, progress.currentStreak || 1);
+    progress.lastPlayedDate = today;
 
     const nextId = this._level.id + 1;
-    if (nextId <= 30 && (!progress.unlockedLevel || nextId > progress.unlockedLevel)) {
+    if (nextId <= TRAINING_LEVELS.length && (!progress.unlockedLevel || nextId > progress.unlockedLevel)) {
       progress.unlockedLevel = nextId;
     }
 
-    for (const tag of (this._level.coachTags || [])) {
-      if (this._wrongMoveCount > 2) {
+    if (this._wrongMoveCount > 2) {
+      for (const tag of (this._level.coachTags || [])) {
         progress.coachMemory.missedTags[tag] = (progress.coachMemory.missedTags[tag] || 0) + 1;
       }
     }
@@ -586,6 +654,7 @@ const PuzzleScreen = {
     const W = PixiPremiumScene.W;
     const H = PixiPremiumScene.H;
     const s = Layout.uiScale || 1;
+    const custom = !this._level;
 
     const overlay = new PIXI.Container();
     overlay.label = 'completionOverlay';
@@ -602,43 +671,47 @@ const PuzzleScreen = {
     const panelY = (H - panelH) / 2;
     PixiPremiumScene.panel(overlay, panelX, panelY, panelW, panelH, {});
 
-    const titleText = PixiPremiumScene.text('Puzzle Complete!', {
+    const heading = custom
+      ? { win: 'You Won!', loss: 'Checkmated', draw: 'Draw' }[this._result]
+      : 'Puzzle Complete!';
+    const titleText = PixiPremiumScene.text(heading, {
       fontFamily: PixiTextStyles.FONT_TITLE,
       fontSize: Math.round(26 * s),
-      fill: cols.accent,
+      fill: this._result === 'loss' ? '#ff7a7a' : cols.accent,
     });
     titleText.anchor.set(0.5);
     titleText.x = W / 2;
-    titleText.y = panelY + Math.round(45 * s);
+    titleText.y = panelY + Math.round(50 * s);
     overlay.addChild(titleText);
 
-    // Stars
+    // Stars (puzzles only)
     const accentNum = PixiColorUtil.hexToNum(cols.accent);
     const starR = Math.round(18 * s);
-    const starGap = Math.round(16 * s);
-    const totalStarW = 3 * starR * 2 + 2 * starGap;
-    let starCX = (W - totalStarW) / 2 + starR;
-    const starCY = panelY + Math.round(95 * s);
-    for (let i = 0; i < 3; i++) {
-      const star = new PIXI.Graphics();
-      const filled = i < this._stars;
-      star.star(starCX, starCY, 5, starR, starR / 2).fill({
-        color: filled ? accentNum : PixiColorUtil.hexToNum(PixiColorUtil.alpha(cols.text, '33')),
-        alpha: filled ? 1 : 0.5,
-      });
-      overlay.addChild(star);
-      starCX += starR * 2 + starGap;
+    const starCY = panelY + Math.round(100 * s);
+    if (!custom) {
+      const starGap = Math.round(16 * s);
+      const totalStarW = 3 * starR * 2 + 2 * starGap;
+      let starCX = (W - totalStarW) / 2 + starR;
+      for (let i = 0; i < 3; i++) {
+        const star = new PIXI.Graphics();
+        const filled = i < this._stars;
+        star.star(starCX, starCY, 5, starR, starR / 2).fill({
+          color: filled ? accentNum : PixiColorUtil.hexToNum(PixiColorUtil.alpha(cols.text, '33')),
+          alpha: filled ? 1 : 0.5,
+        });
+        overlay.addChild(star);
+        starCX += starR * 2 + starGap;
+      }
     }
 
-    // Stats
     const mins = Math.floor(this._elapsedSeconds / 60);
     const secs = this._elapsedSeconds % 60;
     const statsLines = [
       `Time: ${mins}:${secs.toString().padStart(2, '0')}`,
       `Moves: ${this._moveCount}`,
-      `Hints: ${this._hintsUsed}`,
-    ];
-    const statsY = starCY + starR + Math.round(20 * s);
+      custom ? '' : `Hints: ${this._revealed ? 'answer shown' : this._hintsUsed}`,
+    ].filter(Boolean);
+    const statsY = custom ? panelY + Math.round(105 * s) : starCY + starR + Math.round(22 * s);
     statsLines.forEach((line, i) => {
       const t = PixiPremiumScene.text(line, {
         fontFamily: PixiTextStyles.FONT_BODY,
@@ -654,23 +727,25 @@ const PuzzleScreen = {
     // Buttons
     const btnY = panelY + panelH - Math.round(70 * s);
     const btnW = Math.round((panelW - 50) / 2);
-    const hasNext = this._level && this._level.id < 30;
+    const leftX = panelX + 15;
+    const rightX = panelX + panelW - btnW - 15;
+    const fontSize = Math.round(16 * s);
 
-    PixiPremiumScene.button(overlay, panelX + 15, btnY, btnW, 48, 'Retry', () => {
-      this._removeOverlay();
-      this.init(this._lastInitData);
-    }, { fontSize: Math.round(16 * s) });
-
-    if (hasNext) {
-      PixiPremiumScene.button(overlay, panelX + panelW - btnW - 15, btnY, btnW, 48, 'Next Level', () => {
-        this._removeOverlay();
-        this.init({ levelId: this._level.id + 1, source: this._source });
-      }, { primary: true, fontSize: Math.round(16 * s) });
+    if (custom) {
+      PixiPremiumScene.button(overlay, leftX, btnY, btnW, 48, 'Edit Board', () => this._goBack(), { fontSize, icon: 'back' });
+      PixiPremiumScene.button(overlay, rightX, btnY, btnW, 48, 'Play Again', () => switchScreen('puzzle', this._lastInitData), { primary: true, fontSize, icon: 'play' });
     } else {
-      PixiPremiumScene.button(overlay, panelX + panelW - btnW - 15, btnY, btnW, 48, 'Level Select', () => {
-        this._removeOverlay();
-        switchScreen('levelSelect');
-      }, { primary: true, fontSize: Math.round(16 * s) });
+      PixiPremiumScene.button(overlay, leftX, btnY, btnW, 48, 'Retry', () => switchScreen('puzzle', this._lastInitData), { fontSize });
+      const nextId = this._level.id + 1;
+      const progress = store.get('trainingProgress');
+      const hasNext = TRAINING_LEVELS.some(l => l.id === nextId) && LevelSelectScreen._isLevelUnlocked(nextId, progress);
+      if (hasNext) {
+        PixiPremiumScene.button(overlay, rightX, btnY, btnW, 48, 'Next Level', () => {
+          switchScreen('puzzle', { levelId: nextId, source: this._source });
+        }, { primary: true, fontSize, icon: 'play' });
+      } else {
+        PixiPremiumScene.button(overlay, rightX, btnY, btnW, 48, 'Level Select', () => switchScreen('levelSelect'), { primary: true, fontSize });
+      }
     }
 
     this.pixiContainer.addChild(overlay);
@@ -688,7 +763,11 @@ const PuzzleScreen = {
   // --- Hints ---
 
   _requestHint() {
-    if (this._state !== 'playing' || !this._level) return;
+    if (this._state !== 'playing') return;
+    if (!this._level) {
+      this._sandboxHint();
+      return;
+    }
     if (this._hintsUsed >= 3) {
       this._revealSolution();
       return;
@@ -697,33 +776,49 @@ const PuzzleScreen = {
     const hintText = StockfishCoach.getHintForLevel(this._level, this._hintsUsed);
     this._hintsUsed++;
     this._setCoachText(hintText);
-
-    if (this._hintsUsed >= 3) {
-      const sol = this._level.solution.primary;
-      const fromCol = sol.charCodeAt(0) - 97;
-      const fromRow = 8 - parseInt(sol[1]);
-      PixiBoardRenderer.highlightSquare(fromCol, fromRow, 0x44ff44, 0.3);
-    }
-
+    this._showHintSquares(false);
     this._updateInfoDisplay();
   },
 
+  // Highlights the next move of the line: from-square only, or the whole move.
+  _showHintSquares(full) {
+    if (!this._level || this._hintsUsed < 3) return;
+    const uci = this._line[this._lineIdx];
+    PixiBoardRenderer.clearHighlights();
+    PixiBoardRenderer.highlightSquare(uci.charCodeAt(0) - 97, 8 - parseInt(uci[1], 10), 0x44ff44, 0.4);
+    if (full) PixiBoardRenderer.highlightSquare(uci.charCodeAt(2) - 97, 8 - parseInt(uci[3], 10), 0x44ff44, 0.4);
+  },
+
   _revealSolution() {
-    if (!this._level) return;
     const sol = this._level.solution;
-    this._setCoachText(
-      CoachCharacter.getLine('reveal', { move: sol.san, concept: this._level.concept })
-    );
-    this._hintsUsed = 99;
-
-    const fromCol = sol.primary.charCodeAt(0) - 97;
-    const fromRow = 8 - parseInt(sol.primary[1]);
-    const toCol = sol.primary.charCodeAt(2) - 97;
-    const toRow = 8 - parseInt(sol.primary[3]);
-    PixiBoardRenderer.highlightSquare(fromCol, fromRow, 0x00ff00, 0.4);
-    PixiBoardRenderer.highlightSquare(toCol, toRow, 0x00ff00, 0.4);
-
+    this._revealed = true;
+    this._setCoachText(this._lineIdx === 0
+      ? CoachCharacter.getLine('reveal', { move: sol.san, concept: this._level.concept })
+      : 'Play the highlighted move.');
+    this._showHintSquares(true);
     this._updateInfoDisplay();
+  },
+
+  // Custom positions: Stockfish shows the best move.
+  _sandboxHint() {
+    const session = this._session;
+    this._state = 'checking';
+    this._setCoachText(CoachCharacter.getLine('checking'));
+    BotPersonality.analyse(FEN.fromBoard(this._board, this._sideToMove), 14).then((res) => {
+      if (!this._alive(session)) return;
+      this._state = 'playing';
+      if (!res || !res.bestMove) { this._setCoachText('I could not find a move. Trust your instincts!'); return; }
+      this._hintsUsed++;
+      this._updateInfoDisplay();
+      const u = res.bestMove;
+      PixiBoardRenderer.clearHighlights();
+      PixiBoardRenderer.highlightSquare(u.charCodeAt(0) - 97, 8 - parseInt(u[1], 10), 0x44ff44, 0.4);
+      PixiBoardRenderer.highlightSquare(u.charCodeAt(2) - 97, 8 - parseInt(u[3], 10), 0x44ff44, 0.4);
+      const verdict = res.mate !== null
+        ? (res.mate > 0 ? `You have mate in ${res.mate}!` : `Careful: you are getting mated in ${-res.mate}.`)
+        : (res.scoreCp > 150 ? 'You are winning.' : res.scoreCp < -150 ? 'You are worse here. Fight on!' : 'The position is about equal.');
+      this._setCoachText(`${verdict} Try the highlighted move.`);
+    });
   },
 
   // --- UI updates ---
@@ -741,7 +836,8 @@ const PuzzleScreen = {
     }
     if (this._hintCountText) {
       const hintsDisplay = Math.min(this._hintsUsed, 3);
-      this._hintCountText.text = Layout.isPortrait ? `Hints: ${hintsDisplay}/3` : `${hintsDisplay}/3`;
+      const shown = this._level ? `${hintsDisplay}/3` : String(this._hintsUsed);
+      this._hintCountText.text = Layout.isPortrait ? `Hints: ${shown}` : shown;
     }
   },
 
@@ -749,11 +845,8 @@ const PuzzleScreen = {
     if (typeof audioManager !== 'undefined' && typeof audioManager.playButton === 'function') {
       audioManager.playButton();
     }
-    if (this._completionOverlay) {
-      switchScreen('levelSelect');
-    } else {
-      switchScreen(this._source === 'curriculum' ? 'trainingHub' : 'levelSelect');
-    }
+    if (this._level) switchScreen('levelSelect');
+    else switchScreen('boardEditor', { keep: true });
   },
 
   // --- Lifecycle ---
@@ -761,7 +854,7 @@ const PuzzleScreen = {
   pixiUpdate(dt) {
     PixiPremiumScene.update(this.pixiContainer, dt);
 
-    if (this._state === 'playing' && this._timerText) {
+    if (this._state !== 'solved' && this._timerText) {
       this._elapsedSeconds = Math.floor((Date.now() - this._startTime) / 1000);
       const mins = Math.floor(this._elapsedSeconds / 60);
       const secs = this._elapsedSeconds % 60;
@@ -770,6 +863,7 @@ const PuzzleScreen = {
   },
 
   destroy() {
+    this._session = (this._session || 0) + 1;
     this._removeOverlay();
     PixiBoardRenderer.destroy();
     this._boardHitArea = null;

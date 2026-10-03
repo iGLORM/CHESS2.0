@@ -1,0 +1,13 @@
+Use case: stylized-concept
+Asset type: game UI primary button
+Style reference: Image 1: STYLE reference only — match its square pixels and shading; do NOT copy its subject. Image 2: UI STYLE reference only — match its material and frame language, create a new button.
+Primary request: ONE finished Chess 2.0 royal primary wide button, normal state, ornate gold scroll filigree on top and bottom rails, faceted ruby insets at left and right, elegant gold bevels. Spacious dark obsidian purple-black central label bed entirely BLANK.
+Materials & palette: Royal kit: carved obsidian, raised antique gold scrollwork, ruby gemstones, small ivory pearl studs; accent #ffcf40. 32-color limited palette, 4 discrete shade levels per material.
+Composition/framing: button aspect 3:1, centred complete silhouette with safe 10% transparent margin on all sides; central 65% width blank label bed.
+Pixel treatment: PIXEL ART. Authentic hand-pixelled 16-bit / 32-bit JRPG interface sprite, approximately 192x64 logical pixels displayed enlarged 6x nearest-neighbor so every individual SQUARE PIXEL is visibly large. Elaborate beautiful detail drawn exclusively with discrete PIXEL CLUSTERS. Hard stairstep contours, discrete pixel clusters, 32-color palette, 4 discrete shade levels per material, deliberate pixel dithering. Think professional Aseprite sprite drawn with pencil tool and nearest neighbor enlarged. Specular highlights are individual square pixels and short pixel staircases.
+Output: genuine transparent RGBA background.
+Constraints: no text; no antialiasing; no smooth curves; no blended gradients; no 3D render; no photography; no subpixel details; no tiny smooth scratches; no painted microtexture; no glow or shadow outside the silhouette; no light bloom; no atmosphere; no checkerboard drawn in the image; no watermark; no signatures; one asset only.
+
+Attached reference images (in order):
+/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/icons/jeweled-chess-crown.png
+/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/ui/royal-obsidian-gold-button.png

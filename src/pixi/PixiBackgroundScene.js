@@ -12,8 +12,21 @@ const PixiBackgroundScene = {
     return `../assets/textures/backgrounds/${file}`;
   },
 
+  // A theme with a live scene (src/themes/scenes/) is drawn in code, not from layers.
+  isLive(themeId) {
+    return typeof LiveScenes !== 'undefined' && LiveScenes.has(themeId);
+  },
+
+  // Kept backdrops reuse the animated effects of the art they came from.
+  ALIASES: { crystal_classic: 'crystal' },
+
+  _scene(id) {
+    return typeof BACKGROUND_SCENES !== 'undefined' && (BACKGROUND_SCENES[id] || BACKGROUND_SCENES[this.ALIASES[id]]);
+  },
+
   files(themeId) {
-    const scene = typeof BACKGROUND_SCENES !== 'undefined' && BACKGROUND_SCENES[themeId];
+    if (this.isLive(themeId)) return [];
+    const scene = this._scene(themeId);
     return scene && scene.layers ? scene.layers.map(l => this.path(l.file)) : [];
   },
 
@@ -64,7 +77,12 @@ const PixiBackgroundScene = {
 
   // Builds the scene into `parent`. Returns update(time, dt) or null.
   build(themeId, parent, bgTexture) {
-    const scene = typeof BACKGROUND_SCENES !== 'undefined' && BACKGROUND_SCENES[themeId];
+    if (this.isLive(themeId)) {
+      // Covers the painted still, which stays underneath as the loading picture.
+      const tick = LiveScenes.addTo(themeId, parent, Layout.W, Layout.H);
+      if (tick) return () => tick();
+    }
+    const scene = this._scene(themeId);
     if (!scene) return null;
     const sx = Layout.W / this.ART_W;
     const sy = Layout.H / this.ART_H;

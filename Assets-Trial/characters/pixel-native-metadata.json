@@ -1,0 +1,86 @@
+[
+  {
+    "id": "moss-pawn-warden",
+    "title": "Moss Pawn Warden",
+    "path": "bosses/pixel-native/moss-pawn-warden.png",
+    "provenance": "Original deterministic code-drawn pixel art using Pillow",
+    "concept": "Forest pawn with a mushroom cap, hiking staff and moss cloak.",
+    "dimensions": [
+      96,
+      112
+    ],
+    "alpha": "binary 0/255",
+    "status": "unintegrated candidate",
+    "generator": "generate_pixel_bosses.py"
+  },
+  {
+    "id": "tide-knight-captain",
+    "title": "Tide Knight Captain",
+    "path": "bosses/pixel-native/tide-knight-captain.png",
+    "provenance": "Original deterministic code-drawn pixel art using Pillow",
+    "concept": "Horse-helmet knight with lance, shield and crimson crest.",
+    "dimensions": [
+      96,
+      112
+    ],
+    "alpha": "binary 0/255",
+    "status": "unintegrated candidate",
+    "generator": "generate_pixel_bosses.py"
+  },
+  {
+    "id": "moon-bishop-seer",
+    "title": "Moon Bishop Seer",
+    "path": "bosses/pixel-native/moon-bishop-seer.png",
+    "provenance": "Original deterministic code-drawn pixel art using Pillow",
+    "concept": "Floating bishop spirit with split mitre and crescent staff.",
+    "dimensions": [
+      96,
+      112
+    ],
+    "alpha": "binary 0/255",
+    "status": "unintegrated candidate",
+    "generator": "generate_pixel_bosses.py"
+  },
+  {
+    "id": "brass-rook-forgemaster",
+    "title": "Brass Rook Forgemaster",
+    "path": "bosses/pixel-native/brass-rook-forgemaster.png",
+    "provenance": "Original deterministic code-drawn pixel art using Pillow",
+    "concept": "Squat teal automaton rook with battlements and forge fists.",
+    "dimensions": [
+      96,
+      112
+    ],
+    "alpha": "binary 0/255",
+    "status": "unintegrated candidate",
+    "generator": "generate_pixel_bosses.py"
+  },
+  {
+    "id": "frost-queen-regent",
+    "title": "Frost Queen Regent",
+    "path": "bosses/pixel-native/frost-queen-regent.png",
+    "provenance": "Original deterministic code-drawn pixel art using Pillow",
+    "concept": "Crystal-winged queen with ice crown and flowing blue gown.",
+    "dimensions": [
+      96,
+      112
+    ],
+    "alpha": "binary 0/255",
+    "status": "unintegrated candidate",
+    "generator": "generate_pixel_bosses.py"
+  },
+  {
+    "id": "ember-king-anvil",
+    "title": "Ember King Anvil",
+    "path": "bosses/pixel-native/ember-king-anvil.png",
+    "provenance": "Original deterministic code-drawn pixel art using Pillow",
+    "concept": "Bearded ember king with heavy cross crown and forge hammer.",
+    "dimensions": [
+      96,
+      112
+    ],
+    "alpha": "binary 0/255",
+    "status": "unintegrated candidate",
+    "generator": "generate_pixel_bosses.py"
+  }
+]

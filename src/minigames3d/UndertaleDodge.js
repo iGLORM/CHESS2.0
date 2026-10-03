@@ -46,7 +46,7 @@ class UndertaleDodge extends Game3D {
     this.camera.position.set(0, 9.5, 7);
     this.camera.lookAt(0, 0, -0.9);
 
-    this.duration = 10 + this.hard * 4 + (this.isDuel ? 3 : 0);
+    this.duration = 12 + this.hard * 4 + (this.isDuel ? 3 : 0);
     this.maxHp = this.hard > 0.6 ? 2 : 3;
     this.hp = this.maxHp;
     this.invuln = 0;

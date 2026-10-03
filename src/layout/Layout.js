@@ -34,11 +34,19 @@ const Layout = {
   // The canvas must match the screen's pixels exactly: the page scales it with
   // image-rendering: pixelated, so any leftover stretch (1920x1080 needs 1.35)
   // doubles or drops whole pixel columns and makes letters uneven.
-  get renderScale() {
+  get nativeRenderScale() {
     const shell = document.getElementById('gameShell');
     const cssW = shell ? shell.getBoundingClientRect().width : window.innerWidth;
     const px = (cssW || this.W) * (window.devicePixelRatio || 1) / this.W;
     return Math.min(3, Math.max(0.5, Math.round(px * 1000) / 1000));
+  },
+
+  // A lower Resolution setting (Settings > Display) draws fewer pixels and lets the
+  // page smooth them up to the screen (main.js resizeCanvas).
+  get renderScale() {
+    const native = this.nativeRenderScale;
+    const cap = typeof Graphics !== 'undefined' ? Graphics.renderCap() : Infinity;
+    return Math.max(0.5, Math.min(native, cap));
   },
 
   scaledFont(baseSize) {

@@ -27,12 +27,19 @@
     "dev": "remotion studio --no-open",
     "build": "remotion bundle",
     "upgrade": "remotion upgrade",
-    "lint": "eslint src && tsc",
+    "lint": "node scripts/bundle-live-scenes.cjs && eslint src && tsc",
     "render": "remotion render Chess2-Ad out/chess-2-ad.mp4 --codec=h264",
     "assets": "node scripts/prepare-assets.cjs",
     "capture": "../../node_modules/.bin/electron scripts/capture-game.cjs",
     "capture:montage": "../../node_modules/.bin/electron scripts/capture-montage.cjs",
-    "score": "node scripts/score-trailer.cjs"
+    "score": "node scripts/score-trailer.cjs",
+    "predev": "node scripts/bundle-live-scenes.cjs",
+    "teaser:scenes": "node scripts/bundle-live-scenes.cjs",
+    "teaser:capture": "../../node_modules/.bin/electron scripts/capture-teaser.cjs",
+    "teaser:render": "node scripts/bundle-live-scenes.cjs && remotion render Chess2-Teaser out/chess-2-teaser.mp4 --codec=h264 && node scripts/master.cjs out/chess-2-teaser.mp4",
+    "teaser:render60": "node scripts/bundle-live-scenes.cjs && remotion render Chess2-Teaser-60s out/chess-2-teaser-60s.mp4 --codec=h264 && node scripts/master.cjs out/chess-2-teaser-60s.mp4",
+    "social:covers": "node scripts/bundle-live-scenes.cjs && node scripts/covers.cjs",
+    "social:reels": "node scripts/bundle-live-scenes.cjs && remotion render Reel-1-Capture out/social/Reel-1-Capture.mp4 --codec=h264 && node scripts/master.cjs out/social/Reel-1-Capture.mp4 && remotion render Reel-2-MiniGames out/social/Reel-2-MiniGames.mp4 --codec=h264 && node scripts/master.cjs out/social/Reel-2-MiniGames.mp4 && remotion render Reel-3-Guardians out/social/Reel-3-Guardians.mp4 --codec=h264 && node scripts/master.cjs out/social/Reel-3-Guardians.mp4 && remotion render Reel-4-Story out/social/Reel-4-Story.mp4 --codec=h264 && node scripts/master.cjs out/social/Reel-4-Story.mp4"
   },
   "sideEffects": [
     "*.css"

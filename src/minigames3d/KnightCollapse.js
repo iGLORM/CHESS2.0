@@ -62,17 +62,32 @@ class KnightCollapse extends Game3D {
     this.hop = null;
     this.sel = 0;
 
-    this.gem = new THREE.Mesh(new THREE.OctahedronGeometry(0.28, 0), new THREE.MeshStandardMaterial({ color: 0xffd166, emissive: 0xffaa00, emissiveIntensity: 1.2, flatShading: true }));
-    this.gemGlow = Mini3D.glowSprite(0xffd166, 1.8);
+    // A little gold crown: a band with five points and jewels.
+    const gold = new THREE.MeshStandardMaterial({ color: 0xffd166, emissive: 0xb07000, emissiveIntensity: 0.9, metalness: 0.6, roughness: 0.3, flatShading: true });
+    this.gem = new THREE.Group();
+    const band = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.26, 0.2, 10, 1, true), gold);
+    band.material.side = THREE.DoubleSide;
+    this.gem.add(band);
+    for (let i = 0; i < 5; i++) {
+      const a = (i / 5) * Math.PI * 2;
+      const spike = new THREE.Mesh(new THREE.ConeGeometry(0.08, 0.24, 4), gold);
+      spike.position.set(Math.cos(a) * 0.28, 0.2, Math.sin(a) * 0.28);
+      const jewel = new THREE.Mesh(new THREE.OctahedronGeometry(0.05, 0), new THREE.MeshBasicMaterial({ color: i % 2 ? 0xff4d6d : 0x4cc9f0, toneMapped: false }));
+      jewel.position.set(Math.cos(a) * 0.3, 0.02, Math.sin(a) * 0.3);
+      this.gem.add(spike, jewel);
+    }
+    this.gem.scale.setScalar(1.3);
+    this.gemGlow = Mini3D.glowSprite(0xffd166, 1.4);
+    this.gemGlow.material.opacity = 0.6;
     scene.add(this.gem, this.gemGlow);
 
     this.camera.fov = 50;
     this.camera.position.set(0, 10, 7.5);
     this.camera.lookAt(0, -0.5, 0.4);
 
-    this.goal = Math.round(4 + this.hard * 3 + (this.isDuel ? 1 : 0));
+    this.goal = Math.round(3 + this.hard * 2 + (this.isDuel ? 1 : 0));
     this.got = 0;
-    this.duration = 16 + this.goal * 0.5 - this.hard * 3;
+    this.duration = 13 + this.goal * 2.6 - this.hard * 2;
     this.collapseTimer = 1.2;
     this.warnTime = 1.1 - this.hard * 0.35;
     this.botTimer = 0.6;
@@ -94,7 +109,18 @@ class KnightCollapse extends Game3D {
   }
 
   _placeGem() {
-    const options = this.tiles.filter(t => t.state === 'solid' && (Math.abs(t.r - this.pr) + Math.abs(t.c - this.pc)) >= 3);
+    // Two or three knight jumps away: far enough to plan, near enough to reach.
+    const dist = new Map([[this._tile(this.pr, this.pc), 0]]);
+    const queue = [this._tile(this.pr, this.pc)];
+    while (queue.length) {
+      const t = queue.shift();
+      for (const [dr, dc] of KnightCollapse.JUMPS) {
+        const n = this._tile(t.r + dr, t.c + dc);
+        if (n && n.state === 'solid' && !dist.has(n)) { dist.set(n, dist.get(t) + 1); queue.push(n); }
+      }
+    }
+    let options = [...dist].filter(([, d]) => d >= 2 && d <= 3).map(([t]) => t);
+    if (!options.length) options = [...dist].filter(([, d]) => d >= 1).map(([t]) => t);
     const t = options.length ? options[(Math.random() * options.length) | 0] : this.tiles.find(t => t.state === 'solid');
     this.gemTile = t;
   }
@@ -179,8 +205,8 @@ class KnightCollapse extends Game3D {
       const n = 1 + (Math.random() < this.hard ? 1 : 0);
       for (let i = 0; i < n && solid.length; i++) this._warn(solid.splice((Math.random() * solid.length) | 0, 1)[0], this.warnTime);
       // Now and then, the square under you.
-      if (Math.random() < 0.25 + this.hard * 0.3) this._warn(this._tile(this.pr, this.pc), this.warnTime + 0.3);
-      this.collapseTimer = Math.max(0.3, 0.9 - this.hard * 0.4 - this.time * 0.02);
+      if (Math.random() < 0.1 + this.hard * 0.25) this._warn(this._tile(this.pr, this.pc), this.warnTime + 0.3);
+      this.collapseTimer = Math.max(0.45, 1.05 - this.hard * 0.4 - this.time * 0.015);
     }
 
     for (const t of this.tiles) {

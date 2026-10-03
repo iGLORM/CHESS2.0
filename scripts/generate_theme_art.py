@@ -9,6 +9,7 @@ marble with gold inlay...). The Crystal (Soulbound Pixel) board is kept as is.
     pip install pillow
     python3 scripts/generate_theme_art.py            # everything
     python3 scripts/generate_theme_art.py pieces     # or: boards, previews
+    python3 scripts/generate_theme_art.py pieces king   # one piece type only
 
 Outputs assets/textures/pieces/{theme}_{color}_{type}.png (64x64) and
 assets/textures/boards/{theme}_board.png (8x8 squares, SQ px each).
@@ -165,11 +166,11 @@ def repaint(master, mat):
     return out
 
 
-def make_pieces():
-    masters = {t: Image.open(os.path.join(PIECES, f'{MASTER}_white_{t}.png')).convert('RGBA') for t in TYPES}
+def make_pieces(types=TYPES):
+    masters = {t: Image.open(os.path.join(PIECES, f'{MASTER}_white_{t}.png')).convert('RGBA') for t in types}
     for theme, sides in MATERIALS.items():
         for color, mat in sides.items():
-            for t in TYPES:
+            for t in types:
                 repaint(masters[t], mat).save(os.path.join(PIECES, f'{theme}_{color}_{t}.png'), optimize=True)
         print('pieces', theme)
 
@@ -476,7 +477,7 @@ def make_previews():
 if __name__ == '__main__':
     what = sys.argv[1] if len(sys.argv) > 1 else 'all'
     if what in ('all', 'pieces'):
-        make_pieces()
+        make_pieces(sys.argv[2:] or TYPES)
     if what in ('all', 'boards'):
         make_boards()
     if what in ('all', 'previews'):

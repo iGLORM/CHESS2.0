@@ -213,6 +213,7 @@ const LevelSelectScreen = {
   },
 
   _isBandUnlocked(bandId, progress) {
+    if (SuperUser.active()) return true;
     if (bandId === 1) return true;
     const prevBand = TRAINING_BANDS.find(b => b.id === bandId - 1);
     if (!prevBand) return false;
@@ -220,6 +221,7 @@ const LevelSelectScreen = {
   },
 
   _isLevelUnlocked(levelId, progress) {
+    if (SuperUser.active()) return true;
     if (levelId === 1) return true;
     const level = TRAINING_LEVELS.find(l => l.id === levelId);
     if (!level) return false;

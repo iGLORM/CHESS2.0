@@ -70,7 +70,7 @@ const CustomGameScreen = {
     this.buildConfigPanel();
     this.buildMinigameGrid();
     const btnY = PixiPremiumScene.bottomButtonY();
-    PixiPremiumScene.button(this.pixiContainer, 36, btnY, 160, 44, 'Back', () => switchScreen('home'), { icon: 'back' });
+    PixiPremiumScene.button(this.pixiContainer, 36, btnY, 160, 44, 'Back', () => switchScreen('playMenu'), { icon: 'back' });
     PixiPremiumScene.button(this.pixiContainer, Layout.W - 256, PixiPremiumScene.bottomButtonY(52), 220, 52, 'Start Game', () => this.startGame(), { primary: true, icon: 'play', fontSize: 22 });
   },
 
@@ -173,7 +173,13 @@ const CustomGameScreen = {
     heading.y = headingY;
     this.pixiContainer.addChild(heading);
 
-    const toggleW = 96;
+    // As wide as the longer label needs (labels are longer in some languages).
+    const toggleW = Math.max(96, ...['All On', 'All Off'].map((l) => {
+      const t = PixiPremiumScene.text(l, { fontSize: 15, fontWeight: '800' });
+      const w = Math.ceil(t.width) + 28;
+      t.destroy();
+      return w;
+    }));
     const toggleH = 34;
     const allOffX = panelX + panelW - gridInset - toggleW;
     PixiPremiumScene.button(this.pixiContainer, allOffX - toggleW - 10, headingY - toggleH / 2, toggleW, toggleH, 'All On', () => {
@@ -219,7 +225,7 @@ const CustomGameScreen = {
           thumb.alpha = on ? 1 : 0.42;
           card.addChild(thumb);
           const title = PixiPremiumScene.text(game.name, { fontSize: titleSize, fontWeight: '900', fill: on ? cols.text : PixiPremiumScene.alpha(cols.text, '66') });
-          PixiPremiumScene.fit(title, textW, 0.85);
+          PixiPremiumScene.fitLines(title, textW, 0.85);
           const state = PixiPremiumScene.text(on ? 'ON' : 'OFF', { fontSize: 13, fontWeight: '900', fill: on ? cols.accent : '#ff6578' });
           const blockH = title.height + 6 + state.height;
           title.x = textX;
@@ -249,7 +255,7 @@ const CustomGameScreen = {
   },
 
   handleKeyDown(e) {
-    if (e.key === 'Escape') switchScreen('home');
+    if (e.key === 'Escape') switchScreen('playMenu');
     if (e.key === 'Enter') this.startGame();
   },
 };

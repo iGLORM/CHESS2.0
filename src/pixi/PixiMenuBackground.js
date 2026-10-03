@@ -21,13 +21,13 @@ const PixiMenuBackground = {
     this.container = new PIXI.Container();
     PixiApp.stage.addChildAt(this.container, 0);
 
-    const theme = ThemeManager.getTheme(store.get('theme') || 'pawnhollow');
+    const theme = ThemeManager.getTheme(store.get('theme') || 'chess20');
     this.themeId = theme.id;
     this.colors = theme.colors;
 
     this._initForTheme(theme);
 
-    this._tickerFn = (delta) => this._update(delta);
+    this._tickerFn = (ticker) => this._update(ticker.deltaTime);
     PixiApp.app.ticker.add(this._tickerFn);
     this.initialized = true;
   },
@@ -309,7 +309,7 @@ const PixiMenuBackground = {
     }
 
     // Theme change detection
-    const currentTheme = store.get('theme') || 'pawnhollow';
+    const currentTheme = store.get('theme') || 'chess20';
     if (this.themeId !== currentTheme) {
       this.destroy();
       this.init();

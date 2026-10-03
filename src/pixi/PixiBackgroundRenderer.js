@@ -20,10 +20,14 @@ const PixiBackgroundRenderer = {
     parentStage.addChildAt(this.container, 0);
   },
 
-  render(themeId) {
+  // themeId gives the colours; bgId the background art (by default the theme's own, or the
+  // Custom theme's chosen backdrop).
+  render(themeId, bgId) {
     if (!this.container) return;
     this._cleanup();
     this._themeId = themeId;
+    const bg = bgId || ThemeManager.backdropFor(themeId);
+    this._bgId = bg;
     this._time = 0;
     this._particles = [];
     this._ambientElements = [];
@@ -34,9 +38,9 @@ const PixiBackgroundRenderer = {
     const cols = theme.colors;
 
     // --- Background image or gradient ---
-    const img = TextureManager.getBackgroundTexture(themeId);
+    const img = TextureManager.getBackgroundTexture(bg);
     const hasScene = typeof PixiBackgroundScene !== 'undefined';
-    if (img && (!hasScene || PixiBackgroundScene.ready(themeId))) {
+    if (img && (!hasScene || PixiBackgroundScene.ready(bg))) {
       this.bgSprite = PIXI.Sprite.from(img);
       this.bgSprite.width = Layout.W;
       this.bgSprite.height = Layout.H;
@@ -45,19 +49,29 @@ const PixiBackgroundRenderer = {
         // Animated layers: swaying trees, drifting clouds and sand...
         const sceneLayer = new PIXI.Container();
         this.container.addChild(sceneLayer);
-        this._sceneUpdate = PixiBackgroundScene.build(themeId, sceneLayer, this.bgSprite.texture);
+        this._sceneUpdate = PixiBackgroundScene.build(bg, sceneLayer, this.bgSprite.texture);
       }
     } else {
       this._renderGradientBg(cols);
-      if (TextureManager.BACKGROUND_FILES[themeId]) {
+      if (TextureManager.BACKGROUND_FILES[bg]) {
         // Painted scene still loading: show it as soon as it arrives.
         Promise.all([
-          TextureManager.loadImage(TextureManager.backgroundPath(themeId)),
-          hasScene ? PixiBackgroundScene.load(themeId) : null,
+          TextureManager.loadImage(TextureManager.backgroundPath(bg)),
+          hasScene ? PixiBackgroundScene.load(bg) : null,
         ]).then(([loaded]) => {
-          if (loaded && this.container && this._themeId === themeId && !this.bgSprite) this.render(themeId);
+          if (loaded && this.container && this._themeId === themeId && this._bgId === bg && !this.bgSprite) this.render(themeId, bg);
         });
       }
+    }
+
+    // A live pixel scene brings its own light, particles and vignette: the generic
+    // fog and particle overlays below would only blur it.
+    if (this._sceneUpdate && PixiBackgroundScene.isLive(bg)) {
+      if (PixiApp.app) {
+        this._tickerFn = (ticker) => this._animate(ticker.deltaTime / 60);
+        PixiApp.app.ticker.add(this._tickerFn);
+      }
+      return;
     }
 
     // --- Parallax fog/mist layers ---

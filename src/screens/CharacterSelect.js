@@ -120,7 +120,8 @@ const CharacterSelect = {
     const barX = 36;
     this.progress(card, barX, at(L.BAR_Y), w - barX * 2, Math.max(10, at(L.BAR_H)), Math.min(1, (save.storyLevel || 1) / CharacterManager.STAGE_COUNT), cols);
     centred(PixiPremiumScene.text(`Stage ${save.storyLevel || 1} / ${CharacterManager.STAGE_COUNT}`, { fontSize: Math.round(18 * s), fontWeight: '800', fill: cols.text }), L.LEVEL_Y);
-    if (save.completed) status('Completed', '#7dea99');
+    if (save.ngPlus) status(save.ngCleared ? 'New Game+ cleared' : 'New Game+', '#ffe08a');
+    else if (save.completed) status('Completed', '#7dea99');
     else status('Click to continue', PixiPremiumScene.alpha(cols.text, '99'));
   },
 
@@ -128,7 +129,9 @@ const CharacterSelect = {
     const L = this.SLOT;
     const s = Layout.uiScale || 1;
     const p = h / L.H;
-    const themeId = this.getAssetThemeId();
+    // A save shows the world of the opponent it is up to; an empty slot shows the chosen theme.
+    const character = isEmpty ? null : this.slotCharacter(save);
+    const themeId = (character && character.theme) || this.getAssetThemeId();
     const bgH = Math.round(L.ART_H * p);
     const bgY = Math.round(L.ART_Y * p);
     const pad = L.PAD;
@@ -150,21 +153,17 @@ const CharacterSelect = {
       return;
     }
 
-    const charId = typeof save.selectedCharacter === 'object' && save.selectedCharacter
-      ? save.selectedCharacter.id
-      : (save.selectedCharacter || (this.characters.find(ch => ch.stage === (save.storyLevel || 1)) || this.characters[0]).id);
-    const character = this.characters.find(ch => ch.id === charId) || this.characters[0];
     const portraitSize = Math.min(Math.round(L.PORTRAIT * p), bgH - 24);
     const portraitX = pad + 12;
     const portraitY = bgY + Math.round((bgH - portraitSize) / 2);
-    const portrait = new PIXI.Sprite(PixiPremiumAssets.character(character.id));
+    const portrait = PixiPremiumAssets.characterSprite(character.id);
     portrait.width = portraitSize;
     portrait.height = portraitSize;
     portrait.x = portraitX;
     portrait.y = portraitY;
     card.addChild(portrait);
 
-    const badgeLabel = save.completed ? 'CLEAR' : `${save.storyLevel || 1}/${CharacterManager.STAGE_COUNT}`;
+    const badgeLabel = save.ngPlus && !save.ngCleared ? 'NG+' : save.completed ? 'CLEAR' : `${save.storyLevel || 1}/${CharacterManager.STAGE_COUNT}`;
     this.drawSlotBadge(card, w - pad - L.BADGE_INSET - 30, bgY + L.BADGE_INSET + 12, badgeLabel, save.completed ? '#7dea99' : cols.accent, cols, w);
 
     // Name and title stacked beside the portrait, centred on it.
@@ -236,15 +235,25 @@ const CharacterSelect = {
     return pieces[Math.max(0, Math.min(pieces.length - 1, level - 1))];
   },
 
+  // The story character a save is up to.
+  slotCharacter(save) {
+    const charId = typeof save.selectedCharacter === 'object' && save.selectedCharacter
+      ? save.selectedCharacter.id
+      : (save.selectedCharacter || (this.characters.find(ch => ch.stage === (save.storyLevel || 1)) || this.characters[0]).id);
+    // A side match (tournament, rival...) keeps its id here: show the stage's character then.
+    return this.characters.find(ch => ch.id === charId) ||
+      this.characters.find(ch => ch.stage === (save.storyLevel || 1)) || this.characters[0];
+  },
+
   getAssetThemeId() {
-    const themeId = store.get('theme') || 'pawnhollow';
+    const themeId = store.get('theme') || 'chess20';
     return themeId === 'custom' ? (store.get('customBgTheme') || 'pawnhollow') : themeId;
   },
 
   buildDifficulty() {
     const s = Layout.uiScale || 1;
     const tiers = ['rookie', 'beginner', 'intermediate', 'advanced', 'expert'];
-    if (store.get('madnessUnlocked')) tiers.push('madness');
+    if (store.get('madnessUnlocked') || SuperUser.active()) tiers.push('madness');
 
     const portrait = Layout.isPortrait;
     const cardW = Math.min(Math.round((portrait ? 700 : 720) * s), Layout.W - 80);
@@ -319,7 +328,9 @@ const CharacterSelect = {
     } else {
       store.setActiveSlot(index + 1);
       store.saveProgress();
-      switchScreen('worldMap');
+      // Until Pawnie is beaten the save opens straight on that game, never the map.
+      if (StoryProgress.firstFightPending(store.getActiveSave())) this.startFirstFight();
+      else switchScreen('worldMap');
       return;
     }
     this.build();
@@ -335,7 +346,20 @@ const CharacterSelect = {
       completed: false,
     });
     store.saveProgress();
-    switchScreen('worldMap');
+    this.startFirstFight();
+  },
+
+  // A new story goes straight into the prologue and the first fight (Pawnie),
+  // the same way the world map starts stage 1; the map comes after that game.
+  startFirstFight() {
+    const ch = STORY_STAGES[0];
+    store.setActiveSave({ selectedCharacter: ch.id, storyLevel: ch.stage });
+    store.update({ selectedCharacter: ch.id, storyLevel: ch.stage, mode: 'story' });
+    if (ch.theme) ThemeManager.useStoryTheme(ch.theme);
+    store.saveProgress();
+    const scene = StoryScenes.before(store.getActiveSave(), ch.stage);
+    if (scene) switchScreen('storyScene', { scene, next: 'game' });
+    else switchScreen('game');
   },
 
   back() {

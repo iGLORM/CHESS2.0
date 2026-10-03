@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Assets Trial · Candidate Library</title>
+<style>
+:root{color-scheme:dark;font:15px/1.5 system-ui,sans-serif;background:#11161e;color:#e7ebe8}*{box-sizing:border-box}body{margin:0}header{padding:38px 5vw 26px;border-bottom:1px solid #36404a;background:#18212a}.eyebrow{font:12px monospace;color:#90c6b1;letter-spacing:.15em}h1{font-size:clamp(30px,5vw,48px);margin:5px 0}header p{color:#b3bfc8;max-width:720px;margin:6px 0}.controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:20px 5vw;background:#11161e;position:sticky;top:0;z-index:2;border-bottom:1px solid #303b46}input,select,button{font:inherit;color:inherit;background:#202a36;border:1px solid #465565;border-radius:7px;padding:9px 12px}input{min-width:220px;flex:1}button{cursor:pointer}button:hover,a:hover{color:#aeefd1;border-color:#aeefd1}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #aeefd1;outline-offset:3px}.count{padding:16px 5vw;color:#a6b9c7;margin:0}main{display:grid;grid-template-columns:repeat(auto-fill,minmax(238px,1fr));gap:18px;padding:0 5vw 45px}article{border:1px solid #36404a;border-radius:10px;overflow:hidden;background:#1a222e;min-width:0}.preview{height:208px;display:flex;align-items:center;justify-content:center;padding:15px;background-color:#242c39;background-image:linear-gradient(45deg,#303a48 25%,transparent 25%),linear-gradient(-45deg,#303a48 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#303a48 75%),linear-gradient(-45deg,transparent 75%,#303a48 75%);background-size:20px 20px;background-position:0 0,0 10px,10px -10px,-10px 0}.light .preview{background-color:#e5e7e4;background-image:linear-gradient(45deg,#c9cfcb 25%,transparent 25%),linear-gradient(-45deg,#c9cfcb 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#c9cfcb 75%),linear-gradient(-45deg,transparent 75%,#c9cfcb 75%)}.preview img{max-width:100%;max-height:100%;object-fit:contain;image-rendering:pixelated}.info{padding:13px}.label{font:11px monospace;color:#96d9b7;text-transform:uppercase}.name{font-weight:650;margin:5px 0;text-transform:capitalize}.path{font:11px/1.5 monospace;color:#a5b5c5;overflow-wrap:anywhere}.actions{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:12px}.actions button{font-size:12px;padding:5px 9px}.actions a{color:#c5d7e4;font-size:13px}.chosen{border-color:#9ae2bb}.empty{padding:40px;color:#b9cbd7}.hint{font-size:12px;margin-left:auto;color:#9daebc}.dims{font-size:12px;color:#abb7c4;margin-top:5px}
+main{grid-template-columns:repeat(auto-fill,minmax(min(100%,290px),1fr))}.preview{height:300px}.detailed .preview img{image-rendering:auto}.collection-note{color:#e3c78e}
+</style>
+<header><div class="eyebrow">CHESS 2.0 / PIXEL ART / VOL. 04</div><h1>Pixel-art UI candidate library.</h1><p>Visible pixels, stepped edges and intricate details. Bosses, scenery, ornate interfaces and chess treasures on transparent backgrounds.</p><p>Open a PNG to inspect its detail, or shortlist your favorites. All assets remain candidates.</p></header>
+<div class="controls"><select id="collection" aria-label="Collection"><option value="pixel-art-v4-ui" selected>Pixel art v4 UI · Imagegen</option><option value="pixel-art-v3">Pixel art v3 · Imagegen</option><option value="original-studies">Original simple studies</option><option value="detailed-v2">Rejected smooth studies</option></select><input id="search" type="search" placeholder="Search names, themes, or paths…" aria-label="Search assets"><select id="category" aria-label="Category"><option value="">All categories</option></select><button id="shortlist" aria-pressed="false">Shortlist only</button><button id="backdrop" aria-pressed="false">Light backdrop</button><button id="export">Export shortlist</button></div>
+<p class="count" id="count" aria-live="polite"></p><main id="grid"></main>
+<script>
+const assets=__ASSET_DATA__;
+const $=id=>document.getElementById(id), key='chess2-assets-trial-shortlist-v1';
+let picked=new Set(),onlyPicked=false;
+try{const saved=JSON.parse(localStorage.getItem(key)||'[]');if(Array.isArray(saved))picked=new Set(saved.filter(p=>assets.some(a=>a.path===p)));}catch{}
+for(const category of [...new Set(assets.map(a=>a.category))]){const o=document.createElement('option');o.value=category;o.textContent=category[0].toUpperCase()+category.slice(1);$('category').append(o);}
+function storePicks(){try{localStorage.setItem(key,JSON.stringify([...picked]));}catch{}}
+function render(){
+ const query=$('search').value.toLowerCase().trim(),cat=$('category').value,collection=$('collection').value;
+ const pool=assets.filter(a=>!collection||a.collection===collection);
+ const list=pool.filter(a=>(!cat||a.category===cat)&&(!query||a.path.toLowerCase().includes(query)||a.name.includes(query))&&(!onlyPicked||picked.has(a.path)));
+ $('count').textContent=`${list.length} of ${pool.length} candidates in this collection · ${picked.size} shortlisted across collections · PNG candidates`;
+ const nodes=list.map(a=>{
+  const card=document.createElement('article');card.className=(picked.has(a.path)?'chosen ':'')+(a.collection==='detailed-v2'?'detailed':'');
+  const preview=document.createElement('div');preview.className='preview';const img=document.createElement('img');img.src=a.path;img.alt=a.name;img.loading='lazy';preview.append(img);
+  const info=document.createElement('div');info.className='info';
+  const label=document.createElement('div');label.className='label';label.textContent=a.category+(a.status==='rejected-style-study'?' · REJECTED STYLE':'');
+  const name=document.createElement('div');name.className='name';name.textContent=a.name;
+  const path=document.createElement('div');path.className='path';path.textContent=a.path;
+  const dims=document.createElement('div');dims.className='dims';dims.textContent=`${a.width} × ${a.height} · ${a.transparent_percent}% transparent`;
+  const actions=document.createElement('div');actions.className='actions';const open=document.createElement('a');open.href=a.path;open.target='_blank';open.rel='noopener';open.textContent='Open PNG ↗';
+  const pick=document.createElement('button');pick.textContent=picked.has(a.path)?'✓ Shortlisted':'+ Shortlist';pick.setAttribute('aria-pressed',picked.has(a.path));pick.setAttribute('aria-label',`Shortlist ${a.name}`);
+  pick.onclick=()=>{picked.has(a.path)?picked.delete(a.path):picked.add(a.path);storePicks();render();};actions.append(open,pick);info.append(label,name,path,dims,actions);card.append(preview,info);return card;
+ });
+ $('grid').replaceChildren(...nodes);if(!nodes.length){const p=document.createElement('p');p.className='empty';p.textContent='No candidates match. Try another search or category.';$('grid').append(p);}
+}
+$('search').oninput=render;$('category').onchange=render;$('collection').onchange=render;
+$('shortlist').onclick=()=>{onlyPicked=!onlyPicked;$('shortlist').setAttribute('aria-pressed',onlyPicked);render();};
+$('backdrop').onclick=()=>{const light=document.body.classList.toggle('light');$('backdrop').textContent=light?'Dark backdrop':'Light backdrop';$('backdrop').setAttribute('aria-pressed',light);};
+$('export').onclick=()=>{const blob=new Blob([JSON.stringify({status:'shortlist-only',assets:assets.filter(a=>picked.has(a.path))},null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='assets-trial-shortlist.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};
+render();
+</script>
+</html>

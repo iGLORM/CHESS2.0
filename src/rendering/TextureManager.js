@@ -4,13 +4,17 @@ class TextureManager {
 
   // Optional art that only some themes ship with; other themes draw these
   // procedurally, so we skip requesting files that do not exist.
-  static BOARD_THEMES = ['pawnhollow', 'trainingcamp', 'slantedsands', 'ironkeep', 'mistymoors',
-    'royalpalace', 'clockworkcitadel', 'grandlibrary', 'forkedgulch', 'obsidiancourt', 'crystal'];
+  static BOARD_THEMES = ['chess20', 'pawnhollow', 'trainingcamp', 'slantedsands', 'ironkeep', 'mistymoors',
+    'royalpalace', 'clockworkcitadel', 'grandlibrary', 'forkedgulch', 'obsidiancourt', 'crystal', 'greatboard'];
   static BACKGROUND_FILES = {
-    crystal: 'png', trainingcamp: 'png', forkedgulch: 'webp',
-    // Painted by scripts/generate_backgrounds.py
-    pawnhollow: 'png', slantedsands: 'png', ironkeep: 'png', mistymoors: 'png',
+    // Stills of the live scenes (src/themes/scenes/), written by `node scripts/live-scene.js bg <id>`;
+    // shown while a scene loads and on the Canvas 2D screens.
+    chess20: 'png', crystal: 'png', trainingcamp: 'png', forkedgulch: 'png',
+    pawnhollow: 'png',
+    // Kept art that isn't a theme: the original hand-painted Soulbound Pixel (ThemeManager.EXTRA_BACKDROPS).
+    crystal_classic: 'png', slantedsands: 'png', ironkeep: 'png', mistymoors: 'png',
     royalpalace: 'png', clockworkcitadel: 'png', grandlibrary: 'png', obsidiancourt: 'png',
+    greatboard: 'png',
   };
 
   static loadImage(src) {
@@ -89,7 +93,8 @@ class TextureManager {
   }
 
   static getCharacterTexture(characterId) {
-    return this.getImage(this.buildPath('characters', characterId));
+    const face = typeof SideMatches !== 'undefined' && SideMatches.faceOf(characterId);
+    return this.getImage(this.buildPath('characters', face || characterId));
   }
 
   static clearThemeTextures(themeId) {

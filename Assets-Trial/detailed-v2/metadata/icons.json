@@ -1,0 +1,28 @@
+[
+  {
+    "path": "icons/amethyst-rook-relic.png",
+    "source": "built-in imagegen",
+    "status": "rejected-style-study",
+    "size": [
+      1254,
+      1254
+    ],
+    "alpha_zero_pixels": 1163246,
+    "partial_alpha_pixels": 408917,
+    "prompt": "prompts/icons/amethyst-rook-relic.md",
+    "postprocessing": "none"
+  },
+  {
+    "path": "icons/garnet-royal-crown.png",
+    "source": "built-in imagegen",
+    "status": "rejected-style-study",
+    "size": [
+      1254,
+      1254
+    ],
+    "alpha_zero_pixels": 569509,
+    "partial_alpha_pixels": 1002454,
+    "prompt": "prompts/icons/garnet-royal-crown.md",
+    "postprocessing": "none"
+  }
+]

@@ -1,0 +1,12 @@
+Use case: stylized-concept
+Asset type: game UI correction
+Style reference: Image 1: edit target.
+Primary request: Reframe this complete button smaller with a true 12% transparent margin on ALL FOUR sides; no tips may approach image edges. Keep other materials, square pixel clusters and blank label area identical.
+Materials & palette: 32-colour limited palette, 4 discrete shades per material.
+Composition/framing: entire silhouette centered with 12% transparent margin.
+Pixel treatment: PIXEL ART. Authentic hand-pixelled 16-bit / 32-bit JRPG interface sprite. Elaborate beautiful detail drawn exclusively with discrete PIXEL CLUSTERS. Hard stairstep contours, discrete pixel clusters, 32-color palette, 4 discrete shade levels per material, deliberate pixel dithering. Think professional Aseprite sprite drawn with pencil tool and nearest neighbor enlarged. Specular highlights are individual square pixels and short pixel staircases.
+Output: genuine transparent RGBA background.
+Constraints: no text; no antialiasing; no smooth gradients; no 3D render; no glow or shadow outside silhouette; no checkerboard; no watermark; one asset only.
+
+Attached reference images (in order):
+/Users/yacineboufe/.codex/generated_images/01a0df9e-f09b-7cf2-8de8-c88af5c118e4/exec-46601331-e550-430a-b7a9-b2446ac3d566.png

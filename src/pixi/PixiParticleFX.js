@@ -9,13 +9,18 @@ const PixiParticleFX = {
     parentStage.addChild(this.container);
   },
 
+  // Settings > Graphics > Particles.
+  _amount() {
+    return typeof Graphics !== 'undefined' ? Graphics.particles() : 1;
+  },
+
   spawnCapture(x, y, color) {
     this.spawnCaptureExplosion(x, y, color, 'pawn');
   },
 
   spawnCaptureExplosion(x, y, color, pieceType) {
     const isMajor = pieceType === 'rook' || pieceType === 'queen';
-    const count = isMajor ? 120 : 50;
+    const count = Math.round((isMajor ? 120 : 50) * PixiParticleFX._amount());
     const spread = isMajor ? 450 : 300;
     const gravity = isMajor ? 200 : 150;
 
@@ -111,7 +116,7 @@ const PixiParticleFX = {
   },
 
   _spawnFireworkBurst(x, y, color) {
-    const count = 40 + Math.floor(Math.random() * 20);
+    const count = Math.round((40 + Math.floor(Math.random() * 20)) * this._amount());
     for (let i = 0; i < count; i++) {
       const p = new PIXI.Graphics();
       const size = 1.5 + Math.random() * 2.5;

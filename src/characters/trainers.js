@@ -24,8 +24,8 @@ const TRAINERS = [
       ] },
     ],
     dialogue: {
-      before: 'Recruit! Before you face a single guardian, you will learn to finish a king. Three positions. One move each. Find the mate.',
-      after: 'Three for three! You can finish a king. Dismissed, recruit. Report to Captain Capture.',
+      before: 'Recruit! Before you face a single guardian, you will learn to finish a king. Ten positions, easy to hard. One move each. Find the mate.',
+      after: 'Ten for ten! You can finish a king. Dismissed, recruit. Report to Captain Capture.',
       win: 'That was not mate, recruit. Reset and try again. The drill does not end until you get it right.',
     },
     gameDialogue: {
@@ -39,7 +39,7 @@ const TRAINERS = [
   {
     id: 'captaincapture',
     name: 'Captain Capture',
-    title: 'Master of Challenges',
+    title: 'Master of the Endgame',
     level: 1,
     trainer: true,
     hologram: 'knight',
@@ -50,16 +50,20 @@ const TRAINERS = [
       ] },
       { title: 'Losing a Challenge', lines: [
         'Lose, and your capture is cancelled. That square locks and you must choose another move.',
-        'Out there, about one capture in three starts a challenge. In my camp, EVERY capture does.',
+        'Out there, about one capture in three starts a challenge.',
+      ] },
+      { title: 'Finishing a Won Game', lines: [
+        'Being ahead is not winning. Trade pieces, push your passed pawns, and bring your king forward.',
+        'Box the enemy king towards an edge, then deliver the mate. Do not rush and do not give anything back.',
       ] },
     ],
     dialogue: {
-      before: 'Ahoy! Out there, grabbing a piece means earning it. In here, every single capture is a challenge. Make three captures and you pass.',
-      after: 'Three prizes, all fairly won! You have the stomach for challenges. On to Joy Stick!',
-      win: 'Ha! My crew held the line. Captures are earned, not taken. Try again!',
+      before: 'Ahoy! My crew is outgunned: you start this endgame ahead. But a lead is not a win. Sink my king and you pass.',
+      after: 'Sunk, fair and square! You know how to finish a won game. On to Joy Stick!',
+      win: 'Ha! You were ahead and let me off the hook. A lead is only a lead. Try again!',
     },
     gameDialogue: {
-      gameStart: ['Every capture is a challenge today!', 'Hands on the controls, sailor!'],
+      gameStart: ['You are ahead, sailor. Now finish it!', 'A lead is not a win!'],
       bossCapture: ['Your {piece} walks the plank!', 'Earned that {piece} fair and square!'],
       playerCapture: ['You won my {piece}! Well played!', 'Ooh, my {piece}! Nice challenge!'],
     },
@@ -76,17 +80,17 @@ const TRAINERS = [
     hologram: 'pawn',
     lesson: [
       { title: 'The Challenges', lines: [
-        'Challenges are short arcade games: dodge, aim, time, remember.',
-        'Each one explains itself on the READY screen, so read it before GO.',
+        'Challenges are short arcade games: dodge, aim, time, remember. There are eighteen of them.',
+        'Today you play every single one, one by one. Each explains itself on the READY screen, so read it before GO.',
       ] },
       { title: 'How to Win Them', lines: [
         'Watch the first second, then commit. Most challenges are lost by hesitating, not by missing.',
-        'Five challenges in a row. Win three and you pass.',
+        'Lose one and you get two more tries at it. If you stop, you carry on from the same game next time.',
       ] },
     ],
     dialogue: {
-      before: 'Player one, ready? Five challenges, back to back. Win three of them and you are cleared for the real world!',
-      after: 'HIGH SCORE! Your reflexes are ready. The Rulekeeper is waiting for you.',
+      before: 'Player one, ready? Every challenge in my arcade, one after another. Clear them all and you are ready for the real world!',
+      after: 'ALL CLEAR! You have played every game in the arcade. The Rulekeeper is waiting for you.',
       win: 'Game over, man! But in my arcade you always get another credit. Insert coin and try again!',
     },
     gameDialogue: {

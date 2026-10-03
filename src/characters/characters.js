@@ -82,8 +82,8 @@ const CHARACTERS = [
     title: 'The Diagonal Dreamer',
     level: 2,
     dialogue: {
-      before: "Heh heh heh... welcome to the Slanted Sands, where everything leans my way! Four bishops, no knights. And... hm. Have we met before?",
-      after: "You walked my diagonals like you were born on them. Maybe straight lines have their uses after all... Take the fragment. Carefully. It rolls.",
+      before: "Heh heh heh... welcome to the Slanted Sands, where everything leans my way! Pawnie wrote that you were coming. Four bishops, no knights. Nothing personal: rules are rules! And... hm. Have we met before?",
+      after: "You walked my diagonals like you were born on them. Maybe straight lines have their uses after all... Take my compass. Carefully. It leans. Then head north, to the Iron Keep.",
       win: "Ha! Four bishops, four diagonals, zero escape! The sand always slides toward me. Come back when you've learned to lean!",
       rematch: "Back for more slanting? Good! I've tilted the dunes an extra degree, just for you.",
     },
@@ -156,7 +156,7 @@ const CHARACTERS = [
     level: 3,
     dialogue: {
       before: "Halt. I know your step. You will not pass my gate a second time. You enter without your rooks, and taking one of mine will cost you a challenge.",
-      after: "The gate is open. You broke a fortress with half an army. I will not forget it. The fragment is yours, by right of siege.",
+      after: "The gate is open. You broke a fortress with half an army. I will not forget it. The Iron Key is yours, by right of siege.",
       win: "As expected. A keep does not fall to an army without towers. Rebuild your discipline and knock again.",
       rematch: "You return to my gate. Good. Persistence is the first rule of any siege.",
     },
@@ -227,8 +227,8 @@ const CHARACTERS = [
     title: 'The Shadow Lancer',
     level: 4,
     dialogue: {
-      before: "*from the fog* ... You cannot see me. On the Moors you see only what your pieces touch. I see everything. Watch for my eyes.",
-      after: "*the mist lifts* ... You found me in my own fog. Few ever do. Take the shard, and take the path out while the air is clear.",
+      before: "*from the fog* ... Bish-Bosh's friend, at last. I am on your side, but my lantern only goes to one who wins it. On the Moors you see only what your pieces touch. Watch for my eyes.",
+      after: "*the mist lifts* ... You found me in my own fog. Few ever do. Take my lantern. It shows what people hide. Queenie's palace lies south, across the sea.",
       win: "*a whisper at your shoulder* ... The mist keeps what it takes. Your army wandered in and did not wander out.",
       rematch: "*somewhere to your left* ... Back in the fog so soon? The eyes remember you.",
     },
@@ -304,8 +304,8 @@ const CHARACTERS = [
     title: 'The Royal Tyrant',
     level: 5,
     dialogue: {
-      before: "Welcome to MY palace, darling. Two queens on my back rank, and both of them are me. When I capture, you had better be good at games.",
-      after: "Outplayed in my own ballroom?! How scandalous. Fine, darling, you may keep the fragment. And the curtsy. Once.",
+      before: "Welcome to MY palace, darling. That foggy busybody sent you, didn't he? Two queens on my back rank, and both of them are me. When I capture, you had better be good at games.",
+      after: "Outplayed in my own ballroom?! How scandalous. Fine, darling, you may have my signet. And the curtsy. Once.",
       win: "Did you really think you could win in my palace? Every tile here is marble and every move is mine. Off you go, sweetie!",
       rematch: "Back again? How flattering. The court does love a rerun. Try not to trip on the marble this time.",
     },
@@ -377,8 +377,8 @@ const CHARACTERS = [
     title: 'The Unbreakable Fortress',
     level: 6,
     dialogue: {
-      before: "The Clockwork Citadel. Four gear walls stand at the heart of the board. Nothing passes through them. Lose a challenge and the square locks. Begin your siege.",
-      after: "The gears have stopped. You broke a siege that has held for centuries. Take the fragment. The Citadel will need a long time to wind back up.",
+      before: "The Clockwork Citadel. My brother's gate fell. My walls will not. Four gear walls stand at the heart of the board. Nothing passes through them. Lose a challenge and the square locks. Begin your siege.",
+      after: "The gears have stopped. You broke a siege that has held for centuries. Take the seal of those orders. The map you came for is not here. Ask the EndGamer.",
       win: "The walls held. They always hold. Patience is a gear that never slips. Wind yourself up and try again.",
       rematch: "Tick. Tock. You have returned to my walls. They have not moved. Neither have I.",
     },
@@ -454,8 +454,8 @@ const CHARACTERS = [
     title: 'The Patient Scholar',
     level: 7,
     dialogue: {
-      before: "Welcome to the Grand Library. Openings are a handshake, middlegames are small talk. I have skipped them for you. Here is an ending. Solve it.",
-      after: "You found a path my books did not list. Remarkable. I shall add a new chapter under your name. The fragment is yours.",
+      before: "Welcome to the Grand Library. Yes, I have your map. Openings are a handshake, middlegames are small talk. I have skipped them for you. Here is an ending. Solve it, and the map is yours.",
+      after: "You found a path my books did not list. Remarkable. I shall add a new chapter under your name. The fragment is yours, and your map.",
       win: "As the books predicted. An ending is a question with one right answer, and I have read every answer. Study, and return.",
       rematch: "Back to the stacks? I have pulled a new ending off the shelf. Same equal material. Different trap.",
     },
@@ -527,8 +527,8 @@ const CHARACTERS = [
     title: 'The Tactician',
     level: 8,
     dialogue: {
-      before: "Welcome to Forked Gulch, partner. Out here one fork takes two. Line up any two of your queen, rooks, bishops or knights, and I'll shoot 'em both.",
-      after: "You rode right past my forks, and the ones you couldn't dodge didn't slow you down. I'm impressed. The fragment's yours, fair and square.",
+      before: "Welcome to Forked Gulch, partner. That bounty on your head is worth a fortune. Out here one fork takes two. Line up any two of your queen, rooks, bishops or knights, and I'll shoot 'em both.",
+      after: "You rode right past my forks, and the ones you couldn't dodge didn't slow you down. I'm impressed. The poster's yours, fair and square.",
       win: "Bang, bang! Two pieces, one shot. That's how we do it in the Gulch. Holster up and come back when you can spot a fork.",
       rematch: "Back in town? Good. I've been polishing both barrels.",
     },
@@ -606,7 +606,7 @@ const CHARACTERS = [
     level: 9,
     dialogue: {
       before: "The Obsidian Court. You have forty moves to mate me. When the sand in my hourglass runs out, the sentence is carried out. On you.",
-      after: "Checkmate. To me, of all pieces. The glass cracks and the sand stops. Take the fragment. You have earned your time.",
+      after: "Checkmate. To me, of all pieces. The glass cracks and the sand stops. Take the fragment, and my hourglass. You have earned your time.",
       win: "Check. And mate. As foreseen. There was never enough sand for you.",
       timeout: "The sand ran out. It always does. Your forty moves are spent, and your king with them.",
       rematch: "The hourglass has been turned over. Forty moves again. Spend them better.",

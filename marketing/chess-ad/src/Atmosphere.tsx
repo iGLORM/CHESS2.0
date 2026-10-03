@@ -33,8 +33,8 @@ export const Atmosphere = () => {
         style={{
           background: "#e5d2ff",
           opacity: interpolate(frame, [0, 5, 10], [0.2, 0.05, 0], {
-            extrapolateRight: "clamp",
-          }),
+            extrapolateRight: "clamp"
+          })
         }}
       />
     </AbsoluteFill>

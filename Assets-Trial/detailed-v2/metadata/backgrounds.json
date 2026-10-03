@@ -1,0 +1,74 @@
+{
+  "collection": "Four detailed environment studies",
+  "status": "rejected-style-study",
+  "items": [
+    {
+      "file": "backgrounds/enchanted-crystal-woodland-shrine.png",
+      "prompt": "prompts/backgrounds/enchanted-crystal-woodland-shrine.txt",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "mode": "RGBA",
+      "fully_transparent_pixels": 395698,
+      "alpha_extrema": [
+        0,
+        253
+      ],
+      "generator": "built-in imagegen",
+      "status": "rejected-style-study",
+      "reason": "User requires visibly pixelated art; this is too smooth."
+    },
+    {
+      "file": "backgrounds/moonlit-gothic-cathedral.png",
+      "prompt": "prompts/backgrounds/moonlit-gothic-cathedral.txt",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "mode": "RGBA",
+      "fully_transparent_pixels": 591939,
+      "alpha_extrema": [
+        0,
+        254
+      ],
+      "generator": "built-in imagegen",
+      "status": "rejected-style-study",
+      "reason": "User requires visibly pixelated art; this is too smooth."
+    },
+    {
+      "file": "backgrounds/ornate-clockwork-citadel.png",
+      "prompt": "prompts/backgrounds/ornate-clockwork-citadel.txt",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "mode": "RGBA",
+      "fully_transparent_pixels": 668877,
+      "alpha_extrema": [
+        0,
+        254
+      ],
+      "generator": "built-in imagegen",
+      "status": "rejected-style-study",
+      "reason": "User requires visibly pixelated art; this is too smooth."
+    },
+    {
+      "file": "backgrounds/sandstone-oracle-palace.png",
+      "prompt": "prompts/backgrounds/sandstone-oracle-palace.txt",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "mode": "RGBA",
+      "fully_transparent_pixels": 470799,
+      "alpha_extrema": [
+        0,
+        254
+      ],
+      "generator": "built-in imagegen",
+      "status": "rejected-style-study",
+      "reason": "User requires visibly pixelated art; this is too smooth."
+    }
+  ]
+}

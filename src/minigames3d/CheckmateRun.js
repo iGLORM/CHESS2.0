@@ -99,8 +99,12 @@ class CheckmateRun extends Game3D {
 
   _spawnRow() {
     const lanes = [0, 1, 2];
-    const free = lanes[(Math.random() * 3) | 0];
-    const blockedCount = Math.random() < 0.35 + this.hard * 0.4 ? 2 : 1;
+    // Every other row blocks the lane you are in, so standing still never works.
+    this.rows = (this.rows || 0) + 1;
+    const camp = this.rows % 2 === 0;
+    const freeLanes = camp ? lanes.filter(l => l !== this.lane) : lanes;
+    const free = freeLanes[(Math.random() * freeLanes.length) | 0];
+    const blockedCount = camp || Math.random() < 0.35 + this.hard * 0.4 ? 2 : 1;
     const others = lanes.filter(l => l !== free).sort(() => Math.random() - 0.5).slice(0, blockedCount);
     // Sometimes the "free" lane gets a low barrier too, forcing a jump.
     const rowLanes = others.map(l => ({ lane: l, low: Math.random() < 0.3 }));

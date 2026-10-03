@@ -57,6 +57,33 @@ const Songs = {
   },
 
   THEMES: {
+    // Chess 2.0, the game's main theme: dreamy lydian bells and choir at dusk, a flute
+    // tune, then brass and taiko lifting it into something a little epic.
+    chess20: {
+      level: 1.1, bpm: 84, root: 50, harmony: 'lydian', melody: 'major', reverb: 0.55,
+      sections: [
+        { bars: 4, prog: [0, 1], layers: ['pad', 'bass', 'arp'] },
+        { bars: 8, prog: [0, 4, 5, 1], layers: ['pad', 'bass', 'arp', 'lead', 'drums'] },
+        { bars: 8, prog: [5, 1, 0, 4], layers: ['pad', 'bass', 'comp', 'arp:alt', 'lead2', 'drums:big'] },
+        { bars: 8, prog: [0, 4, 5, 1], layers: ['pad', 'bass', 'arp', 'lead', 'drums'] },
+        { bars: 4, prog: [5, 1], layers: ['pad', 'arp:alt'] },
+      ],
+      voices: {
+        pad: { inst: 'choir', oct: 0, vel: 0.6, verb: 0.6 },
+        bass: { inst: 'bass', pattern: 'whole', oct: -1, vel: 0.8, opts: { wave: 'triangle', cutoff: 380 } },
+        comp: { inst: 'brass', oct: 0, beats: [0, 2], len: 0.8, vel: 0.45, verb: 0.45, opts: { open: 3, swell: 0.1 } },
+        arp: { inst: 'bell', oct: 1, step: 0.5, vel: 0.42, verb: 0.65, pattern: [0, 2, 1, 3, 2, 1, 0, 2],
+          alt: [3, -1, 2, 1, 3, -1, 1, 2], opts: { ratio: 3.5, index: 1.2, ring: 1.6 } },
+        lead: { inst: 'flute', oct: 1, style: 'flowing', vel: 0.85, verb: 0.55, opts: { vib: 12, vibRate: 5, breath: 0.3 } },
+        lead2: { inst: 'brass', oct: 1, vel: 0.7, verb: 0.5, opts: { open: 3.5, swell: 0.06 } },
+        drums: { vel: 0.4, kit: { k: 'taiko', t: 'tom', h: 'shaker' },
+          main: { k: 'x.......x.......', h: '..-...-...-...-.' },
+          big: { k: 'x.......x...x...', t: '............x.x.', h: '..-...-...-...-.' } },
+      },
+      // Its own tension music while a king is in check (see suspense()).
+      tense: { harmony: 'harmonicMinor', prog: [0, 4, 0, 5] },
+    },
+
     // From Cosmic Abyss: slower, candlelit, a flute reading over the bells.
     grandlibrary: {
       bpm: 62, root: 50, harmony: 'lydian', reverb: 0.6,
@@ -271,6 +298,28 @@ const Songs = {
       },
     },
 
+    // The Great Board: a bright, wide anthem in major for the board made whole.
+    greatboard: {
+      bpm: 92, root: 50, harmony: 'major', reverb: 0.5,
+      sections: [
+        { bars: 4, prog: [0, 4], layers: ['pad', 'bass', 'arp'] },
+        { bars: 8, prog: [0, 5, 3, 4], layers: ['pad', 'bass', 'arp', 'lead', 'drums'] },
+        { bars: 8, prog: [5, 3, 0, 4], layers: ['pad', 'bass', 'comp', 'lead2', 'drums'] },
+        { bars: 8, prog: [0, 5, 3, 4], layers: ['pad', 'bass', 'arp', 'lead', 'drums'] },
+      ],
+      voices: {
+        pad: { inst: 'choir', oct: 0, vel: 0.6, verb: 0.55 },
+        bass: { inst: 'bass', pattern: 'whole', oct: -1, vel: 0.8, opts: { wave: 'triangle', cutoff: 400 } },
+        comp: { inst: 'brass', oct: 0, beats: [0, 2], len: 0.6, vel: 0.5, verb: 0.4, opts: { open: 3, swell: 0.08 } },
+        arp: { inst: 'bell', oct: 1, step: 0.5, vel: 0.45, verb: 0.5, pattern: [0, 2, 1, 2, 0, 3, 1, 2],
+          alt: [3, 1, 2, 0, 3, 2, 1, 0], opts: { ratio: 3, index: 1, ring: 1.2 } },
+        lead: { inst: 'brass', oct: 1, style: 'flowing', vel: 0.7, verb: 0.45, opts: { open: 4, swell: 0.05 } },
+        lead2: { inst: 'flute', oct: 1, style: 'sparse', vel: 0.8, verb: 0.5, opts: { vib: 12, breath: 0.3 } },
+        drums: { vel: 0.45, kit: { k: 'taiko', t: 'tom', h: 'shaker' },
+          main: { k: 'x.......x...x...', t: '............x.x.', h: '..-...-...-...-.' } },
+      },
+    },
+
     crystal: {
       bpm: 72, root: 47, harmony: 'minor', reverb: 0.6,
       sections: [
@@ -289,15 +338,41 @@ const Songs = {
         drums: { vel: 0.4, kit: { k: 'kick' }, main: { k: 'x..x............' } },
       },
     },
+
+    worldmap: {
+      level: 1.25, bpm: 96, root: 48, harmony: 'mixolydian', melody: 'major', reverb: 0.5,
+      sections: [
+        { bars: 4, prog: [0, 6], layers: ['pad', 'bass', 'arp', 'drums:soft'] },
+        { bars: 8, prog: [0, 6, 3, 4], layers: ['pad', 'bass', 'comp', 'arp', 'lead', 'drums'] },
+        { bars: 8, prog: [3, 4, 0, 6], layers: ['pad', 'bass', 'comp', 'arp:alt', 'lead2', 'drums:big'] },
+        { bars: 8, prog: [0, 6, 3, 4], layers: ['pad', 'bass', 'comp', 'arp', 'lead', 'drums'] },
+        { bars: 4, prog: [5, 4], layers: ['pad', 'arp:alt', 'drums:soft'] },
+      ],
+      voices: {
+        pad: { inst: 'pad', oct: 0, vel: 0.55, verb: 0.55, opts: { cutoff: 1100, attack: 0.8, release: 1.5 } },
+        bass: { inst: 'bass', pattern: 'rootfifth', oct: -1, vel: 0.85, opts: { wave: 'triangle', cutoff: 450, gate: 0.6 } },
+        comp: { inst: 'pluck', oct: 0, beats: [1, 3], len: 0.5, strum: 0.02, vel: 0.4, verb: 0.3, opts: { bright: 2600, ring: 0.6 } },
+        arp: { inst: 'bell', oct: 1, step: 0.5, vel: 0.36, verb: 0.6, pattern: [0, 1, 2, 1, 3, 2, 1, 2],
+          alt: [2, 3, -1, 2, 1, -1, 0, 1], opts: { ratio: 3, index: 1, ring: 1.2 } },
+        lead: { inst: 'flute', oct: 1, style: 'dotted', vel: 0.8, verb: 0.5, opts: { vib: 12, vibRate: 5, breath: 0.2 } },
+        lead2: { inst: 'brass', oct: 1, vel: 0.68, verb: 0.45, opts: { open: 3.2, swell: 0.08 } },
+        drums: { vel: 0.42, kit: { k: 'kick', s: 'snare', h: 'shaker', t: 'tom' },
+          soft: { k: 'x.......x.......', h: '..-...-...-...-.' },
+          main: { k: 'x.......x.......', s: '....x.......x..x', h: '..-...-...-...-.' },
+          big: { k: 'x.......x...x...', s: '....x.......x.xx', t: '............x.x.', h: '--------------o-' } },
+      },
+    },
   },
 
   // Tension music while a king is in check: same key and instruments,
   // faster, with a pulsing bass and a flat-second chord against the tonic.
+  // A song can set `tense: { harmony, prog }` to pick its own mode and chords.
   suspense(song) {
     const arp = song.voices.arp || song.voices.lead2 || song.voices.lead;
+    const tense = song.tense || {};
     return {
-      bpm: Math.max(116, song.bpm + 20), root: song.root, harmony: 'phrygian', reverb: 0.35,
-      sections: [{ bars: 4, prog: [0, 1, 0, 1], layers: ['pad', 'bass', 'arp', 'drums'] }],
+      bpm: Math.max(116, song.bpm + 20), root: song.root, harmony: tense.harmony || 'phrygian', reverb: 0.35,
+      sections: [{ bars: 4, prog: tense.prog || [0, 1, 0, 1], layers: ['pad', 'bass', 'arp', 'drums'] }],
       voices: {
         pad: { inst: 'pad', oct: 0, vel: 0.6, verb: 0.4, opts: { cutoff: 700, attack: 0.3 } },
         bass: { inst: 'bass', pattern: 'synth8', oct: -1, vel: 0.9, opts: { wave: 'sawtooth', cutoff: 500, gate: 0.5 } },

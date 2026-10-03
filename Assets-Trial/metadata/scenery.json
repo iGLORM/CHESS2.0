@@ -1,0 +1,478 @@
+{
+  "collection": "Transparent scenery studies",
+  "generator": "generators/scenery.py",
+  "seed": "stable theme and layer names",
+  "style": "original hand-authored raster pixel art",
+  "alpha": "RGBA; transparent sky and negative space; no baked checkerboard",
+  "layer_order": "distant \u2192 midground \u2192 foreground",
+  "items": [
+    {
+      "file": "backgrounds/moonlit-ruins/01-distant.png",
+      "theme": "moonlit-ruins",
+      "category": "background-layer",
+      "logical_resolution": [
+        320,
+        180
+      ],
+      "resolution": [
+        1280,
+        720
+      ],
+      "transparent": true,
+      "layer_order": 1,
+      "alignment": "top-left; all three canvases share one origin"
+    },
+    {
+      "file": "backgrounds/moonlit-ruins/02-midground.png",
+      "theme": "moonlit-ruins",
+      "category": "background-layer",
+      "logical_resolution": [
+        320,
+        180
+      ],
+      "resolution": [
+        1280,
+        720
+      ],
+      "transparent": true,
+      "layer_order": 2,
+      "alignment": "top-left; all three canvases share one origin"
+    },
+    {
+      "file": "backgrounds/moonlit-ruins/03-foreground.png",
+      "theme": "moonlit-ruins",
+      "category": "background-layer",
+      "logical_resolution": [
+        320,
+        180
+      ],
+      "resolution": [
+        1280,
+        720
+      ],
+      "transparent": true,
+      "layer_order": 3,
+      "alignment": "top-left; all three canvases share one origin"
+    },
+    {
+      "file": "backgrounds/moonlit-ruins/props/broken-watchtower.png",
+      "theme": "moonlit-ruins",
+      "category": "scenery-prop",
+      "logical_resolution": [
+        64,
+        64
+      ],
+      "resolution": [
+        256,
+        256
+      ],
+      "transparent": true,
+      "name": "broken-watchtower"
+    },
+    {
+      "file": "backgrounds/moonlit-ruins/props/moonstone-shrine.png",
+      "theme": "moonlit-ruins",
+      "category": "scenery-prop",
+      "logical_resolution": [
+        64,
+        64
+      ],
+      "resolution": [
+        256,
+        256
+      ],
+      "transparent": true,
+      "name": "moonstone-shrine"
+    },
+    {
+      "file": "backgrounds/desert-oracle/01-distant.png",
+      "theme": "desert-oracle",
+      "category": "background-layer",
+      "logical_resolution": [
+        320,
+        180
+      ],
+      "resolution": [
+        1280,
+        720
+      ],
+      "transparent": true,
+      "layer_order": 1,
+      "alignment": "top-left; all three canvases share one origin"
+    },
+    {
+      "file": "backgrounds/desert-oracle/02-midground.png",
+      "theme": "desert-oracle",
+      "category": "background-layer",
+      "logical_resolution": [
+        320,
+        180
+      ],
+      "resolution": [
+        1280,
+        720
+      ],
+      "transparent": true,
+      "layer_order": 2,
+      "alignment": "top-left; all three canvases share one origin"
+    },
+    {
+      "file": "backgrounds/desert-oracle/03-foreground.png",
+      "theme": "desert-oracle",
+      "category": "background-layer",
+      "logical_resolution": [
+        320,
+        180
+      ],
+      "resolution": [
+        1280,
+        720
+      ],
+      "transparent": true,
+      "layer_order": 3,
+      "alignment": "top-left; all three canvases share one origin"
+    },
+    {
+      "file": "backgrounds/desert-oracle/props/rune-obelisk.png",
+      "theme": "desert-oracle",
+      "category": "scenery-prop",
+      "logical_resolution": [
+        64,
+        64
+      ],
+      "resolution": [
+        256,
+        256
+      ],
+      "transparent": true,
+      "name": "rune-obelisk"
+    },
+    {
+      "file": "backgrounds/desert-oracle/props/ceremonial-urn.png",
+      "theme": "desert-oracle",
+      "category": "scenery-prop",
+      "logical_resolution": [
+        64,
+        64
+      ],
+      "resolution": [
+        256,
+        256
+      ],
+      "transparent": true,
+      "name": "ceremonial-urn"
+    },
+    {
+      "file": "backgrounds/clockwork-citadel/01-distant.png",
+      "theme": "clockwork-citadel",
+      "category": "background-layer",
+      "logical_resolution": [
+        320,
+        180
+      ],
+      "resolution": [
+        1280,
+        720
+      ],
+      "transparent": true,
+      "layer_order": 1,
+      "alignment": "top-left; all three canvases share one origin"
+    },
+    {
+      "file": "backgrounds/clockwork-citadel/02-midground.png",
+      "theme": "clockwork-citadel",
+      "category": "background-layer",
+      "logical_resolution": [
+        320,
+        180
+      ],
+      "resolution": [
+        1280,
+        720
+      ],
+      "transparent": true,
+      "layer_order": 2,
+      "alignment": "top-left; all three canvases share one origin"
+    },
+    {
+      "file": "backgrounds/clockwork-citadel/03-foreground.png",
+      "theme": "clockwork-citadel",
+      "category": "background-layer",
+      "logical_resolution": [
+        320,
+        180
+      ],
+      "resolution": [
+        1280,
+        720
+      ],
+      "transparent": true,
+      "layer_order": 3,
+      "alignment": "top-left; all three canvases share one origin"
+    },
+    {
+      "file": "backgrounds/clockwork-citadel/props/brass-gear-pedestal.png",
+      "theme": "clockwork-citadel",
+      "category": "scenery-prop",
+      "logical_resolution": [
+        64,
+        64
+      ],
+      "resolution": [
+        256,
+        256
+      ],
+      "transparent": true,
+      "name": "brass-gear-pedestal"
+    },
+    {
+      "file": "backgrounds/clockwork-citadel/props/steam-engine.png",
+      "theme": "clockwork-citadel",
+      "category": "scenery-prop",
+      "logical_resolution": [
+        64,
+        64
+      ],
+      "resolution": [
+        256,
+        256
+      ],
+      "transparent": true,
+      "name": "steam-engine"
+    },
+    {
+      "file": "backgrounds/crystal-grotto/01-distant.png",
+      "theme": "crystal-grotto",
+      "category": "background-layer",
+      "logical_resolution": [
+        320,
+        180
+      ],
+      "resolution": [
+        1280,
+        720
+      ],
+      "transparent": true,
+      "layer_order": 1,
+      "alignment": "top-left; all three canvases share one origin"
+    },
+    {
+      "file": "backgrounds/crystal-grotto/02-midground.png",
+      "theme": "crystal-grotto",
+      "category": "background-layer",
+      "logical_resolution": [
+        320,
+        180
+      ],
+      "resolution": [
+        1280,
+        720
+      ],
+      "transparent": true,
+      "layer_order": 2,
+      "alignment": "top-left; all three canvases share one origin"
+    },
+    {
+      "file": "backgrounds/crystal-grotto/03-foreground.png",
+      "theme": "crystal-grotto",
+      "category": "background-layer",
+      "logical_resolution": [
+        320,
+        180
+      ],
+      "resolution": [
+        1280,
+        720
+      ],
+      "transparent": true,
+      "layer_order": 3,
+      "alignment": "top-left; all three canvases share one origin"
+    },
+    {
+      "file": "backgrounds/crystal-grotto/props/amethyst-cluster.png",
+      "theme": "crystal-grotto",
+      "category": "scenery-prop",
+      "logical_resolution": [
+        64,
+        64
+      ],
+      "resolution": [
+        256,
+        256
+      ],
+      "transparent": true,
+      "name": "amethyst-cluster"
+    },
+    {
+      "file": "backgrounds/crystal-grotto/props/levitating-crystal.png",
+      "theme": "crystal-grotto",
+      "category": "scenery-prop",
+      "logical_resolution": [
+        64,
+        64
+      ],
+      "resolution": [
+        256,
+        256
+      ],
+      "transparent": true,
+      "name": "levitating-crystal"
+    },
+    {
+      "file": "backgrounds/woodland-sanctum/01-distant.png",
+      "theme": "woodland-sanctum",
+      "category": "background-layer",
+      "logical_resolution": [
+        320,
+        180
+      ],
+      "resolution": [
+        1280,
+        720
+      ],
+      "transparent": true,
+      "layer_order": 1,
+      "alignment": "top-left; all three canvases share one origin"
+    },
+    {
+      "file": "backgrounds/woodland-sanctum/02-midground.png",
+      "theme": "woodland-sanctum",
+      "category": "background-layer",
+      "logical_resolution": [
+        320,
+        180
+      ],
+      "resolution": [
+        1280,
+        720
+      ],
+      "transparent": true,
+      "layer_order": 2,
+      "alignment": "top-left; all three canvases share one origin"
+    },
+    {
+      "file": "backgrounds/woodland-sanctum/03-foreground.png",
+      "theme": "woodland-sanctum",
+      "category": "background-layer",
+      "logical_resolution": [
+        320,
+        180
+      ],
+      "resolution": [
+        1280,
+        720
+      ],
+      "transparent": true,
+      "layer_order": 3,
+      "alignment": "top-left; all three canvases share one origin"
+    },
+    {
+      "file": "backgrounds/woodland-sanctum/props/luminous-mushrooms.png",
+      "theme": "woodland-sanctum",
+      "category": "scenery-prop",
+      "logical_resolution": [
+        64,
+        64
+      ],
+      "resolution": [
+        256,
+        256
+      ],
+      "transparent": true,
+      "name": "luminous-mushrooms"
+    },
+    {
+      "file": "backgrounds/woodland-sanctum/props/forest-runestone.png",
+      "theme": "woodland-sanctum",
+      "category": "scenery-prop",
+      "logical_resolution": [
+        64,
+        64
+      ],
+      "resolution": [
+        256,
+        256
+      ],
+      "transparent": true,
+      "name": "forest-runestone"
+    },
+    {
+      "file": "backgrounds/astral-observatory/01-distant.png",
+      "theme": "astral-observatory",
+      "category": "background-layer",
+      "logical_resolution": [
+        320,
+        180
+      ],
+      "resolution": [
+        1280,
+        720
+      ],
+      "transparent": true,
+      "layer_order": 1,
+      "alignment": "top-left; all three canvases share one origin"
+    },
+    {
+      "file": "backgrounds/astral-observatory/02-midground.png",
+      "theme": "astral-observatory",
+      "category": "background-layer",
+      "logical_resolution": [
+        320,
+        180
+      ],
+      "resolution": [
+        1280,
+        720
+      ],
+      "transparent": true,
+      "layer_order": 2,
+      "alignment": "top-left; all three canvases share one origin"
+    },
+    {
+      "file": "backgrounds/astral-observatory/03-foreground.png",
+      "theme": "astral-observatory",
+      "category": "background-layer",
+      "logical_resolution": [
+        320,
+        180
+      ],
+      "resolution": [
+        1280,
+        720
+      ],
+      "transparent": true,
+      "layer_order": 3,
+      "alignment": "top-left; all three canvases share one origin"
+    },
+    {
+      "file": "backgrounds/astral-observatory/props/brass-armillary.png",
+      "theme": "astral-observatory",
+      "category": "scenery-prop",
+      "logical_resolution": [
+        64,
+        64
+      ],
+      "resolution": [
+        256,
+        256
+      ],
+      "transparent": true,
+      "name": "brass-armillary"
+    },
+    {
+      "file": "backgrounds/astral-observatory/props/stargazer-telescope.png",
+      "theme": "astral-observatory",
+      "category": "scenery-prop",
+      "logical_resolution": [
+        64,
+        64
+      ],
+      "resolution": [
+        256,
+        256
+      ],
+      "transparent": true,
+      "name": "stargazer-telescope"
+    }
+  ]
+}

@@ -48,7 +48,7 @@ const PixiPremiumScene = {
     root._premiumDrift = [];
     root._premiumTime = 0;
 
-    this.background(root, options.themeId || store.get('theme') || 'pawnhollow');
+    this.background(root, options.themeId || store.get('theme') || 'chess20');
     this.header(root, title, subtitle, options);
     if (options.footer !== false) this.footer(root, cols, options.footerHint);
     return root;
@@ -98,7 +98,8 @@ const PixiPremiumScene = {
 
     const stars = new PIXI.Container();
     bg.addChild(stars);
-    for (let i = 0; i < 46; i++) {
+    const starCount = Math.round(46 * (typeof Graphics !== 'undefined' ? Graphics.particles() : 1));
+    for (let i = 0; i < starCount; i++) {
       const dot = new PIXI.Graphics();
       const size = i % 5 === 0 ? 4 : 2;
       dot.rect(0, 0, size, size).fill({ color: this.color(i % 3 ? cols.text : cols.accent), alpha: 0.18 + (i % 7) * 0.04 });
@@ -227,23 +228,216 @@ const PixiPremiumScene = {
     return text;
   },
 
+  // Like fit, but a text that would need shrinking below minScale wraps onto
+  // up to maxLines lines first (longer words in other languages).
+  fitLines(text, maxWidth, minScale = 0.85, maxLines = 2) {
+    text.scale.set(1);
+    if (text.width <= maxWidth) return text;
+    if (text.width * minScale <= maxWidth || !/\s/.test(text.text.trim())) return this.fit(text, maxWidth, minScale * 0.75);
+    const lineH = text.height;
+    text.style.wordWrap = true;
+    text.style.wordWrapWidth = Math.floor(maxWidth);
+    text.style.breakWords = false;
+    if (text.height > lineH * maxLines + 1) {
+      text.style.wordWrapWidth = Math.floor(maxWidth / minScale);
+      text.scale.set(minScale);
+    }
+    if (text.width > maxWidth) text.scale.set(Math.min(text.scale.x, maxWidth / (text.width / text.scale.x)));
+    return text;
+  },
+
+  // Outline of a box with stepped pixel corners (two steps of `u` pixels).
+  pixelShape(x, y, w, h, u = 4) {
+    const a = u, b = u * 2;
+    return [
+      x + b, y, x + w - b, y, x + w - b, y + a, x + w - a, y + a, x + w - a, y + b, x + w, y + b,
+      x + w, y + h - b, x + w - a, y + h - b, x + w - a, y + h - a, x + w - b, y + h - a, x + w - b, y + h,
+      x + b, y + h, x + b, y + h - a, x + a, y + h - a, x + a, y + h - b, x, y + h - b,
+      x, y + b, x + a, y + b, x + a, y + a, x + b, y + a,
+    ];
+  },
+
+  // Pixel-art panel: drop shadow, dark outline, theme-coloured body with a
+  // bevel (light top edge, dark bottom edge) and an optional accent strip.
   panel(parent, x, y, w, h, options = {}) {
     const cols = this.cols();
     const maxW = typeof Layout !== 'undefined' ? Layout.W - 80 : this.W - 80;
     w = Math.min(w, maxW);
     const g = new PIXI.Graphics();
-    const fill = options.fill || cols.panel;
-    const border = options.border || cols.text;
+    const fill = this.color(options.fill || cols.panel);
+    const border = this.color(options.border || cols.text);
     const accent = options.accent || cols.accent;
-    const alpha = options.alpha ?? 0.68;
-    g.roundRect(x + 6, y + 6, w, h, options.radius || 10).fill({ color: 0x000000, alpha: 0.30 });
-    g.roundRect(x, y, w, h, options.radius || 10).fill({ color: this.color(fill), alpha });
-    g.roundRect(x, y, w, h, options.radius || 10).stroke({ color: this.color(border), alpha: options.borderAlpha ?? 0.35, width: 2 });
+    const alpha = options.alpha ?? 0.72;
+    const u = h < 60 ? 3 : 4;
+    const edge = 3;
+    g.poly(this.pixelShape(x, y + 6, w, h, u)).fill({ color: 0x000000, alpha: 0.32 * Math.min(1, alpha + 0.2) });
+    g.poly(this.pixelShape(x, y, w, h, u)).fill({ color: 0x07080d, alpha: Math.min(0.92, alpha + 0.2) });
+    g.poly(this.pixelShape(x + edge, y + edge, w - edge * 2, h - edge * 2, u)).fill({ color: fill, alpha });
+    // Bevel: light along the top, dark along the bottom.
+    g.rect(x + edge + u * 2, y + edge, w - edge * 2 - u * 4, 2).fill({ color: 0xffffff, alpha: 0.10 });
+    g.rect(x + edge + u * 2, y + h - edge - 3, w - edge * 2 - u * 4, 3).fill({ color: 0x000000, alpha: 0.22 });
+    // Border ring (drawn as a stroke so hover can recolour it).
+    g.poly(this.pixelShape(x + 1, y + 1, w - 2, h - 2, u)).stroke({ color: border, alpha: options.borderAlpha ?? 0.30, width: 2, alignment: 1 });
     if (options.accent !== false) {
-      g.roundRect(x + 14, y + 12, Math.max(20, w - 28), 4, 2).fill({ color: this.color(accent), alpha: options.accentAlpha ?? 0.72 });
+      g.rect(x + 16, y + 12, Math.max(20, w - 32), 3).fill({ color: this.color(accent), alpha: options.accentAlpha ?? 0.72 });
+      g.rect(x + 16, y + 15, Math.max(20, w - 32), 1).fill({ color: 0x000000, alpha: 0.25 });
     }
     if (parent) parent.addChild(g);
     return g;
+  },
+
+  // Fill opacity of tiles, buttons and cards: low enough that the live scene
+  // behind every menu shows through, while the text stays readable.
+  SEE_THROUGH: { tile: 0.42, primary: 0.52, button: 0.40, primaryButton: 0.60, disabled: 0.30 },
+
+  // Big menu tile: artwork on top, then title, subtitle and an optional detail
+  // line. opts: { title, sub, detail, art(size) -> DisplayObject, primary, onClick, badge }
+  tile(parent, x, y, w, h, opts = {}) {
+    const s = (typeof Layout !== 'undefined' && Layout.uiScale) || 1;
+    const wide = w > h * 1.9;     // phones: art on the left, text on the right
+    return this.card(parent, x, y, w, h, {
+      active: opts.primary,
+      alpha: opts.alpha ?? (opts.primary ? this.SEE_THROUGH.primary : this.SEE_THROUGH.tile),
+      accentStrip: false,
+      onClick: opts.onClick,
+      interactive: opts.interactive,
+      label: opts.label,
+      draw: (c, { hover }) => {
+        const cols = this.cols();
+        const lit = hover || opts.primary;
+        const pad = Math.round(18 * s);
+        const titleSize = Math.round((opts.titleSize || 24) * s);
+        const title = this.text(opts.title.toUpperCase(), {
+          fontFamily: opts.titleFont || PixiTextStyles.FONT_TITLE, fontSize: titleSize, fontWeight: 'bold',
+          fill: lit ? cols.accent : cols.text,
+        });
+        const sub = opts.sub ? this.text(opts.sub, { fontSize: Math.round(17 * s), fill: this.alpha(cols.text, 'bb') }) : null;
+        const detail = opts.detail ? this.text(opts.detail, { fontSize: Math.round(14 * s), fontWeight: '700', fill: this.alpha(lit ? cols.accent : cols.text, lit ? 'ee' : '88') }) : null;
+
+        // Spotlight behind the art.
+        const artBox = wide
+          ? { x: pad, y: pad, w: h - pad * 2, h: h - pad * 2 }
+          : { x: pad, y: pad + 4, w: w - pad * 2, h: Math.round(h * (opts.artShare || 0.5)) };
+        const glow = new PIXI.Graphics();
+        const gcx = artBox.x + artBox.w / 2, gcy = artBox.y + artBox.h / 2;
+        const gr = Math.min(artBox.w, artBox.h) * 0.46;
+        glow.circle(gcx, gcy, gr).fill({ color: this.color(cols.accent), alpha: lit ? 0.14 : 0.05 });
+        glow.ellipse(gcx, gcy + gr * 0.9, gr * 0.7, gr * 0.12).fill({ color: 0x000000, alpha: 0.3 });
+        c.addChild(glow);
+        if (opts.art) {
+          const art = opts.art(Math.min(artBox.w, artBox.h));
+          if (art) {
+            art.x = gcx;
+            art.y = gcy + (hover ? -4 : 0);
+            c.addChild(art);
+          }
+        }
+
+        const textX = wide ? artBox.x + artBox.w + pad : pad;
+        const textW = w - textX - pad;
+        [title, sub, detail].forEach(t => t && this.fit(t, textW, 0.55));
+        const gap = Math.round(6 * s);
+        const blockH = title.height + (sub ? gap + sub.height : 0) + (detail ? gap + detail.height : 0);
+        let ty = wide ? Math.round((h - blockH) / 2) : Math.round(artBox.y + artBox.h + (h - artBox.y - artBox.h - blockH) / 2) - 2;
+        for (const t of [title, sub, detail]) {
+          if (!t) continue;
+          if (wide) { t.x = textX; } else { t.anchor.set(0.5, 0); t.x = w / 2; }
+          t.y = ty;
+          ty += t.height + gap;
+          c.addChild(t);
+        }
+
+        if (opts.badge) {
+          const b = this.text(opts.badge, { fontFamily: PixiTextStyles.FONT_TITLE, fontSize: Math.round(12 * s), fill: '#10131c' });
+          const bw = b.width + 16, bh = b.height + 8;
+          const bg = new PIXI.Graphics().poly(this.pixelShape(w - bw - 12, 12, bw, bh, 2)).fill({ color: this.color(cols.accent) });
+          b.x = w - bw - 4; b.y = 16;
+          c.addChild(bg, b);
+        }
+      },
+    });
+  },
+
+  // Screens with categories (Settings, How to Play): a column of wide tiles on the
+  // left and a content panel on the right; in portrait the tiles form a row on top.
+  tabLayout() {
+    const s = (typeof Layout !== 'undefined' && Layout.uiScale) || 1;
+    const bottom = this.contentBottom;
+    if (Layout.isPortrait) {
+      const x = 36, w = Layout.W - 72, y = 156, h = Math.round(150 * s);
+      const panelY = y + h + 18;
+      return { portrait: true, tabs: { x, y, w, h }, panel: { x, y: panelY, w, h: bottom - panelY } };
+    }
+    const tabW = 292, x = 56, y = 152, gap = 20;
+    return {
+      portrait: false,
+      tabs: { x, y, w: tabW, h: bottom - y },
+      panel: { x: x + tabW + gap, y, w: Layout.W - x * 2 - tabW - gap, h: bottom - y },
+    };
+  },
+
+  // The category tiles for tabLayout(). tabs: [{ id, title, sub, art(size) }].
+  tabStrip(parent, layout, tabs, activeId, onSelect) {
+    const T = layout.tabs;
+    const n = tabs.length;
+    const gap = layout.portrait ? 12 : 14;
+    const tw = layout.portrait ? Math.floor((T.w - gap * (n - 1)) / n) : T.w;
+    const th = layout.portrait ? T.h : Math.floor((T.h - gap * (n - 1)) / n);
+    return tabs.map((tab, i) => this.tile(parent,
+      layout.portrait ? T.x + i * (tw + gap) : T.x,
+      layout.portrait ? T.y : T.y + i * (th + gap),
+      tw, th, {
+        title: tab.title,
+        sub: layout.portrait || th < 90 ? null : tab.sub,
+        primary: activeId === tab.id,
+        titleSize: layout.portrait ? (n > 4 ? 14 : 16) : 21,
+        artShare: 0.5,
+        art: tab.art,
+        onClick: () => onSelect(tab.id),
+      }));
+  },
+
+  // Tile artwork made of the theme's own chess pieces. Each entry:
+  // { color, type, dx (fraction of size), scale, flip }. Returns art(size).
+  pieceArt(pieces) {
+    return (size) => {
+      const themeId = store.get('theme') || 'chess20';
+      const holder = new PIXI.Container();
+      for (const p of pieces) {
+        const sp = PixiPieceRenderer.createSprite(themeId, p.color || 'white', p.type);
+        const d = Math.round(size * (p.scale || 0.9));
+        sp.width = d;
+        sp.height = d;
+        if (p.flip) sp.scale.x *= -1;
+        sp.x = Math.round(size * (p.dx || 0));
+        sp.y = Math.round(size * (p.dy || 0));
+        holder.addChild(sp);
+      }
+      return holder;
+    };
+  },
+
+  // Arrow-key focus for a list of cards: returns { move(dx, dy), press(), focus(i) }.
+  // `cols` is how many cards sit on one row.
+  focusRing(cards, perRow) {
+    let index = -1;
+    const set = (i) => {
+      if (index >= 0 && cards[index] && cards[index]._setHover) cards[index]._setHover(false);
+      index = i;
+      if (index >= 0 && cards[index] && cards[index]._setHover) cards[index]._setHover(true);
+    };
+    return {
+      get index() { return index; },
+      focus: set,
+      move(dx, dy) {
+        if (index < 0) { set(0); return; }
+        const n = cards.length;
+        let i = index + dx + dy * perRow;
+        if (dy && (i < 0 || i >= n)) i = dy > 0 ? Math.min(n - 1, index + dy * perRow) : index % perRow;
+        set(Math.max(0, Math.min(n - 1, i)));
+      },
+      press() { if (index >= 0 && cards[index] && cards[index]._press) cards[index]._press(); },
+    };
   },
 
   card(parent, x, y, w, h, options = {}) {
@@ -271,23 +465,33 @@ const PixiPremiumScene = {
           : (options.active || hover ? (options.activeColor || this.cols().accent) : this.cols().accent),
         borderAlpha: options.active || hover ? 0.80 : 0.30,
         accentAlpha: options.active || hover ? 0.80 : 0.40,
-        alpha: options.disabled ? 0.43 : (options.alpha ?? 0.68),
+        alpha: options.disabled ? this.SEE_THROUGH.disabled : (options.alpha ?? this.SEE_THROUGH.button),
         radius: options.radius || 10,
       });
       if (options.draw) options.draw(local, { hover });
     };
     draw(false);
+    group._setHover = (on) => { if (!group.destroyed) draw(on); };
+    group._press = () => {
+      if (options.disabled || !options.onClick) return;
+      if (typeof audioManager !== 'undefined' && typeof audioManager.playButton === 'function') audioManager.playButton();
+      if (typeof gsap !== 'undefined') {
+        gsap.fromTo(group, { y: y + 3 }, { y, duration: 0.14, ease: 'back.out(3)' });
+      }
+      options.onClick();
+    };
     if (!options.disabled && options.interactive !== false) {
       group.on('pointerover', () => draw(true));
       group.on('pointerout', () => draw(false));
-      group.on('pointerdown', () => {
-        if (options.onClick && typeof audioManager !== 'undefined' && typeof audioManager.playButton === 'function') {
-          audioManager.playButton();
-        }
-        if (options.onClick) options.onClick();
-      });
+      group.on('pointerdown', () => group._press());
     }
     return group;
+  },
+
+  // The height button() really draws for a requested height (taller on phones).
+  buttonHeight(h) {
+    const scale = (typeof Layout !== 'undefined' && Layout.uiScale) || 1;
+    return Layout.isPortrait ? Math.max(Math.round(h * scale), 68) : Math.round(h * scale);
   },
 
   button(parent, x, y, w, h, label, onClick, options = {}) {
@@ -302,7 +506,7 @@ const PixiPremiumScene = {
       disabled: options.disabled,
       fill: options.fill || cols.buttonBg,
       activeColor: options.color || cols.accent,
-      alpha: options.primary ? 0.92 : 0.68,
+      alpha: options.alpha ?? (options.primary ? this.SEE_THROUGH.primaryButton : this.SEE_THROUGH.button),
       radius: 10,
       accentStrip: false,
       onClick: options.disabled ? null : onClick,

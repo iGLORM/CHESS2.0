@@ -6,18 +6,21 @@ const TextFit = {
   },
 
   measure(text, font, maxWidth, lineHeight) {
+    text = I18n.display(text);
     if (!this._checkReady()) return null;
     const prepared = Pretext.prepare(text, font);
     return Pretext.layout(prepared, maxWidth, lineHeight);
   },
 
   measureWidth(text, font) {
+    text = I18n.display(text);
     if (!this._checkReady()) return null;
     const prepared = Pretext.prepare(text, font);
     return Pretext.measureNaturalWidth(prepared);
   },
 
   fitFontSize(text, font, maxWidth, maxHeight, lineHeight, minSize, maxSize) {
+    text = I18n.display(text);
     if (!this._checkReady()) return font;
     minSize = minSize || 8;
     maxSize = maxSize || parseInt(font) || 14;
@@ -36,6 +39,7 @@ const TextFit = {
   },
 
   drawFitted(ctx, text, font, x, y, maxWidth, maxHeight, lineHeight, opts) {
+    text = I18n.display(text);
     opts = opts || {};
     const lh = lineHeight || Math.round(parseInt(font) * 1.3);
 
@@ -63,6 +67,7 @@ const TextFit = {
   },
 
   scaleToFit(text, font, maxWidth) {
+    text = I18n.display(text);
     if (!this._checkReady()) return 1;
     const naturalW = Pretext.measureNaturalWidth(Pretext.prepare(text, font));
     if (naturalW <= maxWidth) return 1;

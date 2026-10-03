@@ -10,12 +10,19 @@ const BoardEditorScreen = {
   _statusText: null,
   _boardHitArea: null,
 
-  init() {
-    this._board = Board.createEmpty();
+  _turn: 'white',
+
+  // data.keep: coming back from playing the position, so keep the board.
+  init(data) {
+    if (!(data && data.keep && this._board)) {
+      this._board = Board.createEmpty();
+      this._turn = 'white';
+    }
     this._selectedPieceType = 'queen';
     this._selectedPieceColor = 'white';
     this._eraseMode = false;
     this.build();
+    this._updateFenDisplay();
   },
 
   build() {
@@ -26,7 +33,7 @@ const BoardEditorScreen = {
     const H = PixiPremiumScene.H;
     const s = Layout.uiScale || 1;
     const isPortrait = Layout.isPortrait;
-    const themeId = store.get('theme') || 'pawnhollow';
+    const themeId = store.get('theme') || 'chess20';
 
     this.pixiContainer = PixiPremiumScene.root('Board Editor', 'Create custom positions', {
       footer: false,
@@ -87,7 +94,7 @@ const BoardEditorScreen = {
         this._fenText.x = pad;
         this._fenText.y = 64;
         card.addChild(this._fenText);
-        this._statusText = PixiPremiumScene.text('', { fontSize: 14, fontWeight: '700', fill: cols.accent });
+        this._statusText = PixiPremiumScene.text('', { fontSize: 14, fontWeight: '700', fill: cols.accent, wordWrap: true, wordWrapWidth: G.w - pad * 2 });
         this._statusText.x = pad;
         this._statusText.y = 110;
         card.addChild(this._statusText);
@@ -95,7 +102,7 @@ const BoardEditorScreen = {
     });
 
     const actions = [
-      { text: 'Import FEN', action: () => this._importFen() },
+      { text: 'Paste FEN', action: () => this._importFen() },
       { text: 'Copy FEN', action: () => this._exportFen() },
       { text: 'Standard Setup', action: () => this._loadStandardPosition(themeId) },
       { text: 'Clear Board', action: () => this._clearBoard(themeId) },
@@ -217,10 +224,17 @@ const BoardEditorScreen = {
       });
 
     const eraseBtn = this._makeInCardButton(card, startX, toggleY + 54, toggleW, 42,
-      'Erase Mode: OFF', cols, s, () => {
+      `Erase Mode: ${this._eraseMode ? 'ON' : 'OFF'}`, cols, s, () => {
         this._eraseMode = !this._eraseMode;
         eraseBtn._label.text = `Erase Mode: ${this._eraseMode ? 'ON' : 'OFF'}`;
         this._updatePaletteSelection(cols);
+      });
+
+    const turnBtn = this._makeInCardButton(card, startX, toggleY + 108, toggleW, 42,
+      this._turnLabel(), cols, s, () => {
+        this._turn = this._turn === 'white' ? 'black' : 'white';
+        turnBtn._label.text = this._turnLabel();
+        this._updateFenDisplay();
       });
   },
 
@@ -229,7 +243,7 @@ const BoardEditorScreen = {
     const pieceSize = Math.round(40 * s);
     const gap = Math.round(6 * s);
     const totalW = types.length * (pieceSize + gap) - gap;
-    const startX = Math.floor((W - totalW - 80) / 2);
+    const startX = Math.floor((W - totalW - 120) / 2);
     this._paletteSprites = [];
 
     types.forEach((type, i) => {
@@ -281,6 +295,12 @@ const BoardEditorScreen = {
     this._makeToggleBtn(toggleX + tSize + 4, y, tSize, 'X', cols, s, (btn) => {
       this._eraseMode = !this._eraseMode;
       this._updatePaletteSelection(cols);
+    });
+    // Side to move: the player plays this side from the position.
+    this._makeToggleBtn(toggleX + (tSize + 4) * 2, y, tSize, this._turn === 'white' ? 'w' : 'b', cols, s, (btn) => {
+      this._turn = this._turn === 'white' ? 'black' : 'white';
+      btn._label.text = this._turn === 'white' ? 'w' : 'b';
+      this._updateFenDisplay();
     });
   },
 
@@ -377,7 +397,7 @@ const BoardEditorScreen = {
     if (!sq) return;
 
     const { row, col } = sq;
-    const themeId = store.get('theme') || 'pawnhollow';
+    const themeId = store.get('theme') || 'chess20';
 
     if (this._eraseMode) {
       this._board.removePiece(row, col);
@@ -401,30 +421,93 @@ const BoardEditorScreen = {
     }
   },
 
-  _updateFenDisplay() {
-    const fen = FEN.fromBoard(this._board, this._selectedPieceColor);
-    if (this._fenText) this._fenText.text = fen;
+  _turnLabel() {
+    return `To Move: ${this._turn === 'white' ? 'White' : 'Black'}`;
   },
 
-  _importFen() {
-    const fen = window.prompt('Enter FEN string:',
-      FEN.fromBoard(this._board, this._selectedPieceColor));
-    if (fen) {
-      try {
-        this._board = FEN.toBoard(fen);
-        this._selectedPieceColor = fen.split(' ')[1] === 'b' ? 'black' : 'white';
-        const themeId = store.get('theme') || 'pawnhollow';
-        PixiBoardRenderer.setPieces(this._board, themeId);
-        this._updateFenDisplay();
-        this._setStatus('FEN imported');
-      } catch (e) {
-        this._setStatus('Invalid FEN');
+  // Castling is only possible with king and rook still on their home squares.
+  _fixCastling() {
+    const home = (r, c, type, color) => {
+      const p = this._board.getPiece(r, c);
+      return !!p && p.type === type && p.color === color;
+    };
+    const rights = this._board.castlingRights;
+    for (const [color, r] of [['white', 7], ['black', 0]]) {
+      const king = home(r, 4, 'king', color);
+      rights[color].kingside = king && home(r, 7, 'rook', color);
+      rights[color].queenside = king && home(r, 0, 'rook', color);
+    }
+    this._board.enPassantTarget = null;
+  },
+
+  _fen() {
+    this._fixCastling();
+    return FEN.fromBoard(this._board, this._turn);
+  },
+
+  _updateFenDisplay() {
+    if (this._fenText) this._fenText.text = this._fen();
+  },
+
+  // Why the position can't be played, or null if it can.
+  _positionProblem() {
+    const kings = { white: 0, black: 0 };
+    for (let r = 0; r < 8; r++) {
+      for (let c = 0; c < 8; c++) {
+        const p = this._board.getPiece(r, c);
+        if (!p) continue;
+        if (p.type === 'king') kings[p.color]++;
+        if (p.type === 'pawn' && (r === 0 || r === 7)) return 'Pawns cannot stand on the first or last rank';
       }
+    }
+    if (kings.white !== 1 || kings.black !== 1) return 'Each side needs exactly one king';
+    const board = FEN.toBoard(this._fen());
+    const other = this._turn === 'white' ? 'black' : 'white';
+    const k = board.findKing(other);
+    if (MoveGen.isSquareAttacked(board, k.row, k.col, this._turn)) {
+      return `${other === 'white' ? 'White' : 'Black'} is in check but it is not their move`;
+    }
+    const status = GameRules.getGameStatus(board, this._turn);
+    if (status.status === 'checkmate') return 'That position is already checkmate';
+    if (status.status === 'stalemate') return 'That position is already stalemate';
+    return null;
+  },
+
+  _loadFen(fen) {
+    try {
+      const board = FEN.toBoard(fen.trim());
+      if (!board.findKing('white') && !board.findKing('black') && !/[pnbrqk]/i.test(fen.split(' ')[0])) throw new Error('empty');
+      this._board = board;
+      this._turn = board.turn || 'white';
+      const themeId = store.get('theme') || 'chess20';
+      PixiBoardRenderer.setPieces(this._board, themeId);
+      this.build();
+      this._updateFenDisplay();
+      this._setStatus('FEN loaded');
+    } catch (e) {
+      this._setStatus('That is not a valid FEN');
+    }
+  },
+
+  // Reads a FEN from the clipboard (window.prompt does nothing in Electron).
+  _importFen() {
+    const ask = () => {
+      const fen = typeof window.prompt === 'function' ? window.prompt('Enter FEN string:', this._fen()) : null;
+      if (fen) this._loadFen(fen);
+      else this._setStatus('Copy a FEN first, then press Paste FEN');
+    };
+    if (navigator.clipboard && navigator.clipboard.readText) {
+      navigator.clipboard.readText().then((text) => {
+        if (text && text.includes('/')) this._loadFen(text);
+        else ask();
+      }).catch(ask);
+    } else {
+      ask();
     }
   },
 
   _exportFen() {
-    const fen = FEN.fromBoard(this._board, this._selectedPieceColor);
+    const fen = this._fen();
     if (navigator.clipboard) {
       navigator.clipboard.writeText(fen);
       this._setStatus('FEN copied to clipboard');
@@ -448,19 +531,19 @@ const BoardEditorScreen = {
   },
 
   _playFromHere() {
-    const fen = FEN.fromBoard(this._board, this._selectedPieceColor);
-    if (fen.startsWith('8/8/8/8/8/8/8/8')) {
-      this._setStatus('Place some pieces first');
+    const problem = this._positionProblem();
+    if (problem) {
+      this._setStatus(problem);
+      if (typeof audioManager !== 'undefined' && typeof audioManager.playError === 'function') audioManager.playError();
       return;
     }
+    const fen = this._fen();
 
+    // Keep the last few positions so players can find them again later.
     const progress = store.get('trainingProgress');
-    progress.customPuzzles = progress.customPuzzles || [];
-    progress.customPuzzles.push({
-      fen,
-      created: Date.now(),
-      title: `Custom #${progress.customPuzzles.length + 1}`,
-    });
+    const recent = (progress.customPuzzles || []).filter(p => p.fen !== fen);
+    recent.push({ fen, created: Date.now(), title: `Custom #${recent.length + 1}` });
+    progress.customPuzzles = recent.slice(-20);
     store.set('trainingProgress', progress);
     store.saveProgress();
 
@@ -468,12 +551,12 @@ const BoardEditorScreen = {
   },
 
   _setStatus(text) {
-    if (this._statusText) {
-      this._statusText.text = text;
-      setTimeout(() => {
-        if (this._statusText) this._statusText.text = '';
-      }, 3000);
-    }
+    if (!this._statusText) return;
+    this._statusText.text = text;
+    clearTimeout(this._statusTimer);
+    this._statusTimer = setTimeout(() => {
+      if (this._statusText) this._statusText.text = '';
+    }, 3500);
   },
 
   pixiUpdate(dt) {

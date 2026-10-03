@@ -15,3 +15,5 @@ deploy.sh
 nginx-game.conf
 .playwright-mcp/
 third_party/
+.DS_Store
+__pycache__/

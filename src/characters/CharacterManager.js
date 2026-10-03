@@ -3,7 +3,9 @@ class CharacterManager {
 
   static getCharacter(id) {
     return STORY_STAGES.find(c => c.id === id) ||
-      (typeof StoryMissions !== 'undefined' && StoryMissions.character(id)) || STORY_STAGES[0];
+      (typeof StoryMissions !== 'undefined' && StoryMissions.character(id)) ||
+      (typeof SideMatches !== 'undefined' && SideMatches.character(id)) ||
+      (id === 'firstpiece' && typeof NewGamePlus !== 'undefined' && NewGamePlus.character(id)) || STORY_STAGES[0];
   }
 
   // Story progress counts stages: Pawnie, five trainers, nine guardians.

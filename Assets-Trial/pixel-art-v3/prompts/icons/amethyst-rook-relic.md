@@ -1,0 +1,5 @@
+# Amethyst rook relic — pixel art
+
+Method: built-in imagegen. Original PNG copied without postprocessing. Reference: `pixel-art-v3/icons/jeweled-chess-crown.png` (pixel style only).
+
+Use supplied crown ONLY as a reference for pixel size, pixel shading and hard stepped edges. Generate a DIFFERENT SUBJECT: a broken amethyst chess rook relic floating in pieces, gold engraved bands, three small crystal shards above the tower, purple quartz body, tiny checkerboard inlay near base, luminous lavender internal cracks. PIXEL ART. Authentic hand-pixelled 16-bit/32-bit JRPG inventory sprite, approximately 128x160 logical pixels displayed enlarged nearest-neighbor. Individual square pixels MUST remain clearly visible like reference. Build rich detail with pixel clusters, 32-color palette, four discrete shade levels/material, checker dither in shadows. Every contour hard stair-step square pixels, gems shaded with blocks. No smooth curves, no antialiasing, no soft gradients, no photographic textures or 3D-render appearance. One complete relic, centered with transparent margins, no pedestal/floor, no text, no checkerboard background. Genuine transparent alpha background.

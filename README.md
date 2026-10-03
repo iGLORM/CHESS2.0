@@ -68,17 +68,19 @@ Classic Chess is plain chess with no mini-games.
 
 | Feature | Description |
 |:--------|:------------|
-| **Story Mode** | "The Shattered Board": 15 stages across 11 worlds, a world map, cutscenes, 45 missions and 9 guardians who each bend the rules |
+| **Story Mode** | "The Shattered Board": 15 stages across 11 worlds, a world map, cutscenes, 63 missions and 9 guardians who each bend the rules |
 | **Local 1v1** | Two players on the same screen, with Defenses |
 | **Classic Chess** | Standard chess against the computer, 200-2000 Elo, as White or Black |
 | **Custom Game** | Pick the bot strength, your side, whether Defenses are on, and which mini-games can appear |
-| **Training** | 30 puzzles with stars, hints and a coach, plus a board editor |
-| **18 3D Mini-Games** | Retro-styled Three.js arcade games that decide contested captures; practise any of them from Settings |
+| **Training** | 30 Stockfish-checked puzzles with stars, hints and a coach, mini-game practice, and a board editor whose positions you play out against the coach |
+| **18 3D Mini-Games** | Retro-styled Three.js arcade games that decide contested captures; practise any of them from Training |
 | **Stockfish AI** | Every bot is the bundled Stockfish 18, from human-like beginner mistakes up to full strength |
 | **Undo, flip, review** | Take back moves, flip the board, and step through the game's history |
 | **Resume** | An unfinished game is saved after every move and can be resumed from the home screen |
-| **World themes** | 11 painted themes (board, piece set, animated background and song) plus a custom colour theme |
+| **World themes** | The Chess 2.0 theme (the Great Board at dusk, the one you start with), 11 painted world themes (board, piece set, animated background and song) and the Great Board reward theme, plus a custom colour theme; every background is a living pixel scene drawn in code |
 | **Synthesised music** | Every theme has its own song, generated live with Web Audio, with a tense version during check |
+| **Graphics settings** | Display mode, resolution, frame limit, brightness and an FPS counter, plus Low to Ultra quality presets (background motion, particles, 3D mini-game sharpness and shadows), retro filter and screen shake |
+| **Credits roll** | Full scrolling credits with the cast of the story, like the end of a big game |
 | **Works offline** | All libraries, fonts and the engine are bundled; no internet needed |
 | **Desktop, web & phone** | Electron app for Windows/macOS/Linux, and the same code runs in a browser and as a [Telegram Mini App](https://t.me/iglorm_chess_bot?startapp=play) with a portrait layout |
 
@@ -86,16 +88,55 @@ Classic Chess is plain chess with no mini-games.
 
 ## Story Mode: The Shattered Board
 
-You wake in Pawn Hollow with no memory, holding a glowing shard of the Great Board. The board was shattered
-the night you fell from the sky, and every world is fading. Nine guardians hold the other fragments, and each
-one you beat lets slip a clue about who you are.
+For an age the world has been splitting apart, crack by crack. Then you fall from the sky into Pawn Hollow,
+with no memory and a glowing shard of the Great Board in your hand, and the splitting stops. The board broke into
+four pieces: yours, and three held by the EndGamer, Checkmate and Grandmaster X. The other guardians each hand over
+a keepsake when you beat them (a tilted compass, the Iron Key, the Mist Lantern, Queenie's signet, a broken seal, the
+Map of the Crossing, a wanted poster, a stopped hourglass), each revealed with its own animation, and each does
+something: the compass charts the map (until then, lands you have not been to are an old sepia sketch), the key opens
+chests hidden around the map, the signet gets you a royal discount at the Bazaar, the map clears the storm over the
+last world, and the lantern, the seal, the hourglass and the poster are powers in your story fights. In a fight the
+guardian stands beside the board, alive, and talks to you out of its own mouth. Some guardians are on
+your side (Bish-Bosh, the Knight of the Mist, the EndGamer), the rest serve Grandmaster X. Choose a difficulty and the
+story starts at once: the prologue, then your first match, against Pawnie, plain chess with no challenges.
 
-- **World map:** travel from world to world; beating a guardian restores its world, and your king walks on.
-- **The Training Camp:** five holographic trainers teach the moves, challenges, mini-games and twists.
-- **Missions:** every guardian world has five missions before its guardian: mate-in-one puzzles, challenge
-  trials, hunts, rule tasters and wild cards. Board missions are won by checkmate or by their goal:
-  **catch the Mystery Piece** (every enemy piece is a suspect and hints narrow it down), **capture every piece**,
-  **crown a pawn**, or **survive**.
+- **Every world plays differently:** most have a path of seven missions, the Grand Library is a hall of puzzle
+  rooms, the Royal Palace holds the Queen's Cup (16 players, groups then knockout) and Forked Gulch the Gulch
+  Shootout (a 16-player knockout). Win the tournament to face the guardian.
+- **Every world is a place:** entering a world zooms into its own animated map, with a trail from stop to stop,
+  lore for every spot, and the guardian waiting, alive, at the end.
+- **Rivals on the roads:** six wandering rivals each block the road to a guardian; beat them to pass and they leave the map. The Arena
+  guards the road to the Obsidian Court: win three rounds in a row.
+- **Off the path:** the
+  friendly guardians ask favours (three-match side quests with a prize); the Arena in Australia is a gauntlet of
+  every guardian you have beaten.
+- **The Bazaar (shop):** in the middle of Africa on the map. Stars from battles buy rewinds, hints, removing an
+  enemy piece and the plane (the big prize, 60 stars): summon it on the map and fly anywhere with WASD or ZQSD. Coins from every win buy plane
+  paint, new characters (be a king, a queen, a knight... in another colour or another world's piece set) and world
+  themes early. Everything costs three times what it used to.
+- **Themes:** story mode always shows the theme of the world you are in; everywhere else you pick any theme whose
+  world you have restored.
+
+- **World map:** an animated pixel map of the Shattered Earth, each world standing where it belongs (the Slanted
+  Sands in Egypt, the Royal Palace in Algeria, the Misty Moors in Scotland, Forked Gulch in Arizona...). Tap a
+  world to see who waits there; the info panel hides itself after 10 seconds (or with its x) to leave the map clear. Beating a guardian washes its lands
+  back into colour and brings them to life, and your king walks on. After the ending the rifts close.
+- **Stars and trophies:** every stage gives up to 3 stars (the win plus two objectives that fit the opponent,
+  like capturing both of Rook-E's rooks); a trophy shelf in Stats shows bronze, silver or gold for each world.
+- **After the ending:** **New Game+** (the freed First Piece plays you first, and every guardian adds the rule of
+  the one before), **Great Board mode** (a board split into four quarters, each with a guardian's rule) and the
+  **Great Board theme**.
+- **The Training Camp:** five holographic trainers, each at their own spot on the camp's map: ten mate-in-one
+  puzzles, an endgame where you are ahead, every mini-game one by one, the Mystery Piece, and a full final game.
+- **Missions:** every guardian world has seven missions before its guardian: mate-in-one puzzles, challenge
+  trials, hunts, rule tasters, wild cards, a **Relic Run** and a **Memory**. Board missions are won by checkmate
+  or by their goal: **catch the Mystery Piece** (every enemy piece is a suspect and hints narrow it down),
+  **capture every piece**, **crown a pawn**, **survive**, **collect every relic** (glowing shards on the board,
+  before the moves run out) or **walk your king to the far edge** (each Memory is a flashback to the night you
+  crossed the Great Board, and gives back a piece of what happened).
+- **Live characters:** every story character is animated pixel art drawn in code, with moods that change
+  with the story and with how the fight is going.
+- **Cutscenes:** letterboxed scenes with chapter cards, animated portraits and a typing "voice" for each character.
 - **Difficulty:** six tiers (Rookie to Madness) and three save slots.
 
 | Stage | Opponent | World | Twist |
@@ -203,7 +244,7 @@ src/
   screens/        Every screen (home, world map, missions, cutscenes, game, menus)
   state/          Reactive store and save data
   telegram/       Telegram Mini App compatibility layer
-  themes/         World themes and animated background scenes
+  themes/         World themes, animated background scenes and live pixel scenes (scenes/)
   vendor/         Bundled PixiJS, GSAP, Three.js, fonts and pretext
 assets/           Painted backgrounds, boards, piece sets, character art
 scripts/          Art generators (backgrounds, theme art, trainer holograms, icons)
@@ -230,7 +271,7 @@ editing and exporting the video.
 - [x] Mobile / touch support (Telegram Mini App with portrait mode)
 - [x] Undo, board flip and resuming unfinished games
 - [x] Story Mode rebuilt: world map, trainers, missions, cutscenes and boss twists
-- [ ] Story rewards: stars per fight, trophies, New Game+ and Great Board mode
+- [x] Story rewards: stars per fight, trophies, New Game+ and Great Board mode
 - [ ] Online multiplayer
 - [ ] Game replay / PGN export
 

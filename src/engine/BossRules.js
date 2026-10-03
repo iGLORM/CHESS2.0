@@ -4,39 +4,53 @@
 const BOSS_RULES = {
   pawnie: {
     title: 'A Normal Match',
-    lines: ['Plain chess. Any capture has a 30% chance to start a challenge.'],
-    signature: ['MeteorStorm'],
+    lines: ['Plain chess, no challenges: every capture goes straight through.'],
+    noChallenges: true,
   },
   // Training Camp tests (see characters/trainers.js).
   sergeantsquare: {
     title: 'Mate in One',
     lines: [
-      'Three positions. In each one, find the move that checkmates right away.',
+      'Ten positions, from easy to hard. In each one, find the move that checkmates right away.',
       'Miss it and the position resets. No challenges in this drill.',
     ],
     noChallenges: true,
+    // Each has a mate in one (tests/boss.test.js checks them with the engine).
     puzzles: [
-      '6k1/5ppp/8/8/8/8/5PPP/3R2K1 w - - 0 1',
       'k7/7Q/1K6/8/8/8/8/8 w - - 0 1',
+      'k7/2P5/1K6/8/8/8/8/8 w - - 0 1',
+      '7k/8/6K1/8/8/8/8/1Q6 w - - 0 1',
+      '6k1/5ppp/8/8/8/8/5PPP/3R2K1 w - - 0 1',
+      'k7/2R5/8/8/8/8/8/K6R w - - 0 1',
+      'k7/p1K5/8/8/8/8/8/5B2 w - - 0 1',
+      '6k1/5ppp/5P2/8/8/8/6Q1/6K1 w - - 0 1',
+      '6k1/5p1p/6pB/8/8/8/5PPP/3Q2K1 w - - 0 1',
+      '7k/7p/5N2/8/8/8/8/6RK w - - 0 1',
       '6rk/6pp/8/6N1/8/8/8/6K1 w - - 0 1',
     ],
   },
   captaincapture: {
-    title: 'Every Capture Counts',
+    title: 'Finish the Job',
     lines: [
-      'Every capture starts a challenge, for both of you.',
-      'Make 3 captures to pass. A capture only counts if you win its challenge.',
+      'The game starts in an endgame, and you are ahead. Turn it into a win: checkmate him.',
+      'Captures can start a challenge, about one in three, just like out there.',
     ],
-    everyCapture: true,
-    goal: { captures: 3 },
+    // White is clearly winning in each (Stockfish +4.5 to +8); a different one every time.
+    startFens: [
+      '6k1/pp3ppp/8/8/8/8/PP3PPP/R5K1 w - - 0 1',
+      'r5k1/pp3ppp/8/8/8/8/PP3PPP/3Q2K1 w - - 0 1',
+      '6k1/pp3ppp/2n5/8/8/2N2B2/PP3PPP/6K1 w - - 0 1',
+      '4k3/pp4pp/8/8/2P5/8/PP3PPP/4K3 w - - 0 1',
+      '8/pp3k2/6p1/8/8/5N2/PP2RPPP/6K1 w - - 0 1',
+    ],
   },
   joystick: {
-    title: 'Five Challenges',
+    title: 'Every Challenge',
     lines: [
-      'No board this time: five challenges in a row.',
-      'Win 3 of them to pass.',
+      'No board this time: Joy Stick teaches every challenge, one by one.',
+      'Lose one and you get two more tries. Clear all of them to pass.',
     ],
-    minigameTrial: { games: 5, need: 3 },
+    minigameTrial: { all: true, retries: 2 },
   },
   rulekeeper: {
     title: 'The Mystery Piece',
@@ -135,6 +149,16 @@ const BOSS_RULES = {
     moveLimit: 40,
     signature: ['CheckmateRun'],
   },
+  // New Game+ opens with the freed First Piece: plain chess at full strength.
+  firstpiece: {
+    title: 'The First Crossing',
+    lines: [
+      'No twist. The First Piece plays at full strength.',
+      'Any capture has a 30% chance to start a challenge.',
+    ],
+    maxBotSkill: true,
+    signature: ['MeteorStorm'],
+  },
   grandmasterx: {
     title: 'The Absolute',
     lines: [
@@ -146,6 +170,7 @@ const BOSS_RULES = {
     maxBotSkill: true,
     weakestGames: true,
     rewinds: 2,
+    tenseMusic: true,        // the song's tense version plays for the whole fight
   },
 };
 
@@ -220,12 +245,57 @@ const BossRules = {
   // The board a fight starts from. `random` and `recent` are injectable for tests.
   startBoard(rule, random = Math.random, recent = null) {
     if (!rule) return new Board();
-    if (rule.endgames) return FEN.toBoard(this.pickEndgame(random, recent));
+    if (rule.endgames) {
+      const board = FEN.toBoard(this.pickEndgame(random, recent));
+      for (const w of rule.walls || []) if (!board.grid[w.row][w.col]) board.grid[w.row][w.col] = { type: 'wall', color: 'none' };
+      if (rule.walls) board.resetHistory();
+      return board;
+    }
     if (rule.puzzles) return FEN.toBoard(rule.puzzles[0]);
+    if (rule.startFens) return FEN.toBoard(rule.startFens[Math.floor(random() * rule.startFens.length)]);
     const board = rule.fen ? FEN.toBoard(rule.fen) : new Board();
-    for (const w of rule.walls || []) board.grid[w.row][w.col] = { type: 'wall', color: 'none' };
+    // Walls only go on empty squares (a stacked rule may start from another position).
+    for (const w of rule.walls || []) if (!board.grid[w.row][w.col]) board.grid[w.row][w.col] = { type: 'wall', color: 'none' };
     if (rule.walls) board.resetHistory();
     return board;
+  },
+
+  // New Game+: a guardian's rule with the previous guardian's stacked on top. The
+  // main rule wins where they disagree; starting positions are merged side by side
+  // (the extra rule's changes to the other side's army are kept); an endgame start
+  // replaces any starting position.
+  stack(main, extra) {
+    if (!main) return extra ? { ...extra, twisted: true } : null;
+    if (!extra) return { ...main, twisted: true };
+    const r = { ...extra, ...main, twisted: true, stackedWith: extra.title };
+    r.title = `${main.title} + ${extra.title}`;
+    r.lines = [main.lines[0], `Plus ${extra.title}: ${extra.lines[0]}`];
+    if (main.fen && extra.fen) r.fen = this.mergeFen(main.fen, extra.fen);
+    if (r.endgames) delete r.fen;
+    const union = k => [...new Set([...(main[k] || []), ...(extra[k] || [])])];
+    for (const k of ['alwaysChallengeWhenTaking', 'signature', 'walls']) if (main[k] || extra[k]) r[k] = union(k);
+    if (main.walls && extra.walls) r.walls = [...main.walls, ...extra.walls.filter(w => !main.walls.some(m => m.row === w.row && m.col === w.col))];
+    const nums = (k, pick) => { const v = [main[k], extra[k]].filter(x => x !== undefined); if (v.length) r[k] = pick(...v); };
+    nums('bossChallengeChance', Math.max);
+    nums('moveLimit', Math.min);
+    nums('lockPlies', Math.max);
+    nums('rewinds', Math.max);
+    return r;
+  },
+
+  // Two starting positions merged: each side's first two ranks come from whichever
+  // FEN changed them (the first one when both did). Castling follows the pieces.
+  mergeFen(a, b) {
+    const START = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR'.split('/');
+    const ra = a.split(' ')[0].split('/'), rb = b.split(' ')[0].split('/');
+    const pick = rows => rows.map(i => (ra[i] !== START[i] || rb[i] === START[i] ? ra[i] : rb[i]));
+    const rows = [...pick([0, 1]), ra[2], ra[3], ra[4], ra[5], ...pick([6, 7])];
+    const board = FEN.toBoard(rows.join('/') + ' w - - 0 1');
+    const at = (r, c, type, color) => { const p = board.grid[r][c]; return p && p.type === type && p.color === color; };
+    let castle = '';
+    if (at(7, 4, 'king', 'white')) { if (at(7, 7, 'rook', 'white')) castle += 'K'; if (at(7, 0, 'rook', 'white')) castle += 'Q'; }
+    if (at(0, 4, 'king', 'black')) { if (at(0, 7, 'rook', 'black')) castle += 'k'; if (at(0, 0, 'rook', 'black')) castle += 'q'; }
+    return `${rows.join('/')} w ${castle || '-'} - 0 1`;
   },
 
   // Picks an endgame (or its left-right mirror) not played recently.
@@ -252,14 +322,25 @@ const BossRules = {
   },
 
   // Chance that a capture starts a challenge under this rule.
-  challengeChance(rule, captured, bossIsAttacker) {
+  // `to` is the capture square: Great Board regions (rule.regions) can decide there.
+  challengeChance(rule, captured, bossIsAttacker, to = null) {
     if (!rule) return this.DEFAULT_CHANCE;
     if (rule.noChallenges) return 0;
+    const region = to && this.regionAt(rule, to);
+    if (region === 'iron') return 1;
+    if (region === 'sands') return 0;
     if (rule.everyCapture) return 1;
     if (!bossIsAttacker && rule.alwaysChallengeWhenTaking &&
         rule.alwaysChallengeWhenTaking.includes(captured.type)) return 1;
     if (bossIsAttacker && rule.bossChallengeChance !== undefined) return rule.bossChallengeChance;
     return this.DEFAULT_CHANCE;
+  },
+
+  // The Great Board region rule on a square ({ row, col }), or null.
+  regionAt(rule, sq) {
+    if (!rule || !rule.regions || !sq) return null;
+    const r = rule.regions.find(q => sq.row >= q.rows[0] && sq.row <= q.rows[1] && sq.col >= q.cols[0] && sq.col <= q.cols[1]);
+    return r ? r.rule : null;
   },
 
   isWall(rule, row, col) {
@@ -423,6 +504,43 @@ const BossRules = {
     }
     if (!best.length) return null;
     return best[Math.floor(random() * best.length)];
+  },
+
+  // 'e4' -> { row: 4, col: 4 } (row 0 is the 8th rank).
+  square(name) {
+    return { row: 8 - Number(name[1]), col: name.charCodeAt(0) - 97 };
+  },
+
+  // Relic Run: the relic squares (goal.relics) and the ones `color` has picked up.
+  // A relic is picked up by any move of yours that ends on it (a challenge you
+  // lost and the capture it cancelled don't count), so undo and saved games
+  // need no extra state.
+  relics(rule) {
+    return ((rule && rule.goal && rule.goal.relics) || []).map(s => this.square(s));
+  },
+
+  relicsTaken(rule, history, color) {
+    const taken = new Set();
+    for (const m of history) {
+      if (!m || m.defended || !m.to || !m.piece || m.piece.color !== color) continue;
+      taken.add(m.to.row * 8 + m.to.col);
+      if (m.castling || (m.piece.type === 'king' && Math.abs(m.to.col - m.from.col) === 2)) {
+        taken.add(m.to.row * 8 + (m.to.col > m.from.col ? 5 : 3));   // the rook's square too
+      }
+    }
+    return this.relics(rule).filter(s => taken.has(s.row * 8 + s.col));
+  },
+
+  // Memory missions (goal.crossing): the rank the king must reach, and how far
+  // it has come (ranks advanced beyond its start, 0-7).
+  crossingRow(color) {
+    return color === 'white' ? 0 : 7;
+  },
+
+  crossingProgress(board, color, startRow) {
+    const k = board.findKing(color);
+    if (!k) return 0;
+    return Math.max(0, color === 'white' ? startRow - k.row : k.row - startRow);
   },
 
   // Pieces of `color` other than the king (goal.captureAll is won at zero).

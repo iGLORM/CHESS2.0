@@ -170,10 +170,15 @@ const PixiIconCache = {
         ctx.fillRect(x + p, y + p * 6, p * 6, p);
         break;
       case 'king':
-        ctx.fillRect(x + p * 3, y, p * 2, p);
-        ctx.fillRect(x + p * 2, y + p, p * 4, p);
-        ctx.fillRect(x + p * 3, y + p * 2, p * 2, p);
-        ctx.fillRect(x + p, y + p * 3, p * 6, p * 3);
+        // Wide crown: three points on a solid band (the queen has loose points).
+        ctx.fillRect(x, y, p, p * 2);
+        ctx.fillRect(x + p, y + p, p, p);
+        ctx.fillRect(x + p * 3, y, p * 2, p * 2);
+        ctx.fillRect(x + p * 6, y + p, p, p);
+        ctx.fillRect(x + p * 7, y, p, p * 2);
+        ctx.fillRect(x, y + p * 2, p * 8, p);
+        ctx.fillRect(x + p, y + p * 3, p * 6, p);
+        ctx.fillRect(x + p * 2, y + p * 4, p * 4, p * 2);
         ctx.fillRect(x, y + p * 6, p * 8, p * 2);
         ctx.fillStyle = highlight;
         ctx.fillRect(x + p * 3, y, p * 2, 1);

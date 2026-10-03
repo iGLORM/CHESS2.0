@@ -55,9 +55,10 @@ class RhythmTap extends Game3D {
       }
     }
     this.player = this.playerPiece();
-    this.player.position.set(0, 0, 3.4);
+    // Dances beside the lanes so it never covers a hit ring.
+    this.player.position.set(-2.9, 0, 1.4);
     this.player.scale.setScalar(0.9);
-    this.player.rotation.y = Math.PI;
+    this.player.rotation.y = Math.PI * 0.8;
     scene.add(this.player);
 
     this.camera.fov = 58;

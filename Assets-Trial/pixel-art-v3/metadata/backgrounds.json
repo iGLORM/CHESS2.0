@@ -1,0 +1,79 @@
+{
+  "collection": "Detailed pixel environment candidates",
+  "style_reference": "/Users/yacineboufe/.codex/generated_images/01a0df75-cf67-73e1-817d-bcc5df31a173/exec-32e5ad7b-a7e5-492e-a32a-e6a42df56eea.png",
+  "notes": "Style instructions targeted a 256x160 logical pixel appearance. Output is imagegen-native 1536x1024, not a mathematically enforced palette or pixel grid.",
+  "items": [
+    {
+      "file": "backgrounds/enchanted-crystal-woodland-shrine.png",
+      "prompt": "prompts/backgrounds/enchanted-crystal-woodland-shrine.txt",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "mode": "RGBA",
+      "fully_transparent_pixels": 466492,
+      "alpha_extrema": [
+        0,
+        254
+      ],
+      "generator": "built-in imagegen",
+      "status": "candidate",
+      "visual_inspection": "Inspected with view_image; visible square pixel clusters and stair-step silhouettes; complete environment island.",
+      "postprocessing": "None. Original generated PNG copied unchanged."
+    },
+    {
+      "file": "backgrounds/moonlit-gothic-cathedral.png",
+      "prompt": "prompts/backgrounds/moonlit-gothic-cathedral.txt",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "mode": "RGBA",
+      "fully_transparent_pixels": 672977,
+      "alpha_extrema": [
+        0,
+        254
+      ],
+      "generator": "built-in imagegen",
+      "status": "candidate",
+      "visual_inspection": "Inspected with view_image; visible square pixel clusters and stair-step silhouettes; complete environment island.",
+      "postprocessing": "None. Original generated PNG copied unchanged."
+    },
+    {
+      "file": "backgrounds/ornate-clockwork-citadel.png",
+      "prompt": "prompts/backgrounds/ornate-clockwork-citadel.txt",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "mode": "RGBA",
+      "fully_transparent_pixels": 757317,
+      "alpha_extrema": [
+        0,
+        254
+      ],
+      "generator": "built-in imagegen",
+      "status": "candidate",
+      "visual_inspection": "Inspected with view_image; visible square pixel clusters and stair-step silhouettes; complete environment island.",
+      "postprocessing": "None. Original generated PNG copied unchanged."
+    },
+    {
+      "file": "backgrounds/sandstone-oracle-palace.png",
+      "prompt": "prompts/backgrounds/sandstone-oracle-palace.txt",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "mode": "RGBA",
+      "fully_transparent_pixels": 613309,
+      "alpha_extrema": [
+        0,
+        254
+      ],
+      "generator": "built-in imagegen",
+      "status": "candidate",
+      "visual_inspection": "Inspected with view_image; visible square pixel clusters and stair-step silhouettes; complete environment island.",
+      "postprocessing": "None. Original generated PNG copied unchanged."
+    }
+  ]
+}

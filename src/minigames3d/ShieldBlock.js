@@ -68,7 +68,7 @@ class ShieldBlock extends Game3D {
     this.maxHp = this.hard > 0.6 ? 2 : 3;
     this.hp = this.maxHp;
     this.fireT = 0.6;
-    this.flight = 1.3 - this.hard * 0.45;
+    this.flight = 1.2 - this.hard * 0.5;
   }
 
   _angleFor(i) {
@@ -140,7 +140,7 @@ class ShieldBlock extends Game3D {
     if (this.fireT <= 0 && this.fired < this.total) {
       this._fire();
       if (this.hard > 0.5 && Math.random() < 0.2 && this.fired < this.total) this._fire();
-      this.fireT = Math.max(0.45, 1.1 - this.hard * 0.4 - this.fired * 0.02);
+      this.fireT = Math.max(0.4, 1.0 - this.hard * 0.4 - this.fired * 0.02);
     }
     for (let i = this.arrows.length - 1; i >= 0; i--) {
       const a = this.arrows[i];

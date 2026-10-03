@@ -1,0 +1,2395 @@
+{
+  "collection": "Transparent pixel UI material studies",
+  "version": 1,
+  "asset_count": 84,
+  "authoring": "Original Python/Pillow pixel geometry; no external source art",
+  "alpha": "RGBA; only 0 or 255 alpha; nearest-neighbor scaling",
+  "integration_status": "Candidates only. No runtime references or game integration.",
+  "coordinate_convention": "All rects and slice insets are logical pixels, inclusive rect bounds. Multiply by 4 for exported pixels.",
+  "assets": [
+    {
+      "path": "ui/royal_obsidian/buttons/ornate__normal.png",
+      "theme": "royal_obsidian",
+      "category": "buttons",
+      "variant": "ornate",
+      "state": "normal",
+      "logical_size": [
+        112,
+        36
+      ],
+      "pixel_size": [
+        448,
+        144
+      ],
+      "scale": 4,
+      "label_safe_rect": [
+        23,
+        9,
+        88,
+        22
+      ],
+      "anchor_logical": [
+        56,
+        18
+      ],
+      "suggested_nine_slice_logical": [
+        23,
+        9,
+        23,
+        10
+      ],
+      "note": "Blank button. State canvases align; pressed face shifts down 2 logical pixels. Horizontal extension recommended; preserve decorated ends."
+    },
+    {
+      "path": "ui/royal_obsidian/buttons/ornate__hover.png",
+      "theme": "royal_obsidian",
+      "category": "buttons",
+      "variant": "ornate",
+      "state": "hover",
+      "logical_size": [
+        112,
+        36
+      ],
+      "pixel_size": [
+        448,
+        144
+      ],
+      "scale": 4,
+      "label_safe_rect": [
+        23,
+        9,
+        88,
+        22
+      ],
+      "anchor_logical": [
+        56,
+        18
+      ],
+      "suggested_nine_slice_logical": [
+        23,
+        9,
+        23,
+        10
+      ],
+      "note": "Blank button. State canvases align; pressed face shifts down 2 logical pixels. Horizontal extension recommended; preserve decorated ends."
+    },
+    {
+      "path": "ui/royal_obsidian/buttons/ornate__pressed.png",
+      "theme": "royal_obsidian",
+      "category": "buttons",
+      "variant": "ornate",
+      "state": "pressed",
+      "logical_size": [
+        112,
+        36
+      ],
+      "pixel_size": [
+        448,
+        144
+      ],
+      "scale": 4,
+      "label_safe_rect": [
+        23,
+        11,
+        88,
+        24
+      ],
+      "anchor_logical": [
+        56,
+        18
+      ],
+      "suggested_nine_slice_logical": [
+        23,
+        9,
+        23,
+        10
+      ],
+      "note": "Blank button. State canvases align; pressed face shifts down 2 logical pixels. Horizontal extension recommended; preserve decorated ends."
+    },
+    {
+      "path": "ui/royal_obsidian/buttons/ornate__disabled.png",
+      "theme": "royal_obsidian",
+      "category": "buttons",
+      "variant": "ornate",
+      "state": "disabled",
+      "logical_size": [
+        112,
+        36
+      ],
+      "pixel_size": [
+        448,
+        144
+      ],
+      "scale": 4,
+      "label_safe_rect": [
+        23,
+        9,
+        88,
+        22
+      ],
+      "anchor_logical": [
+        56,
+        18
+      ],
+      "suggested_nine_slice_logical": [
+        23,
+        9,
+        23,
+        10
+      ],
+      "note": "Blank button. State canvases align; pressed face shifts down 2 logical pixels. Horizontal extension recommended; preserve decorated ends."
+    },
+    {
+      "path": "ui/royal_obsidian/buttons/ribbon__normal.png",
+      "theme": "royal_obsidian",
+      "category": "buttons",
+      "variant": "ribbon",
+      "state": "normal",
+      "logical_size": [
+        112,
+        36
+      ],
+      "pixel_size": [
+        448,
+        144
+      ],
+      "scale": 4,
+      "label_safe_rect": [
+        18,
+        9,
+        93,
+        22
+      ],
+      "anchor_logical": [
+        56,
+        18
+      ],
+      "suggested_nine_slice_logical": [
+        23,
+        9,
+        23,
+        10
+      ],
+      "note": "Blank button. State canvases align; pressed face shifts down 2 logical pixels. Horizontal extension recommended; preserve decorated ends."
+    },
+    {
+      "path": "ui/royal_obsidian/buttons/ribbon__hover.png",
+      "theme": "royal_obsidian",
+      "category": "buttons",
+      "variant": "ribbon",
+      "state": "hover",
+      "logical_size": [
+        112,
+        36
+      ],
+      "pixel_size": [
+        448,
+        144
+      ],
+      "scale": 4,
+      "label_safe_rect": [
+        18,
+        9,
+        93,
+        22
+      ],
+      "anchor_logical": [
+        56,
+        18
+      ],
+      "suggested_nine_slice_logical": [
+        23,
+        9,
+        23,
+        10
+      ],
+      "note": "Blank button. State canvases align; pressed face shifts down 2 logical pixels. Horizontal extension recommended; preserve decorated ends."
+    },
+    {
+      "path": "ui/royal_obsidian/buttons/ribbon__pressed.png",
+      "theme": "royal_obsidian",
+      "category": "buttons",
+      "variant": "ribbon",
+      "state": "pressed",
+      "logical_size": [
+        112,
+        36
+      ],
+      "pixel_size": [
+        448,
+        144
+      ],
+      "scale": 4,
+      "label_safe_rect": [
+        18,
+        11,
+        93,
+        24
+      ],
+      "anchor_logical": [
+        56,
+        18
+      ],
+      "suggested_nine_slice_logical": [
+        23,
+        9,
+        23,
+        10
+      ],
+      "note": "Blank button. State canvases align; pressed face shifts down 2 logical pixels. Horizontal extension recommended; preserve decorated ends."
+    },
+    {
+      "path": "ui/royal_obsidian/buttons/ribbon__disabled.png",
+      "theme": "royal_obsidian",
+      "category": "buttons",
+      "variant": "ribbon",
+      "state": "disabled",
+      "logical_size": [
+        112,
+        36
+      ],
+      "pixel_size": [
+        448,
+        144
+      ],
+      "scale": 4,
+      "label_safe_rect": [
+        18,
+        9,
+        93,
+        22
+      ],
+      "anchor_logical": [
+        56,
+        18
+      ],
+      "suggested_nine_slice_logical": [
+        23,
+        9,
+        23,
+        10
+      ],
+      "note": "Blank button. State canvases align; pressed face shifts down 2 logical pixels. Horizontal extension recommended; preserve decorated ends."
+    },
+    {
+      "path": "ui/royal_obsidian/buttons/compact__normal.png",
+      "theme": "royal_obsidian",
+      "category": "buttons",
+      "variant": "compact",
+      "state": "normal",
+      "logical_size": [
+        112,
+        36
+      ],
+      "pixel_size": [
+        448,
+        144
+      ],
+      "scale": 4,
+      "label_safe_rect": [
+        28,
+        9,
+        83,
+        22
+      ],
+      "anchor_logical": [
+        56,
+        18
+      ],
+      "suggested_nine_slice_logical": [
+        23,
+        9,
+        23,
+        10
+      ],
+      "note": "Blank button. State canvases align; pressed face shifts down 2 logical pixels. Horizontal extension recommended; preserve decorated ends."
+    },
+    {
+      "path": "ui/royal_obsidian/buttons/compact__hover.png",
+      "theme": "royal_obsidian",
+      "category": "buttons",
+      "variant": "compact",
+      "state": "hover",
+      "logical_size": [
+        112,
+        36
+      ],
+      "pixel_size": [
+        448,
+        144
+      ],
+      "scale": 4,
+      "label_safe_rect": [
+        28,
+        9,
+        83,
+        22
+      ],
+      "anchor_logical": [
+        56,
+        18
+      ],
+      "suggested_nine_slice_logical": [
+        23,
+        9,
+        23,
+        10
+      ],
+      "note": "Blank button. State canvases align; pressed face shifts down 2 logical pixels. Horizontal extension recommended; preserve decorated ends."
+    },
+    {
+      "path": "ui/royal_obsidian/buttons/compact__pressed.png",
+      "theme": "royal_obsidian",
+      "category": "buttons",
+      "variant": "compact",
+      "state": "pressed",
+      "logical_size": [
+        112,
+        36
+      ],
+      "pixel_size": [
+        448,
+        144
+      ],
+      "scale": 4,
+      "label_safe_rect": [
+        28,
+        11,
+        83,
+        24
+      ],
+      "anchor_logical": [
+        56,
+        18
+      ],
+      "suggested_nine_slice_logical": [
+        23,
+        9,
+        23,
+        10
+      ],
+      "note": "Blank button. State canvases align; pressed face shifts down 2 logical pixels. Horizontal extension recommended; preserve decorated ends."
+    },
+    {
+      "path": "ui/royal_obsidian/buttons/compact__disabled.png",
+      "theme": "royal_obsidian",
+      "category": "buttons",
+      "variant": "compact",
+      "state": "disabled",
+      "logical_size": [
+        112,
+        36
+      ],
+      "pixel_size": [
+        448,
+        144
+      ],
+      "scale": 4,
+      "label_safe_rect": [
+        28,
+        9,
+        83,
+        22
+      ],
+      "anchor_logical": [
+        56,
+        18
+      ],
+      "suggested_nine_slice_logical": [
+        23,
+        9,
+        23,
+        10
+      ],
+      "note": "Blank button. State canvases align; pressed face shifts down 2 logical pixels. Horizontal extension recommended; preserve decorated ends."
+    },
+    {
+      "path": "ui/royal_obsidian/frames/window.png",
+      "theme": "royal_obsidian",
+      "category": "frames",
+      "variant": "window",
+      "state": null,
+      "logical_size": [
+        112,
+        80
+      ],
+      "pixel_size": [
+        448,
+        320
+      ],
+      "scale": 4,
+      "center_cutout": true,
+      "content_safe_rect": [
+        12,
+        11,
+        99,
+        65
+      ],
+      "suggested_nine_slice_logical": [
+        16,
+        12,
+        16,
+        16
+      ],
+      "note": "Transparent central opening. Add your own fill behind frame. Nine-slice stretches top ornament; preserve by drawing ornament separately or use supplied native aspect ratio."
+    },
+    {
+      "path": "ui/royal_obsidian/frames/wide.png",
+      "theme": "royal_obsidian",
+      "category": "frames",
+      "variant": "wide",
+      "state": null,
+      "logical_size": [
+        144,
+        56
+      ],
+      "pixel_size": [
+        576,
+        224
+      ],
+      "scale": 4,
+      "center_cutout": true,
+      "content_safe_rect": [
+        12,
+        11,
+        131,
+        41
+      ],
+      "suggested_nine_slice_logical": [
+        16,
+        12,
+        16,
+        16
+      ],
+      "note": "Transparent central opening. Add your own fill behind frame. Nine-slice stretches top ornament; preserve by drawing ornament separately or use supplied native aspect ratio."
+    },
+    {
+      "path": "ui/royal_obsidian/frames/card.png",
+      "theme": "royal_obsidian",
+      "category": "frames",
+      "variant": "card",
+      "state": null,
+      "logical_size": [
+        72,
+        100
+      ],
+      "pixel_size": [
+        288,
+        400
+      ],
+      "scale": 4,
+      "center_cutout": true,
+      "content_safe_rect": [
+        12,
+        11,
+        59,
+        85
+      ],
+      "suggested_nine_slice_logical": [
+        16,
+        12,
+        16,
+        16
+      ],
+      "note": "Transparent central opening. Add your own fill behind frame. Nine-slice stretches top ornament; preserve by drawing ornament separately or use supplied native aspect ratio."
+    },
+    {
+      "path": "ui/royal_obsidian/toggles/slide__off.png",
+      "theme": "royal_obsidian",
+      "category": "toggles",
+      "variant": "slide",
+      "state": "off",
+      "logical_size": [
+        48,
+        24
+      ],
+      "pixel_size": [
+        192,
+        96
+      ],
+      "scale": 4,
+      "anchor_logical": [
+        24,
+        12
+      ],
+      "note": "Standalone paired toggle states. Fixed 48 \u00d7 24 logical canvas."
+    },
+    {
+      "path": "ui/royal_obsidian/toggles/slide__on.png",
+      "theme": "royal_obsidian",
+      "category": "toggles",
+      "variant": "slide",
+      "state": "on",
+      "logical_size": [
+        48,
+        24
+      ],
+      "pixel_size": [
+        192,
+        96
+      ],
+      "scale": 4,
+      "anchor_logical": [
+        24,
+        12
+      ],
+      "note": "Standalone paired toggle states. Fixed 48 \u00d7 24 logical canvas."
+    },
+    {
+      "path": "ui/royal_obsidian/badges/shield.png",
+      "theme": "royal_obsidian",
+      "category": "badges",
+      "variant": "shield",
+      "state": null,
+      "logical_size": [
+        28,
+        32
+      ],
+      "pixel_size": [
+        112,
+        128
+      ],
+      "scale": 4,
+      "note": "Decorative material insignia. No labels baked in."
+    },
+    {
+      "path": "ui/royal_obsidian/badges/diamond.png",
+      "theme": "royal_obsidian",
+      "category": "badges",
+      "variant": "diamond",
+      "state": null,
+      "logical_size": [
+        28,
+        32
+      ],
+      "pixel_size": [
+        112,
+        128
+      ],
+      "scale": 4,
+      "note": "Decorative material insignia. No labels baked in."
+    },
+    {
+      "path": "ui/royal_obsidian/badges/seal.png",
+      "theme": "royal_obsidian",
+      "category": "badges",
+      "variant": "seal",
+      "state": null,
+      "logical_size": [
+        28,
+        32
+      ],
+      "pixel_size": [
+        112,
+        128
+      ],
+      "scale": 4,
+      "note": "Decorative material insignia. No labels baked in."
+    },
+    {
+      "path": "ui/royal_obsidian/badges/tab.png",
+      "theme": "royal_obsidian",
+      "category": "badges",
+      "variant": "tab",
+      "state": null,
+      "logical_size": [
+        28,
+        32
+      ],
+      "pixel_size": [
+        112,
+        128
+      ],
+      "scale": 4,
+      "note": "Decorative material insignia. No labels baked in."
+    },
+    {
+      "path": "ui/moss_stone/buttons/ornate__normal.png",
+      "theme": "moss_stone",
+      "category": "buttons",
+      "variant": "ornate",
+      "state": "normal",
+      "logical_size": [
+        112,
+        36
+      ],
+      "pixel_size": [
+        448,
+        144
+      ],
+      "scale": 4,
+      "label_safe_rect": [
+        23,
+        9,
+        88,
+        22
+      ],
+      "anchor_logical": [
+        56,
+        18
+      ],
+      "suggested_nine_slice_logical": [
+        23,
+        9,
+        23,
+        10
+      ],
+      "note": "Blank button. State canvases align; pressed face shifts down 2 logical pixels. Horizontal extension recommended; preserve decorated ends."
+    },
+    {
+      "path": "ui/moss_stone/buttons/ornate__hover.png",
+      "theme": "moss_stone",
+      "category": "buttons",
+      "variant": "ornate",
+      "state": "hover",
+      "logical_size": [
+        112,
+        36
+      ],
+      "pixel_size": [
+        448,
+        144
+      ],
+      "scale": 4,
+      "label_safe_rect": [
+        23,
+        9,
+        88,
+        22
+      ],
+      "anchor_logical": [
+        56,
+        18
+      ],
+      "suggested_nine_slice_logical": [
+        23,
+        9,
+        23,
+        10
+      ],
+      "note": "Blank button. State canvases align; pressed face shifts down 2 logical pixels. Horizontal extension recommended; preserve decorated ends."
+    },
+    {
+      "path": "ui/moss_stone/buttons/ornate__pressed.png",
+      "theme": "moss_stone",
+      "category": "buttons",
+      "variant": "ornate",
+      "state": "pressed",
+      "logical_size": [
+        112,
+        36
+      ],
+      "pixel_size": [
+        448,
+        144
+      ],
+      "scale": 4,
+      "label_safe_rect": [
+        23,
+        11,
+        88,
+        24
+      ],
+      "anchor_logical": [
+        56,
+        18
+      ],
+      "suggested_nine_slice_logical": [
+        23,
+        9,
+        23,
+        10
+      ],
+      "note": "Blank button. State canvases align; pressed face shifts down 2 logical pixels. Horizontal extension recommended; preserve decorated ends."
+    },
+    {
+      "path": "ui/moss_stone/buttons/ornate__disabled.png",
+      "theme": "moss_stone",
+      "category": "buttons",
+      "variant": "ornate",
+      "state": "disabled",
+      "logical_size": [
+        112,
+        36
+      ],
+      "pixel_size": [
+        448,
+        144
+      ],
+      "scale": 4,
+      "label_safe_rect": [
+        23,
+        9,
+        88,
+        22
+      ],
+      "anchor_logical": [
+        56,
+        18
+      ],
+      "suggested_nine_slice_logical": [
+        23,
+        9,
+        23,
+        10
+      ],
+      "note": "Blank button. State canvases align; pressed face shifts down 2 logical pixels. Horizontal extension recommended; preserve decorated ends."
+    },
+    {
+      "path": "ui/moss_stone/buttons/ribbon__normal.png",
+      "theme": "moss_stone",
+      "category": "buttons",
+      "variant": "ribbon",
+      "state": "normal",
+      "logical_size": [
+        112,
+        36
+      ],
+      "pixel_size": [
+        448,
+        144
+      ],
+      "scale": 4,
+      "label_safe_rect": [
+        18,
+        9,
+        93,
+        22
+      ],
+      "anchor_logical": [
+        56,
+        18
+      ],
+      "suggested_nine_slice_logical": [
+        23,
+        9,
+        23,
+        10
+      ],
+      "note": "Blank button. State canvases align; pressed face shifts down 2 logical pixels. Horizontal extension recommended; preserve decorated ends."
+    },
+    {
+      "path": "ui/moss_stone/buttons/ribbon__hover.png",
+      "theme": "moss_stone",
+      "category": "buttons",
+      "variant": "ribbon",
+      "state": "hover",
+      "logical_size": [
+        112,
+        36
+      ],
+      "pixel_size": [
+        448,
+        144
+      ],
+      "scale": 4,
+      "label_safe_rect": [
+        18,
+        9,
+        93,
+        22
+      ],
+      "anchor_logical": [
+        56,
+        18
+      ],
+      "suggested_nine_slice_logical": [
+        23,
+        9,
+        23,
+        10
+      ],
+      "note": "Blank button. State canvases align; pressed face shifts down 2 logical pixels. Horizontal extension recommended; preserve decorated ends."
+    },
+    {
+      "path": "ui/moss_stone/buttons/ribbon__pressed.png",
+      "theme": "moss_stone",
+      "category": "buttons",
+      "variant": "ribbon",
+      "state": "pressed",
+      "logical_size": [
+        112,
+        36
+      ],
+      "pixel_size": [
+        448,
+        144
+      ],
+      "scale": 4,
+      "label_safe_rect": [
+        18,
+        11,
+        93,
+        24
+      ],
+      "anchor_logical": [
+        56,
+        18
+      ],
+      "suggested_nine_slice_logical": [
+        23,
+        9,
+        23,
+        10
+      ],
+      "note": "Blank button. State canvases align; pressed face shifts down 2 logical pixels. Horizontal extension recommended; preserve decorated ends."
+    },
+    {
+      "path": "ui/moss_stone/buttons/ribbon__disabled.png",
+      "theme": "moss_stone",
+      "category": "buttons",
+      "variant": "ribbon",
+      "state": "disabled",
+      "logical_size": [
+        112,
+        36
+      ],
+      "pixel_size": [
+        448,
+        144
+      ],
+      "scale": 4,
+      "label_safe_rect": [
+        18,
+        9,
+        93,
+        22
+      ],
+      "anchor_logical": [
+        56,
+        18
+      ],
+      "suggested_nine_slice_logical": [
+        23,
+        9,
+        23,
+        10
+      ],
+      "note": "Blank button. State canvases align; pressed face shifts down 2 logical pixels. Horizontal extension recommended; preserve decorated ends."
+    },
+    {
+      "path": "ui/moss_stone/buttons/compact__normal.png",
+      "theme": "moss_stone",
+      "category": "buttons",
+      "variant": "compact",
+      "state": "normal",
+      "logical_size": [
+        112,
+        36
+      ],
+      "pixel_size": [
+        448,
+        144
+      ],
+      "scale": 4,
+      "label_safe_rect": [
+        28,
+        9,
+        83,
+        22
+      ],
+      "anchor_logical": [
+        56,
+        18
+      ],
+      "suggested_nine_slice_logical": [
+        23,
+        9,
+        23,
+        10
+      ],
+      "note": "Blank button. State canvases align; pressed face shifts down 2 logical pixels. Horizontal extension recommended; preserve decorated ends."
+    },
+    {
+      "path": "ui/moss_stone/buttons/compact__hover.png",
+      "theme": "moss_stone",
+      "category": "buttons",
+      "variant": "compact",
+      "state": "hover",
+      "logical_size": [
+        112,
+        36
+      ],
+      "pixel_size": [
+        448,
+        144
+      ],
+      "scale": 4,
+      "label_safe_rect": [
+        28,
+        9,
+        83,
+        22
+      ],
+      "anchor_logical": [
+        56,
+        18
+      ],
+      "suggested_nine_slice_logical": [
+        23,
+        9,
+        23,
+        10
+      ],
+      "note": "Blank button. State canvases align; pressed face shifts down 2 logical pixels. Horizontal extension recommended; preserve decorated ends."
+    },
+    {
+      "path": "ui/moss_stone/buttons/compact__pressed.png",
+      "theme": "moss_stone",
+      "category": "buttons",
+      "variant": "compact",
+      "state": "pressed",
+      "logical_size": [
+        112,
+        36
+      ],
+      "pixel_size": [
+        448,
+        144
+      ],
+      "scale": 4,
+      "label_safe_rect": [
+        28,
+        11,
+        83,
+        24
+      ],
+      "anchor_logical": [
+        56,
+        18
+      ],
+      "suggested_nine_slice_logical": [
+        23,
+        9,
+        23,
+        10
+      ],
+      "note": "Blank button. State canvases align; pressed face shifts down 2 logical pixels. Horizontal extension recommended; preserve decorated ends."
+    },
+    {
+      "path": "ui/moss_stone/buttons/compact__disabled.png",
+      "theme": "moss_stone",
+      "category": "buttons",
+      "variant": "compact",
+      "state": "disabled",
+      "logical_size": [
+        112,
+        36
+      ],
+      "pixel_size": [
+        448,
+        144
+      ],
+      "scale": 4,
+      "label_safe_rect": [
+        28,
+        9,
+        83,
+        22
+      ],
+      "anchor_logical": [
+        56,
+        18
+      ],
+      "suggested_nine_slice_logical": [
+        23,
+        9,
+        23,
+        10
+      ],
+      "note": "Blank button. State canvases align; pressed face shifts down 2 logical pixels. Horizontal extension recommended; preserve decorated ends."
+    },
+    {
+      "path": "ui/moss_stone/frames/window.png",
+      "theme": "moss_stone",
+      "category": "frames",
+      "variant": "window",
+      "state": null,
+      "logical_size": [
+        112,
+        80
+      ],
+      "pixel_size": [
+        448,
+        320
+      ],
+      "scale": 4,
+      "center_cutout": true,
+      "content_safe_rect": [
+        12,
+        11,
+        99,
+        65
+      ],
+      "suggested_nine_slice_logical": [
+        16,
+        12,
+        16,
+        16
+      ],
+      "note": "Transparent central opening. Add your own fill behind frame. Nine-slice stretches top ornament; preserve by drawing ornament separately or use supplied native aspect ratio."
+    },
+    {
+      "path": "ui/moss_stone/frames/wide.png",
+      "theme": "moss_stone",
+      "category": "frames",
+      "variant": "wide",
+      "state": null,
+      "logical_size": [
+        144,
+        56
+      ],
+      "pixel_size": [
+        576,
+        224
+      ],
+      "scale": 4,
+      "center_cutout": true,
+      "content_safe_rect": [
+        12,
+        11,
+        131,
+        41
+      ],
+      "suggested_nine_slice_logical": [
+        16,
+        12,
+        16,
+        16
+      ],
+      "note": "Transparent central opening. Add your own fill behind frame. Nine-slice stretches top ornament; preserve by drawing ornament separately or use supplied native aspect ratio."
+    },
+    {
+      "path": "ui/moss_stone/frames/card.png",
+      "theme": "moss_stone",
+      "category": "frames",
+      "variant": "card",
+      "state": null,
+      "logical_size": [
+        72,
+        100
+      ],
+      "pixel_size": [
+        288,
+        400
+      ],
+      "scale": 4,
+      "center_cutout": true,
+      "content_safe_rect": [
+        12,
+        11,
+        59,
+        85
+      ],
+      "suggested_nine_slice_logical": [
+        16,
+        12,
+        16,
+        16
+      ],
+      "note": "Transparent central opening. Add your own fill behind frame. Nine-slice stretches top ornament; preserve by drawing ornament separately or use supplied native aspect ratio."
+    },
+    {
+      "path": "ui/moss_stone/toggles/slide__off.png",
+      "theme": "moss_stone",
+      "category": "toggles",
+      "variant": "slide",
+      "state": "off",
+      "logical_size": [
+        48,
+        24
+      ],
+      "pixel_size": [
+        192,
+        96
+      ],
+      "scale": 4,
+      "anchor_logical": [
+        24,
+        12
+      ],
+      "note": "Standalone paired toggle states. Fixed 48 \u00d7 24 logical canvas."
+    },
+    {
+      "path": "ui/moss_stone/toggles/slide__on.png",
+      "theme": "moss_stone",
+      "category": "toggles",
+      "variant": "slide",
+      "state": "on",
+      "logical_size": [
+        48,
+        24
+      ],
+      "pixel_size": [
+        192,
+        96
+      ],
+      "scale": 4,
+      "anchor_logical": [
+        24,
+        12
+      ],
+      "note": "Standalone paired toggle states. Fixed 48 \u00d7 24 logical canvas."
+    },
+    {
+      "path": "ui/moss_stone/badges/shield.png",
+      "theme": "moss_stone",
+      "category": "badges",
+      "variant": "shield",
+      "state": null,
+      "logical_size": [
+        28,
+        32
+      ],
+      "pixel_size": [
+        112,
+        128
+      ],
+      "scale": 4,
+      "note": "Decorative material insignia. No labels baked in."
+    },
+    {
+      "path": "ui/moss_stone/badges/diamond.png",
+      "theme": "moss_stone",
+      "category": "badges",
+      "variant": "diamond",
+      "state": null,
+      "logical_size": [
+        28,
+        32
+      ],
+      "pixel_size": [
+        112,
+        128
+      ],
+      "scale": 4,
+      "note": "Decorative material insignia. No labels baked in."
+    },
+    {
+      "path": "ui/moss_stone/badges/seal.png",
+      "theme": "moss_stone",
+      "category": "badges",
+      "variant": "seal",
+      "state": null,
+      "logical_size": [
+        28,
+        32
+      ],
+      "pixel_size": [
+        112,
+        128
+      ],
+      "scale": 4,
+      "note": "Decorative material insignia. No labels baked in."
+    },
+    {
+      "path": "ui/moss_stone/badges/tab.png",
+      "theme": "moss_stone",
+      "category": "badges",
+      "variant": "tab",
+      "state": null,
+      "logical_size": [
+        28,
+        32
+      ],
+      "pixel_size": [
+        112,
+        128
+      ],
+      "scale": 4,
+      "note": "Decorative material insignia. No labels baked in."
+    },
+    {
+      "path": "ui/brass_clockwork/buttons/ornate__normal.png",
+      "theme": "brass_clockwork",
+      "category": "buttons",
+      "variant": "ornate",
+      "state": "normal",
+      "logical_size": [
+        112,
+        36
+      ],
+      "pixel_size": [
+        448,
+        144
+      ],
+      "scale": 4,
+      "label_safe_rect": [
+        23,
+        9,
+        88,
+        22
+      ],
+      "anchor_logical": [
+        56,
+        18
+      ],
+      "suggested_nine_slice_logical": [
+        23,
+        9,
+        23,
+        10
+      ],
+      "note": "Blank button. State canvases align; pressed face shifts down 2 logical pixels. Horizontal extension recommended; preserve decorated ends."
+    },
+    {
+      "path": "ui/brass_clockwork/buttons/ornate__hover.png",
+      "theme": "brass_clockwork",
+      "category": "buttons",
+      "variant": "ornate",
+      "state": "hover",
+      "logical_size": [
+        112,
+        36
+      ],
+      "pixel_size": [
+        448,
+        144
+      ],
+      "scale": 4,
+      "label_safe_rect": [
+        23,
+        9,
+        88,
+        22
+      ],
+      "anchor_logical": [
+        56,
+        18
+      ],
+      "suggested_nine_slice_logical": [
+        23,
+        9,
+        23,
+        10
+      ],
+      "note": "Blank button. State canvases align; pressed face shifts down 2 logical pixels. Horizontal extension recommended; preserve decorated ends."
+    },
+    {
+      "path": "ui/brass_clockwork/buttons/ornate__pressed.png",
+      "theme": "brass_clockwork",
+      "category": "buttons",
+      "variant": "ornate",
+      "state": "pressed",
+      "logical_size": [
+        112,
+        36
+      ],
+      "pixel_size": [
+        448,
+        144
+      ],
+      "scale": 4,
+      "label_safe_rect": [
+        23,
+        11,
+        88,
+        24
+      ],
+      "anchor_logical": [
+        56,
+        18
+      ],
+      "suggested_nine_slice_logical": [
+        23,
+        9,
+        23,
+        10
+      ],
+      "note": "Blank button. State canvases align; pressed face shifts down 2 logical pixels. Horizontal extension recommended; preserve decorated ends."
+    },
+    {
+      "path": "ui/brass_clockwork/buttons/ornate__disabled.png",
+      "theme": "brass_clockwork",
+      "category": "buttons",
+      "variant": "ornate",
+      "state": "disabled",
+      "logical_size": [
+        112,
+        36
+      ],
+      "pixel_size": [
+        448,
+        144
+      ],
+      "scale": 4,
+      "label_safe_rect": [
+        23,
+        9,
+        88,
+        22
+      ],
+      "anchor_logical": [
+        56,
+        18
+      ],
+      "suggested_nine_slice_logical": [
+        23,
+        9,
+        23,
+        10
+      ],
+      "note": "Blank button. State canvases align; pressed face shifts down 2 logical pixels. Horizontal extension recommended; preserve decorated ends."
+    },
+    {
+      "path": "ui/brass_clockwork/buttons/ribbon__normal.png",
+      "theme": "brass_clockwork",
+      "category": "buttons",
+      "variant": "ribbon",
+      "state": "normal",
+      "logical_size": [
+        112,
+        36
+      ],
+      "pixel_size": [
+        448,
+        144
+      ],
+      "scale": 4,
+      "label_safe_rect": [
+        18,
+        9,
+        93,
+        22
+      ],
+      "anchor_logical": [
+        56,
+        18
+      ],
+      "suggested_nine_slice_logical": [
+        23,
+        9,
+        23,
+        10
+      ],
+      "note": "Blank button. State canvases align; pressed face shifts down 2 logical pixels. Horizontal extension recommended; preserve decorated ends."
+    },
+    {
+      "path": "ui/brass_clockwork/buttons/ribbon__hover.png",
+      "theme": "brass_clockwork",
+      "category": "buttons",
+      "variant": "ribbon",
+      "state": "hover",
+      "logical_size": [
+        112,
+        36
+      ],
+      "pixel_size": [
+        448,
+        144
+      ],
+      "scale": 4,
+      "label_safe_rect": [
+        18,
+        9,
+        93,
+        22
+      ],
+      "anchor_logical": [
+        56,
+        18
+      ],
+      "suggested_nine_slice_logical": [
+        23,
+        9,
+        23,
+        10
+      ],
+      "note": "Blank button. State canvases align; pressed face shifts down 2 logical pixels. Horizontal extension recommended; preserve decorated ends."
+    },
+    {
+      "path": "ui/brass_clockwork/buttons/ribbon__pressed.png",
+      "theme": "brass_clockwork",
+      "category": "buttons",
+      "variant": "ribbon",
+      "state": "pressed",
+      "logical_size": [
+        112,
+        36
+      ],
+      "pixel_size": [
+        448,
+        144
+      ],
+      "scale": 4,
+      "label_safe_rect": [
+        18,
+        11,
+        93,
+        24
+      ],
+      "anchor_logical": [
+        56,
+        18
+      ],
+      "suggested_nine_slice_logical": [
+        23,
+        9,
+        23,
+        10
+      ],
+      "note": "Blank button. State canvases align; pressed face shifts down 2 logical pixels. Horizontal extension recommended; preserve decorated ends."
+    },
+    {
+      "path": "ui/brass_clockwork/buttons/ribbon__disabled.png",
+      "theme": "brass_clockwork",
+      "category": "buttons",
+      "variant": "ribbon",
+      "state": "disabled",
+      "logical_size": [
+        112,
+        36
+      ],
+      "pixel_size": [
+        448,
+        144
+      ],
+      "scale": 4,
+      "label_safe_rect": [
+        18,
+        9,
+        93,
+        22
+      ],
+      "anchor_logical": [
+        56,
+        18
+      ],
+      "suggested_nine_slice_logical": [
+        23,
+        9,
+        23,
+        10
+      ],
+      "note": "Blank button. State canvases align; pressed face shifts down 2 logical pixels. Horizontal extension recommended; preserve decorated ends."
+    },
+    {
+      "path": "ui/brass_clockwork/buttons/compact__normal.png",
+      "theme": "brass_clockwork",
+      "category": "buttons",
+      "variant": "compact",
+      "state": "normal",
+      "logical_size": [
+        112,
+        36
+      ],
+      "pixel_size": [
+        448,
+        144
+      ],
+      "scale": 4,
+      "label_safe_rect": [
+        28,
+        9,
+        83,
+        22
+      ],
+      "anchor_logical": [
+        56,
+        18
+      ],
+      "suggested_nine_slice_logical": [
+        23,
+        9,
+        23,
+        10
+      ],
+      "note": "Blank button. State canvases align; pressed face shifts down 2 logical pixels. Horizontal extension recommended; preserve decorated ends."
+    },
+    {
+      "path": "ui/brass_clockwork/buttons/compact__hover.png",
+      "theme": "brass_clockwork",
+      "category": "buttons",
+      "variant": "compact",
+      "state": "hover",
+      "logical_size": [
+        112,
+        36
+      ],
+      "pixel_size": [
+        448,
+        144
+      ],
+      "scale": 4,
+      "label_safe_rect": [
+        28,
+        9,
+        83,
+        22
+      ],
+      "anchor_logical": [
+        56,
+        18
+      ],
+      "suggested_nine_slice_logical": [
+        23,
+        9,
+        23,
+        10
+      ],
+      "note": "Blank button. State canvases align; pressed face shifts down 2 logical pixels. Horizontal extension recommended; preserve decorated ends."
+    },
+    {
+      "path": "ui/brass_clockwork/buttons/compact__pressed.png",
+      "theme": "brass_clockwork",
+      "category": "buttons",
+      "variant": "compact",
+      "state": "pressed",
+      "logical_size": [
+        112,
+        36
+      ],
+      "pixel_size": [
+        448,
+        144
+      ],
+      "scale": 4,
+      "label_safe_rect": [
+        28,
+        11,
+        83,
+        24
+      ],
+      "anchor_logical": [
+        56,
+        18
+      ],
+      "suggested_nine_slice_logical": [
+        23,
+        9,
+        23,
+        10
+      ],
+      "note": "Blank button. State canvases align; pressed face shifts down 2 logical pixels. Horizontal extension recommended; preserve decorated ends."
+    },
+    {
+      "path": "ui/brass_clockwork/buttons/compact__disabled.png",
+      "theme": "brass_clockwork",
+      "category": "buttons",
+      "variant": "compact",
+      "state": "disabled",
+      "logical_size": [
+        112,
+        36
+      ],
+      "pixel_size": [
+        448,
+        144
+      ],
+      "scale": 4,
+      "label_safe_rect": [
+        28,
+        9,
+        83,
+        22
+      ],
+      "anchor_logical": [
+        56,
+        18
+      ],
+      "suggested_nine_slice_logical": [
+        23,
+        9,
+        23,
+        10
+      ],
+      "note": "Blank button. State canvases align; pressed face shifts down 2 logical pixels. Horizontal extension recommended; preserve decorated ends."
+    },
+    {
+      "path": "ui/brass_clockwork/frames/window.png",
+      "theme": "brass_clockwork",
+      "category": "frames",
+      "variant": "window",
+      "state": null,
+      "logical_size": [
+        112,
+        80
+      ],
+      "pixel_size": [
+        448,
+        320
+      ],
+      "scale": 4,
+      "center_cutout": true,
+      "content_safe_rect": [
+        12,
+        11,
+        99,
+        65
+      ],
+      "suggested_nine_slice_logical": [
+        16,
+        12,
+        16,
+        16
+      ],
+      "note": "Transparent central opening. Add your own fill behind frame. Nine-slice stretches top ornament; preserve by drawing ornament separately or use supplied native aspect ratio."
+    },
+    {
+      "path": "ui/brass_clockwork/frames/wide.png",
+      "theme": "brass_clockwork",
+      "category": "frames",
+      "variant": "wide",
+      "state": null,
+      "logical_size": [
+        144,
+        56
+      ],
+      "pixel_size": [
+        576,
+        224
+      ],
+      "scale": 4,
+      "center_cutout": true,
+      "content_safe_rect": [
+        12,
+        11,
+        131,
+        41
+      ],
+      "suggested_nine_slice_logical": [
+        16,
+        12,
+        16,
+        16
+      ],
+      "note": "Transparent central opening. Add your own fill behind frame. Nine-slice stretches top ornament; preserve by drawing ornament separately or use supplied native aspect ratio."
+    },
+    {
+      "path": "ui/brass_clockwork/frames/card.png",
+      "theme": "brass_clockwork",
+      "category": "frames",
+      "variant": "card",
+      "state": null,
+      "logical_size": [
+        72,
+        100
+      ],
+      "pixel_size": [
+        288,
+        400
+      ],
+      "scale": 4,
+      "center_cutout": true,
+      "content_safe_rect": [
+        12,
+        11,
+        59,
+        85
+      ],
+      "suggested_nine_slice_logical": [
+        16,
+        12,
+        16,
+        16
+      ],
+      "note": "Transparent central opening. Add your own fill behind frame. Nine-slice stretches top ornament; preserve by drawing ornament separately or use supplied native aspect ratio."
+    },
+    {
+      "path": "ui/brass_clockwork/toggles/slide__off.png",
+      "theme": "brass_clockwork",
+      "category": "toggles",
+      "variant": "slide",
+      "state": "off",
+      "logical_size": [
+        48,
+        24
+      ],
+      "pixel_size": [
+        192,
+        96
+      ],
+      "scale": 4,
+      "anchor_logical": [
+        24,
+        12
+      ],
+      "note": "Standalone paired toggle states. Fixed 48 \u00d7 24 logical canvas."
+    },
+    {
+      "path": "ui/brass_clockwork/toggles/slide__on.png",
+      "theme": "brass_clockwork",
+      "category": "toggles",
+      "variant": "slide",
+      "state": "on",
+      "logical_size": [
+        48,
+        24
+      ],
+      "pixel_size": [
+        192,
+        96
+      ],
+      "scale": 4,
+      "anchor_logical": [
+        24,
+        12
+      ],
+      "note": "Standalone paired toggle states. Fixed 48 \u00d7 24 logical canvas."
+    },
+    {
+      "path": "ui/brass_clockwork/badges/shield.png",
+      "theme": "brass_clockwork",
+      "category": "badges",
+      "variant": "shield",
+      "state": null,
+      "logical_size": [
+        28,
+        32
+      ],
+      "pixel_size": [
+        112,
+        128
+      ],
+      "scale": 4,
+      "note": "Decorative material insignia. No labels baked in."
+    },
+    {
+      "path": "ui/brass_clockwork/badges/diamond.png",
+      "theme": "brass_clockwork",
+      "category": "badges",
+      "variant": "diamond",
+      "state": null,
+      "logical_size": [
+        28,
+        32
+      ],
+      "pixel_size": [
+        112,
+        128
+      ],
+      "scale": 4,
+      "note": "Decorative material insignia. No labels baked in."
+    },
+    {
+      "path": "ui/brass_clockwork/badges/seal.png",
+      "theme": "brass_clockwork",
+      "category": "badges",
+      "variant": "seal",
+      "state": null,
+      "logical_size": [
+        28,
+        32
+      ],
+      "pixel_size": [
+        112,
+        128
+      ],
+      "scale": 4,
+      "note": "Decorative material insignia. No labels baked in."
+    },
+    {
+      "path": "ui/brass_clockwork/badges/tab.png",
+      "theme": "brass_clockwork",
+      "category": "badges",
+      "variant": "tab",
+      "state": null,
+      "logical_size": [
+        28,
+        32
+      ],
+      "pixel_size": [
+        112,
+        128
+      ],
+      "scale": 4,
+      "note": "Decorative material insignia. No labels baked in."
+    },
+    {
+      "path": "ui/ice_crystal/buttons/ornate__normal.png",
+      "theme": "ice_crystal",
+      "category": "buttons",
+      "variant": "ornate",
+      "state": "normal",
+      "logical_size": [
+        112,
+        36
+      ],
+      "pixel_size": [
+        448,
+        144
+      ],
+      "scale": 4,
+      "label_safe_rect": [
+        23,
+        9,
+        88,
+        22
+      ],
+      "anchor_logical": [
+        56,
+        18
+      ],
+      "suggested_nine_slice_logical": [
+        23,
+        9,
+        23,
+        10
+      ],
+      "note": "Blank button. State canvases align; pressed face shifts down 2 logical pixels. Horizontal extension recommended; preserve decorated ends."
+    },
+    {
+      "path": "ui/ice_crystal/buttons/ornate__hover.png",
+      "theme": "ice_crystal",
+      "category": "buttons",
+      "variant": "ornate",
+      "state": "hover",
+      "logical_size": [
+        112,
+        36
+      ],
+      "pixel_size": [
+        448,
+        144
+      ],
+      "scale": 4,
+      "label_safe_rect": [
+        23,
+        9,
+        88,
+        22
+      ],
+      "anchor_logical": [
+        56,
+        18
+      ],
+      "suggested_nine_slice_logical": [
+        23,
+        9,
+        23,
+        10
+      ],
+      "note": "Blank button. State canvases align; pressed face shifts down 2 logical pixels. Horizontal extension recommended; preserve decorated ends."
+    },
+    {
+      "path": "ui/ice_crystal/buttons/ornate__pressed.png",
+      "theme": "ice_crystal",
+      "category": "buttons",
+      "variant": "ornate",
+      "state": "pressed",
+      "logical_size": [
+        112,
+        36
+      ],
+      "pixel_size": [
+        448,
+        144
+      ],
+      "scale": 4,
+      "label_safe_rect": [
+        23,
+        11,
+        88,
+        24
+      ],
+      "anchor_logical": [
+        56,
+        18
+      ],
+      "suggested_nine_slice_logical": [
+        23,
+        9,
+        23,
+        10
+      ],
+      "note": "Blank button. State canvases align; pressed face shifts down 2 logical pixels. Horizontal extension recommended; preserve decorated ends."
+    },
+    {
+      "path": "ui/ice_crystal/buttons/ornate__disabled.png",
+      "theme": "ice_crystal",
+      "category": "buttons",
+      "variant": "ornate",
+      "state": "disabled",
+      "logical_size": [
+        112,
+        36
+      ],
+      "pixel_size": [
+        448,
+        144
+      ],
+      "scale": 4,
+      "label_safe_rect": [
+        23,
+        9,
+        88,
+        22
+      ],
+      "anchor_logical": [
+        56,
+        18
+      ],
+      "suggested_nine_slice_logical": [
+        23,
+        9,
+        23,
+        10
+      ],
+      "note": "Blank button. State canvases align; pressed face shifts down 2 logical pixels. Horizontal extension recommended; preserve decorated ends."
+    },
+    {
+      "path": "ui/ice_crystal/buttons/ribbon__normal.png",
+      "theme": "ice_crystal",
+      "category": "buttons",
+      "variant": "ribbon",
+      "state": "normal",
+      "logical_size": [
+        112,
+        36
+      ],
+      "pixel_size": [
+        448,
+        144
+      ],
+      "scale": 4,
+      "label_safe_rect": [
+        18,
+        9,
+        93,
+        22
+      ],
+      "anchor_logical": [
+        56,
+        18
+      ],
+      "suggested_nine_slice_logical": [
+        23,
+        9,
+        23,
+        10
+      ],
+      "note": "Blank button. State canvases align; pressed face shifts down 2 logical pixels. Horizontal extension recommended; preserve decorated ends."
+    },
+    {
+      "path": "ui/ice_crystal/buttons/ribbon__hover.png",
+      "theme": "ice_crystal",
+      "category": "buttons",
+      "variant": "ribbon",
+      "state": "hover",
+      "logical_size": [
+        112,
+        36
+      ],
+      "pixel_size": [
+        448,
+        144
+      ],
+      "scale": 4,
+      "label_safe_rect": [
+        18,
+        9,
+        93,
+        22
+      ],
+      "anchor_logical": [
+        56,
+        18
+      ],
+      "suggested_nine_slice_logical": [
+        23,
+        9,
+        23,
+        10
+      ],
+      "note": "Blank button. State canvases align; pressed face shifts down 2 logical pixels. Horizontal extension recommended; preserve decorated ends."
+    },
+    {
+      "path": "ui/ice_crystal/buttons/ribbon__pressed.png",
+      "theme": "ice_crystal",
+      "category": "buttons",
+      "variant": "ribbon",
+      "state": "pressed",
+      "logical_size": [
+        112,
+        36
+      ],
+      "pixel_size": [
+        448,
+        144
+      ],
+      "scale": 4,
+      "label_safe_rect": [
+        18,
+        11,
+        93,
+        24
+      ],
+      "anchor_logical": [
+        56,
+        18
+      ],
+      "suggested_nine_slice_logical": [
+        23,
+        9,
+        23,
+        10
+      ],
+      "note": "Blank button. State canvases align; pressed face shifts down 2 logical pixels. Horizontal extension recommended; preserve decorated ends."
+    },
+    {
+      "path": "ui/ice_crystal/buttons/ribbon__disabled.png",
+      "theme": "ice_crystal",
+      "category": "buttons",
+      "variant": "ribbon",
+      "state": "disabled",
+      "logical_size": [
+        112,
+        36
+      ],
+      "pixel_size": [
+        448,
+        144
+      ],
+      "scale": 4,
+      "label_safe_rect": [
+        18,
+        9,
+        93,
+        22
+      ],
+      "anchor_logical": [
+        56,
+        18
+      ],
+      "suggested_nine_slice_logical": [
+        23,
+        9,
+        23,
+        10
+      ],
+      "note": "Blank button. State canvases align; pressed face shifts down 2 logical pixels. Horizontal extension recommended; preserve decorated ends."
+    },
+    {
+      "path": "ui/ice_crystal/buttons/compact__normal.png",
+      "theme": "ice_crystal",
+      "category": "buttons",
+      "variant": "compact",
+      "state": "normal",
+      "logical_size": [
+        112,
+        36
+      ],
+      "pixel_size": [
+        448,
+        144
+      ],
+      "scale": 4,
+      "label_safe_rect": [
+        28,
+        9,
+        83,
+        22
+      ],
+      "anchor_logical": [
+        56,
+        18
+      ],
+      "suggested_nine_slice_logical": [
+        23,
+        9,
+        23,
+        10
+      ],
+      "note": "Blank button. State canvases align; pressed face shifts down 2 logical pixels. Horizontal extension recommended; preserve decorated ends."
+    },
+    {
+      "path": "ui/ice_crystal/buttons/compact__hover.png",
+      "theme": "ice_crystal",
+      "category": "buttons",
+      "variant": "compact",
+      "state": "hover",
+      "logical_size": [
+        112,
+        36
+      ],
+      "pixel_size": [
+        448,
+        144
+      ],
+      "scale": 4,
+      "label_safe_rect": [
+        28,
+        9,
+        83,
+        22
+      ],
+      "anchor_logical": [
+        56,
+        18
+      ],
+      "suggested_nine_slice_logical": [
+        23,
+        9,
+        23,
+        10
+      ],
+      "note": "Blank button. State canvases align; pressed face shifts down 2 logical pixels. Horizontal extension recommended; preserve decorated ends."
+    },
+    {
+      "path": "ui/ice_crystal/buttons/compact__pressed.png",
+      "theme": "ice_crystal",
+      "category": "buttons",
+      "variant": "compact",
+      "state": "pressed",
+      "logical_size": [
+        112,
+        36
+      ],
+      "pixel_size": [
+        448,
+        144
+      ],
+      "scale": 4,
+      "label_safe_rect": [
+        28,
+        11,
+        83,
+        24
+      ],
+      "anchor_logical": [
+        56,
+        18
+      ],
+      "suggested_nine_slice_logical": [
+        23,
+        9,
+        23,
+        10
+      ],
+      "note": "Blank button. State canvases align; pressed face shifts down 2 logical pixels. Horizontal extension recommended; preserve decorated ends."
+    },
+    {
+      "path": "ui/ice_crystal/buttons/compact__disabled.png",
+      "theme": "ice_crystal",
+      "category": "buttons",
+      "variant": "compact",
+      "state": "disabled",
+      "logical_size": [
+        112,
+        36
+      ],
+      "pixel_size": [
+        448,
+        144
+      ],
+      "scale": 4,
+      "label_safe_rect": [
+        28,
+        9,
+        83,
+        22
+      ],
+      "anchor_logical": [
+        56,
+        18
+      ],
+      "suggested_nine_slice_logical": [
+        23,
+        9,
+        23,
+        10
+      ],
+      "note": "Blank button. State canvases align; pressed face shifts down 2 logical pixels. Horizontal extension recommended; preserve decorated ends."
+    },
+    {
+      "path": "ui/ice_crystal/frames/window.png",
+      "theme": "ice_crystal",
+      "category": "frames",
+      "variant": "window",
+      "state": null,
+      "logical_size": [
+        112,
+        80
+      ],
+      "pixel_size": [
+        448,
+        320
+      ],
+      "scale": 4,
+      "center_cutout": true,
+      "content_safe_rect": [
+        12,
+        11,
+        99,
+        65
+      ],
+      "suggested_nine_slice_logical": [
+        16,
+        12,
+        16,
+        16
+      ],
+      "note": "Transparent central opening. Add your own fill behind frame. Nine-slice stretches top ornament; preserve by drawing ornament separately or use supplied native aspect ratio."
+    },
+    {
+      "path": "ui/ice_crystal/frames/wide.png",
+      "theme": "ice_crystal",
+      "category": "frames",
+      "variant": "wide",
+      "state": null,
+      "logical_size": [
+        144,
+        56
+      ],
+      "pixel_size": [
+        576,
+        224
+      ],
+      "scale": 4,
+      "center_cutout": true,
+      "content_safe_rect": [
+        12,
+        11,
+        131,
+        41
+      ],
+      "suggested_nine_slice_logical": [
+        16,
+        12,
+        16,
+        16
+      ],
+      "note": "Transparent central opening. Add your own fill behind frame. Nine-slice stretches top ornament; preserve by drawing ornament separately or use supplied native aspect ratio."
+    },
+    {
+      "path": "ui/ice_crystal/frames/card.png",
+      "theme": "ice_crystal",
+      "category": "frames",
+      "variant": "card",
+      "state": null,
+      "logical_size": [
+        72,
+        100
+      ],
+      "pixel_size": [
+        288,
+        400
+      ],
+      "scale": 4,
+      "center_cutout": true,
+      "content_safe_rect": [
+        12,
+        11,
+        59,
+        85
+      ],
+      "suggested_nine_slice_logical": [
+        16,
+        12,
+        16,
+        16
+      ],
+      "note": "Transparent central opening. Add your own fill behind frame. Nine-slice stretches top ornament; preserve by drawing ornament separately or use supplied native aspect ratio."
+    },
+    {
+      "path": "ui/ice_crystal/toggles/slide__off.png",
+      "theme": "ice_crystal",
+      "category": "toggles",
+      "variant": "slide",
+      "state": "off",
+      "logical_size": [
+        48,
+        24
+      ],
+      "pixel_size": [
+        192,
+        96
+      ],
+      "scale": 4,
+      "anchor_logical": [
+        24,
+        12
+      ],
+      "note": "Standalone paired toggle states. Fixed 48 \u00d7 24 logical canvas."
+    },
+    {
+      "path": "ui/ice_crystal/toggles/slide__on.png",
+      "theme": "ice_crystal",
+      "category": "toggles",
+      "variant": "slide",
+      "state": "on",
+      "logical_size": [
+        48,
+        24
+      ],
+      "pixel_size": [
+        192,
+        96
+      ],
+      "scale": 4,
+      "anchor_logical": [
+        24,
+        12
+      ],
+      "note": "Standalone paired toggle states. Fixed 48 \u00d7 24 logical canvas."
+    },
+    {
+      "path": "ui/ice_crystal/badges/shield.png",
+      "theme": "ice_crystal",
+      "category": "badges",
+      "variant": "shield",
+      "state": null,
+      "logical_size": [
+        28,
+        32
+      ],
+      "pixel_size": [
+        112,
+        128
+      ],
+      "scale": 4,
+      "note": "Decorative material insignia. No labels baked in."
+    },
+    {
+      "path": "ui/ice_crystal/badges/diamond.png",
+      "theme": "ice_crystal",
+      "category": "badges",
+      "variant": "diamond",
+      "state": null,
+      "logical_size": [
+        28,
+        32
+      ],
+      "pixel_size": [
+        112,
+        128
+      ],
+      "scale": 4,
+      "note": "Decorative material insignia. No labels baked in."
+    },
+    {
+      "path": "ui/ice_crystal/badges/seal.png",
+      "theme": "ice_crystal",
+      "category": "badges",
+      "variant": "seal",
+      "state": null,
+      "logical_size": [
+        28,
+        32
+      ],
+      "pixel_size": [
+        112,
+        128
+      ],
+      "scale": 4,
+      "note": "Decorative material insignia. No labels baked in."
+    },
+    {
+      "path": "ui/ice_crystal/badges/tab.png",
+      "theme": "ice_crystal",
+      "category": "badges",
+      "variant": "tab",
+      "state": null,
+      "logical_size": [
+        28,
+        32
+      ],
+      "pixel_size": [
+        112,
+        128
+      ],
+      "scale": 4,
+      "note": "Decorative material insignia. No labels baked in."
+    }
+  ]
+}

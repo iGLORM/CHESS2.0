@@ -1,0 +1,12 @@
+Use case: stylized-concept
+Asset type: standalone inventory UI icon
+Style reference: Image 1: STYLE reference only — match its square pixels and shading; do NOT copy its subject.
+Primary request: ONE finished Chess 2.0 a compact obsidian keyboard with simple ivory square keycaps, gold casing and one ruby function key, no letters. One instantly recognisable finished-game symbol; the main silhouette IS the subject, no enclosing decorative frame, no crown or horse heads added.
+Materials & palette: Antique gold bevels, obsidian recesses and small ruby accent #c91e46; ivory-silver where specified. Ornament is subordinate to a large readable symbol. 32-colour limited palette, 4 discrete shade levels per material.
+Composition/framing: Square 1:1 canvas, front view, one centred complete icon occupying only middle 72% of canvas; generous 14% real transparent margin on every side.
+Pixel treatment: PIXEL ART. Authentic hand-pixelled 16-bit / 32-bit JRPG interface sprite. Elaborate beautiful detail drawn exclusively with discrete PIXEL CLUSTERS. Hard stairstep contours, discrete pixel clusters, 32-color palette, 4 discrete shade levels per material, deliberate pixel dithering. Think professional Aseprite sprite drawn with pencil tool and nearest neighbor enlarged. Specular highlights are individual square pixels and short pixel staircases. Approximately 64x64 logical pixels shown enlarged 16x nearest-neighbour; every SQUARE PIXEL visibly large.
+Output: genuine transparent RGBA background.
+Constraints: no text; no antialiasing; no smooth curves; no smooth gradients; no 3D render; no subpixel details; no painted microtexture; no glow or shadow outside the silhouette; no checkerboard drawn in the image; no watermark; no signatures; one asset only.
+
+Attached reference images (in order):
+/Users/yacineboufe/Documents/Projects/chess-2.0/Assets-Trial/pixel-art-v3/icons/jeweled-chess-crown.png

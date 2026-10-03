@@ -8,57 +8,8 @@ const ThemeSelect = {
   init(data) {
     this.themes = ThemeManager.getAllThemes();
     this.returnScreen = data?.returnTo || 'home';
-    this.selectedThemeId = store.get('theme') || 'pawnhollow';
-    const settings = store.get('settings') || {};
-    if (settings.bossThemeEnabled !== false) {
-      this._buildLockedScreen();
-      return;
-    }
+    this.selectedThemeId = ThemeManager.menuThemeId();
     this.build();
-  },
-
-  _buildLockedScreen() {
-    if (this.pixiContainer) this.pixiContainer.destroy({ children: true });
-    this.pixiContainer = PixiPremiumScene.root('Theme Select', 'Theme is controlled by boss world', {});
-    PixiScreenManager.setScreenContainer(this.pixiContainer);
-
-    const s = Layout.uiScale || 1;
-    const cols = ThemeManager.getCurrentColors();
-    // Icon, title, text and button stacked and centred in one panel.
-    const L = { PAD_TOP: 44, ICON: 56, GAP: 18, PARA_GAP: 12, BTN_W: 200, BTN_H: 48, PAD_BOTTOM: 36 };
-    const panelW = Math.min(Layout.isPortrait ? 620 : 540, Layout.W - 80);
-    const textW = panelW - 80;
-    const para = (text) => PixiPremiumScene.text(text, {
-      fontSize: Math.round(17 * s), fill: PixiPremiumScene.alpha(cols.text, 'bb'),
-      align: 'center', wordWrap: true, wordWrapWidth: textW, lineHeight: Math.round(25 * s),
-    });
-    const title = PixiPremiumScene.text('Boss World Theme Active', { fontSize: Math.round(24 * s), fontWeight: '900', fill: cols.text });
-    const p1 = para('The theme changes automatically based on the boss you fight.');
-    const p2 = para('Turn off "Boss World Theme" in Settings to pick themes yourself.');
-    const panelH = L.PAD_TOP + L.ICON + L.GAP + title.height + L.GAP + p1.height + L.PARA_GAP + p2.height + L.GAP + 8 + L.BTN_H + L.PAD_BOTTOM;
-    const px = Math.round(Layout.cx - panelW / 2);
-    const py = Math.round(150 + (PixiPremiumScene.contentBottom - 150 - panelH) / 2);
-    PixiPremiumScene.panel(this.pixiContainer, px, py, panelW, panelH, { accentAlpha: 0.5 });
-
-    let y = py + L.PAD_TOP;
-    const icon = new PIXI.Sprite(PixiPremiumAssets.icon('lock'));
-    icon.width = L.ICON;
-    icon.height = L.ICON;
-    icon.x = Math.round(Layout.cx - L.ICON / 2);
-    icon.y = y;
-    this.pixiContainer.addChild(icon);
-    y += L.ICON + L.GAP;
-    for (const [t, gap] of [[title, L.GAP], [p1, L.PARA_GAP], [p2, L.GAP + 8]]) {
-      t.anchor.set(0.5, 0);
-      t.x = Layout.cx;
-      t.y = y;
-      this.pixiContainer.addChild(t);
-      y += t.height + gap;
-    }
-
-    const btnY = PixiPremiumScene.bottomButtonY();
-    PixiPremiumScene.button(this.pixiContainer, 36, btnY, 160, 44, 'Back', () => switchScreen(this.returnScreen), { icon: 'back' });
-    PixiPremiumScene.button(this.pixiContainer, Math.round(Layout.cx - L.BTN_W / 2), y, L.BTN_W, L.BTN_H, 'Open Settings', () => switchScreen('settings'), { primary: true, icon: 'settings' });
   },
 
   destroy() {
@@ -71,8 +22,8 @@ const ThemeSelect = {
 
   build() {
     if (this.pixiContainer) this.pixiContainer.destroy({ children: true });
-    const subtitle = Layout.isPortrait ? 'Gallery above, preview below' : 'Gallery on the left, custom editor on the right';
-    this.pixiContainer = PixiPremiumScene.root('Theme Select', subtitle, { footerHint: 'Locked themes unlock through story progress' });
+    const subtitle = 'Your theme outside story mode. Story mode shows the world you are in.';
+    this.pixiContainer = PixiPremiumScene.root('Theme Select', subtitle, { footerHint: 'Beat a world\'s guardian to unlock its theme' });
     PixiScreenManager.setScreenContainer(this.pixiContainer);
     this.buildGallery();
     this.buildDrawer();
@@ -98,14 +49,14 @@ const ThemeSelect = {
     const descFontSize = Math.round(13 * s);
     const tagFontSize = Math.round(12 * s);
     const nameMaxW = Math.round(cardW * 0.72);
-    const descMaxW = Math.round(cardW * 0.75);
+    const descMaxW = cardW - Math.round(9 * s) * 2 - 24;   // the card's whole inner width
     this.themes.forEach((theme, i) => {
       const row = Math.floor(i / galleryCols);
       const col = i % galleryCols;
       const x = startX + col * (cardW + gap);
       const y = startY + row * (cardH + gap);
       const unlocked = ThemeManager.isThemeUnlocked(theme.id);
-      const active = store.get('theme') === theme.id;
+      const active = ThemeManager.menuThemeId() === theme.id;
       PixiPremiumScene.card(this.pixiContainer, x, y, cardW, cardH, {
         active,
         disabled: !unlocked,
@@ -214,7 +165,7 @@ const ThemeSelect = {
       const btnY = infoY + Math.round(60 * s);
       const btnW = Math.min(infoMaxW, 220);
       if (theme.id !== 'custom') {
-        PixiPremiumScene.button(this.pixiContainer, infoX, btnY, btnW, 42, store.get('theme') === theme.id ? 'Applied' : 'Apply Theme', () => this.selectTheme(theme.id, true), { primary: store.get('theme') !== theme.id, icon: 'spark' });
+        PixiPremiumScene.button(this.pixiContainer, infoX, btnY, btnW, 42, ThemeManager.menuThemeId() === theme.id ? 'Applied' : 'Apply Theme', () => this.selectTheme(theme.id, true), { primary: ThemeManager.menuThemeId() !== theme.id, icon: 'spark' });
         this.palettePreview(theme, innerX, drawerY + 32 + previewH + 16, drawerW - 48);
         return;
       }
@@ -256,7 +207,7 @@ const ThemeSelect = {
       const btnY = infoY + 78;
       const btnW = previewW;
       if (theme.id !== 'custom') {
-        PixiPremiumScene.button(this.pixiContainer, infoX, btnY, btnW, 46, store.get('theme') === theme.id ? 'Applied' : 'Apply Theme', () => this.selectTheme(theme.id, true), { primary: store.get('theme') !== theme.id, icon: 'spark' });
+        PixiPremiumScene.button(this.pixiContainer, infoX, btnY, btnW, 46, ThemeManager.menuThemeId() === theme.id ? 'Applied' : 'Apply Theme', () => this.selectTheme(theme.id, true), { primary: ThemeManager.menuThemeId() !== theme.id, icon: 'spark' });
         this.palettePreview(theme, infoX, btnY + 70, previewW);
         return;
       }
@@ -319,7 +270,7 @@ const ThemeSelect = {
         }
         const index = Math.max(0, presets.indexOf(custom.colors[key]));
         ThemeManager.setCustomColor(key, presets[(index + 1) % presets.length]);
-        ThemeManager.applyTheme('custom');
+        this._choose('custom');
         this.selectedThemeId = 'custom';
         this.build();
       });
@@ -336,7 +287,7 @@ const ThemeSelect = {
     });
     y += 30 + rowH * 2 + 6;
 
-    PixiPremiumScene.button(this.pixiContainer, x, y, w, 44, store.get('theme') === 'custom' ? 'Custom Applied' : 'Apply Custom', () => this.selectTheme('custom', true), { primary: true, icon: 'spark' });
+    PixiPremiumScene.button(this.pixiContainer, x, y, w, 44, ThemeManager.menuThemeId() === 'custom' ? 'Custom Applied' : 'Apply Custom', () => this.selectTheme('custom', true), { primary: true, icon: 'spark' });
     y += 44 + 18;
 
     y = this.themeChips('Music', store.get('customMusicTheme') || 'pawnhollow', x, y, w, (id) => {
@@ -355,11 +306,11 @@ const ThemeSelect = {
       store.set('customBgTheme', id);
       store.saveProgress();
       this.build();
-    });
+    }, ThemeManager.EXTRA_BACKDROPS);
   },
 
-  // A label and a 5-column grid of theme buttons; returns the y below the grid.
-  themeChips(label, current, x, y, w, onPick) {
+  // A label and a 6-column grid of theme buttons (plus any extra backdrops); returns the y below the grid.
+  themeChips(label, current, x, y, w, onPick, extras = []) {
     const cols = ThemeManager.getCurrentColors();
     const t = PixiPremiumScene.text(label, { fontSize: 15, fontWeight: '900', fill: cols.text });
     t.x = x;
@@ -369,14 +320,15 @@ const ThemeSelect = {
     const perRow = 6;
     const chipW = Math.floor((w - gap * (perRow - 1)) / perRow);
     const chipH = 26;
-    const baseThemes = this.themes.filter(theme => theme.id !== 'custom');
+    const baseThemes = this.themes.filter(theme => theme.id !== 'custom').map(theme => ({
+      id: theme.id, short: theme.short, accent: theme.colors.accent, unlocked: ThemeManager.isThemeUnlocked(theme.id),
+    })).concat(extras.map(b => ({ id: b.id, short: b.short, accent: b.accent, unlocked: ThemeManager.isBackdropUnlocked(b.id) })));
     baseThemes.forEach((theme, i) => {
-      const unlocked = ThemeManager.isThemeUnlocked(theme.id);
-      PixiPremiumScene.button(this.pixiContainer, x + (i % perRow) * (chipW + gap), y + 24 + Math.floor(i / perRow) * (chipH + gap), chipW, chipH, unlocked ? theme.short : '?', () => onPick(theme.id), {
+      PixiPremiumScene.button(this.pixiContainer, x + (i % perRow) * (chipW + gap), y + 24 + Math.floor(i / perRow) * (chipH + gap), chipW, chipH, theme.unlocked ? theme.short : '?', () => onPick(theme.id), {
         primary: theme.id === current,
         fontSize: 12,
-        color: theme.colors.accent,
-        disabled: !unlocked,
+        color: theme.accent,
+        disabled: !theme.unlocked,
       });
     });
     return y + 24 + Math.ceil(baseThemes.length / perRow) * (chipH + gap) - gap;
@@ -384,14 +336,21 @@ const ThemeSelect = {
 
   selectTheme(id, unlocked) {
     this.selectedThemeId = id;
-    if (unlocked) {
-      ThemeManager.applyTheme(id);
-    }
+    if (unlocked) this._choose(id);
     this.build();
+  },
+
+  // The pick is the theme outside story mode. Opened from a story fight (pause menu,
+  // Settings), the fight keeps its world's theme and the pick shows up afterwards.
+  _choose(id) {
+    if (ThemeManager.storyActive) store.set('menuTheme', id);
+    else ThemeManager.chooseTheme(id);
+    store.saveProgress();
   },
 
   unlockLabel(id) {
     const world = ThemeManager.unlockWorld(id);
+    if (id === 'greatboard') return 'Finish the story';
     return world ? `Restore ${world.name} in Story` : 'Story locked';
   },
 

@@ -1,0 +1,676 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pawn Hollow, Golden Hour</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #0c0912; overflow: hidden; }
+  canvas {
+    position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+    image-rendering: pixelated; image-rendering: crisp-edges;
+  }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script>
+'use strict';
+// Pawn Hollow at golden hour: an animated pixel-art background for World 1.
+//
+// Everything is drawn in code into a 320x200 buffer (1280x800 in game = exactly 4x)
+// and scaled up with nearest-neighbour. Warm sunset light against cool shade and dusk.
+// Every motion runs a whole number of cycles per LOOP seconds, so it loops seamlessly.
+// URL options: ?t=30 freezes the scene at that second (for screenshots).
+
+const W = 320, H = 200, LOOP = 120, TAU = Math.PI * 2;
+const cv = document.getElementById('c');
+cv.width = W; cv.height = H;
+const ctx = cv.getContext('2d');
+const img = ctx.createImageData(W, H);
+const buf = new Uint32Array(img.data.buffer);
+
+// ---------- helpers ----------
+const rgb = h => { const n = parseInt(h.slice(1), 16); return [n >> 16 & 255, n >> 8 & 255, n & 255]; };
+const hex = a => '#' + a.map(v => Math.round(Math.max(0, Math.min(255, v))).toString(16).padStart(2, '0')).join('');
+const mix = (a, b, t) => { const A = rgb(a), B = rgb(b); return hex(A.map((v, i) => v + (B[i] - v) * t)); };
+const C = h => { const [r, g, b] = rgb(h); return (0xff000000 | (b << 16) | (g << 8) | r) >>> 0; };
+const clamp = (v, a = 0, b = 1) => v < a ? a : v > b ? b : v;
+const sq = v => v * v;
+const frac = v => v - Math.floor(v);
+
+const BAY = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5].map(v => (v + 0.5) / 16);
+const bay = (x, y) => BAY[((y & 3) << 2) | (x & 3)];
+// Ordered-dither pick along a list of colours.
+function ramp(cols, t, x, y) {
+  t = clamp(t) * (cols.length - 1);
+  const i = t | 0, f = clamp((t - i - 0.5) * 2 + 0.5);
+  return cols[Math.min(cols.length - 1, i + (f > bay(x, y) ? 1 : 0))];
+}
+function hash(x, y) {
+  let h = (Math.imul(x | 0, 374761393) + Math.imul(y | 0, 668265263)) | 0;
+  h = Math.imul(h ^ (h >>> 13), 1274126177);
+  h ^= h >>> 16;
+  return (h >>> 0) / 4294967296;
+}
+function noise1(x, seed) { const i = Math.floor(x), f = x - i, u = f * f * (3 - 2 * f); return hash(i, seed) * (1 - u) + hash(i + 1, seed) * u; }
+function fbm1(x, seed) { let a = 0, amp = 0.5, fr = 1; for (let o = 0; o < 4; o++) { a += amp * noise1(x * fr, seed + o * 17); fr *= 2; amp *= 0.5; } return a; }
+function put(b, x, y, c) { x = Math.round(x); y = Math.round(y); if (x >= 0 && y >= 0 && x < W && y < H) b[y * W + x] = c; }
+function blend(b, i, c, a) {
+  const d = b[i];
+  const r = d & 255, g = d >> 8 & 255, bl = d >> 16 & 255;
+  const r2 = c & 255, g2 = c >> 8 & 255, b2 = c >> 16 & 255;
+  b[i] = (0xff000000 | ((bl + (b2 - bl) * a) << 16) | ((g + (g2 - g) * a) << 8) | (r + (r2 - r) * a)) >>> 0;
+}
+function blendAt(b, x, y, c, a) { x = Math.round(x); y = Math.round(y); if (x >= 0 && y >= 0 && x < W && y < H) blend(b, y * W + x, c, a); }
+
+// ---------- layers ----------
+const SKYB = new Uint32Array(W * H);   // sky, sun, moon
+const BACK = new Uint32Array(W * H);   // land, village, windmill tower (0 = transparent)
+const MASK = new Uint8Array(W * H);    // 1 = wheat (wind waves), 2 = water (glints)
+const MASKC = new Uint32Array(W * H);  // colour when masked; later layers painting over it clear the mask
+const SX = 200, SY = 103, SR = 11;     // the sun, setting into a valley
+const HAZE = '#e6a894';
+
+// ---------- sky ----------
+const SKY = ['#161838', '#221f4c', '#352f64', '#523a78', '#7c4684', '#a85584', '#d06a7c', '#ea8a6c', '#f6ae66', '#ffd28a', '#ffecb8'].map(C);
+for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+  const d = Math.hypot(x - SX, (y - SY) * 1.25);
+  const t = y / 118 + 0.28 * Math.exp(-sq(d / 75)) + 0.22 * Math.exp(-sq(d / 24));
+  SKYB[y * W + x] = ramp(SKY, t, x, y);
+}
+for (let y = SY - SR - 2; y <= SY + SR + 2; y++) for (let x = SX - SR - 2; x <= SX + SR + 2; x++) {
+  const d = Math.hypot(x - SX, y - SY);
+  if (d < SR) put(SKYB, x, y, C(d < SR - 3 ? '#fffbea' : '#fff3c8'));
+  else if (d < SR + 1.3) put(SKYB, x, y, C('#ffe2a0'));
+}
+// A pale crescent moon rising in the cold part of the sky.
+const MX = 96, MY = 27;
+for (let y = MY - 10; y <= MY + 10; y++) for (let x = MX - 10; x <= MX + 10; x++) {
+  const d1 = Math.hypot(x - MX, y - MY), d2 = Math.hypot(x - MX - 2.6, y - MY + 1.8);
+  if (d1 < 5.6 && d2 >= 5) put(SKYB, x, y, C(d1 > 4.6 ? '#c8c0ec' : '#f4eeff'));
+  else if (d1 < 9 && (9 - d1) / 9 * 0.5 > bay(x, y)) blend(SKYB, y * W + x, C('#6a64a8'), 0.35);
+}
+const STARS = [];
+for (let i = 0; i < 40; i++) {
+  const x = hash(i, 901) * W | 0, y = (hash(i, 902) ** 1.5 * 42) | 0;
+  if (Math.hypot(x - MX, y - MY) < 11) continue;
+  STARS.push({ x, y, k: 12 + (hash(i, 903) * 30 | 0), p: hash(i, 904) * TAU, big: hash(i, 905) > 0.82 });
+}
+
+// ---------- clouds (warm undersides, cool tops) ----------
+function makeCloud(w, h, seed) {
+  // Round puffs sitting on a flat base, biggest in the middle.
+  const m = new Uint8Array(w * h), px = new Uint32Array(w * h);
+  const n = Math.max(3, Math.round(w / 16)), blobs = [];
+  for (let i = 0; i < n; i++) {
+    const bump = Math.sin(Math.PI * (i + 0.5) / n);
+    const r = h * (0.3 + 0.62 * bump * (0.6 + 0.4 * hash(i, seed + 2)));
+    const cx = clamp(w * (i + 0.5) / n + (hash(i, seed) - 0.5) * 8, r + 1, w - r - 2);
+    blobs.push({ cx, cy: h - 1 - r * 0.35, r });
+  }
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++)
+    for (const b of blobs) if (Math.hypot(x - b.cx, (y - b.cy) * 1.15) <= b.r) { m[y * w + x] = 1; break; }
+  const CL = ['#8c72b0', '#74609e', '#9a6a98', '#c87e90', '#eea08e'].map(C), RIM = C('#ffcaa0');
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+    if (!m[y * w + x]) continue;
+    const below = y + 1 >= h || !m[(y + 1) * w + x];
+    const above = y === 0 || !m[(y - 1) * w + x];
+    let c;
+    if (below) c = RIM;
+    else if (above) c = CL[0];
+    else {
+      let depth = 0; while (y + depth + 1 < h && m[(y + depth + 1) * w + x]) depth++;
+      c = ramp(CL, 1 - depth / Math.max(4, h * 0.8) + 0.15, x, y);
+    }
+    px[y * w + x] = c;
+  }
+  return { w, h, px };
+}
+const CLOUD_SPAN = 480;
+const CLOUDS = [
+  { c: makeCloud(62, 9, 11), x0: 180, y: 18, k: 1 },
+  { c: makeCloud(100, 13, 12), x0: 30, y: 40, k: 1 },
+  { c: makeCloud(80, 11, 13), x0: 250, y: 66, k: 1 },
+  { c: makeCloud(120, 12, 14), x0: 400, y: 82, k: 1 },
+  { c: makeCloud(110, 24, 15), x0: 100, y: 12, k: 2 },
+  { c: makeCloud(90, 20, 16), x0: 330, y: 50, k: 2 },
+];
+
+// ---------- mountains ----------
+const topFar = x => 100 + 16 * fbm1(x / 38, 11) + 10 * Math.exp(-sq((x - SX) / 40));
+const topNear = x => 111 + 9 * fbm1(x / 24, 23) + 4 * Math.exp(-sq((x - SX) / 30));
+function mountains(topf, cool, warm, rimCool, rimWarm, seed) {
+  const pc = cool.map(C), pw = warm.map(C), rc = C(rimCool), rw = C(rimWarm);
+  for (let x = 0; x < W; x++) {
+    const ty = Math.round(topf(x)), w = Math.exp(-sq((x - SX) / 55));
+    for (let y = ty; y < H; y++) {
+      const dy = y - ty;
+      let c;
+      if (dy === 0) c = w > 0.3 ? rw : rc;
+      else {
+        let t = dy / 14;
+        if (hash(x, (y >> 2) + seed) > 0.86) t -= 0.25;
+        c = ramp(w * 0.9 > bay(x, y) ? pw : pc, t, x, y);
+      }
+      BACK[y * W + x] = c;
+    }
+  }
+}
+mountains(topFar, ['#9a7cae', '#8e74a8', '#a88098', '#cf98a0'], ['#c08ca8', '#b284a4', '#c890a0', '#e2a4a0'], '#b894c0', '#ffd0a0', 3);
+mountains(topNear, ['#6e5a92', '#624f88', '#7a5c8e', '#b0809a'], ['#9a6a94', '#8a5e8e', '#9c6890', '#c88c9a'], '#8a70a8', '#f4b48e', 7);
+
+// ---------- fields ----------
+const WHEAT = 0, GREEN = 1, MEADOW = 2, PLOW = 3;
+const CROPS = [
+  ['#f8d884', '#e8b25c', '#c08048'],
+  ['#bccb70', '#8ca84e', '#607e46'],
+  ['#a8c47a', '#7aa060', '#527852'],
+  ['#cc9064', '#9c664a', '#704842'],
+];
+function pickCrop(v, w) { let s = 0; for (let i = 0; i < w.length; i++) { s += w[i]; if (v < s) return i; } return w.length - 1; }
+function field(topf, o) {
+  const pal = CROPS.map(cr => cr.map(h => C(mix(h, HAZE, o.haze))));
+  const hedge = C(mix('#35502f', HAZE, o.haze)), rim = C(mix('#ffe6a4', HAZE, o.haze * 0.5)), rim2 = C(mix('#f6c878', HAZE, o.haze * 0.5));
+  for (let x = 0; x < W; x++) {
+    const ty = Math.round(topf(x));
+    for (let y = Math.max(0, ty); y < H; y++) {
+      const dy = y - ty, uu = x + (x - 160) * dy * o.sl;
+      const ci = pickCrop(hash(Math.floor(uu / o.pw) + o.seed * 97, Math.floor(dy / o.rh) + o.seed * 13), o.weights);
+      let c;
+      if (dy === 0) c = rim;
+      else if (dy === 1) c = rim2;
+      else if (frac(uu / o.pw) * o.pw < 1 || dy % o.rh === 0) c = hedge;
+      else {
+        let t = (dy % o.rh) / o.rh * 0.45 + dy / o.band * 0.6;
+        if (ci === PLOW && (dy & 1)) t += 0.35;
+        if (hash(x, y + o.seed) > 0.9) t -= 0.3;
+        c = ramp(pal[ci], t, x, y);
+        if (ci === WHEAT && o.wave) { MASK[y * W + x] = 1; MASKC[y * W + x] = c; }
+      }
+      BACK[y * W + x] = c;
+    }
+  }
+}
+// A small round tree, lit on the side facing the sun.
+function smallTree(b, cx, gy, r, haze) {
+  const cols = ['#6a8a4c', '#4a6a42', '#324c38', '#243830'].map(h => C(mix(h, HAZE, haze)));
+  const rimc = C(mix('#f0c870', HAZE, haze * 0.6)), trunk = C(mix('#3a2a2a', HAZE, haze));
+  const side = Math.sign(SX - cx) || 1, cy = gy - r - 1;
+  for (let y = cy + r; y <= gy; y++) put(b, cx, y, trunk);
+  for (let y = Math.floor(cy - r); y <= cy + r; y++) for (let x = Math.floor(cx - r); x <= cx + r; x++) {
+    const dx = x - cx, dy = y - cy, d = Math.hypot(dx, dy) / r;
+    if (d > 1) continue;
+    const l = (dx * side) / r * 0.6 - dy / r * 0.4;
+    if (d > 0.7 && l > 0.3) put(b, x, y, rimc);
+    else put(b, x, y, ramp(cols, 0.55 - l * 0.5 + (hash(x, y) - 0.5) * 0.3, x, y));
+  }
+}
+
+const topA = x => 121 + 2.5 * Math.sin(x / 23) + 1.5 * Math.sin(x / 9 + 1);
+const topW = x => 139 - 18 * Math.exp(-sq((x - 58) / 44)) + 1.5 * Math.sin(x / 15);
+const topB = x => 136 - 6 * Math.exp(-sq((x - 170) / 55)) + 1.2 * Math.sin(x / 11);
+const topC = x => 151 + 4 * Math.sin(x / 31 + 2) + 2 * Math.sin(x / 12);
+const sunlit = x => noise1(x / 12, 77) > 0.45;
+const topF = x => 171 + 5 * Math.sin(x / 40) + 3 * Math.sin(x / 17 + 1);
+
+field(topA, { haze: 0.45, band: 14, pw: 16, rh: 5, sl: 0.03, seed: 1, weights: [0.35, 0.3, 0.2, 0.15] });
+for (let x = 4; x < W; x += 4 + (hash(x, 31) * 9 | 0)) smallTree(BACK, x, Math.round(topA(x)) + 1, 1.5 + hash(x, 32) * 1.5, 0.45);
+field(topW, { haze: 0.3, band: 18, pw: 22, rh: 6, sl: 0.04, seed: 2, weights: [0.2, 0.2, 0.5, 0.1] });
+// Dirt path winding up to the windmill.
+const PATH = ['#e8c290', '#c89a70'].map(C);
+for (let y = Math.round(topW(58)) + 2; y < 142; y++) {
+  const px = 58 + (y - 122) * 1.6 + 3 * Math.sin(y / 4), hw = 0.6 + (y - 122) * 0.08;
+  for (let x = Math.floor(px - hw); x <= px + hw; x++) put(BACK, x, y, ramp(PATH, (x - px + hw) / (2 * hw + 1), x, y));
+}
+
+// ---------- windmill ----------
+const WM = { x: 58, base: Math.round(topW(58)) + 2, top: 95 };
+WM.hx = WM.x; WM.hy = WM.top - 4;
+const WINDOWS = [], CHIMNEYS = [];
+(function windmill() {
+  const { x: cx, base, top } = WM;
+  const body = ['#6e5a7a', '#a8909c', '#d6b8a4', '#f4d8ae'].map(C), mortar = C('#8a7488');
+  for (let y = top; y <= base; y++) {
+    const s = (y - top) / (base - top), half = 4 + s * 3.5;
+    for (let x = Math.round(cx - half); x <= Math.round(cx + half); x++) {
+      const rel = (x - (cx - half)) / (2 * half);
+      let c = rel > 0.8 ? body[3] : rel > 0.62 ? body[2] : rel < 0.18 ? body[0] : body[1];
+      if (y % 4 === 0 && rel > 0.1 && rel < 0.85) c = mortar;
+      else if ((x + (y >> 2) * 3) % 7 === 0 && rel > 0.2 && rel < 0.6) c = mortar;
+      put(BACK, x, y, c);
+    }
+  }
+  for (let x = cx - 6; x <= cx + 6; x++) put(BACK, x, top + 1, C(x > cx + 3 ? '#b07850' : '#5a3a34'));
+  for (let y = base - 6; y <= base; y++) for (let x = cx - 1; x <= cx + 1; x++) put(BACK, x, y, C('#3e2630'));
+  put(BACK, cx - 1, base - 6, C('#6e5a7a')); put(BACK, cx + 1, base - 6, C('#6e5a7a'));
+  WINDOWS.push({ x: cx + 1, y: top + 10, w: 2, h: 3 });
+  WINDOWS.push({ x: cx - 1, y: top + 20, w: 2, h: 2 });
+  for (let i = 0; i < 7; i++) {
+    const y = top - i, half = 5.5 - i * 0.75;
+    for (let x = Math.round(cx - half); x <= Math.round(cx + half); x++) {
+      const rel = (x - (cx - half)) / (2 * half + 0.01);
+      put(BACK, x, y, C(i === 6 ? '#e07a5a' : rel > 0.7 ? '#d0684a' : rel < 0.25 ? '#5a2a2e' : '#8a3c34'));
+    }
+  }
+})();
+
+// ---------- village hill ----------
+field(topB, { haze: 0.25, band: 16, pw: 24, rh: 8, sl: 0.035, seed: 3, weights: [0.3, 0.3, 0.3, 0.1] });
+for (const x of [104, 112, 196, 238, 246, 262, 270]) smallTree(BACK, x, Math.round(topB(x)) + 1, 2.5 + hash(x, 5) * 1.5, 0.25);
+
+function house(x0, w, h) {
+  const cxm = x0 + w / 2, yb = Math.round(topB(cxm)) + 3, sunRight = cxm < SX, side = 3;
+  const fx0 = sunRight ? x0 : x0 + side;
+  const plaster = ['#dcb8a8', '#c09ca2', '#a084a2'].map(C), lit = ['#f8d8a8', '#ecc08e'].map(C);
+  for (let y = yb - h; y < yb; y++) for (let x = fx0; x < fx0 + w; x++)
+    put(BACK, x, y, ramp(plaster, (y - (yb - h)) / h * 0.8 + (hash(x, y) > 0.9 ? 0.25 : 0), x, y));
+  const sx0 = sunRight ? fx0 + w : x0;
+  for (let y = yb - h; y < yb; y++) for (let x = sx0; x < sx0 + side; x++) put(BACK, x, y, ramp(lit, (y - (yb - h)) / h, x, y));
+  for (let x = x0; x < x0 + w + side; x++) put(BACK, x, yb - h, C('#8a6a84'));
+  const rh = Math.min(7, Math.ceil(w / 2.5) + 2);
+  const roofLit = ['#f6cf7c', '#d9a258'].map(C), roofDark = ['#a8704c', '#7c4e40'].map(C);
+  for (let i = 0; i < rh; i++) {
+    const y = yb - h - 1 - i, xl = x0 - 1 + i, xr = x0 + w + side - i;
+    if (xl > xr) break;
+    for (let x = xl; x <= xr; x++) {
+      const lr = (x - xl) / (xr - xl + 1e-6), isLit = sunRight ? lr > 0.55 : lr < 0.45;
+      let c = i === rh - 1 || (i === rh - 2 && xl + 1 >= xr) ? C('#ffe29a') : ramp(isLit ? roofLit : roofDark, hash(x, 7) * 0.9 + (i === 0 ? 0.5 : 0), x, y);
+      if (hash(x, 3) > 0.78 && i < rh - 1) c = isLit ? roofLit[1] : roofDark[1];
+      put(BACK, x, y, c);
+    }
+  }
+  if (w >= 14) {
+    WINDOWS.push({ x: fx0 + 2, y: yb - h + 2, w: 2, h: 2 }, { x: fx0 + w - 4, y: yb - h + 2, w: 2, h: 2 });
+  } else WINDOWS.push({ x: fx0 + (sunRight ? 1 : w - 3), y: yb - h + 2, w: 2, h: 2 });
+  const dx = fx0 + (w >> 1) - 1;
+  for (let y = yb - 4; y < yb; y++) for (let x = dx; x < dx + 2; x++) put(BACK, x, y, C('#4a2e34'));
+  const chx = sunRight ? x0 + 2 : x0 + w + side - 3, ytop = yb - h - rh - 1;
+  for (let y = ytop; y <= yb - h - 2; y++) { put(BACK, chx, y, C('#7a6070')); put(BACK, chx + 1, y, C(sunRight ? '#d8a888' : '#7a6070')); }
+  put(BACK, chx, ytop, C('#4a3440')); put(BACK, chx + 1, ytop, C('#4a3440'));
+  CHIMNEYS.push({ x: chx + 0.5, y: ytop - 1 });
+}
+house(118, 12, 8); house(136, 16, 10); house(158, 11, 8); house(176, 15, 9); house(222, 13, 8);
+
+// The chapel tower, its pawn finial standing right in the setting sun.
+(function chapel() {
+  const cx = 202, tb = Math.round(topB(cx)) + 2, body = C('#4e3450'), rim = C('#f4b886');
+  for (let y = 113; y <= tb; y++) for (let x = cx - 2; x <= cx + 2; x++) put(BACK, x, y, x === cx + 2 || x === cx - 2 ? rim : body);
+  for (let y = 115; y <= 117; y++) put(BACK, cx, y, C('#ffcf78'));
+  const cone = [[112, 4], [111, 3], [110, 2], [109, 1], [108, 0]];
+  for (const [y, hw] of cone) for (let x = cx - hw; x <= cx + hw; x++) put(BACK, x, y, x === cx + hw && hw > 0 ? C('#f0a07a') : C('#3e2640'));
+  const dark = C('#34203a');
+  for (let x = cx - 2; x <= cx + 2; x++) put(BACK, x, 107, dark);
+  for (let x = cx - 1; x <= cx + 1; x++) put(BACK, x, 106, dark);
+  put(BACK, cx, 105, dark);
+  for (let x = cx - 1; x <= cx + 1; x++) put(BACK, x, 104, dark);
+  for (let y = 99; y <= 103; y++) for (let x = cx - 2; x <= cx + 2; x++) if (Math.hypot(x - cx, y - 101) <= 2.2) put(BACK, x, y, dark);
+})();
+
+// ---------- the near field ----------
+field(topC, { haze: 0.1, band: 22, pw: 40, rh: 13, sl: 0.05, seed: 4, weights: [0.55, 0.15, 0.2, 0.1], wave: true });
+
+function bale(bx, gy, r) {
+  const sunRight = bx < SX, dir = sunRight ? -1 : 1;
+  for (let i = 0; i < 14; i++) for (let j = -1; j <= 1; j++) {
+    const x = bx + dir * (r + i), y = gy + j;
+    if (Math.abs(j) + i / 14 < 1.3) blendAt(BACK, x, y, C('#3a4a44'), 0.45);
+  }
+  const cy = gy - r;
+  for (let y = cy - r; y <= gy; y++) for (let x = bx - r; x <= bx + r; x++) {
+    const dx = x - bx, dy = y - cy, d = Math.hypot(dx, dy);
+    if (d > r + 0.3) continue;
+    const litSide = sunRight ? dx > 0 : dx < 0;
+    let c;
+    if (d > r - 1) c = litSide ? '#fff0b0' : '#8a5a34';
+    else c = (Math.floor(d) % 2) ? '#c8904a' : (litSide ? '#f2c470' : '#e0aa58');
+    put(BACK, x, y, C(c));
+  }
+}
+bale(95, Math.round(topC(95)) + 6, 5);
+bale(108, Math.round(topC(108)) + 8, 5);
+bale(256, Math.round(topC(256)) + 5, 4);
+
+const SC = { x: 232, gy: Math.round(topC(232)) + 8 };
+(function scarecrow() {
+  const { x, gy } = SC;
+  for (let y = gy - 14; y <= gy; y++) put(BACK, x, y, C('#5a3a2e'));
+  SC.arm = gy - 10;
+  for (let i = x - 6; i <= x + 6; i++) put(BACK, i, SC.arm, C('#6a4a34'));
+  for (let y = gy - 11; y <= gy - 4; y++) {
+    const hw = Math.round(1 + (y - (gy - 11)) * 0.45);
+    for (let i = x - hw; i <= x + hw; i++) put(BACK, i, y, C(i < x ? '#ecc488' : '#b0845a'));
+  }
+  for (let i = x - 2; i <= x + 2; i++) put(BACK, i, gy - 12, C('#8a5a3a'));
+  for (let y = gy - 16; y <= gy - 13; y++) for (let i = x - 2; i <= x + 2; i++)
+    if (Math.hypot(i - x, y - (gy - 14.5)) <= 2) put(BACK, i, y, C(i < x ? '#f0cc88' : '#c89a64'));
+  for (let i = x - 3; i <= x + 3; i++) put(BACK, i, gy - 17, C('#6a4430'));
+  for (let i = x - 1; i <= x + 1; i++) { put(BACK, i, gy - 18, C('#6a4430')); put(BACK, i, gy - 19, C('#6a4430')); }
+})();
+
+// ---------- the foreground meadow, in cool shade ----------
+(function meadow() {
+  const cols = ['#3a6452', '#2c4c48', '#213a40', '#182a36'].map(C);
+  const flowers = ['#f4e0f0', '#f0a0b0', '#fff0a0', '#c8b0f0'].map(C);
+  for (let x = 0; x < W; x++) {
+    const ty = Math.round(topF(x)), lit = sunlit(x);
+    for (let y = ty; y < H; y++) {
+      const dy = y - ty, hsh = hash(x, y + 500);
+      let c;
+      if (dy === 0) c = C(lit ? '#d8bc68' : '#5a8a58');
+      else if (dy === 1 && lit) c = C('#6a8a52');
+      else if (hsh > 0.996) c = flowers[(hash(x, y) * 4) | 0];
+      else c = ramp(cols, dy / 24 + (hsh > 0.95 ? -0.25 : 0), x, y);
+      BACK[y * W + x] = c;
+    }
+  }
+})();
+
+// ---------- the stream ----------
+const ST0 = 136;
+const WATER = ['#1c1e44', '#26285a', '#343470', '#4c3c7e', '#7a4c88', '#c06a86', '#f4a070'].map(C);
+const scx = y => 150 - (y - ST0) * 1.2 + 7 * Math.sin((y - ST0) / 10);
+const sw = y => 0.8 + (y - ST0) * 0.42;
+for (let y = ST0; y < H; y++) {
+  const c = scx(y), hw = sw(y) / 2;
+  for (let x = Math.round(c - hw - 2); x <= Math.round(c + hw + 2); x++) {
+    if (x < 0 || x >= W) continue;
+    const e = Math.abs(x - c), i = y * W + x;
+    if (e <= hw) {
+      BACK[i] = e > hw - 1 && hw > 2 ? C('#1e2040') : ramp(WATER, 1 - (y - ST0) / 58 + (hash(x >> 3, y) - 0.5) * 0.18, x, y);
+      MASK[i] = 2; MASKC[i] = BACK[i];
+    } else if (e <= hw + 1.3 && y > ST0 + 3) BACK[i] = C(x > c ? '#6a5040' : '#2e4a40');
+  }
+}
+(function bridge() {
+  const yb = 158, c = scx(yb), hw = sw(yb) / 2, x0 = Math.round(c - hw - 4), x1 = Math.round(c + hw + 4);
+  for (let x = x0; x <= x1; x++) {
+    const s = (x - x0) / (x1 - x0), ay = Math.round(yb - 3 * Math.sin(Math.PI * s));
+    put(BACK, x, ay, C('#e0a860'));
+    put(BACK, x, ay + 1, C('#a06a40'));
+    put(BACK, x, ay + 2, C('#6a4430'));
+    if (MASK[(ay + 3) * W + x] === 2) put(BACK, x, ay + 3, C('#2a2a48'));
+    put(BACK, x, ay - 3, C('#8a5a38'));
+    if (x === x0 || x === x1 || x === Math.round((x0 + x1) / 2)) for (let y = ay - 3; y < ay; y++) put(BACK, x, y, C('#6a4430'));
+  }
+})();
+
+// ---------- fence ----------
+(function fence() {
+  const baseAt = x => Math.round(184 + x * 0.06);
+  const posts = [];
+  for (let x = 4; x <= 64; x += 12) posts.push(x);
+  for (let x = 0; x <= 66; x++) for (const off of [4, 9]) {
+    const y = baseAt(x) - off;
+    put(BACK, x, y, C('#b08058')); put(BACK, x, y + 1, C('#5e4440'));
+  }
+  for (const px of posts) {
+    const b = baseAt(px);
+    for (let y = b - 12; y <= b; y++) { put(BACK, px, y, C('#4a3438')); put(BACK, px + 1, y, C('#c89a64')); }
+    put(BACK, px, b - 13, C('#c89a64'));
+  }
+})();
+
+// ---------- the big apple tree (trunk static, canopy sways) ----------
+(function trunk() {
+  for (let y = 120; y < H; y++) {
+    const s = (y - 120) / (H - 120), cx = 296 + s * 2, hw = 2.5 + s * 2.5 + (y > H - 8 ? (y - (H - 8)) * 0.8 : 0);
+    for (let x = Math.round(cx - hw); x <= Math.round(cx + hw); x++) {
+      const rel = (x - (cx - hw)) / (2 * hw);
+      put(BACK, x, y, C(rel < 0.2 ? '#c08a50' : rel < 0.35 ? '#5a4040' : hash(x, y >> 1) > 0.8 ? '#3e3038' : '#2a2230'));
+    }
+  }
+  for (const [x1, y1, x2, y2] of [[296, 128, 276, 116], [297, 124, 312, 106], [295, 130, 286, 100]])
+    for (let i = 0; i <= 30; i++) { const s = i / 30; const x = x1 + (x2 - x1) * s, y = y1 + (y2 - y1) * s; put(BACK, x, y, C('#2a2230')); put(BACK, x, y + 1, C('#3e3038')); }
+})();
+const BLOBS = [
+  { x: 292, y: 108, r: 20 }, { x: 272, y: 118, r: 13 }, { x: 312, y: 96, r: 18 }, { x: 283, y: 90, r: 14 },
+  { x: 300, y: 125, r: 12 }, { x: 262, y: 106, r: 9 }, { x: 318, y: 124, r: 14 }, { x: 298, y: 78, r: 11 },
+];
+const APPLES = [[0, -8, 4], [0, 6, -6], [1, -3, 3], [2, -6, 5], [3, -4, 6], [4, -5, 0], [2, 4, 10], [6, -6, 2], [7, -3, 4], [5, -2, 2]];
+const LEAF = ['#16262e', '#1e3434', '#284638', '#365c40', '#4e7a46', '#789a50'].map(C);
+const RIM = C('#f4cc68'), RIM2 = C('#c8a852');
+const LN = Math.hypot(-0.9, -0.43), LX = -0.9 / LN, LY = -0.43 / LN;
+
+// ---------- grass blades ----------
+const BLADES = [];
+for (let x = 0; x < W; x++) {
+  const ty = topF(x);
+  for (let j = 0; j < 4; j++) {
+    if (hash(x, j + 60) < 0.2) continue;
+    const by = Math.round(ty + hash(x, j + 50) ** 1.4 * (H - ty + 6));
+    if (MASK[Math.min(H - 1, by) * W + x] === 2) continue;
+    const depth = clamp((by - 170) / 30);
+    BLADES.push({ x: x + (hash(x, j + 90) - 0.5), y: by, h: 2 + hash(x, j + 70) * 5 + depth * 6, warm: sunlit(x) && by < ty + 10 && hash(x, j + 80) < 0.5, ph: hash(x, j + 95) * TAU });
+  }
+}
+BLADES.sort((a, b) => a.y - b.y);
+const G_BASE = C('#162632'), G_MID = C('#24443e'), G_TIP = C('#4e7e56'), G_WARM = C('#e2c468');
+
+// ---------- light: rays and vignette ----------
+const RBIN = new Uint16Array(W * H), RD = new Float32Array(W * H), VIG = [];
+for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+  const i = y * W + x, dx = x - SX, dy = y - SY, d = Math.hypot(dx, dy);
+  RBIN[i] = Math.floor((Math.atan2(dy, dx) + Math.PI) / TAU * 720) % 720;
+  RD[i] = d < SR + 5 ? 0 : Math.exp(-d / 110) * 1.1 * clamp((y - SY + 24) / 30) * clamp((132 - y) / 14);
+  const v = ((x - W / 2) / (W / 2)) ** 2 * 0.55 + ((y - H / 2) / (H / 2)) ** 2 * 0.7;
+  if (clamp((v - 0.3) * 1.2) > bay(x, y)) VIG.push(i);
+}
+const RAYS = [-2.9, -0.3, 0.35, 0.9, 1.5, 2.2, 2.75].map((a, i) => ({ a, w: 0.09 + hash(i, 44) * 0.08, k: 3 + (i % 4), p: hash(i, 45) * TAU }));
+const RAYC = C('#ffe2a0'), VIGC = C('#140c24'), RLUT = new Float32Array(720);
+
+// ---------- particles ----------
+const WHEAT_IDX = [], WATER_IDX = [];
+for (let i = 0; i < W * H; i++) {
+  if (MASK[i] && BACK[i] !== MASKC[i]) MASK[i] = 0;
+  if (MASK[i] === 1) WHEAT_IDX.push(i); else if (MASK[i] === 2) WATER_IDX.push(i);
+}
+const FIREFLIES = Array.from({ length: 22 }, (_, i) => {
+  const tree = i < 6;
+  return {
+    ax: tree ? 250 + hash(i, 11) * 60 : 8 + hash(i, 11) * 300, ay: tree ? 132 + hash(i, 12) * 26 : 166 + hash(i, 12) * 30,
+    k1: 2 + (hash(i, 13) * 5 | 0), k2: 3 + (hash(i, 14) * 5 | 0), k3: 2 + (hash(i, 15) * 6 | 0),
+    kb: 18 + (hash(i, 16) * 20 | 0), p: hash(i, 17) * TAU, pb: hash(i, 18) * TAU,
+  };
+});
+const MOTES = Array.from({ length: 56 }, (_, i) => ({
+  x0: hash(i, 21), y0: 64 + hash(i, 22) * 100, kx: 1 + (hash(i, 23) * 2 | 0),
+  ky: 8 + (hash(i, 24) * 10 | 0), kt: 16 + (hash(i, 25) * 20 | 0), p: hash(i, 26) * TAU, p2: hash(i, 27) * TAU,
+}));
+const LEAVES = Array.from({ length: 6 }, (_, i) => ({ hx: 258 + hash(i, 31) * 50, hy: 96 + hash(i, 32) * 30, p: i / 6 }));
+
+// ---------- per-frame drawing ----------
+const WIN = ['#ff9a40', '#ffc860', '#fff0a0'].map(C), WIN_HALO = C('#ffb050');
+const SAIL = C('#ecd6b2'), SAIL2 = C('#c9a88e'), SPAR = C('#4a2e2a'), FRAME = C('#6a4434');
+const SMOKE_A = C('#ecd4c4'), SMOKE_B = C('#9a86a8');
+const BIRD = C('#2e2040');
+
+function frame(t) {
+  const u = t / LOOP;
+
+  buf.set(SKYB);
+  for (const s of STARS) {
+    const b = Math.sin(TAU * s.k * u + s.p);
+    if (b > 0.2) put(buf, s.x, s.y, C(b > 0.85 ? '#fff6dc' : '#b6aee0'));
+    if (s.big && b > 0.7) for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) blendAt(buf, s.x + dx, s.y + dy, C('#b6aee0'), 0.5);
+  }
+  for (const cl of CLOUDS) {
+    const X = Math.round(frac(cl.x0 / CLOUD_SPAN + cl.k * u) * CLOUD_SPAN) - 130;
+    const { w, h, px } = cl.c;
+    for (let y = 0; y < h; y++) { const yy = cl.y + y; for (let x = 0; x < w; x++) { const v = px[y * w + x], xx = X + x; if (v && xx >= 0 && xx < W) buf[yy * W + xx] = v; } }
+  }
+  // Birds heading home across the sky.
+  {
+    const bu = frac(3 * u), bx = W + 40 - bu * (W + 160), by = 50 + 5 * Math.sin(bu * TAU);
+    for (let i = 0; i < 6; i++) {
+      const row = Math.ceil(i / 2), sgn = i % 2 ? 1 : -1;
+      const x = Math.round(bx + row * 6), y = Math.round(by + sgn * row * 3 + Math.sin(TAU * 20 * u + i) * 0.6);
+      const up = Math.sin(TAU * 200 * u + i * 1.3) > 0;
+      const pts = up ? [[-2, -1], [-1, 0], [0, 0], [1, 0], [2, -1]] : [[-2, 1], [-1, 0], [0, 0], [1, 0], [2, 1]];
+      for (const [dx, dy] of pts) put(buf, x + dx, y + dy, BIRD);
+    }
+  }
+
+  for (let i = 0; i < W * H; i++) { const v = BACK[i]; if (v) buf[i] = v; }
+
+  // Wind rolling through the wheat.
+  const WL = C('#ffe6a0'), WL2 = C('#fff4c8');
+  for (const i of WHEAT_IDX) {
+    const x = i % W, y = (i / W) | 0, w = Math.sin(TAU * 30 * u - x * 0.09 + y * 0.35);
+    if (w > 0.55 && (w - 0.55) * 2.6 > bay(x, y)) buf[i] = w > 0.92 ? WL2 : WL;
+  }
+  // Glints on the stream.
+  const GL = C('#fff4d0'), GL2 = C('#ffcf9a'), RIP = C('#f8c8a8');
+  for (const i of WATER_IDX) {
+    const x = i % W, y = (i / W) | 0;
+    const s = Math.sin(TAU * 40 * u + hash(x >> 1, y) * TAU);
+    if (s > 0.985) buf[i] = GL;
+    else if (s > 0.94) buf[i] = GL2;
+    else if (Math.sin(y * 1.7 - TAU * 20 * u + x * 0.1) > 0.85 && bay(x, y) < 0.5) blend(buf, i, RIP, 0.3);
+  }
+  // Warm windows.
+  WINDOWS.forEach((w, n) => {
+    const f = 0.5 + 0.28 * Math.sin(TAU * 37 * u + n * 2.1) + 0.22 * Math.sin(TAU * 91 * u + n * 5.3);
+    for (let y = w.y - 1; y <= w.y + w.h; y++) for (let x = w.x - 1; x <= w.x + w.w; x++) {
+      const inside = x >= w.x && x < w.x + w.w && y >= w.y && y < w.y + w.h;
+      if (inside) put(buf, x, y, WIN[f > 0.72 ? 2 : f > 0.38 ? 1 : 0]);
+      else if (y === w.y + w.h) blendAt(buf, x, y, WIN_HALO, 0.25 * f);
+    }
+  });
+  // Windmill sails: sixteen quarter turns per loop.
+  {
+    const a0 = TAU / 4 * 16 * u;
+    for (let k = 0; k < 4; k++) {
+      const a = a0 + k * Math.PI / 2, dx = Math.cos(a), dy = Math.sin(a), qx = -dy, qy = dx;
+      for (let r = 7; r <= 28; r += 0.5) for (let s = 0.5; s <= 5.5; s += 0.5) {
+        const x = WM.hx + dx * r + qx * s, y = WM.hy + dy * r + qy * s;
+        const onFrame = s >= 5 || (r % 4) < 0.5 || r >= 27.5;
+        put(buf, x, y, onFrame ? FRAME : (bay(Math.round(x), Math.round(y)) > 0.3 ? SAIL : SAIL2));
+      }
+      for (let r = 0; r <= 29; r += 0.5) put(buf, WM.hx + dx * r, WM.hy + dy * r, SPAR);
+    }
+    for (let y = -1; y <= 1; y++) for (let x = -1; x <= 1; x++) put(buf, WM.hx + x, WM.hy + y, C(x === 1 && y === -1 ? '#c09070' : '#3a2228'));
+  }
+  // Chimney smoke, leaning with the wind.
+  CHIMNEYS.forEach((ch, n) => {
+    for (let i = 0; i < 18; i++) {
+      const v = frac(20 * u + i / 18 + n * 0.37);
+      const x = ch.x + v * 22 + Math.sin(v * 6 + i + n) * 2 * v, y = ch.y - v * 26, r = 0.6 + v * 2.4;
+      const col = v < 0.4 ? SMOKE_A : SMOKE_B, a = (1 - v) * 0.75;
+      for (let yy = Math.floor(y - r); yy <= y + r; yy++) for (let xx = Math.floor(x - r); xx <= x + r; xx++) {
+        if (Math.hypot(xx - x, yy - y) > r) continue;
+        blendAt(buf, xx, yy, col, a * 0.3);
+      }
+    }
+  });
+  // Scarecrow rags flapping.
+  {
+    const f = Math.sin(TAU * 60 * u) > 0;
+    const rag = C('#a06848');
+    put(buf, SC.x - 6, SC.arm + 1, rag); put(buf, SC.x - 6 + (f ? 1 : 0), SC.arm + 2, rag);
+    put(buf, SC.x + 6, SC.arm + 1, rag); put(buf, SC.x + 6 + (f ? 1 : 0), SC.arm + 2, rag);
+    put(buf, SC.x + 1 + (f ? 1 : 0), SC.gy - 4, rag);
+  }
+
+  // The apple tree's canopy, swaying.
+  {
+    const offs = BLOBS.map((b, i) => [Math.round(Math.sin(TAU * 30 * u + i * 1.7) * 1.3), Math.round(Math.sin(TAU * 30 * u + i * 1.7 + 1) * 0.6)]);
+    for (let y = 58; y < 146; y++) for (let x = 236; x < W; x++) {
+      let best = -1, bi = -1, bdx = 0, bdy = 0;
+      for (let i = 0; i < BLOBS.length; i++) {
+        const b = BLOBS[i], dx = x - (b.x + offs[i][0]), dy = y - (b.y + offs[i][1]);
+        const m = 1 - Math.sqrt(dx * dx + dy * dy) / b.r;
+        if (m > best) { best = m; bi = i; bdx = dx; bdy = dy; }
+      }
+      if (best <= 0) continue;
+      const b = BLOBS[bi], d = 1 - best;
+      const q = hash((x - offs[bi][0]) >> 1, ((y - offs[bi][1]) >> 1) ^ (bi * 7));
+      if (d > 0.86 && q < 0.45) continue;
+      const nx = bdx / b.r, ny = bdy / b.r, l = nx * LX + ny * LY;
+      buf[y * W + x] = d > 0.72 && l > 0.45 ? (q > 0.35 ? RIM : RIM2)
+        : ramp(LEAF, 0.45 + l * 0.35 + (q - 0.5) * 0.4 - (y - 90) / 60 * 0.15, x, y);
+    }
+    for (const [bi, dx, dy] of APPLES) {
+      const x = BLOBS[bi].x + offs[bi][0] + dx, y = BLOBS[bi].y + offs[bi][1] + dy;
+      put(buf, x, y, C('#ff9070')); put(buf, x + 1, y, C('#b82e34')); put(buf, x, y + 1, C('#b82e34')); put(buf, x + 1, y + 1, C('#7a1e2a'));
+    }
+  }
+  // Falling leaves.
+  for (const lf of LEAVES) {
+    const v = frac(8 * u + lf.p);
+    const x = lf.hx + v * 26 + 6 * Math.sin(v * TAU * 2 + lf.p * 9), y = lf.hy + v * (192 - lf.hy);
+    const flip = Math.floor(v * 60) & 1;
+    put(buf, x, y, C(flip ? '#e8b048' : '#9a6a30')); put(buf, x + (flip ? 1 : 0), y + (flip ? 0 : 1), C('#c88a3a'));
+  }
+
+  // Grass in the wind.
+  for (const b of BLADES) {
+    const g = Math.sin(TAU * 24 * u - b.x * 0.05) * 0.5 + 0.5;
+    const lean = (0.25 + 0.55 * g + Math.sin(TAU * 60 * u + b.ph) * 0.08) * b.h * 0.55;
+    for (let j = 0; j <= b.h; j++) {
+      const s = j / b.h;
+      put(buf, b.x + lean * s * s, b.y - j, s > 0.75 ? (b.warm ? G_WARM : G_TIP) : s > 0.35 ? G_MID : G_BASE);
+    }
+  }
+
+  // Fireflies waking up in the shade.
+  const FF = C('#fffcb0'), FH = C('#c8f070');
+  for (const f of FIREFLIES) {
+    const b = Math.sin(TAU * f.kb * u + f.pb);
+    if (b < 0.2) continue;
+    const x = Math.round(f.ax + 10 * Math.sin(TAU * f.k1 * u + f.p) + 4 * Math.sin(TAU * f.k2 * u));
+    const y = Math.round(f.ay + 5 * Math.sin(TAU * f.k3 * u + f.p * 2));
+    const a = (b - 0.2) / 0.8;
+    for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) blendAt(buf, x + dx, y + dy, FH, a * 0.55);
+    for (const [dx, dy] of [[1, 1], [-1, 1], [1, -1], [-1, -1]]) blendAt(buf, x + dx, y + dy, FH, a * 0.2);
+    put(buf, x, y, FF);
+  }
+  // Pollen drifting through the light.
+  const M1 = C('#fff2c0'), M2 = C('#ffd890');
+  for (const m of MOTES) {
+    const tw = Math.sin(TAU * m.kt * u + m.p2);
+    if (tw < 0) continue;
+    const x = frac(m.x0 + m.kx * u) * (W + 20) - 10, y = m.y0 + 4 * Math.sin(TAU * m.ky * u + m.p);
+    if (tw > 0.7) put(buf, x, y, M1); else blendAt(buf, x, y, M2, 0.6);
+  }
+
+  // God rays from the sun.
+  RLUT.fill(0);
+  for (const r of RAYS) {
+    const amp = 0.55 + 0.45 * Math.sin(TAU * r.k * u + r.p);
+    for (let bn = 0; bn < 720; bn++) {
+      const ang = bn / 720 * TAU - Math.PI;
+      let da = Math.abs(ang - r.a); if (da > Math.PI) da = TAU - da;
+      const v = 1 - da / r.w;
+      if (v > 0) RLUT[bn] = Math.min(1, RLUT[bn] + v * amp);
+    }
+  }
+  for (let i = 0; i < W * H; i++) {
+    const f = RLUT[RBIN[i]] * RD[i];
+    if (f > 0.02 && f > BAY[(((i / W) | 0) & 3) << 2 | (i % W & 3)]) blend(buf, i, RAYC, 0.12);
+  }
+  for (const i of VIG) blend(buf, i, VIGC, 0.38);
+
+  ctx.putImageData(img, 0, 0);
+}
+
+// ---------- run ----------
+function fit() {
+  const s = Math.min(innerWidth / W, innerHeight / H);
+  cv.style.width = W * s + 'px';
+  cv.style.height = H * s + 'px';
+}
+addEventListener('resize', fit);
+fit();
+const frozen = new URLSearchParams(location.search).get('t');
+if (frozen !== null) frame(parseFloat(frozen) % LOOP);
+else {
+  const t0 = performance.now();
+  (function tick(now) {
+    frame(((now - t0) / 1000) % LOOP);
+    requestAnimationFrame(tick);
+  })(t0);
+}
+</script>
+</body>
+</html>

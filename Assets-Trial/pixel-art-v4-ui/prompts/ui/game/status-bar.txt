@@ -1,0 +1,12 @@
+Use case: stylized-concept
+Asset type: chess game UI sprite
+Style reference: Image 1: edit target.
+Primary request: Shrink and reframe the ENTIRE status-bar silhouette so it fits in the middle 75% width of the canvas; restore the complete left and right end ornaments with generous empty alpha margins. Keep every other shape, pixel cluster and location unchanged.
+Materials & palette: original colours retained, no added ornaments, discrete pixel shades only.
+Composition/framing: one centred complete asset, transparent exterior and original openings.
+Pixel treatment: PIXEL ART, hard stepped square clusters, nearest-neighbour; no smooth shading.
+Output: genuine transparent RGBA PNG, alpha-zero exterior.
+Constraints: no text; no antialiasing; no smooth gradients; no 3D render; no exterior glow or shadow; no checkerboard; no watermark; one asset only.
+
+Attached reference images (in order):
+/Users/yacineboufe/.codex/generated_images/01a0df9e-f09b-7cf2-8de8-c88af5c118e4/exec-0bee14aa-fb6c-4ad8-9d02-936f795e204f.png
