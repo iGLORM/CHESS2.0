@@ -1386,26 +1386,9 @@ const WorldMapScreen = {
     return typeof Wallet !== 'undefined' && Wallet.hasPlane(this.save);
   },
 
-  // A little pixel biplane in the plane's paint, facing right; the king rides in it.
+  // Grandpa's biplane in the plane's paint, facing right; the king rides in it (PixiPlane).
   _makePlane() {
-    const [body, trim, shade] = (typeof Wallet !== 'undefined' ? Wallet.planeColors() : ['#f4f0e8', '#d94a4a', '#5a5a6a']).map(c => PixiPremiumScene.color(c));
-    const c = new PIXI.Container();
-    const g = new PIXI.Graphics()
-      .rect(-25, -13, 9, 12).fill(0x1a1420).rect(-27, -5, 46, 12).fill(0x1a1420).rect(15, -4, 8, 10).fill(0x1a1420)
-      .rect(-11, -15, 28, 6).fill(0x1a1420).rect(-13, 3, 32, 6).fill(0x1a1420)
-      .rect(-24, -12, 7, 10).fill(trim)                 // tail fin
-      .rect(-26, -4, 44, 10).fill(body)                 // fuselage
-      .rect(-26, 3, 44, 3).fill(shade)
-      .rect(16, -3, 6, 8).fill(trim)                    // nose
-      .rect(-10, -14, 26, 4).fill(body)                 // top wing
-      .rect(-10, -11, 26, 1).fill(shade)
-      .rect(-8, -10, 2, 7).fill(shade).rect(12, -10, 2, 7).fill(shade)   // struts
-      .rect(-12, 4, 30, 4).fill(trim)                   // lower wing
-      .rect(-6, -4, 10, 3).fill(0x2a2a3a);              // cockpit
-    const prop = new PIXI.Graphics().rect(22, -9, 2, 20).fill({ color: 0xe8e8f0, alpha: 0.8 });
-    c.addChild(g, prop);
-    c._prop = prop;
-    return c;
+    return PixiPlane.make(typeof Wallet !== 'undefined' ? Wallet.planeColors() : null);
   },
 
   // Fly the token along points [{x, y}], the plane under it, a shadow on the ground.
@@ -1438,8 +1421,8 @@ const WorldMapScreen = {
         plane.x = p.x; plane.y = p.y - alt - 8;
         plane.scale.set(PS * p.dir, PS);
         plane._prop.visible = Math.floor(performance.now() / 50) % 2 === 0;
-        this.token.x = p.x - 2 * PS * p.dir;
-        this.token.y = plane.y - 3 * PS;
+        this.token.x = p.x + PixiPlane.SEAT.x * PS * p.dir;
+        this.token.y = plane.y + PixiPlane.SEAT.y * PS;
         shadow.x = p.x + alt * 0.3; shadow.y = p.y + 4;
         shadow.scale.set(PS * (1 - alt / 200));
         this._focus(p.x, p.y);

@@ -68,8 +68,8 @@ const WorldMapFlight = {
     f.plane.rotation = f.tilt;
     f.plane._prop.visible = Math.floor(performance.now() / 50) % 2 === 0;
     if (f.carrying) {
-      this.token.x = f.plane.x - 2 * F.PS * f.dir;
-      this.token.y = f.plane.y - 3 * F.PS;
+      this.token.x = f.plane.x + PixiPlane.SEAT.x * F.PS * f.dir;
+      this.token.y = f.plane.y + PixiPlane.SEAT.y * F.PS;
     }
     f.shadow.x = f.x + f.alt * 0.3;
     f.shadow.y = f.y + 4;
@@ -125,7 +125,7 @@ const WorldMapFlight = {
       v: 1, duration: 0.35, ease: 'none',
       onStart: () => { this.token._hopping = true; this.tokenShadow.visible = false; sx = this.token.x; sy = this.token.y; },
       onUpdate: () => {
-        const tx = plane.x - 2 * F.PS * f.dir, ty = plane.y - 3 * F.PS;
+        const tx = plane.x + PixiPlane.SEAT.x * F.PS * f.dir, ty = plane.y + PixiPlane.SEAT.y * F.PS;
         this.token.x = sx + (tx - sx) * k.v;
         this.token.y = sy + (ty - sy) * k.v - Math.sin(Math.PI * k.v) * 30;
         this.token.width = this.token.height = size * (1 - 0.28 * k.v);
