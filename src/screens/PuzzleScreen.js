@@ -110,8 +110,8 @@ const PuzzleScreen = {
 
     this._setCoachText(
       this._level
-        ? CoachCharacter.getLine('levelStart')
-        : CoachCharacter.getLine('customPuzzle')
+        ? this._coachLine('levelStart')
+        : this._coachLine('customPuzzle')
     );
   },
 
@@ -139,11 +139,12 @@ const PuzzleScreen = {
         card.addChild(new PIXI.Graphics()
           .roundRect(pad, 34, face, face, 8).fill({ color: P.color(cols.accent), alpha: 0.16 })
           .roundRect(pad, 34, face, face, 8).stroke({ color: P.color(cols.accent), alpha: 0.7, width: 2 }));
-        const kingTex = PixiPieceRenderer.getTexture(PixiPieceRenderer.withArt(store.get('theme')), 'white', 'king');
-        if (kingTex) {
-          const k = new PIXI.Sprite(kingTex);
-          k.width = k.height = face - 10;
-          k.x = pad + 5; k.y = 39;
+        const live = typeof LiveScenes !== 'undefined' && LiveScenes.has('char_magnus') && LiveScenes.sprite('char_magnus', 'face');
+        const kingTex = !live && PixiPieceRenderer.getTexture(PixiPieceRenderer.withArt(store.get('theme')), 'white', 'king');
+        const k = live || (kingTex && new PIXI.Sprite(kingTex));
+        if (k) {
+          k.width = k.height = face - 6;
+          k.x = pad + 3; k.y = 37;
           card.addChild(k);
         }
         const name = heading(card, 'Coach ' + CoachCharacter.name, 44);
@@ -480,13 +481,13 @@ const PuzzleScreen = {
     // Not the move we had in mind: let Stockfish judge whether it wins just as well.
     const session = this._session;
     this._state = 'checking';
-    this._setCoachText(CoachCharacter.getLine('checking'));
+    this._setCoachText(this._coachLine('checking'));
     this._engineAccepts(move).then((ok) => {
       if (!this._alive(session)) return;
       if (ok) {
         this._state = 'animating';
         this._applyMove(move, this._sideToMove, () => {
-          this._setCoachText(CoachCharacter.getLine('alsoWorks'));
+          this._setCoachText(this._coachLine('alsoWorks'));
           this._solvePuzzle(true);
         });
       } else {
@@ -499,7 +500,7 @@ const PuzzleScreen = {
     const session = this._session;
     this._wrongMoveCount++;
     this._state = 'wrongMove';
-    this._setCoachText(CoachCharacter.getLine('wrongMove'));
+    this._setCoachText(this._coachLine('wrongMove'));
     PixiBoardRenderer.flash(0xff4444);
     PixiBoardRenderer.shake(6);
     if (typeof audioManager !== 'undefined' && typeof audioManager.playError === 'function') {
@@ -561,7 +562,7 @@ const PuzzleScreen = {
       return;
     }
     // The opponent's scripted reply, then it's the player's turn again.
-    this._setCoachText(CoachCharacter.getLine('good'));
+    this._setCoachText(this._coachLine('good'));
     const session = this._session;
     setTimeout(() => {
       if (!this._alive(session)) return;
@@ -572,7 +573,7 @@ const PuzzleScreen = {
         this._lineIdx++;
         if (this._lineIdx >= this._line.length) { this._solvePuzzle(); return; }
         this._state = 'playing';
-        this._setCoachText(CoachCharacter.getLine('levelStart'));
+        this._setCoachText(this._coachLine('levelStart'));
       });
     }, 450);
   },
@@ -585,7 +586,7 @@ const PuzzleScreen = {
     this._applyMove(move, this._sideToMove, () => {
       const opp = this._sideToMove === 'white' ? 'black' : 'white';
       if (this._sandboxOver(opp)) return;
-      this._setCoachText(CoachCharacter.getLine('opponentThinking'));
+      this._setCoachText(this._coachLine('opponentThinking'));
       const fen = FEN.fromBoard(this._board, opp);
       const started = Date.now();
       BotPersonality.bestMove(fen, { skill: 20, movetime: 700 }).then((uci) => {
@@ -597,6 +598,7 @@ const PuzzleScreen = {
           this._applyMove(reply, opp, () => {
             if (this._sandboxOver(this._sideToMove)) return;
             this._state = 'playing';
+            this._coachMood('calm');
             this._setCoachText(this._board.inCheck ? 'Check! Get your king to safety.' : 'Your move.');
           });
         }, Math.max(0, 450 - (Date.now() - started)));
@@ -616,7 +618,7 @@ const PuzzleScreen = {
     }
     this._state = 'solved';
     this._elapsedSeconds = Math.floor((Date.now() - this._startTime) / 1000);
-    this._setCoachText(CoachCharacter.getLine({ win: 'sandboxWin', loss: 'sandboxLoss', draw: 'sandboxDraw' }[this._result]));
+    this._setCoachText(this._coachLine({ win: 'sandboxWin', loss: 'sandboxLoss', draw: 'sandboxDraw' }[this._result]));
     if (this._result === 'win') this._updateStarDisplay(3, ThemeManager.getCurrentColors());
     const session = this._session;
     setTimeout(() => { if (this._alive(session)) this._showCompletionOverlay(); }, 700);
@@ -630,7 +632,7 @@ const PuzzleScreen = {
     this._result = 'win';
     this._elapsedSeconds = Math.floor((Date.now() - this._startTime) / 1000);
     this._stars = this._calculateStars();
-    if (!keepCoachText) this._setCoachText(CoachCharacter.getLine('solved'));
+    if (!keepCoachText) this._setCoachText(this._coachLine('solved'));
 
     const cols = ThemeManager.getCurrentColors();
     this._updateStarDisplay(this._stars, cols);
@@ -650,7 +652,7 @@ const PuzzleScreen = {
       this._state = 'solved';
       this._result = 'win';
       this._elapsedSeconds = Math.floor((Date.now() - this._startTime) / 1000);
-      this._setCoachText(CoachCharacter.getLine('sandboxWin'));
+      this._setCoachText(this._coachLine('sandboxWin'));
       this._updateStarDisplay(3, ThemeManager.getCurrentColors());
       const session = this._session;
       setTimeout(() => { if (this._alive(session)) this._showCompletionOverlay(); }, 700);
@@ -839,6 +841,7 @@ const PuzzleScreen = {
     }
 
     const hintText = StockfishCoach.getHintForLevel(this._level, this._hintsUsed);
+    this._coachMood('hint');
     this._hintsUsed++;
     this._setCoachText(hintText);
     this._showHintSquares(false);
@@ -858,7 +861,7 @@ const PuzzleScreen = {
     const sol = this._level.solution;
     this._revealed = true;
     this._setCoachText(this._lineIdx === 0
-      ? CoachCharacter.getLine('reveal', { move: sol.san, concept: this._level.concept })
+      ? this._coachLine('reveal', { move: sol.san, concept: this._level.concept })
       : 'Play the highlighted move.');
     this._showHintSquares(true);
     this._updateInfoDisplay();
@@ -868,13 +871,14 @@ const PuzzleScreen = {
   _sandboxHint() {
     const session = this._session;
     this._state = 'checking';
-    this._setCoachText(CoachCharacter.getLine('checking'));
+    this._setCoachText(this._coachLine('checking'));
     BotPersonality.analyse(FEN.fromBoard(this._board, this._sideToMove), 14).then((res) => {
       if (!this._alive(session)) return;
       this._state = 'playing';
-      if (!res || !res.bestMove) { this._setCoachText('I could not find a move. Trust your instincts!'); return; }
+      if (!res || !res.bestMove) { this._coachMood('calm'); this._setCoachText('I could not find a move. Trust your instincts!'); return; }
       this._hintsUsed++;
       this._updateInfoDisplay();
+      this._coachMood('hint');
       const u = res.bestMove;
       PixiBoardRenderer.clearHighlights();
       PixiBoardRenderer.highlightSquare(u.charCodeAt(0) - 97, 8 - parseInt(u[1], 10), 0x44ff44, 0.4);
@@ -887,6 +891,25 @@ const PuzzleScreen = {
   },
 
   // --- UI updates ---
+
+  // A line from Coach Magnus; his live portrait takes the mood that goes with it.
+  _coachLine(category, replacements) {
+    const def = typeof LiveScenes !== 'undefined' && LiveScenes.get('char_magnus');
+    const mood = def && def.moodFor ? def.moodFor(category) : null;
+    if (mood) this._coachMood(mood);
+    return CoachCharacter.getLine(category, replacements);
+  },
+
+  // Sets Magnus's mood; a reaction (proud, oops, hint) settles back to calm after a while.
+  COACH_MOOD_HOLD: 6000,
+  _coachMood(mood) {
+    if (typeof LiveScenes === 'undefined' || !LiveScenes.has('char_magnus')) return;
+    LiveScenes.setMood('char_magnus', mood);
+    clearTimeout(this._coachMoodTimer);
+    if (mood !== 'calm' && mood !== 'thinking') {
+      this._coachMoodTimer = setTimeout(() => LiveScenes.setMood('char_magnus', 'calm'), this.COACH_MOOD_HOLD);
+    }
+  },
 
   _setCoachText(text) {
     this._coachText = text;
@@ -929,6 +952,7 @@ const PuzzleScreen = {
 
   destroy() {
     this._session = (this._session || 0) + 1;
+    clearTimeout(this._coachMoodTimer);
     this._removeOverlay();
     PixiBoardRenderer.destroy();
     this._boardHitArea = null;

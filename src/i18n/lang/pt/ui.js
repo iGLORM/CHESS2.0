@@ -125,9 +125,9 @@ I18n.add('pt', {
   // Story saves
   'Choose a save file': 'Escolha um jogo salvo', 'Choose how the story scales': 'Escolha a dificuldade da história', 'Story Mode': 'Modo História',
   'Your progress is saved automatically': 'Seu progresso é salvo automaticamente', 'Home': 'Início', 'SAVE {0}': 'JOGO {0}', 'New Campaign': 'Nova campanha',
-  'Begin at Level 1': 'Comece na etapa 1', 'Click to start': 'Clique para começar', '{0} ELO': '{0} ELO', 'Stage {0} / {1}': 'Etapa {0} / {1}',
+  'Begin in Pawn Hollow': 'Comece no Vale do Peão', 'Click to start': 'Clique para começar', '{0} ELO': '{0} ELO', 'Stage {0} / {1}': 'Etapa {0} / {1}',
   'New Game+ cleared': 'Novo Jogo+ concluído', 'New Game+': 'Novo Jogo+', 'Completed': 'Concluído', 'NG+': 'NJ+', 'CLEAR': 'CONCLUÍDO',
-  'Each tier keeps the same story, but changes the AI curve across all ten opponents.': 'Cada nível mantém a mesma história, mas muda a força de todos os adversários.',
+  'Each tier keeps the same story, but changes how strongly all fifteen opponents play.': 'Cada nível mantém a mesma história, mas muda a força dos quinze adversários.',
 
   // Controls
   'Controls': 'Controles', 'Mini-game sensitivity and input feel': 'Sensibilidade e resposta dos minijogos', 'Changes save immediately': 'As mudanças são salvas na hora',

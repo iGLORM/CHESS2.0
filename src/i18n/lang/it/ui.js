@@ -177,9 +177,9 @@ I18n.add('it', {
   // Story saves
   'Choose a save file': 'Scegli un salvataggio', 'Choose how the story scales': 'Scegli la difficoltà della storia', 'Story Mode': 'Modalità Storia',
   'Your progress is saved automatically': 'I tuoi progressi vengono salvati in automatico', 'Home': 'Home', 'SAVE {0}': 'SALVATAGGIO {0}',
-  'New Campaign': 'Nuova campagna', 'Begin at Level 1': 'Inizia dalla tappa 1', 'Click to start': 'Clicca per iniziare', '{0} ELO': '{0} ELO',
+  'New Campaign': 'Nuova campagna', 'Begin in Pawn Hollow': 'Inizia dalla Conca del Pedone', 'Click to start': 'Clicca per iniziare', '{0} ELO': '{0} ELO',
   'Stage {0} / {1}': 'Tappa {0} / {1}', 'New Game+ cleared': 'Nuova Partita+ completata', 'New Game+': 'Nuova Partita+', 'Completed': 'Completata', 'NG+': 'NP+', 'CLEAR': 'FATTO',
-  'Each tier keeps the same story, but changes the AI curve across all ten opponents.': 'Ogni livello ha la stessa storia, ma cambia la forza di tutti gli avversari.',
+  'Each tier keeps the same story, but changes how strongly all fifteen opponents play.': 'Ogni livello ha la stessa storia, ma cambia la forza dei quindici avversari.',
 
   // Controls
   'Controls': 'Comandi', 'Mini-game sensitivity and input feel': 'Sensibilità e risposta dei minigiochi', 'Changes save immediately': 'Le modifiche si salvano subito',
