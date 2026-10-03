@@ -272,6 +272,6 @@ class Store {
   }
 }
 
-Store.PREF_KEYS = ['whitePlayer', 'blackPlayer', 'classicElo', 'classicDifficulty', 'customElo', 'customDifficulty', 'customPlayAs', 'customGameplayMode', 'customMinigames'];
+Store.PREF_KEYS = ['whitePlayer', 'blackPlayer', 'classicElo', 'classicDifficulty', 'classicLevel', 'classicSide', 'customElo', 'customLevel', 'customDifficulty', 'customPlayAs', 'customGameplayMode', 'customMinigames'];
 
 const store = new Store();

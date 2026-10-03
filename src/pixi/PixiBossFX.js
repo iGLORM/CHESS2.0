@@ -1,5 +1,5 @@
 // Story-mode boss twists drawn on and around the board: the Knight of the Mist's
-// fog, CastlE's gear walls, locked squares, the Great Board's four regions, the
+// fog, CastlE's gear walls, locked squares, the
 // Boss Rule status panel (hourglass, crystal) and the one-off animations
 // (double take, rewind).
 const PixiBossFX = {
@@ -32,9 +32,8 @@ const PixiBossFX = {
     this.suspectLayer = new PIXI.Container();
     this.relicLayer = new PIXI.Container();
     this.edgeLayer = new PIXI.Container();
-    this.regionLayer = new PIXI.Container();
     this.fxLayer = new PIXI.Container();
-    this.boardLayer.addChild(this.regionLayer, this.edgeLayer, this.lockLayer, this.wallLayer, this.relicLayer, this.fogLayer, this.eyeLayer, this.suspectLayer, this.fxLayer);
+    this.boardLayer.addChild(this.edgeLayer, this.lockLayer, this.wallLayer, this.relicLayer, this.fogLayer, this.eyeLayer, this.suspectLayer, this.fxLayer);
     this.panelLayer = new PIXI.Container();
     this.bannerLayer = new PIXI.Container();
     this.hudLayer.addChild(this.panelLayer, this.bannerLayer);
@@ -47,7 +46,6 @@ const PixiBossFX = {
     this._suspectKey = null;
     this._relicKey = null;
     this._edgeKey = null;
-    this._regionKey = null;
     this._relics = [];
     this._badges = [];
     this._gears = [];
@@ -101,10 +99,6 @@ const PixiBossFX = {
       this._lockKey = lockKey;
     }
 
-    if (rule && rule.regions && this._regionKey !== layoutKey) {
-      this._drawRegions(rule.regions);
-      this._regionKey = layoutKey;
-    }
     this._updateFog(hidden, layoutKey, dt);
     this._applyPieceVisibility(hidden);
     if (rule && rule.goal && rule.goal.mystery) this._updateSuspects(game, hidden, layoutKey);
@@ -539,30 +533,6 @@ const PixiBossFX = {
       .circle(0, 0, r * 0.3).fill(dark);
     g.addChild(body);
     return g;
-  },
-
-  // The Great Board: each quarter tinted with its world's colour, framed, and
-  // labelled at its outer corner.
-  _drawRegions(regions) {
-    this.regionLayer.removeChildren().forEach(c => c.destroy({ children: true }));
-    const sq = PixiBoardRenderer.squareSize;
-    for (const r of regions) {
-      const info = GreatBoard.REGIONS[r.rule];
-      const color = PixiColorUtil.hexToNum(info.color);
-      const xs = [PixiBoardRenderer.squareX(r.cols[0]), PixiBoardRenderer.squareX(r.cols[1])];
-      const ys = [PixiBoardRenderer.squareY(r.rows[0]), PixiBoardRenderer.squareY(r.rows[1])];
-      const x = Math.min(...xs), y = Math.min(...ys), w = sq * 4, h = sq * 4;
-      const g = new PIXI.Graphics()
-        .rect(x, y, w, h).fill({ color, alpha: 0.2 })
-        .rect(x + 2, y + 2, w - 4, h - 4).stroke({ color, alpha: 0.85, width: 4 });
-      this.regionLayer.addChild(g);
-      // The label sits in the quarter's square on the board's corner.
-      const cx = PixiBoardRenderer.squareX(r.cols[0] === 0 ? 0 : 7), cy = PixiBoardRenderer.squareY(r.rows[0] === 0 ? 0 : 7);
-      const label = new PIXI.Text({ text: info.short.toUpperCase(), style: { fontFamily: PixiTextStyles.FONT_TITLE, fontSize: 11, fill: info.color, stroke: { color: '#0a0812', width: 4 } } });
-      label.x = cx + (cx <= x ? 5 : sq - 5 - label.width);
-      label.y = cy + (cy <= y ? 4 : sq - 4 - label.height);
-      this.regionLayer.addChild(label);
-    }
   },
 
   _drawLocks(tiles, ply) {

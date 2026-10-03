@@ -36,7 +36,7 @@ here were made with the project owner; ask before changing them.
   broke it all at once, and when you fell it stopped breaking (it had chosen you); you
   lost your memory and the Hollow kept you safe. The fragments join, you take the
   last step to the far edge, the worlds fuse, and you are the new Guardian.
-  Unlocks: **Great Board mode** and the **Great Board theme**. (New Game+ was removed on
+  Unlocks: the **Great Board theme**. (New Game+ and Great Board mode were removed on
   2026-10-03 at the owner's request.)
 
 ## Side content and variety (added 2026-09-29, owner's request)
@@ -163,14 +163,14 @@ Lesson pages beside a hologram, then a test. A failed test says "Try Again".
    Andes, Soulbound Pixel floating over a whirlpool in mid-Pacific). Unrestored worlds are grey and frozen; a
    restore washes colour out from the landmark; after the ending the rifts close (`fuse`).
 8. **Rewards** — **done** (2026-09-28). Stars on all 15 stages (`src/engine/StoryStars.js`; objectives chosen
-   with the owner), trophy shelf in Stats, tense music for the whole Grandmaster X fight, Great Board mode (`src/engine/GreatBoard.js`: four quarters with random guardian rules) and
-   the Great Board theme. Original notes: Themes and songs unlock per world (new players start with
+   with the owner), trophy shelf in Stats, tense music for the whole Grandmaster X fight and
+   the Great Board theme (Great Board mode was built, then removed on 2026-10-03). Original notes: Themes and songs unlock per world (new players start with
    Pawn Hollow + Custom; the Training Camp unlocks after training; existing
    players keep what they have). 1–3 stars per fight: 1 for winning + 2
    objectives that fit each boss (e.g. Rook-E: capture both rooks; Knight: win
    without losing a knight). Trophy shelf in the Stats screen. Rematch dialogue
    after losing to a boss. Tense music for the whole Grandmaster X fight.
-   Great Board mode. (New Game+ was built, then removed on 2026-10-03.)
+   (New Game+ and Great Board mode were built, then removed on 2026-10-03.)
 9. **Harder story** — **done** (2026-10-03, owner's request). Checkmate's clock is 25 moves (was 40);
    world missions are harder (minions one level below the guardian instead of two, relic runs 3 moves
    shorter, memories 2, hunts and checkmate tasters 4; survive goals 3 moves longer; mystery hints every 4

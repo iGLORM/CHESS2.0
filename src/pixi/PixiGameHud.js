@@ -396,9 +396,10 @@ const PixiGameHud = {
     label('THIS GAME', ly);
     ly += 26;
     let who = 'Local 1v1';
-    if (game.mode === 'classic' && typeof BotSelect !== 'undefined') who = 'Bot · ' + BotSelect.eloToName(BotSelect.eloValue) + ' (' + BotSelect.eloValue + ')';
-    else if (game.mode === 'custom') who = 'Custom game · level ' + game.characterLevel;
-    else if (game.mode === 'greatboard') who = 'Great Board · level ' + game.characterLevel;
+    if (game.mode === 'classic' || game.mode === 'custom') {
+      const info = AIController.levelInfo(game.characterLevel);
+      who = (game.mode === 'custom' ? 'Custom · ' : 'Bot · ') + info.name + ' · ' + info.elo + ' Elo';
+    }
     const whoText = this._text(who, x + pad, ly, { fontSize: 15, fontWeight: '700', fill: cols.text });
     PixiPremiumUI.fitText(whoText, w - pad * 2);
     ly += 24;

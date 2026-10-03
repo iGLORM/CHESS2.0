@@ -357,8 +357,8 @@ const GameStoryTools = {
     if (!this._fogCache || this._fogCache.key !== key) {
       const seen = BossRules.visibleSquares(this.board, this.playerColor);
       const rule = this.bossRule;
-      const rows = rule.fogRows;   // a band of mist (the Rulekeeper), a Great Board quarter, or the whole board
-      const misted = (r, c) => (rule.regions ? BossRules.regionAt(rule, { row: r, col: c }) === 'mist' : !rows || rows.includes(r));
+      const rows = rule.fogRows;   // a band of mist (the Rulekeeper), or the whole board
+      const misted = (r, c) => !rows || rows.includes(r);
       this._fogCache = { key, hidden: seen.map((row, r) => row.map((v, c) => !v && misted(r, c))) };
     }
     return this._fogCache.hidden;

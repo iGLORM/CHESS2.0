@@ -274,25 +274,14 @@ const BossRules = {
   },
 
   // Chance that a capture starts a challenge under this rule.
-  // `to` is the capture square: Great Board regions (rule.regions) can decide there.
-  challengeChance(rule, captured, bossIsAttacker, to = null) {
+  challengeChance(rule, captured, bossIsAttacker) {
     if (!rule) return this.DEFAULT_CHANCE;
     if (rule.noChallenges) return 0;
-    const region = to && this.regionAt(rule, to);
-    if (region === 'iron') return 1;
-    if (region === 'sands') return 0;
     if (rule.everyCapture) return 1;
     if (!bossIsAttacker && rule.alwaysChallengeWhenTaking &&
         rule.alwaysChallengeWhenTaking.includes(captured.type)) return 1;
     if (bossIsAttacker && rule.bossChallengeChance !== undefined) return rule.bossChallengeChance;
     return this.DEFAULT_CHANCE;
-  },
-
-  // The Great Board region rule on a square ({ row, col }), or null.
-  regionAt(rule, sq) {
-    if (!rule || !rule.regions || !sq) return null;
-    const r = rule.regions.find(q => sq.row >= q.rows[0] && sq.row <= q.rows[1] && sq.col >= q.cols[0] && sq.col <= q.cols[1]);
-    return r ? r.rule : null;
   },
 
   isWall(rule, row, col) {
