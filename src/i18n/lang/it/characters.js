@@ -485,7 +485,7 @@ I18n.add('it', {
   // Grandmaster X
   "The Absolute": "L'Assoluto",
   "You came back. Of course you did. Here every capture is a test, and I know exactly which tests you fail. Mate me if you can. You will have to do it more than once.": "Sei tornato. Ovviamente. Qui ogni cattura è una prova, e so esattamente quali prove fallisci. Dammi matto se ci riesci. Dovrai farlo più di una volta.",
-  "Three times... You checkmated me three times. The crystal cannot hold. Nothing can hold forever. Perhaps nothing should.": "Tre volte... Mi hai dato scacco matto tre volte. Il cristallo non regge. Niente regge per sempre. Forse niente dovrebbe.",
+  "Three times... You checkmated me three times. And yet the crystal holds. I hold. This is not over.": "Tre volte... Mi hai dato scacco matto tre volte. Eppure il cristallo regge. Io reggo. Non è finita.",
   "Stay down this time. The board stays broken. Broken, it cannot choose anyone. Broken, it is safe.": "Stavolta resta a terra. La scacchiera resta spezzata. Spezzata, non può scegliere nessuno. Spezzata, è al sicuro.",
   "You return. They always return... no. None of them ever came back. Only you. Very well. Again.": "Torni. Tornano sempre... no. Nessuno di loro è mai tornato. Solo tu. Molto bene. Ancora.",
   "Make your first move. It will define you.": "Fai la tua prima mossa. Ti definirà.",
@@ -605,4 +605,27 @@ I18n.add('it', {
   "A fine check. Continue.": "Un bello scacco. Continua.",
   "Your {piece}. Did you see it coming?": "{piece|your}. L'hai visto arrivare?",
   "Good. You took my {piece}.": "Bene. Hai preso {piece|my}.",
+});
+
+// Grandmaster X Unbound, the last game (characters/finalboss.js)
+I18n.add('it', {
+  "Every Power": "Ogni potere",
+  "He stole every guardian's power: four bishops and two queens for him, no rooks for you, the mist, the gear walls, double takes, and every capture a challenge he plays at full strength.": "Ha rubato il potere di ogni guardiano: quattro alfieri e due donne per lui, nessuna torre per te, la nebbia, i muri di ingranaggi, le doppie prese, e ogni cattura avvia una sfida che gioca a piena forza.",
+  "Checkmate him within 40 of your moves, or the board stays broken.": "Dagli scacco matto entro 40 tue mosse, o la scacchiera resterà spezzata.",
+  "The Great Board": "La Grande Scacchiera",
+  "The Board Is Free!": "La scacchiera è libera!",
+  "He will not accept defeat": "Non accetta la sconfitta",
+  "Every rule they ever had is mine now. Forty moves, on the board I broke. Win, and it is yours. Lose, and it stays broken forever.": "Ogni regola che abbiano mai avuto ora è mia. Quaranta mosse, sulla scacchiera che ho spezzato. Vinci, ed è tua. Perdi, e resterà spezzata per sempre.",
+  "No... the powers are leaving me. Going home. I can feel the worlds pulling them back...": "No... i poteri mi abbandonano. Tornano a casa. Sento i mondi che li richiamano...",
+  "You see? Nobody crosses. Nobody ever crosses. Get up and try again, if you dare.": "Vedi? Nessuno attraversa. Nessuno attraversa mai. Rialzati e riprova, se hai il coraggio.",
+  "Every power in the world, against one small king.": "Tutti i poteri del mondo contro un piccolo re.",
+  "The board I broke. A fitting place for you to fall.": "La scacchiera che ho spezzato. Il posto giusto per la tua caduta.",
+  "Your {piece}. Stolen like everything else.": "Prendo {piece|your}. Come tutto il resto.",
+  "Your {piece}, gone. I have all their tricks now.": "Via anche {piece|your}. Ora ho tutti i loro trucchi.",
+  "My {piece}?! That power was mine!": "{piece|my}?! Quel potere era mio!",
+  "You took my {piece}. It means nothing. I have more.": "Hai preso {piece|my}. Non significa niente. Ne ho altri.",
+  "Check. Every guardian is checking you at once.": "Scacco. Tutti i guardiani ti danno scacco insieme.",
+  "Check. Feel all of them.": "Scacco. Sentili tutti.",
+  "Check?! No. No, no, no.": "Scacco?! No. No, no, no.",
+  "You dare check the Unbound?": "Osi dare scacco allo Scatenato?",
 });

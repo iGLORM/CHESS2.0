@@ -21,13 +21,13 @@ test('every keepsake says what it does', () => {
   for (const k of Keepsakes.all()) assert.ok(k.use && k.use.length > 20, `${k.id} has no use`);
 });
 
-test('a keepsake is held once its guardian is beaten (all of them on New Game+)', () => {
+test('a keepsake is held once its guardian is beaten', () => {
   fresh({ maxUnlockedLevel: stageOf('bishbosh') });
   assert.ok(!Keepsakes.has('compass'));
   fresh({ maxUnlockedLevel: stageOf('bishbosh') + 1 });
   assert.ok(Keepsakes.has('compass'));
   assert.ok(!Keepsakes.has('ironkey'));
-  fresh({ ngPlus: true, maxUnlockedLevel: 1 });
+  fresh({ maxUnlockedLevel: stageOf('checkmate') + 1 });
   assert.ok(Keepsakes.has('hourglass'));
 });
 

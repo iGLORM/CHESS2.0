@@ -522,6 +522,15 @@ const WorldMissionsScreen = {
       desc = `Win it, and ${g.name} will face you.`;
       statusText = state === 'cleared' ? 'Champion' : open ? 'Enter the draw' : 'Locked';
       btn = 'Enter';
+    } else if (stop.ch.id === 'grandmasterx' && FinalBoss.pending(this.save)) {
+      portraitId = stop.ch.id;
+      kicker = `THE LAST GAME  ·  ${world.name.toUpperCase()}`;
+      name = 'Grandmaster X';
+      who = 'Unbound';
+      label = 'BOSS RULE';
+      desc = FinalBoss.RULE.title;
+      statusText = 'He will not accept defeat';
+      btn = 'Fight';
     } else {
       const ch = stop.ch, rule = BossRules.get(ch.id);
       portraitId = ch.id;
@@ -631,6 +640,11 @@ const WorldMissionsScreen = {
     const tl = gsap.timeline({
       onComplete: () => {
         if (stop.kind === 'tournament') { switchScreen('tournament', { world: world.id }); return; }
+        // Grandmaster X beaten but not his last game: he waits, Unbound (FinalBoss).
+        if (stop.kind === 'fight' && stop.ch.id === 'grandmasterx' && FinalBoss.pending(store.getActiveSave())) {
+          FinalBoss.start(false);
+          return;
+        }
         const ch = stop.kind === 'mission' ? StoryMissions.character(stop.mission.id) : stop.ch;
         if (stop.kind === 'fight') store.setActiveSave({ selectedCharacter: ch.id, storyLevel: ch.stage });
         store.update({ selectedCharacter: ch.id, mode: 'story' });

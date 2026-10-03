@@ -684,7 +684,7 @@ const CHARACTERS = [
     level: 10,
     dialogue: {
       before: "You came back. Of course you did. Here every capture is a test, and I know exactly which tests you fail. Mate me if you can. You will have to do it more than once.",
-      after: "Three times... You checkmated me three times. The crystal cannot hold. Nothing can hold forever. Perhaps nothing should.",
+      after: "Three times... You checkmated me three times. And yet the crystal holds. I hold. This is not over.",
       win: "Stay down this time. The board stays broken. Broken, it cannot choose anyone. Broken, it is safe.",
       rematch: "You return. They always return... no. None of them ever came back. Only you. Very well. Again.",
     },

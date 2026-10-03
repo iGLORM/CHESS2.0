@@ -89,14 +89,13 @@ const WorldMapScreen = {
     ThemeManager.useStoryTheme(this.here.art);
     this.cols = ThemeManager.getCurrentColors();
 
-    this.ng = typeof NewGamePlus !== 'undefined' && NewGamePlus.active(this.save);
     // Keepsakes that change the map; one just won is given during the event.
-    const holds = (id, guardian) => this.ng || (typeof Keepsakes !== 'undefined' && Keepsakes.has(id, this.save) && !(this.event && this.event.keepsake === guardian));
+    const holds = (id, guardian) => (typeof Keepsakes !== 'undefined' && Keepsakes.has(id, this.save) && !(this.event && this.event.keepsake === guardian));
     this.hasCompass = holds('compass', 'bishbosh');
     this.hasMapKs = holds('map', 'endgamer') || !!this.save.completed;
     this.fogged = [];
     this.note = null;
-    this.pixiContainer = PixiPremiumScene.root('Story Mode', this.ng ? 'New Game+  ·  The Great Board' : 'The Shattered Earth', {
+    this.pixiContainer = PixiPremiumScene.root('Story Mode', 'The Shattered Earth', {
       footerHint: 'Drag or use the arrow keys to explore the map',
     });
     // The map is the background: drop the theme scene behind it. The big menu header
@@ -117,13 +116,6 @@ const WorldMapScreen = {
     this._buildInfoPanel();
     const s = Layout.uiScale || 1;
     PixiPremiumScene.button(this.pixiContainer, 36, PixiPremiumScene.bottomButtonY(44), Math.round(160 * s), 44, 'Saves', () => this.back(), { icon: 'back' });
-    // A finished story can start New Game+.
-    this.ngBtnW = 0;
-    if (typeof NewGamePlus !== 'undefined' && NewGamePlus.available(this.save) && !this.event) {
-      const bw = Math.round(200 * s);
-      this.ngBtnW = bw;
-      PixiPremiumScene.button(this.pixiContainer, Layout.W - 36 - bw, PixiPremiumScene.bottomButtonY(44), bw, 44, 'New Game+', () => this._askNewGamePlus(), { icon: 'play', primary: true });
-    }
     this._buildPlaneButton();
 
     const p = this._tokenHome();
@@ -313,9 +305,9 @@ const WorldMapScreen = {
     return WORLDS.find(w => w.stages.includes(stage));
   },
 
-  // The character on a stage (New Game+ puts the First Piece on stage 1).
+  // The character on a stage.
   _char(stage) {
-    return typeof NewGamePlus !== 'undefined' ? NewGamePlus.character(stage, this.save) : STORY_STAGES[stage - 1];
+    return STORY_STAGES[stage - 1];
   },
 
   // Where the king stands for a stage: in front of its world's landmark (the five
@@ -389,7 +381,7 @@ const WorldMapScreen = {
     heal.shop = 1;
     heal.arena = typeof SideContent !== 'undefined' && SideContent.arenaUnlocked(this.save) ? 1 : 0;
     this.heal = heal;
-    this.fuse = this.save.completed && !(this.event && this.event.stage === STORY_STAGES.length && !this.event.ngPlus) ? 1 : 0;
+    this.fuse = this.save.completed && !(this.event && this.event.stage === STORY_STAGES.length) ? 1 : 0;
     this._pushHeal();
   },
 
@@ -514,7 +506,7 @@ const WorldMapScreen = {
   // Where the needle points: the next stop you have not won yet (null when you stand there).
   _needleTarget() {
     const stage = Math.min(this.save.maxUnlockedLevel || 1, STORY_STAGES.length);
-    if (this.save.completed && !this.ng) return null;
+    if (this.save.completed) return null;
     const p = this._stopPos(stage);
     return Math.hypot(p.x - this.token.x, p.y - this.token._baseY) < 90 ? null : p;
   },
@@ -579,7 +571,7 @@ const WorldMapScreen = {
     this.nodeLayer.addChild(node);
     const state = this._state(world);
     // During a travel event, the world just finished starts un-restored.
-    const eventWorld = this.event && !this.event.ngPlus && this._world(this.event.stage) === world && world.id !== 'pawnhollow';
+    const eventWorld = this.event && this._world(this.event.stage) === world && world.id !== 'pawnhollow';
     const showState = eventWorld && state === 'restored' ? 'open' : state;
     const locked = showState === 'locked';
     const accent = PixiPremiumScene.color(this.cols.accent);
@@ -695,7 +687,7 @@ const WorldMapScreen = {
   _buildTopBar() {
     const L = this.L, P = Layout.isPortrait;
     const top = P ? Layout.SAFE_TOP : 0;
-    const barH = this.barH = top + L.BAR + (P && !this.ng ? L.BAR_ROW : 0);
+    const barH = this.barH = top + L.BAR + (P ? L.BAR_ROW : 0);
     const accent = PixiPremiumScene.color(this.cols.accent);
     const bar = new PIXI.Graphics()
       .rect(0, 0, Layout.W, barH).fill({ color: 0x0a0712, alpha: 0.97 })
@@ -717,7 +709,7 @@ const WorldMapScreen = {
     title.anchor.set(0, 0.5);
     title.x = L.BAR_SIDE;
     title.y = rowY - 9;
-    const sub = PixiPremiumScene.text(this.ng ? 'New Game+  ·  The Great Board' : 'The Shattered Earth', { fontSize: 14, fontWeight: '700', fill: PixiPremiumScene.alpha(this.cols.text, 'aa') });
+    const sub = PixiPremiumScene.text('The Shattered Earth', { fontSize: 14, fontWeight: '700', fill: PixiPremiumScene.alpha(this.cols.text, 'aa') });
     sub.anchor.set(0, 0.5);
     sub.x = L.BAR_SIDE + 2;
     sub.y = rowY + 14;
@@ -757,10 +749,6 @@ const WorldMapScreen = {
     this.fragmentGem = gem;
     const shown = StoryProgress.fragments(this.save) - (this.event && this.event.fragment ? 1 : 0);
     this._setFragments(shown);
-    if (this.ng) {
-      this.fragmentText.text = this.save.ngCleared ? 'NG+ CLEAR' : 'NEW GAME+';
-      PixiPremiumScene.fit(this.fragmentText, w - 48);
-    }
     return c.x;
   },
 
@@ -787,10 +775,10 @@ const WorldMapScreen = {
     }
     const ch = this._char(this.selected);
     const world = this._world(this.selected);
-    const rule = this.ng ? NewGamePlus.rule(ch, this.save) : BossRules.get(ch.id);
+    const rule = BossRules.get(ch.id);
     const unlocked = StoryProgress.isUnlocked(this.save, ch.stage);
     const beaten = StoryProgress.isBeaten(this.save, ch.stage);
-    const block = !this.ng && ch.stage <= (this.save.maxUnlockedLevel || 1) && StoryProgress.roadBlock(this.save, ch.stage);
+    const block = ch.stage <= (this.save.maxUnlockedLevel || 1) && StoryProgress.roadBlock(this.save, ch.stage);
     PixiPremiumScene.panel(panel, x, y, w, h, { accent: ch.colors.primary, accentAlpha: 0.8 });
 
     const pad = 18;
@@ -833,9 +821,9 @@ const WorldMapScreen = {
     ruleTitle.x = rx;
     ruleTitle.y = label.y + 20;
     PixiPremiumScene.fit(ruleTitle, RULE_W - 10);
-    const missions = !this.ng && StoryMissions.forWorld(world.id);
+    const missions = StoryMissions.forWorld(world.id);
     const cleared = StoryMissions.cleared(this.save, world.id);
-    const tournament = !this.ng && typeof Tournaments !== 'undefined' && Tournaments.forWorld(world.id);
+    const tournament = typeof Tournaments !== 'undefined' && Tournaments.forWorld(world.id);
     const statusText = beaten ? (ch.trainer ? 'Passed' : 'Defeated')
       : block ? (block.type === 'rival' ? `Road blocked by ${block.rival.name}` : `Win ${SideContent.ARENA.streak} Arena rounds in a row`)
       : !unlocked ? `Reach stage ${ch.stage} first`
@@ -966,7 +954,7 @@ const WorldMapScreen = {
   // The keepsakes won from the guardians, in one row: empty slots as dark shapes. Ends at
   // screen x `right` (null: centred).
   _buildKeepsakeShelf(right, y) {
-    if (typeof Keepsakes === 'undefined' || typeof PixiKeepsake === 'undefined' || this.ng) return right;
+    if (typeof Keepsakes === 'undefined' || typeof PixiKeepsake === 'undefined') return right;
     const items = Keepsakes.all();
     const cell = 32, pad = 10, h = this.L.BOX_H, w = items.length * cell + pad * 2;
     const c = new PIXI.Container();
@@ -1021,7 +1009,6 @@ const WorldMapScreen = {
   _buildSpecials() {
     const S = this.L.S;
     this.specials = [];
-    if (this.ng) return;   // New Game+ keeps to the path
     const at = ([x, y]) => ({ x: x * S, y: y * S });
     if (typeof Wallet !== 'undefined') {
       this.specials.push(this._buildSpecial({ type: 'shop', id: 'shop', at: this._place('shop'), label: 'The Bazaar', plate: true }));
@@ -1512,7 +1499,7 @@ const WorldMapScreen = {
 
   // A world whose own place map (src/themes/scenes/map_<id>.js) opens when you enter it.
   _placeMap(world) {
-    return !this.ng && typeof LiveScenes !== 'undefined' && LiveScenes.has('map_' + world.id);
+    return typeof LiveScenes !== 'undefined' && LiveScenes.has('map_' + world.id);
   },
 
   start() {
@@ -1521,7 +1508,7 @@ const WorldMapScreen = {
     const ch = this._char(this.selected);
     const world = this._world(ch.stage);
     // A wandering rival (or the Arena) blocking the road: go to them instead.
-    const block = !this.ng && StoryProgress.roadBlock(this.save, ch.stage);
+    const block = StoryProgress.roadBlock(this.save, ch.stage);
     if (block && ch.stage <= (this.save.maxUnlockedLevel || 1)) { this._showBlock(block); return; }
     if (!StoryProgress.isUnlocked(this.save, ch.stage)) return;
     this.busy = true;
@@ -1532,8 +1519,8 @@ const WorldMapScreen = {
       this._flyThen(p, () => this._zoomInto(p, () => switchScreen('worldMissions', { world: world.id, fromZoom: true }, { instant: true }), world.id));
       return;
     }
-    const missions = !this.ng && StoryMissions.forWorld(world.id);
-    const tournament = !this.ng && typeof Tournaments !== 'undefined' && Tournaments.forWorld(world.id);
+    const missions = StoryMissions.forWorld(world.id);
+    const tournament = typeof Tournaments !== 'undefined' && Tournaments.forWorld(world.id);
     this._flyThen(p, () => this._zoomInto(p, () => {
       if (tournament) { switchScreen('tournament', { world: world.id }); return; }
       if (missions) { switchScreen('worldMissions', { world: world.id }); return; }
@@ -1672,18 +1659,18 @@ const WorldMapScreen = {
     this.busy = true;
     const beatenWorld = this._world(event.stage);
     const node = this.nodes.find(n => n.world === beatenWorld);
-    const nextStage = event.ngPlus ? Math.min(NewGamePlus.nextStage(event.stage), STORY_STAGES.length) : Math.min(event.stage + 1, STORY_STAGES.length);
+    const nextStage = Math.min(event.stage + 1, STORY_STAGES.length);
     const tl = gsap.timeline({ delay: 0.5, onComplete: () => { this.busy = false; this._timeline = null; if (!after()) this._select(this.tokenStage); } });
     this._timeline = tl;
     // A road still blocked by a rival (or the Arena) stops the king at the world he won.
-    const block = !event.ngPlus && event.stage < STORY_STAGES.length && StoryProgress.roadBlock(store.getActiveSave(), nextStage);
+    const block = event.stage < STORY_STAGES.length && StoryProgress.roadBlock(store.getActiveSave(), nextStage);
     const after = () => {
       if (!block) return false;
       this._showBlock(block);
       return true;
     };
 
-    const worldDone = !event.road && !event.ngPlus && beatenWorld.id !== 'pawnhollow' && beatenWorld.stages[beatenWorld.stages.length - 1] === event.stage;
+    const worldDone = !event.road && beatenWorld.id !== 'pawnhollow' && beatenWorld.stages[beatenWorld.stages.length - 1] === event.stage;
     if (worldDone && node) {
       // Colour washes out from the landmark over the whole world, and it comes alive.
       const p = this._place(beatenWorld.id);
@@ -1738,9 +1725,6 @@ const WorldMapScreen = {
       tl.add(() => this._travel(event.stage, nextStage), '+=0.1');
       tl.add(() => {}, `+=${this._travelTime(event.stage, nextStage) + 0.2}`);
       tl.add(() => this._unlockNext(nextStage));
-    } else if (event.ngPlus) {
-      tl.add(() => { if (node) this._sparkle(node); this._banner('NEW GAME+ CLEARED'); });
-      tl.add(() => {}, '+=2');
     } else if (event.stage >= STORY_STAGES.length) {
       // The last guardian: the rifts close and the lands join into one.
       tl.add(() => this._focus(this._mapW / 2, this._mapH / 2), '+=0.2');
@@ -1780,20 +1764,6 @@ const WorldMapScreen = {
       .to(t, { alpha: 1, duration: 0.4 })
       .to(t, { y: t.y - 30, duration: 2.2, ease: 'power1.out' }, 0)
       .to(t, { alpha: 0, duration: 0.6 }, 1.8);
-  },
-
-  // New Game+: asks first, since it starts this save over.
-  _askNewGamePlus() {
-    if (this.busy) return;
-    const again = this.save.ngPlus && this.save.ngCleared;
-    this._openModal(again ? 'New Game+ Again?' : 'Start New Game+?', [
-      'This save starts over from the first stage. Your stars, trophies and themes stay.',
-      'The freed First Piece plays you first, at full strength. Each guardian adds the rule of the one before, and every bot plays a level stronger.',
-    ], 'Start', () => {
-      NewGamePlus.start();
-      this._closeModal();
-      switchScreen('worldMap');
-    });
   },
 
   _openModal(title, lines, yesLabel, onYes) {
@@ -2028,7 +1998,7 @@ const WorldMapScreen = {
     if (!this._hasPlane()) return;
     const s = Layout.uiScale || 1;
     const bw = Math.round(250 * s);
-    const x = Layout.W - 36 - bw - (this.ngBtnW ? this.ngBtnW + 16 : 0);
+    const x = Layout.W - 36 - bw;
     const flying = !!this.flight;
     this.planeBtn = PixiPremiumScene.button(this.pixiContainer, x, PixiPremiumScene.bottomButtonY(44), bw, 44,
       flying ? 'Land the Plane' : 'Summon the Plane', () => (flying ? this._land() : this._summon()),

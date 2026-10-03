@@ -483,7 +483,7 @@ I18n.add('pt', {
   // Grandmaster X
   "The Absolute": "O Absoluto",
   "You came back. Of course you did. Here every capture is a test, and I know exactly which tests you fail. Mate me if you can. You will have to do it more than once.": "Você voltou. Claro que voltou. Aqui toda captura é um teste, e eu sei exatamente em quais você reprova. Dê-me mate se puder. Vai ter que fazer isso mais de uma vez.",
-  "Three times... You checkmated me three times. The crystal cannot hold. Nothing can hold forever. Perhaps nothing should.": "Três vezes... Você me deu mate três vezes. O cristal não aguenta. Nada aguenta para sempre. Talvez nada devesse.",
+  "Three times... You checkmated me three times. And yet the crystal holds. I hold. This is not over.": "Três vezes... Você me deu mate três vezes. E mesmo assim o cristal aguenta. Eu aguento. Isso não acabou.",
   "Stay down this time. The board stays broken. Broken, it cannot choose anyone. Broken, it is safe.": "Fique no chão desta vez. O tabuleiro continua partido. Partido, ele não pode escolher ninguém. Partido, ele está seguro.",
   "You return. They always return... no. None of them ever came back. Only you. Very well. Again.": "Você volta. Eles sempre voltam... não. Nenhum deles jamais voltou. Só você. Muito bem. De novo.",
   "Make your first move. It will define you.": "Faça seu primeiro lance. Ele vai definir você.",
@@ -603,4 +603,27 @@ I18n.add('pt', {
   "A fine check. Continue.": "Um belo xeque. Continue.",
   "Your {piece}. Did you see it coming?": "{piece|your}. Você viu chegando?",
   "Good. You took my {piece}.": "Bom. Você capturou {piece|my}.",
+});
+
+// Grandmaster X Unbound, the last game (characters/finalboss.js)
+I18n.add('pt', {
+  "Every Power": "Todos os poderes",
+  "He stole every guardian's power: four bishops and two queens for him, no rooks for you, the mist, the gear walls, double takes, and every capture a challenge he plays at full strength.": "Ele roubou o poder de cada guardião: quatro bispos e duas damas para ele, nenhuma torre para você, a névoa, os muros de engrenagens, as capturas duplas, e toda captura inicia um desafio que ele joga com força total.",
+  "Checkmate him within 40 of your moves, or the board stays broken.": "Dê mate nele em até 40 dos seus lances, ou o tabuleiro continuará quebrado.",
+  "The Great Board": "O Grande Tabuleiro",
+  "The Board Is Free!": "O tabuleiro está livre!",
+  "He will not accept defeat": "Ele não aceita a derrota",
+  "Every rule they ever had is mine now. Forty moves, on the board I broke. Win, and it is yours. Lose, and it stays broken forever.": "Todas as regras que eles já tiveram agora são minhas. Quarenta lances, no tabuleiro que eu quebrei. Vença, e ele é seu. Perca, e ele ficará quebrado para sempre.",
+  "No... the powers are leaving me. Going home. I can feel the worlds pulling them back...": "Não... os poderes estão me deixando. Voltando para casa. Sinto os mundos puxando-os de volta...",
+  "You see? Nobody crosses. Nobody ever crosses. Get up and try again, if you dare.": "Viu? Ninguém atravessa. Ninguém nunca atravessa. Levante-se e tente de novo, se tiver coragem.",
+  "Every power in the world, against one small king.": "Todos os poderes do mundo contra um pequeno rei.",
+  "The board I broke. A fitting place for you to fall.": "O tabuleiro que eu quebrei. Um lugar perfeito para a sua queda.",
+  "Your {piece}. Stolen like everything else.": "Levo {piece|your}. Como todo o resto.",
+  "Your {piece}, gone. I have all their tricks now.": "Lá se vai {piece|your}. Agora tenho todos os truques deles.",
+  "My {piece}?! That power was mine!": "{piece|my}?! Aquele poder era meu!",
+  "You took my {piece}. It means nothing. I have more.": "Você capturou {piece|my}. Não significa nada. Tenho mais.",
+  "Check. Every guardian is checking you at once.": "Xeque. Todos os guardiões te dão xeque ao mesmo tempo.",
+  "Check. Feel all of them.": "Xeque. Sinta todos eles.",
+  "Check?! No. No, no, no.": "Xeque?! Não. Não, não, não.",
+  "You dare check the Unbound?": "Você ousa dar xeque no Liberto?",
 });

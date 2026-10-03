@@ -485,7 +485,7 @@ I18n.add('fr', {
   // Grandmaster X
   "The Absolute": "L'Absolu",
   "You came back. Of course you did. Here every capture is a test, and I know exactly which tests you fail. Mate me if you can. You will have to do it more than once.": "Tu es revenu. Évidemment. Ici, chaque prise est une épreuve, et je sais exactement lesquelles tu rates. Mate-moi si tu peux. Il faudra le faire plus d'une fois.",
-  "Three times... You checkmated me three times. The crystal cannot hold. Nothing can hold forever. Perhaps nothing should.": "Trois fois... Tu m'as maté trois fois. Le cristal ne peut plus tenir. Rien ne tient éternellement. Peut-être que rien ne le devrait.",
+  "Three times... You checkmated me three times. And yet the crystal holds. I hold. This is not over.": "Trois fois... Tu m'as maté trois fois. Et pourtant le cristal tient. Je tiens. Ce n'est pas fini.",
   "Stay down this time. The board stays broken. Broken, it cannot choose anyone. Broken, it is safe.": "Reste à terre, cette fois. L'échiquier reste brisé. Brisé, il ne peut choisir personne. Brisé, il est en sécurité.",
   "You return. They always return... no. None of them ever came back. Only you. Very well. Again.": "Tu reviens. Ils reviennent toujours... non. Aucun d'eux n'est jamais revenu. Seulement toi. Très bien. Encore.",
   "Make your first move. It will define you.": "Joue ton premier coup. Il te définira.",
@@ -605,4 +605,27 @@ I18n.add('fr', {
   "A fine check. Continue.": "Un bel échec. Continue.",
   "Your {piece}. Did you see it coming?": "{piece|your}. Tu l'as vu venir ?",
   "Good. You took my {piece}.": "Bien. Tu as pris {piece|my}.",
+});
+
+// Grandmaster X Unbound, the last game (characters/finalboss.js)
+I18n.add('fr', {
+  "Every Power": "Tous les pouvoirs",
+  "He stole every guardian's power: four bishops and two queens for him, no rooks for you, the mist, the gear walls, double takes, and every capture a challenge he plays at full strength.": "Il a volé le pouvoir de chaque gardien : quatre fous et deux dames pour lui, aucune tour pour toi, la brume, les murs d'engrenages, les doubles prises, et chaque prise lance un défi qu'il joue à pleine puissance.",
+  "Checkmate him within 40 of your moves, or the board stays broken.": "Mate-le en 40 de tes coups, ou l'échiquier restera brisé.",
+  "The Great Board": "Le Grand Échiquier",
+  "The Board Is Free!": "L'échiquier est libre !",
+  "He will not accept defeat": "Il refuse la défaite",
+  "Every rule they ever had is mine now. Forty moves, on the board I broke. Win, and it is yours. Lose, and it stays broken forever.": "Toutes les règles qu'ils ont jamais eues sont à moi. Quarante coups, sur l'échiquier que j'ai brisé. Gagne, et il est à toi. Perds, et il restera brisé pour toujours.",
+  "No... the powers are leaving me. Going home. I can feel the worlds pulling them back...": "Non... les pouvoirs me quittent. Ils rentrent chez eux. Je sens les mondes les rappeler...",
+  "You see? Nobody crosses. Nobody ever crosses. Get up and try again, if you dare.": "Tu vois ? Personne ne traverse. Personne ne traverse jamais. Relève-toi et réessaie, si tu l'oses.",
+  "Every power in the world, against one small king.": "Tous les pouvoirs du monde contre un petit roi.",
+  "The board I broke. A fitting place for you to fall.": "L'échiquier que j'ai brisé. L'endroit idéal pour ta chute.",
+  "Your {piece}. Stolen like everything else.": "Adieu, {piece|your}. Je prends tout, comme toujours.",
+  "Your {piece}, gone. I have all their tricks now.": "Je prends {piece|your}. J'ai toutes leurs ruses maintenant.",
+  "My {piece}?! That power was mine!": "{piece|my} ?! Ce pouvoir était à moi !",
+  "You took my {piece}. It means nothing. I have more.": "Tu as pris {piece|my}. Ça ne veut rien dire. J'en ai d'autres.",
+  "Check. Every guardian is checking you at once.": "Échec. Tous les gardiens te mettent en échec à la fois.",
+  "Check. Feel all of them.": "Échec. Sens-les tous.",
+  "Check?! No. No, no, no.": "Échec ?! Non. Non, non, non.",
+  "You dare check the Unbound?": "Tu oses mettre le Déchaîné en échec ?",
 });

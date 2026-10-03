@@ -93,12 +93,10 @@ const Keepsakes = {
     return null;
   },
 
-  // Whether a save holds a keepsake: its guardian is beaten (every keepsake on New
-  // Game+, and with Super User on).
+  // Whether a save holds a keepsake: its guardian is beaten (or Super User is on).
   has(id, save = typeof store !== 'undefined' ? store.getActiveSave() : null) {
     if (!save) return false;
     if (typeof SuperUser !== 'undefined' && SuperUser.active && SuperUser.active()) return true;
-    if (save.ngPlus) return true;
     const k = this.get(id);
     const g = k && typeof STORY_STAGES !== 'undefined' && STORY_STAGES.find(c => c.id === k.guardian);
     return !!g && typeof StoryProgress !== 'undefined' && StoryProgress.isBeaten(save, g.stage);

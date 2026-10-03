@@ -225,12 +225,11 @@ const Tournaments = {
     return !!(save && Array.isArray(save.tournamentsWon) && save.tournamentsWon.includes(worldId));
   },
 
-  // The guardian waits for the tournament (a restored world, New Game+ and Super
-  // User skip the wait).
+  // The guardian waits for the tournament (a restored world and Super User skip the
+  // wait).
   guardianReady(save, world) {
     if (typeof SuperUser !== 'undefined' && SuperUser.active()) return true;
     if (!world || !this.forWorld(world.id)) return true;
-    if (save && save.ngPlus) return true;
     if (typeof StoryProgress !== 'undefined' && StoryProgress.isRestored(save, world)) return true;
     return this.won(save, world.id);
   },

@@ -266,8 +266,8 @@ I18n.add('de', {
   "The guardians you beat come down, one after another, each with their own rule. Lose once, and the streak starts over.": "Die Wächter, die du besiegt hast, kommen herunter, einer nach dem anderen, jeder mit seiner Regel. Verlierst du einmal, beginnt die Serie von vorn.",
   "Three in a row. The old guardians rise to their feet, and the Arena shakes.": "Drei in Folge. Die alten Wächter erheben sich, und die Arena bebt.",
   "Three. As agreed. The Obsidian Court is open. Come, then, and bring your time with you. You will need all of it.": "Drei. Wie vereinbart. Der Obsidianhof ist offen. Komm also, und bring deine Zeit mit. Du wirst sie ganz brauchen.",
-  "The third checkmate lands. Grandmaster X's crystal cracks from crown to base...": "Das dritte Matt sitzt. Der Kristall von Grandmaster X springt von der Krone bis zum Sockel...",
-  "...and shatters. Inside stands one small, very old pawn.": "...und zerspringt. Darin steht ein kleiner, sehr alter Bauer.",
+  "Checkmate. The stolen powers burst out of Grandmaster X and stream home, back to every world they came from.": "Matt. Die gestohlenen Kräfte brechen aus Grandmaster X hervor und strömen heim, zurück in jede Welt, aus der sie kamen.",
+  "His crystal cracks from crown to base... and shatters. Inside stands one small, very old pawn.": "Sein Kristall springt von der Krone bis zum Sockel... und zerspringt. Darin steht ein kleiner, sehr alter Bauer.",
   "I was the first piece ever to cross the Great Board. It chose me as its Guardian. I guarded it alone, for an age.": "Ich war die erste Figur, die je das Große Brett überquerte. Es wählte mich zu seinem Wächter. Ich hütete es allein, eine Ewigkeit lang.",
   "I grew afraid that someone would cross and take my place. So I began to break it, crack by crack, world by world, so no one ever could.": "Ich bekam Angst, dass jemand hinüberkommt und meinen Platz einnimmt. Also begann ich, es zu zerbrechen, Riss um Riss, Welt um Welt, damit es niemand je schafft.",
   "Then you came, and you almost reached the edge. I broke it all at once, with you on it. The moment you fell, it stopped breaking. It had chosen you.": "Dann kamst du und hättest fast den Rand erreicht. Ich zerbrach alles auf einmal, mit dir darauf. In dem Moment, als du fielst, hörte es auf zu brechen. Es hatte dich erwählt.",
@@ -277,4 +277,17 @@ I18n.add('de', {
   "In Pawn Hollow, Pawnie looks up at a whole sky. Far away, Bish-Bosh, the Knight of the Mist and the EndGamer look up too.": "In der Bauernmulde blickt Pawnie zu einem ganzen Himmel hinauf. Weit entfernt blicken auch Bish-Bosh, der Nebelritter und der EndGamer auf.",
   "It chose you. Just... do not guard it alone, like I did.": "Es hat dich erwählt. Nur... hüte es nicht allein, so wie ich.",
   "You remember now. You are the Guardian of the Great Board.": "Jetzt erinnerst du dich. Du bist der Wächter des Großen Bretts.",
+});
+
+// Grandmaster X's ascension (the last game's cutscene)
+I18n.add('de', {
+  "The third checkmate lands. The crystal cracks from crown to base... and holds.": "Das dritte Matt sitzt. Der Kristall springt von der Krone bis zum Sockel... und hält.",
+  "No. No! I do not lose. I have never lost. The board does not get to choose you.": "Nein. Nein! Ich verliere nicht. Ich habe nie verloren. Das Brett hat nicht das Recht, dich zu wählen.",
+  "Guardians! Everything I gave you, I take back. Every rule, every trick. Now.": "Wächter! Alles, was ich euch gegeben habe, nehme ich zurück. Jede Regel, jeden Trick. Jetzt.",
+  "Far away, the guardians cry out. Their powers tear loose from every world and stream across the sky towards him.": "In der Ferne schreien die Wächter auf. Ihre Kräfte reißen sich aus jeder Welt los und strömen über den Himmel zu ihm.",
+  "Bishops from the sands. Iron from the Keep. Mist from the moors. Queens, walls, forks, and the sand of the hourglass. Mine. All of it, mine.": "Läufer aus dem Sand. Eisen aus der Festung. Nebel aus dem Moor. Damen, Mauern, Gabeln und der Sand der Sanduhr. Mein. Alles mein.",
+  "The ground drops away. When it stops, you stand on the Great Board itself, cracked and floating in the dark.": "Der Boden fällt weg. Als alles stillsteht, stehst du auf dem Großen Brett selbst, zersprungen und schwebend in der Dunkelheit.",
+  "One last game, on the board I broke. Forty moves, and every rule they ever had. Win, and it is yours.": "Ein letztes Spiel, auf dem Brett, das ich zerbrochen habe. Vierzig Züge und jede Regel, die sie je hatten. Gewinn, und es gehört dir.",
+  "The Last Game": "Das letzte Spiel",
+  "Unbound": "Entfesselt",
 });
