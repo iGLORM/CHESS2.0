@@ -88,6 +88,7 @@ const WorldMapFlight = {
     const shadow = new PIXI.Graphics().ellipse(0, 0, 26, 6).fill({ color: 0x000000, alpha: 0.35 });
     this.map.addChild(shadow, plane);
     this.map.setChildIndex(this.token, this.map.children.length - 1);
+    PixiPlane.ride(plane, this.map);
     const home = { x: this.token.x, y: this.token._baseY };
     const f = this.flight = {
       plane, shadow, x: home.x, y: home.y, vx: 0, vy: 0, dir: 1, tilt: 0, alt: F.LOW,

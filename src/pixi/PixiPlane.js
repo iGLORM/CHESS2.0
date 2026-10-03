@@ -4,7 +4,9 @@
 //
 // PixiPlane.make(colors) returns a container in the old map plane's units (nose to the right,
 // about 50 wide; the world map scales it by 1.9): `_prop` is the blade, flicked on and off by
-// the callers, and SEAT is where the king sits.
+// the callers, and SEAT is where the king's feet go, down inside the cockpit. `_front` is the
+// fuselage below the cockpit rim; PixiPlane.ride(plane, parent) draws it over the king, so he
+// sits in the plane instead of standing on it.
 const PixiPlane = {
   W: 96,
   H: 50,
@@ -13,7 +15,8 @@ const PixiPlane = {
   // one scene pixel, so the gift's plane swaps for this one without a seam.
   UNIT: 1.9,
   ORIGIN: { x: 44, y: 19 },     // the sprite pixel at the container's (0, 0)
-  SEAT: { x: 2, y: -3 },        // the cockpit, in container units
+  SEAT: { x: 2, y: 3 },         // the king's feet, in the cockpit (container units)
+  RIM: 19,                      // sprite rows from here down are drawn over the king (CY - 3)
   NOSE: { x: 91, y: 22 },       // the spinner, in sprite pixels
   DEFAULT: ['#f4f0e8', '#d94a4a', '#5a5a6a'],
   _cache: {},
@@ -121,8 +124,9 @@ const PixiPlane = {
     return px;
   },
 
-  texture(colors) {
-    const key = (colors || this.DEFAULT).join();
+  // front: only the rows from the cockpit rim down (the part in front of the king).
+  texture(colors, front = false) {
+    const key = (colors || this.DEFAULT).join() + (front ? ':front' : '');
     const hit = this._cache[key];
     if (hit && !hit.destroyed) return hit;
     const canvas = document.createElement('canvas');
@@ -131,7 +135,7 @@ const PixiPlane = {
     const ctx = canvas.getContext('2d');
     const img = ctx.createImageData(this.W, this.H);
     this.pixels(colors).forEach((c, i) => {
-      if (!c) return;
+      if (!c || (front && i < this.RIM * this.W)) return;
       img.data[i * 4] = parseInt(c.slice(1, 3), 16);
       img.data[i * 4 + 1] = parseInt(c.slice(3, 5), 16);
       img.data[i * 4 + 2] = parseInt(c.slice(5, 7), 16);
@@ -145,17 +149,32 @@ const PixiPlane = {
     const c = new PIXI.Container();
     const s = 1 / this.UNIT;
     const sp = new PIXI.Sprite(this.texture(colors));
-    sp.scale.set(s);
-    sp.x = -this.ORIGIN.x * s;
-    sp.y = -this.ORIGIN.y * s;
+    const front = new PIXI.Sprite(this.texture(colors, true));
+    for (const p of [sp, front]) {
+      p.scale.set(s);
+      p.x = -this.ORIGIN.x * s;
+      p.y = -this.ORIGIN.y * s;
+    }
     // Propeller: a pale blur always, a blade the callers flick on and off.
     const nx = (this.NOSE.x - this.ORIGIN.x) * s, ny = (this.NOSE.y - this.ORIGIN.y) * s, r = 14 * s;
     const blur = new PIXI.Graphics().ellipse(nx, ny, 2.6 * s, r).fill({ color: 0x7a6460, alpha: 0.45 })
       .rect(nx - s / 2, ny - r, s, s).fill({ color: 0xffe080, alpha: 0.6 })
       .rect(nx - s / 2, ny + r - s, s, s).fill({ color: 0xffe080, alpha: 0.6 });
     const prop = new PIXI.Graphics().rect(nx - s / 2, ny - r * 0.9, s, r * 1.8).fill({ color: 0x5a3420, alpha: 0.85 });
-    c.addChild(sp, blur, prop);
+    c.addChild(sp, front, blur, prop);
     c._prop = prop;
+    c._front = front;
     return c;
+  },
+
+  // The king rides in `plane`: its fuselage front is drawn above everything already in
+  // `parent` (the king included), while still moving with the plane. Gone with the plane.
+  ride(plane, parent) {
+    if (!PIXI.RenderLayer) return null;
+    const layer = new PIXI.RenderLayer();
+    parent.addChild(layer);
+    layer.attach(plane._front);
+    plane.once('destroyed', () => { if (!layer.destroyed) layer.destroy(); });
+    return layer;
   },
 };
