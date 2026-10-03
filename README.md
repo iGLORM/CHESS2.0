@@ -51,7 +51,7 @@
 
 ## The Chess 2.0 Rule
 
-Everything is normal chess, with one twist: **captures can be challenged with a quick 3D arcade mini-game.**
+Everything is normal chess, with one twist: **captures can be challenged with a quick 3D arcade mini-game.** Each mini-game takes on the colours of the world you are in.
 
 - **Local 1v1 and Custom Game (Defenses):** when one of your pieces is about to be captured, you can spend a
   **Defense** to play a mini-game. Win it and the capture is cancelled and your opponent loses their turn.

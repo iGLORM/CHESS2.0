@@ -446,4 +446,6 @@ I18n.add('pt', {
   'Library': 'Biblioteca', 'Endless shelves by candlelight': 'Estantes sem fim à luz de velas', 'Gulch': 'Desfiladeiro', 'Cacti, mesas and rolling tumbleweeds': 'Cactos, mesetas e capim rolando',
   'Court': 'Corte', 'A black glass throne room over lava': 'Trono de vidro negro sobre lava', 'Soulbound': 'Almas', 'Crystal shards and glowing ether': 'Cacos de cristal, éter brilhante',
   'Ivory, lapis and gold: the board made whole': 'Marfim, lápis-lazúli e ouro: tabuleiro inteiro', 'Your own colors': 'Suas próprias cores',
+  // Fight screen panels, result card and puzzle coach (2026-10-03).
+  'Moves appear here as you play.': 'Os lances aparecem aqui enquanto você joga.', 'THIS GAME': 'ESTA PARTIDA', 'Bot': 'Bot', 'Custom game': 'Partida personalizada', 'level {0}': 'nível {0}', 'Move {0}': 'Lance {0}', 'BALANCE': 'EQUILÍBRIO', 'Even material': 'Material igual', 'LAST MOVE': 'ÚLTIMO LANCE', 'PUZZLE {0} OF {1}': 'PUZZLE {0} DE {1}', 'PUZZLE {0}': 'PUZZLE {0}', 'THIS SET': 'ESTA SÉRIE', 'The Pixel Coach': 'O treinador pixel',
 });

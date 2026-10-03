@@ -72,89 +72,95 @@ const PixiGameOverOverlay = {
     ].join('|');
   },
 
+  // The result card: the menus' stepped pixel panel over a dimmed board (still visible
+  // behind), a crown that drops in, the title popping, what the game paid counting up,
+  // the story stars, his last line and the buttons.
   _build(game) {
     const c = this.container;
-    c.removeChildren();
+    for (const child of c.removeChildren()) {
+      if (typeof gsap !== 'undefined') gsap.killTweensOf(child);
+      child.destroy({ children: true });
+    }
 
     const cols = ThemeManager.getCurrentColors();
-    const shade = new PIXI.Graphics();
-    shade.rect(0, 0, Layout.W, Layout.H).fill({ color: 0x000000, alpha: 0.68 });
-    c.addChild(shade);
+    const P = PixiPremiumScene;
+    c.addChild(new PIXI.Graphics().rect(0, 0, Layout.W, Layout.H).fill({ color: 0x05040a, alpha: 0.5 }));
 
-    const panelW = 560;
-    const stars = game.mode === 'story' && game.starResult && typeof PixiStar !== 'undefined' ? game.starResult : null;
-    const STARS_H = stars ? 116 : 0;
-    const panelH = (game.currentCharacter ? 356 : 316) + STARS_H;
-    const panelX = Layout.cx - panelW / 2;
-    const panelY = Layout.cy - panelH / 2;
-    const panel = new PixiPanel({
-      width: panelW,
-      height: panelH,
-      cols,
-      fill: cols.panel,
-      accentTop: true,
-      active: true,
-    });
-    panel.x = panelX;
-    panel.y = panelY;
-    c.addChild(panel);
+    const won = game.isAIMode ? game.playerWon() : game.gameResult === 'white' || game.gameResult === 'black';
+    const draw = !game.gameResult || game.gameResult === 'draw';
+    const tone = draw ? '#b9b2c8' : won ? '#ffdc65' : '#8f7cff';
+    const panelW = 580, mid = panelW / 2;
+    const card = new PIXI.Container();
+    const body = new PIXI.Container();
+    let y = 40;
 
+    // Crown with a soft glow behind it.
+    const glow = new PIXI.Graphics();
+    for (let r = 46; r > 0; r -= 6) glow.circle(mid, y + 22, r).fill({ color: P.color(tone), alpha: 0.05 });
+    body.addChild(glow);
     const crown = new PIXI.Graphics();
-    const crownColor = (game.isAIMode ? !game.playerWon() : game.gameResult === 'black') ? 0x8f7cff : 0xffdc65;
-    crown.rect(0, 18, 58, 12)
-      .rect(7, 6, 10, 20)
-      .rect(24, 0, 10, 26)
-      .rect(41, 8, 10, 18)
-      .fill({ color: crownColor, alpha: game.gameResult === 'draw' ? 0.35 : 0.92 });
-    crown.x = Layout.cx - 29;
-    crown.y = panelY + 38;
-    c.addChild(crown);
+    crown.rect(0, 18, 58, 12).rect(7, 6, 10, 20).rect(24, 0, 10, 26).rect(41, 8, 10, 18)
+      .fill({ color: P.color(tone), alpha: draw ? 0.45 : 0.95 })
+      .rect(0, 28, 58, 2).fill({ color: 0x000000, alpha: 0.3 })
+      .rect(26, 2, 4, 4).rect(9, 8, 4, 4).rect(43, 10, 4, 4).fill({ color: 0xffffff, alpha: 0.35 });
+    crown.pivot.set(29, 15);
+    crown.scale.set(1.3);
+    crown.x = mid; crown.y = y + 22;
+    body.addChild(crown);
+    y += 62;
 
-    const title = PixiPremiumUI.title(this._title(game), cols, 34);
-    title.anchor.set(0.5, 0);
-    title.x = Layout.cx;
-    title.y = panelY + 82;
+    const title = PixiPremiumUI.title(this._title(game), cols, 38);
+    title.anchor.set(0.5);
+    title.x = mid; title.y = y + 20;
     PixiPremiumUI.fitText(title, panelW - 80);
-    c.addChild(title);
+    body.addChild(title);
+    y += 48;
 
-    const reason = PixiPremiumUI.text(this._reason(game), {
-      fontSize: 16,
-      fontWeight: '700',
-      fill: PixiColorUtil.alpha(cols.text, 'aa'),
-    });
+    const reason = P.text(game.resultReason(), { fontSize: 16, fontWeight: '700', fill: P.alpha(cols.text, 'aa') });
     reason.anchor.set(0.5, 0);
-    reason.x = Layout.cx;
-    reason.y = panelY + 126;
-    PixiPremiumUI.fitText(reason, panelW - 100);
-    c.addChild(reason);
+    reason.x = mid; reason.y = y;
+    P.fit(reason, panelW - 100);
+    body.addChild(reason);
+    y += 30;
 
-    if (stars) this._stars(c, stars, panelY + 154, cols);
-    const top = panelY + STARS_H;
-    let buttonY = top + 166;
+    const rewardRow = this._rewards(game, cols);
+    if (rewardRow) {
+      rewardRow.x = mid - rewardRow.width / 2; rewardRow.y = y + 4;
+      body.addChild(rewardRow);
+      y += 46;
+    }
+
+    const stars = game.mode === 'story' && game.starResult && typeof PixiStar !== 'undefined' ? game.starResult : null;
+    if (stars) {
+      this._stars(body, stars, y + 8, cols, mid);
+      y += 48 + stars.texts.length * 22 + 6;
+    }
+
     if (game.currentCharacter && game.gameResult) {
       const lines = game.currentCharacter.dialogue;
       const dialogue = game.gameResult === 'draw' ? (lines.draw || 'A draw. Neither of us gave an inch. Again?')
         : game.playerWon() ? lines.after
         : (game.gameStatus === 'timeout' && lines.timeout) || lines.win;
-      const text = PixiPremiumUI.text(dialogue || '', {
-        fontSize: 15,
-        fontWeight: '600',
-        fill: PixiColorUtil.alpha(cols.text, 'bb'),
-        wordWrap: true,
-        wordWrapWidth: panelW - 86,
-        lineHeight: 20,
-      });
-      text.x = panelX + 43;
-      text.y = top + 154;
-      const maxTextH = 80;
-      if (text.height > maxTextH) {
-        const mask = new PIXI.Graphics();
-        mask.rect(text.x, text.y, panelW - 86, maxTextH).fill(0xffffff);
-        c.addChild(mask);
-        text.mask = mask;
+      if (dialogue) {
+        const quote = P.text('"' + dialogue + '"', {
+          fontSize: 15, fontWeight: '600', fontStyle: 'italic', fill: P.alpha(cols.text, 'cc'),
+          wordWrap: true, wordWrapWidth: panelW - 110, lineHeight: 20, align: 'center',
+        });
+        quote.anchor.set(0.5, 0);
+        quote.x = mid; quote.y = y + 4;
+        const maxTextH = 80;
+        if (quote.height > maxTextH) {
+          const mask = new PIXI.Graphics().rect(40, quote.y, panelW - 80, maxTextH).fill(0xffffff);
+          body.addChild(mask);
+          quote.mask = mask;
+        }
+        body.addChild(quote);
+        const who = P.text('- ' + game.currentCharacter.name, { fontSize: 13, fontWeight: '800', fill: P.alpha(tone, 'cc') });
+        who.anchor.set(0.5, 0);
+        who.x = mid; who.y = y + 8 + Math.min(quote.height, maxTextH);
+        body.addChild(who);
+        y += 34 + Math.min(quote.height, maxTextH);
       }
-      c.addChild(text);
-      buttonY = top + 158 + Math.min(text.height, maxTextH) + 12;
     }
 
     // Story games lead back to the world map (which plays the reward after a win).
@@ -164,32 +170,78 @@ const PixiGameOverOverlay = {
       : !story ? [['Play Again', 'rematch'], ['Main Menu', 'menu']]
       : game.playerWon() ? [['Continue', 'map'], ['Play Again', 'rematch']]
         : [['Try Again', 'rematch'], ['Back to Map', 'map']];
-    const actions = labels.map(([text, action], i) => ({ text, action, x: labels.length === 1 ? Layout.cx - 100 : Layout.cx + (i === 0 ? -214 : 14), y: buttonY, width: 200 }));
-    this.buttonRects = actions.map(a => ({ action: a.action, x: a.x, y: a.y, w: a.width, h: 56 }));
+    const bw = 220, bh = P.buttonHeight(56);
+    y += 14;
+    const buttonY = y;
+    y += bh + 30;
+    const panelH = y;
 
-    for (const item of actions) {
-      const btn = new PixiButton({
-        width: item.width,
-        height: 56,
-        text: item.text,
-        cols,
-        fontSize: 18,
-      });
-      btn.x = item.x;
-      btn.y = item.y;
-      btn.onClick(() => {
-        if (this._game && this._game.handleGameOverAction) {
-          this._game.handleGameOverAction(item.action);
-        }
-      });
-      c.addChild(btn);
+    // The panel goes under everything, sized to what it holds.
+    P.panel(card, 0, 0, panelW, panelH, { alpha: 0.94, accent: tone });
+    card.addChild(body);
+    card.pivot.set(mid, panelH / 2);
+    card.x = Layout.cx; card.y = Layout.cy;
+    c.addChild(card);
+
+    const panelX = Layout.cx - mid, panelY = Layout.cy - panelH / 2;
+    this.buttonRects = [];
+    labels.forEach(([text, action], i) => {
+      const bx = labels.length === 1 ? mid - bw / 2 : mid + (i === 0 ? -bw - 12 : 12);
+      P.button(card, bx, buttonY, bw, 56, text, () => {
+        if (this._game && this._game.handleGameOverAction) this._game.handleGameOverAction(action);
+      }, { primary: i === 0, fontSize: 18 });
+      this.buttonRects.push({ action, x: panelX + bx, y: panelY + buttonY, w: bw, h: bh });
+    });
+
+    if (typeof gsap !== 'undefined') {
+      card.scale.set(0.86);
+      gsap.to(card.scale, { x: 1, y: 1, duration: 0.42, ease: 'back.out(1.8)' });
+      const cy = crown.y;
+      crown.y = cy - 40; crown.alpha = 0;
+      gsap.to(crown, { y: cy, alpha: 1, duration: 0.5, delay: 0.12, ease: 'bounce.out' });
+      if (won && !draw) gsap.to(crown, { rotation: 0.06, duration: 0.9, delay: 0.7, yoyo: true, repeat: -1, ease: 'sine.inOut' });
+      title.scale.set(0.4);
+      gsap.to(title.scale, { x: 1, y: 1, duration: 0.4, delay: 0.18, ease: 'back.out(2.4)' });
     }
   },
 
+  // What the game paid, as chips: coins (counting up) and bonus stars.
+  _rewards(game, cols) {
+    const r = game.reward || {};
+    if (!r.coins && !r.stars) return null;
+    const P = PixiPremiumScene;
+    const row = new PIXI.Container();
+    let x = 0;
+    const chip = (iconG, value, label) => {
+      const t = P.text('+' + value + ' ' + label, { fontSize: 18, fontWeight: '900', fill: '#ffe08a' });
+      const w = 46 + t.width + 16;
+      row.addChild(new PIXI.Graphics().roundRect(x, 0, w, 36, 8).fill({ color: 0x000000, alpha: 0.32 })
+        .roundRect(x, 0, w, 36, 8).stroke({ color: 0xe0a830, alpha: 0.6, width: 2 }));
+      iconG.x = x + 22; iconG.y = 18;
+      row.addChild(iconG);
+      t.anchor.set(0, 0.5); t.x = x + 40; t.y = 18;
+      row.addChild(t);
+      if (typeof gsap !== 'undefined') {
+        const n = { v: 0 };
+        t.text = '+0 ' + label;
+        gsap.to(n, { v: value, duration: 0.9, delay: 0.45, ease: 'power2.out', onUpdate: () => { if (!t.destroyed) t.text = '+' + Math.round(n.v) + ' ' + label; } });
+      }
+      x += w + 12;
+    };
+    if (r.coins) {
+      const g = new PIXI.Graphics(), cr = 10;
+      g.circle(0, 0, cr).fill(0x8a5a10).circle(0, -0.5, cr - 1.5).fill(0xe0a830).circle(0, -0.5, cr * 0.62).stroke({ color: 0xb07a1c, width: 1.5 })
+        .circle(-cr * 0.3, -cr * 0.35, cr * 0.22).fill(0xfff0a0);
+      chip(g, r.coins, 'coins');
+    }
+    if (r.stars && typeof PixiStar !== 'undefined') chip(PixiStar.create(9, true), r.stars, 'bonus stars');
+    return row;
+  },
+
   // The fight's stars: three big ones (lit for this result), then what each is for.
-  _stars(c, r, y, cols) {
+  _stars(c, r, y, cols, cx = Layout.cx) {
     const row = PixiStar.row(3, r.got, 17, 12);
-    row.x = Layout.cx - row.width / 2;
+    row.x = cx - row.width / 2;
     row.y = y;
     c.addChild(row);
     row.children.forEach((st, i) => {
@@ -210,7 +262,7 @@ const PixiGameOverOverlay = {
       label.anchor.set(0, 0.5);
       const tag = r.fresh[i] ? PixiPremiumUI.text('NEW', { fontSize: 12, fontWeight: '900', fill: '#7dea99' }) : null;
       const w = 20 + label.width + (tag ? tag.width + 10 : 0);
-      mark.x = Layout.cx - w / 2 + 6;
+      mark.x = cx - w / 2 + 6;
       mark.y = ly;
       label.x = mark.x + 14;
       label.y = ly;
@@ -226,13 +278,6 @@ const PixiGameOverOverlay = {
 
   _title(game) {
     return game.resultTitle();
-  },
-
-  _reason(game) {
-    // What the win paid, after the reason.
-    const r = game.reward || {};
-    const paid = [r.coins ? `+${r.coins} coins` : '', r.stars ? `+${r.stars} bonus stars` : ''].filter(Boolean).join('  ·  ');
-    return paid ? `${game.resultReason()}  ·  ${paid}` : game.resultReason();
   },
 
   destroy() {

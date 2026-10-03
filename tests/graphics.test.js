@@ -22,7 +22,7 @@ test('defaults match the old fixed behaviour', () => {
   assert.strictEqual(G.fpsCap(), 60);
   assert.strictEqual(G.sceneRate(), 1);
   assert.strictEqual(G.particles(), 1);
-  assert.strictEqual(G.mini3d().pixel, 1.33);
+  assert.strictEqual(G.mini3d().pixel, 1);
   assert.strictEqual(G.renderCap(), Infinity);
 });
 
@@ -86,4 +86,13 @@ test('step wraps round the choices and labels them', () => {
   assert.strictEqual(G.label('fps'), '30 FPS');
   G.step('resolution', -1);
   assert.strictEqual(G.label('resolution'), '960 x 600');
+});
+
+test('an old save whose options no longer match its preset reads as custom', () => {
+  const { G, state } = load();
+  state.settings = { graphics: { preset: 'high', sceneMotion: 'full', particles: 'high', mini3d: 'medium' } };
+  assert.strictEqual(G.get('preset'), 'custom');
+  G.set('preset', 'high');
+  assert.strictEqual(G.get('preset'), 'high');
+  assert.strictEqual(G.get('mini3d'), 'high');
 });

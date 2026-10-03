@@ -508,4 +508,6 @@ I18n.add('de', {
   'Library': 'Bibliothek', 'Endless shelves by candlelight': 'Endlose Regale bei Kerzenlicht', 'Gulch': 'Schlucht', 'Cacti, mesas and rolling tumbleweeds': 'Kakteen, Tafelberge, Steppenläufer',
   'Court': 'Hof', 'A black glass throne room over lava': 'Thronsaal aus schwarzem Glas über Lava', 'Soulbound': 'Seelen', 'Crystal shards and glowing ether': 'Kristallsplitter und leuchtender Äther',
   'Ivory, lapis and gold: the board made whole': 'Elfenbein, Lapis, Gold: das Brett wieder ganz', 'Your own colors': 'Deine eigenen Farben',
+  // Fight screen panels, result card and puzzle coach (2026-10-03).
+  'Moves appear here as you play.': 'Hier erscheinen die Züge, während du spielst.', 'THIS GAME': 'DIESE PARTIE', 'Bot': 'Bot', 'Custom game': 'Eigenes Spiel', 'level {0}': 'Stufe {0}', 'Move {0}': 'Zug {0}', 'BALANCE': 'BILANZ', 'Even material': 'Material ausgeglichen', 'LAST MOVE': 'LETZTER ZUG', 'PUZZLE {0} OF {1}': 'RÄTSEL {0} VON {1}', 'PUZZLE {0}': 'RÄTSEL {0}', 'THIS SET': 'DIESE SERIE', 'The Pixel Coach': 'Der Pixel-Coach',
 });

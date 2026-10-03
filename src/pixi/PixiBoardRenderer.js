@@ -154,6 +154,7 @@ const PixiBoardRenderer = {
       sprite.width = boardPx;
       sprite.height = boardPx;
       this.boardContainer.addChild(sprite);
+      this.boardContainer.addChild(this._calmSquares(themeId, boardImg, bx, by));
 
       // Soft bevel so the squares read as inlaid tiles.
       const bevel = new PIXI.Graphics();
@@ -199,6 +200,42 @@ const PixiBoardRenderer = {
       }
     }
     this.boardContainer.addChild(boardGfx);
+  },
+
+  // The painted boards are speckled; laying each square's own average colour over it
+  // at CALM alpha halves the texture so the pieces stand out, without changing the palette.
+  CALM: 0.45,
+  _squareAverages: {},
+
+  _calmSquares(themeId, img, bx, by) {
+    let avg = this._squareAverages[themeId];
+    if (!avg) {
+      const w = img.naturalWidth || img.width, h = img.naturalHeight || img.height;
+      const c = document.createElement('canvas');
+      c.width = w; c.height = h;
+      const ctx = c.getContext('2d', { willReadFrequently: true });
+      ctx.drawImage(img, 0, 0);
+      let data;
+      try { data = ctx.getImageData(0, 0, w, h).data; } catch (e) { return new PIXI.Graphics(); }
+      avg = [];
+      for (let r = 0; r < 8; r++) for (let q = 0; q < 8; q++) {
+        let R = 0, G = 0, B = 0, n = 0;
+        const x0 = Math.floor(q * w / 8), x1 = Math.floor((q + 1) * w / 8);
+        const y0 = Math.floor(r * h / 8), y1 = Math.floor((r + 1) * h / 8);
+        for (let y = y0; y < y1; y += 2) for (let x = x0; x < x1; x += 2) {
+          const i = (y * w + x) * 4;
+          R += data[i]; G += data[i + 1]; B += data[i + 2]; n++;
+        }
+        avg.push((Math.round(R / n) << 16) | (Math.round(G / n) << 8) | Math.round(B / n));
+      }
+      this._squareAverages[themeId] = avg;
+    }
+    const g = new PIXI.Graphics();
+    avg.forEach((color, i) => {
+      g.rect(bx + (i % 8) * this.squareSize, by + Math.floor(i / 8) * this.squareSize, this.squareSize, this.squareSize)
+        .fill({ color, alpha: this.CALM });
+    });
+    return g;
   },
 
   setPieces(board, themeId) {

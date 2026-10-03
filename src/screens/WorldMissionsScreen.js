@@ -21,6 +21,7 @@ const WorldMissionsScreen = {
     PANEL_H: 150,
     PANEL_W: 980,
     PANEL_GAP: 12,
+    PANEL_TOP: 128,       // where the panel goes when a selected stop sits behind its usual place
     DOT_STEP: 14,
     HOP: 42,
     LORE_W: 620,
@@ -492,7 +493,10 @@ const WorldMissionsScreen = {
     const ROW1 = stacked ? L.PANEL_H + 20 : L.PANEL_H;
     const h = stacked ? ROW1 + 100 : L.PANEL_H;
     const x = Math.round((Layout.W - w) / 2);
-    const y = PixiPremiumScene.footerY - h - L.PANEL_GAP;
+    // Above the footer, unless that would hide the selected stop: then under the title.
+    let y = PixiPremiumScene.footerY - h - L.PANEL_GAP;
+    const at = this.stops && this.stops[this.selected];
+    if (at && at.y + L.NODE_R + 24 > y && at.y - L.NODE_R - 24 > L.PANEL_TOP + h) y = L.PANEL_TOP;
     const panel = new PIXI.Container();
     this.pixiContainer.addChild(panel);
     this.panel = panel;

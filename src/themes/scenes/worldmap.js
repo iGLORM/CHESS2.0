@@ -1316,8 +1316,11 @@ LiveScenes.register({
         const i = SCRACK[n], x = i % W, y = i / W | 0, k = SCRACKK[n];
         if (FUSE >= 1 || bay(x, y) < FUSE) { if (SCRACKS[n] % 3 === 0) blend(buf, i, SCRG[1], 0.3); continue; }
         if (HEAL[k] >= 1) { blend(buf, i, SCR[0], 0.5); continue; }
-        const p = Math.sin(TAU * 8 * u - SCRACKS[n] * 0.12);
-        buf[i] = p > 0.75 ? SCR[2] : SCR[1];
+        // Translucent and fading with distance from the wound, so the open sea stays calm;
+        // only the pulse running along them is bright.
+        const p = Math.sin(TAU * 8 * u - SCRACKS[n] * 0.12), far = Math.max(0.22, 0.55 - SCRACKS[n] / 500);
+        if (p > 0.75) blend(buf, i, SCR[2], Math.min(1, far + 0.35));
+        else blend(buf, i, SCR[1], far);
       }
       // The floating board's shadow on the water.
       for (let dy = -2; dy <= 2; dy++) for (let dx = -10; dx <= 10; dx++) if (sq(dx / 10) + sq(dy / 2.4) < 1) blend(buf, (WY + 3 + dy) * W + SX + dx + 2, CSH, 0.3);

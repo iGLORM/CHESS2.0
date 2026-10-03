@@ -295,7 +295,50 @@ const Mini3D = {
   },
 
   // A checkerboard texture; `cells` squares per side.
+  // How far mini-game colours lean toward the world you are in (0 = the game's own).
+  WORLD_TINT: 0.55,
+
+  // A colour pulled toward the current theme's palette, keeping its own lightness, so
+  // a dark road stays dark and a pale floor pale, just in the world's hues. role picks
+  // the theme colour: 'light'/'dark' squares, 'sky' (the dark squares) or 'glow' (accent).
+  // Takes and returns a hex number or a '#rrggbb' string.
+  worldTint(color, role, k) {
+    const cols = typeof ThemeManager !== 'undefined' && ThemeManager.getCurrentColors && ThemeManager.getCurrentColors();
+    const key = { light: 'lightSquare', dark: 'darkSquare', sky: 'darkSquare', glow: 'accent' }[role] || 'darkSquare';
+    if (!cols || !cols[key] || !/^#[0-9a-f]{6}$/i.test(cols[key])) return color;
+    // Hue and saturation move toward the world's colour (round the colour wheel, so
+    // purple to green never passes through grey); lightness stays the game's own.
+    const src = new THREE.Color(color), to = new THREE.Color(cols[key]);
+    const a = {}, b = {};
+    src.getHSL(a); to.getHSL(b);
+    const t = k == null ? this.WORLD_TINT : k;
+    let dh = b.h - a.h;
+    if (dh > 0.5) dh -= 1; else if (dh < -0.5) dh += 1;
+    // A greyish world colour (Iron Keep's steel) has no real hue: it mostly calms the
+    // colour down instead of turning it.
+    const th = t * Math.min(1, b.s * 2.5);
+    const h = a.s < 0.04 ? b.h : (a.h + dh * th + 1) % 1;
+    src.setHSL(h, a.s + (b.s - a.s) * t, a.l);
+    return typeof color === 'string' ? '#' + src.getHexString() : src.getHex();
+  },
+
+  // Recolours a built scene toward the world: sky, fog and the lights.
+  tintScene(scene) {
+    if (scene.background && scene.background.isColor) scene.background.setHex(this.worldTint(scene.background.getHex(), 'sky'));
+    if (scene.fog && scene.fog.color) scene.fog.color.setHex(this.worldTint(scene.fog.color.getHex(), 'sky'));
+    scene.traverse((o) => {
+      if (o.isHemisphereLight) {
+        o.color.setHex(this.worldTint(o.color.getHex(), 'glow', 0.3));
+        o.groundColor.setHex(this.worldTint(o.groundColor.getHex(), 'dark'));
+      } else if (o.isDirectionalLight) {
+        o.color.setHex(this.worldTint(o.color.getHex(), 'glow', 0.35));
+      }
+    });
+  },
+
   checkerTexture(cells, light, dark, px) {
+    light = this.worldTint(light, 'light');
+    dark = this.worldTint(dark, 'dark');
     const size = cells * (px || 8);
     const c = document.createElement('canvas');
     c.width = c.height = size;
@@ -605,6 +648,7 @@ class Game3D {
     this.camera = new THREE.PerspectiveCamera(60, 16 / 9, 0.1, 400);
     this.burst = new Burst3D(this.scene, 320);
     this.setup();
+    Mini3D.tintScene(this.scene);   // the game's own look, in the colours of the world you are in
   }
 
   // 0..1 across difficulty 1..10, with duels pushed harder.

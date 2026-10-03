@@ -36,11 +36,11 @@ This is a pixel-art chess game built with **Electron + PixiJS v8 + vanilla JavaS
 
 ### Rendering — Hybrid Model (Migration In Progress)
 
-The game is **migrating from Canvas 2D to PixiJS v8**. Currently a hybrid:
+The game has **mostly migrated from Canvas 2D to PixiJS v8**:
 
-- **PixiJS screens** (`isPixiScreen: true`): `HomeScreen`, `HowToPlay` — build a PIXI.Container scene graph in `init()`, no `render(ctx)` method. PixiJS auto-renders via its own ticker.
-- **Canvas 2D screens**: All other screens — render via `ctx` calls each frame in `render(ctx, dt)`.
-- **Hybrid screen**: `GameScreen` — board/pieces render via PixiJS (`PixiGameScreen`), side panels/status bar render via Canvas 2D overlay.
+- **PixiJS screens** (`isPixiScreen: true`): every screen in `src/screens/` except `GameScreen` and `PauseMenu` — build a PIXI.Container scene graph in `init()`, no `render(ctx)` method. PixiJS auto-renders via its own ticker.
+- **Hybrid screen**: `GameScreen` — board, pieces and HUD (`PixiGameHud`, `PixiGameOverOverlay`) are PixiJS; it still has a `render(ctx)` for the Canvas 2D overlay. `PauseMenu` is drawn over it.
+- The Canvas 2D layer remains for the mini-games overlay and a few legacy helpers.
 
 Canvas 2D buttons now use "Pixelify Sans" font (via UIHelpers update) for visual consistency with PixiJS screens.
 
@@ -62,6 +62,13 @@ Three canvases exist stacked by z-index:
 - **Titles**: `"Silkscreen", monospace` — pixel display font (loaded from Google Fonts CDN)
 - **Body/UI**: `"Pixelify Sans", sans-serif` — readable pixel font for buttons, labels, body text
 - Font constants in `PixiTextStyles.FONT_TITLE` and `PixiTextStyles.FONT_BODY`
+
+### Large screens split into mixins
+`GameScreen` and `WorldMapScreen` are big, so some of their parts live in mixin files loaded right after them in
+`index.html`, which `Object.assign` their methods onto the screen (`this` is the screen):
+- `src/screens/game/GameStoryTools.js`: story items, keepsake powers, boss twists and the Training Camp tests.
+- `src/screens/worldmap/WorldMapFlight.js`: flying the plane by hand, the fly zone, Pawnie's plane gift.
+Add new code for those areas there, and new big areas as new mixins rather than growing the screen files.
 
 ### Screen System
 Screens are plain objects with `init(data)`, `render(ctx, dt)`, `handleClick(x, y)`, `handleKeyDown(e)`, and optional `destroy()` methods. Registered in `src/main.js` via `registerScreen(name, impl)`.
@@ -116,12 +123,14 @@ Reusable PixiJS v8 components replacing the Canvas 2D `UIHelpers.js`:
 |------|---------|
 | `PixiApp.js` | Application singleton, async init, stage access |
 | `PixiScreenManager.js` | Screen container management, GSAP fade transitions |
-| `PixiBoardRenderer.js` | Chess board: frame, squares (single Graphics), coordinate labels, selection/legal-move highlights |
+| `PixiBoardRenderer.js` | Chess board: frame, painted squares (calmed by each square's own average colour at `CALM` alpha so the speckle never fights the pieces), coordinate labels, selection/legal-move highlights |
 | `PixiPieceRenderer.js` | Piece sprite creation from textures or SpriteGen fallback |
 | `PixiBackgroundRenderer.js` | Animated theme backgrounds with heavy effects: parallax fog layers, theme-specific particles (medieval embers, egypt sand, steampunk steam, space shooting stars, etc.), pulsing glow sources, vignette. All themes use doubled particle counts. |
 | `PixiBackgroundScene.js` | Gentle motion in the painted backgrounds: swaying trees, drifting clouds/sand, turning gears, flickering lights (layers), and displacement ripples on regions of the hand-painted scenes. Driven by `src/themes/BackgroundScenes.js`. Themes with a live scene (`src/themes/scenes/`) are drawn by `LiveScenes` instead |
 | `PixiTitleLogo.js` | Home screen title: code-drawn "CHESS 2.0" wordmark coloured by the theme, animated shine and crown |
 | `PixiGameScreen.js` | Orchestrates board + pieces + particles for GameScreen, tracks board state changes |
+| `PixiGameHud.js` | Fight screen HUD: player panels (captured pieces as the theme's piece sprites, material), move list, the off-story game panel (opponent, balance bar, last move), the story opponent's stage, tools and status bar |
+| `PixiGameOverOverlay.js` | Result card: the menus' stepped panel over the dimmed board, crown and title pop-in, coins counting up, story stars, the opponent's last line, `PixiPremiumScene.button`s (`buttonRects` route Canvas clicks) |
 | `PixiAnimator.js` | GSAP-powered move/capture/shake/flash animations |
 | `PixiParticleFX.js` | Capture/move particle effects |
 | `PixiToolIcons.js` | 16x16 pixel icons drawn in code for the fight screen's buttons (rewind, hint, remove, back, forward, live, undo, flip) |
@@ -176,11 +185,14 @@ settings keys still match (e.g. `ReactionTest` is "Quick Draw", `BarBalance` is 
 `MiniGameManager.GAMES_3D()` is the list. `MiniGameManager` (in `src/minigames/`, with `MiniGameUtils`)
 runs them on the overlay canvas. Without WebGL, captures skip the challenge.
 - `src/minigames3d/Mini3D.js` — one shared WebGLRenderer (never create another), a render target at the
-  screen's own pixels (`Mini3D.PIXEL` = screen pixels per rendered pixel: 1.33 at Medium, 1 at High, 0.75
-  supersampled at Ultra; capped at `MAX_SIDE`) plus a post shader (tone map, light sharpen, a dark outline
+  screen's own pixels (`Mini3D.PIXEL` = screen pixels per rendered pixel: 1.33 at Medium, 1 at High (the default), 0.75
+  supersampled at Ultra; capped at `MAX_SIDE`; the High preset uses High) plus a post shader (tone map, light sharpen, a dark outline
   about 2.5 game units thick at silhouettes found from the depth buffer, chromatic split, scanlines, flash),
   drawn into the 2D overlay without blowing it up, so the games stay crisp. The owner did not want the
-  chunky pixelated, dithered look (tried and reverted 2026-10-03): keep them sharp, with outlines. Also `Pieces3D` (low-poly lathe chess pieces, coloured by sampling the active theme's
+  chunky pixelated, dithered look (tried and reverted 2026-10-03): keep them sharp, with outlines.
+  Every game keeps its own look but in the colours of the world you are in: `Mini3D.worldTint` moves hue and
+  saturation (not lightness) toward the theme's squares/accent by `WORLD_TINT`, applied to `checkerTexture`
+  floors and, after `setup()`, to the sky, fog and lights (`Mini3D.tintScene`). Also `Pieces3D` (low-poly lathe chess pieces, coloured by sampling the active theme's
   piece sprites via `Mini3D.themePalette`; games build the player with `playerPiece()`, which is the
   captured piece plus a green ring), `Burst3D` (instanced debris), `Sfx3D`, and
   the `Game3D` base class (HUD helpers, pointer/key state, `bot(dt)` steering, `timeLimit`, `cleanup`).
@@ -321,7 +333,9 @@ Everything is synthesised with Web Audio (no audio files):
 | Screen | Rendering | Status |
 |--------|-----------|--------|
 | `HomeScreen.js` | PixiJS | Migrated — animated title, rounded buttons, particles |
-| `GameScreen.js` | Hybrid | Board via PixiJS, side panels/status bar via Canvas 2D |
+| `GameScreen.js` | Hybrid | Board, pieces and HUD via PixiJS; parts in `game/GameStoryTools.js` |
+| `PuzzleScreen.js` | PixiJS | Coach portrait and speech card, puzzle's place in its set, lesson, set pips; progress on the right |
+| `WorldMissionsScreen.js` | PixiJS | Place map; the info panel moves under the title when the selected stop sits behind it (`PANEL_TOP`) |
 | `PlayMenuScreen.js` | PixiJS | "Play" from Home: Classic (BotSelect), Local 1v1, Custom Game, Great Board (after the story) |
 | `GreatBoardScreen.js` | PixiJS | Great Board setup: region preview, Shuffle, opponent strength, Play |
 | `WorldMapScreen.js` | PixiJS | Story map over the live `worldmap` scene |
@@ -331,7 +345,7 @@ Everything is synthesised with Web Audio (no audio files):
 | `MiniGamePractice.js` | PixiJS | Large preview + record on the left, six games per page, filters by kind |
 | `StatsScreen.js` | PixiJS | Headline tiles, match record (results bar, rivals), mini-game record |
 | `CreditsScreen.js` | PixiJS | Scrolling credits roll; hold Space to speed up |
-| All others | Canvas 2D | Not yet migrated |
+| `PauseMenu.js` | Canvas 2D | Drawn over the fight |
 
 ## Promotional Video
 
@@ -421,7 +435,7 @@ Two AI agents (Claude Code and Codex) and the owner work on this repository. To 
 The game is migrating from Canvas 2D to PixiJS v8. Progress:
 - **Phase 0 (Cleanup)**: Done — removed bloat (assets/dropbox, assets/generated, dist/), optimized ocean_bg.png, fixed dead code
 - **Phase 1 (UI Components)**: Done — 12 PixiJS UI components built in `src/pixi/ui/`
-- **Phase 2 (Screen Migration)**: In progress — HomeScreen and HowToPlay migrated, rest pending
+- **Phase 2 (Screen Migration)**: Done for menus — every screen but GameScreen (hybrid) and PauseMenu is PixiJS
 - **Phase 3 (Screen Polish)**: In progress — MiniGamePractice, CharacterSelect, and other Canvas 2D screens improved with grouping panels, better card styling, and proper hitbox sync. Still render via Canvas 2D but with significantly better visual quality.
 - **Phase 4 (Mini-games to PixiJS)**: Pending
 - **Phase 5 (Canvas consolidation)**: Pending
