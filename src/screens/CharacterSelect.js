@@ -45,7 +45,7 @@ const CharacterSelect = {
     PORTRAIT: 150,
     BADGE_INSET: 14,   // badge distance from the art's top-right corner
     MAIN_Y: 300,       // difficulty / "New Campaign"
-    SUB_Y: 334,        // ELO / "Begin at Level 1"
+    SUB_Y: 334,        // ELO / "Begin in Pawn Hollow"
     BAR_Y: 362,
     BAR_H: 16,
     LEVEL_Y: 402,
@@ -109,7 +109,7 @@ const CharacterSelect = {
         fontSize: Math.round(26 * s), fontWeight: '900', fill: cols.text,
         stroke: { color: 0x05020d, width: 3 }, padding: 5,
       }), L.MAIN_Y);
-      centred(PixiPremiumScene.text('Begin at Level 1', { fontSize: Math.round(17 * s), fontWeight: '700', fill: PixiPremiumScene.alpha(cols.text, 'bb') }), L.SUB_Y);
+      centred(PixiPremiumScene.text('Begin in Pawn Hollow', { fontSize: Math.round(17 * s), fontWeight: '700', fill: PixiPremiumScene.alpha(cols.text, 'bb') }), L.SUB_Y);
       status('Click to start', PixiPremiumScene.alpha(cols.accent, 'dd'));
       return;
     }
@@ -259,7 +259,7 @@ const CharacterSelect = {
     const cardX = Math.floor((Layout.W - cardW) / 2);
     const cols = ThemeManager.getCurrentColors();
 
-    const intro = PixiPremiumScene.text('Each tier keeps the same story, but changes the AI curve across all ten opponents.', {
+    const intro = PixiPremiumScene.text('Each tier keeps the same story, but changes how strongly all fifteen opponents play.', {
       fontSize: Math.round(18 * s),
       fill: PixiPremiumScene.alpha(cols.text, 'bb'),
     });

@@ -125,9 +125,9 @@ I18n.add('es', {
   // Story saves
   'Choose a save file': 'Elige una partida guardada', 'Choose how the story scales': 'Elige la dificultad de la historia', 'Story Mode': 'Modo Historia',
   'Your progress is saved automatically': 'Tu progreso se guarda automáticamente', 'Home': 'Inicio', 'SAVE {0}': 'PARTIDA {0}', 'New Campaign': 'Nueva campaña',
-  'Begin at Level 1': 'Empieza en la etapa 1', 'Click to start': 'Haz clic para empezar', '{0} ELO': '{0} ELO', 'Stage {0} / {1}': 'Etapa {0} / {1}',
+  'Begin in Pawn Hollow': 'Empieza en la Hondonada del Peón', 'Click to start': 'Haz clic para empezar', '{0} ELO': '{0} ELO', 'Stage {0} / {1}': 'Etapa {0} / {1}',
   'New Game+ cleared': 'Nueva Partida+ completada', 'New Game+': 'Nueva Partida+', 'Completed': 'Completada', 'NG+': 'NP+', 'CLEAR': 'COMPLETADO',
-  'Each tier keeps the same story, but changes the AI curve across all ten opponents.': 'Cada nivel mantiene la misma historia, pero cambia la fuerza de todos los rivales.',
+  'Each tier keeps the same story, but changes how strongly all fifteen opponents play.': 'Cada nivel mantiene la misma historia, pero cambia la fuerza de los quince rivales.',
 
   // Controls
   'Controls': 'Controles', 'Mini-game sensitivity and input feel': 'Sensibilidad y respuesta de los minijuegos', 'Changes save immediately': 'Los cambios se guardan al instante',

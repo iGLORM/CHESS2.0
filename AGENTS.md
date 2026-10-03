@@ -340,7 +340,7 @@ Everything is synthesised with Web Audio (no audio files):
 |--------|-----------|--------|
 | `HomeScreen.js` | PixiJS | Migrated — animated title, rounded buttons, particles |
 | `GameScreen.js` | Hybrid | Board, pieces and HUD via PixiJS; parts in `game/GameStoryTools.js` |
-| `PuzzleScreen.js` | PixiJS | Coach portrait and speech card, puzzle's place in its set, lesson, set pips; progress on the right |
+| `PuzzleScreen.js` | PixiJS | Coach Magnus's live face (`scenes/char_magnus.js`; moods calm/thinking/proud/oops/hint set from each coach line by `_coachLine`, back to calm after `COACH_MOOD_HOLD`) and speech card, puzzle's place in its set, lesson, set pips; progress on the right |
 | `WorldMissionsScreen.js` | PixiJS | Place map; the info panel moves under the title when the selected stop sits behind it (`PANEL_TOP`) |
 | `PlayMenuScreen.js` | PixiJS | "Play" from Home: Classic (BotSelect), Local 1v1, Custom Game, Great Board (after the story) |
 | `GreatBoardScreen.js` | PixiJS | Great Board setup: region preview, Shuffle, opponent strength, Play |

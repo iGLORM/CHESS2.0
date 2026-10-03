@@ -177,9 +177,9 @@ I18n.add('fr', {
   // Story saves
   'Choose a save file': 'Choisis une sauvegarde', 'Choose how the story scales': 'Choisis la difficulté de l\'histoire', 'Story Mode': 'Mode Histoire',
   'Your progress is saved automatically': 'Ta progression est sauvegardée automatiquement', 'Home': 'Accueil', 'SAVE {0}': 'SAUVEGARDE {0}',
-  'New Campaign': 'Nouvelle campagne', 'Begin at Level 1': 'Commence à l\'étape 1', 'Click to start': 'Clique pour commencer', '{0} ELO': '{0} ELO',
+  'New Campaign': 'Nouvelle campagne', 'Begin in Pawn Hollow': 'Commence à Creux-du-Pion', 'Click to start': 'Clique pour commencer', '{0} ELO': '{0} ELO',
   'Stage {0} / {1}': 'Étape {0} / {1}', 'New Game+ cleared': 'Nouvelle Partie+ terminée', 'New Game+': 'Nouvelle Partie+', 'Completed': 'Terminée', 'NG+': 'NP+', 'CLEAR': 'TERMINÉ',
-  'Each tier keeps the same story, but changes the AI curve across all ten opponents.': 'Chaque niveau garde la même histoire, mais change la force de tous les adversaires.',
+  'Each tier keeps the same story, but changes how strongly all fifteen opponents play.': 'Chaque niveau garde la même histoire, mais change la force des quinze adversaires.',
 
   // Controls
   'Controls': 'Commandes', 'Mini-game sensitivity and input feel': 'Sensibilité et réactivité des mini-jeux', 'Changes save immediately': 'Les changements sont enregistrés aussitôt',

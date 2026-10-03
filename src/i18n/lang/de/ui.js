@@ -177,9 +177,9 @@ I18n.add('de', {
   // Story saves
   'Choose a save file': 'Wähle einen Spielstand', 'Choose how the story scales': 'Wähle den Schwierigkeitsgrad der Story', 'Story Mode': 'Story-Modus',
   'Your progress is saved automatically': 'Dein Fortschritt wird automatisch gespeichert', 'Home': 'Start', 'SAVE {0}': 'SPIELSTAND {0}',
-  'New Campaign': 'Neue Kampagne', 'Begin at Level 1': 'Beginnt bei Etappe 1', 'Click to start': 'Klick zum Starten', '{0} ELO': '{0} ELO',
+  'New Campaign': 'Neue Kampagne', 'Begin in Pawn Hollow': 'Beginnt in der Bauernmulde', 'Click to start': 'Klick zum Starten', '{0} ELO': '{0} ELO',
   'Stage {0} / {1}': 'Etappe {0} / {1}', 'New Game+ cleared': 'Neues Spiel+ geschafft', 'New Game+': 'Neues Spiel+', 'Completed': 'Abgeschlossen', 'NG+': 'NS+', 'CLEAR': 'FERTIG',
-  'Each tier keeps the same story, but changes the AI curve across all ten opponents.': 'Jede Stufe hat dieselbe Story, ändert aber die Stärke aller Gegner.',
+  'Each tier keeps the same story, but changes how strongly all fifteen opponents play.': 'Jede Stufe hat dieselbe Story, ändert aber die Stärke aller fünfzehn Gegner.',
 
   // Controls
   'Controls': 'Steuerung', 'Mini-game sensitivity and input feel': 'Empfindlichkeit in den Minispielen', 'Changes save immediately': 'Änderungen werden sofort gespeichert',
