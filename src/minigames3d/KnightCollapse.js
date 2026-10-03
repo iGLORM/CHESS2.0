@@ -29,10 +29,12 @@ class KnightCollapse extends Game3D {
 
     this.tiles = [];
     const geo = new THREE.BoxGeometry(0.96, 0.35, 0.96);
+    const sq = Mini3D.boardColors();
+    this.squareCols = [new THREE.Color(sq.dark).getHex(), new THREE.Color(sq.light).getHex()];
     for (let r = 0; r < 8; r++) {
       for (let c = 0; c < 8; c++) {
         const lightSq = (r + c) % 2 === 0;
-        const mat = new THREE.MeshStandardMaterial({ color: lightSq ? 0xd8cff5 : 0x4a3a8a, emissive: 0x000000, flatShading: true, roughness: 0.5 });
+        const mat = new THREE.MeshStandardMaterial({ color: lightSq ? sq.light : sq.dark, emissive: 0x000000, flatShading: true, roughness: 0.5 });
         const m = new THREE.Mesh(geo, mat);
         m.position.set(c - 3.5, -0.175, r - 3.5);
         m.receiveShadow = true;
@@ -219,7 +221,7 @@ class KnightCollapse extends Game3D {
         if (t.t <= 0) {
           t.state = 'falling';
           t.vy = 0;
-          this.burst.spawn(t.mesh.position, [0x4a3a8a, 0xd8cff5], 6, 2, { up: 1 });
+          this.burst.spawn(t.mesh.position, this.squareCols, 6, 2, { up: 1 });
         }
       } else if (t.state === 'falling') {
         t.vy -= 25 * dt;

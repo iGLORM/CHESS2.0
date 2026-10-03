@@ -37,6 +37,35 @@ class MiniGameUtils {
     ctx.closePath();
   }
 
+  // Box with stepped pixel corners (two steps of `u`), the shape of the game's
+  // own panels (PixiPremiumScene.pixelShape).
+  static pixelRect(ctx, x, y, w, h, u = 4) {
+    const a = u, b = u * 2;
+    const pts = [
+      x + b, y, x + w - b, y, x + w - b, y + a, x + w - a, y + a, x + w - a, y + b, x + w, y + b,
+      x + w, y + h - b, x + w - a, y + h - b, x + w - a, y + h - a, x + w - b, y + h - a, x + w - b, y + h,
+      x + b, y + h, x + b, y + h - a, x + a, y + h - a, x + a, y + h - b, x, y + h - b,
+      x, y + b, x + a, y + b, x + a, y + a, x + b, y + a,
+    ];
+    ctx.beginPath();
+    ctx.moveTo(pts[0], pts[1]);
+    for (let i = 2; i < pts.length; i += 2) ctx.lineTo(pts[i], pts[i + 1]);
+    ctx.closePath();
+  }
+
+  // The active theme's panel colours (frame, header), falling back to the arcade palette.
+  static themeColors() {
+    const cols = typeof ThemeManager !== 'undefined' ? ThemeManager.getCurrentColors() : null;
+    const p = this.PALETTE;
+    const hex = c => (typeof c === 'string' && /^#[0-9a-f]{6}$/i.test(c) ? c : null);
+    return {
+      panel: hex(cols && cols.panel) || p.panel,
+      background: hex(cols && cols.background) || p.background,
+      text: hex(cols && cols.text) || p.text,
+      accent: hex(cols && cols.accent) || p.gold,
+    };
+  }
+
   // Results are drawn by MiniGameManager's shared result screen.
   static drawResultOverlay() {}
 

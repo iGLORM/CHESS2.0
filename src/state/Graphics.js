@@ -50,11 +50,13 @@ const Graphics = {
     mini3d: [['low', 'Low'], ['medium', 'Medium'], ['high', 'High'], ['ultra', 'Ultra']],
   },
 
+  // Pixel size in virtual pixels: chunky like the live scenes (4) at the low end,
+  // finer detail higher up, never smooth.
   MINI3D: {
-    low:    { pixel: 2.4, shadows: false },
-    medium: { pixel: 1.6, shadows: true },
-    high:   { pixel: 1.25, shadows: true },
-    ultra:  { pixel: 1, shadows: true },
+    low:    { pixel: 3.5, shadows: false },
+    medium: { pixel: 3, shadows: true },
+    high:   { pixel: 2.5, shadows: true },
+    ultra:  { pixel: 2, shadows: true },
   },
 
   // Read every frame, so cached until the settings object is replaced (store.set).
