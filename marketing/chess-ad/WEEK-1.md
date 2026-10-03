@@ -26,7 +26,7 @@ Post at about **19:00** local time. Spend the first hour after posting replying 
 > Would you play this?
 
 **Hashtags:** #chess #indiegame #pixelart #gamedev #chesstok
-**Pinned comment:** "It's free to play in your browser and on Telegram. Link in bio."
+**Pinned comment:** "It's free to play in your browser. Link in bio."
 
 ## Day 2: drawn in code
 **Caption**
@@ -77,7 +77,7 @@ This is the most shareable one: reply to comments with your own "Pawnie when…"
 > Story Mode: 15 stages, 11 worlds, one broken board. It's free. Link in bio.
 
 **Hashtags:** #indiegame #chess #pixelart #rpg #gamedev
-**Pinned comment:** "Play free: game.altobolt.com, or on Telegram: @iglorm_chess_bot"
+**Pinned comment:** "Play free: game.altobolt.com"
 
 ---
 

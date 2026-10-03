@@ -87,7 +87,6 @@ const SettingsScreen = {
   // ---------- Options ----------
 
   _canFullscreen() {
-    if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData) return false;
     return !!((window.electron && window.electron.isDesktop) || document.fullscreenEnabled);
   },
 

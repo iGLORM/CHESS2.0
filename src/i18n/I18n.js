@@ -211,9 +211,7 @@ const I18n = {
 
   // Language to use on first start: the system's, when the game has it.
   detect() {
-    const tg = window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe
-      && window.Telegram.WebApp.initDataUnsafe.user && window.Telegram.WebApp.initDataUnsafe.user.language_code;
-    const tags = [tg, ...(navigator.languages || []), navigator.language].filter(Boolean).map(x => String(x).toLowerCase());
+    const tags = [...(navigator.languages || []), navigator.language].filter(Boolean).map(x => String(x).toLowerCase());
     for (const tag of tags) {
       const base = tag.split('-')[0];
       if (this.LANGS.some(l => l.id === base)) return base;

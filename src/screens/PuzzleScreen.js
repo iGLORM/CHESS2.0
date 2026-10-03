@@ -91,7 +91,7 @@ const PuzzleScreen = {
     PixiBoardRenderer.setPieces(this._board, themeId);
 
     // Board hit area for pointer events (Container + hitArea, not Graphics —
-    // Graphics containsPoint is unreliable on Telegram WebView)
+    // Graphics containsPoint is unreliable on some mobile WebViews)
     const bx = PixiBoardRenderer.boardOffsetX;
     const by = PixiBoardRenderer.boardOffsetY;
     const bs = PixiBoardRenderer.squareSize * 8;

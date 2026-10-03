@@ -157,7 +157,7 @@ const HomeScreen = {
     });
     this._focus = PixiPremiumScene.focusRing(this._cards, 3);
 
-    const footerHint = (window.Telegram && window.Telegram.WebApp)
+    const footerHint = (navigator.maxTouchPoints > 0 && !(window.electron && window.electron.isDesktop))
       ? 'Tap a mode to begin'
       : 'Arrow keys to choose, Enter to start';
     const footer = new PIXI.Text({

@@ -4,7 +4,7 @@
 
 <p align="center">
   <strong>A fully-featured pixel-art chess game built with Electron and vanilla JavaScript.</strong><br/>
-  <strong>Play on desktop or mobile via <a href="https://t.me/iglorm_chess_bot?startapp=play">Telegram Mini App</a></strong>
+  <strong>Play on desktop, or in your browser at <a href="https://game.altobolt.com">game.altobolt.com</a></strong>
 </p>
 
 <p align="center">
@@ -19,7 +19,6 @@
   <img src="https://img.shields.io/badge/Windows-0078D6?logo=windows&logoColor=white" alt="Windows" />
   <img src="https://img.shields.io/badge/macOS-000000?logo=apple&logoColor=white" alt="macOS" />
   <img src="https://img.shields.io/badge/Linux-FCC624?logo=linux&logoColor=black" alt="Linux" />
-  <img src="https://img.shields.io/badge/Telegram-Mini%20App-26A5E4?logo=telegram&logoColor=white" alt="Telegram Mini App" />
 </p>
 
 <p align="center">
@@ -82,7 +81,7 @@ Classic Chess is plain chess with no mini-games.
 | **Graphics settings** | Display mode, resolution, frame limit, brightness and an FPS counter, plus Low to Ultra quality presets (background motion, particles, 3D mini-game sharpness and shadows), retro filter and screen shake |
 | **Credits roll** | Full scrolling credits with the cast of the story, like the end of a big game |
 | **Works offline** | All libraries, fonts and the engine are bundled; no internet needed |
-| **Desktop, web & phone** | Electron app for Windows/macOS/Linux, and the same code runs in a browser and as a [Telegram Mini App](https://t.me/iglorm_chess_bot?startapp=play) with a portrait layout |
+| **Desktop, web & phone** | Electron app for Windows/macOS/Linux, and the same code runs in a browser, with a portrait layout on phones |
 
 ---
 
@@ -247,7 +246,7 @@ src/
   rendering/      Canvas 2D helpers and texture loading
   screens/        Every screen (home, world map, missions, cutscenes, game, menus)
   state/          Reactive store and save data
-  telegram/       Telegram Mini App compatibility layer
+  web/            Browser stand-in for the Electron bridge (fullscreen)
   themes/         World themes, animated background scenes and live pixel scenes (scenes/)
   vendor/         Bundled PixiJS, GSAP, Three.js, fonts and pretext
 assets/           Painted backgrounds, boards, piece sets, character art
@@ -272,7 +271,7 @@ editing and exporting the video.
 
 ## Roadmap
 
-- [x] Mobile / touch support (Telegram Mini App with portrait mode)
+- [x] Mobile / touch support (portrait mode in the browser)
 - [x] Undo, board flip and resuming unfinished games
 - [x] Story Mode rebuilt: world map, trainers, missions, cutscenes and boss twists
 - [x] Story rewards: stars per fight, trophies and Great Board mode
