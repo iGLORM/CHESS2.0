@@ -495,7 +495,7 @@ I18n.add('de', {
   // Grandmaster X
   "The Absolute": "Der Absolute",
   "You came back. Of course you did. Here every capture is a test, and I know exactly which tests you fail. Mate me if you can. You will have to do it more than once.": "Du bist zurückgekommen. Natürlich. Hier ist jeder Schlagzug eine Prüfung, und ich weiß genau, an welchen du scheiterst. Setz mich matt, wenn du kannst. Du musst es mehr als einmal tun.",
-  "Three times... You checkmated me three times. The crystal cannot hold. Nothing can hold forever. Perhaps nothing should.": "Dreimal... Du hast mich dreimal mattgesetzt. Der Kristall kann nicht halten. Nichts hält ewig. Vielleicht sollte auch nichts.",
+  "Three times... You checkmated me three times. And yet the crystal holds. I hold. This is not over.": "Dreimal... Du hast mich dreimal mattgesetzt. Und doch hält der Kristall. Ich halte. Es ist nicht vorbei.",
   "Stay down this time. The board stays broken. Broken, it cannot choose anyone. Broken, it is safe.": "Bleib diesmal liegen. Das Brett bleibt zerbrochen. Zerbrochen kann es niemanden wählen. Zerbrochen ist es sicher.",
   "You return. They always return... no. None of them ever came back. Only you. Very well. Again.": "Du kehrst zurück. Sie kehren immer zurück... nein. Keiner von ihnen ist je zurückgekommen. Nur du. Nun gut. Noch einmal.",
   "Make your first move. It will define you.": "Mach deinen ersten Zug. Er wird dich ausmachen.",
@@ -615,4 +615,27 @@ I18n.add('de', {
   "A fine check. Continue.": "Ein feines Schach. Weiter.",
   "Your {piece}. Did you see it coming?": "{piece|your}. Hast du das kommen sehen?",
   "Good. You took my {piece}.": "Gut. Du hast {piece|myA} geschlagen.",
+});
+
+// Grandmaster X Unbound, the last game (characters/finalboss.js)
+I18n.add('de', {
+  "Every Power": "Jede Macht",
+  "He stole every guardian's power: four bishops and two queens for him, no rooks for you, the mist, the gear walls, double takes, and every capture a challenge he plays at full strength.": "Er hat die Kraft jedes Wächters gestohlen: vier Läufer und zwei Damen für ihn, keine Türme für dich, der Nebel, die Zahnradmauern, Doppelschläge, und jeder Schlagzug löst ein Duell aus, das er mit voller Stärke spielt.",
+  "Checkmate him within 40 of your moves, or the board stays broken.": "Setz ihn in 40 deiner Züge matt, sonst bleibt das Brett zerbrochen.",
+  "The Great Board": "Das Große Brett",
+  "The Board Is Free!": "Das Brett ist frei!",
+  "He will not accept defeat": "Er erkennt die Niederlage nicht an",
+  "Every rule they ever had is mine now. Forty moves, on the board I broke. Win, and it is yours. Lose, and it stays broken forever.": "Jede Regel, die sie je hatten, gehört jetzt mir. Vierzig Züge, auf dem Brett, das ich zerbrochen habe. Gewinn, und es gehört dir. Verlier, und es bleibt für immer zerbrochen.",
+  "No... the powers are leaving me. Going home. I can feel the worlds pulling them back...": "Nein... die Kräfte verlassen mich. Sie gehen heim. Ich spüre, wie die Welten sie zurückholen...",
+  "You see? Nobody crosses. Nobody ever crosses. Get up and try again, if you dare.": "Siehst du? Niemand kommt hinüber. Niemand kommt je hinüber. Steh auf und versuch es noch mal, wenn du dich traust.",
+  "Every power in the world, against one small king.": "Jede Macht der Welt gegen einen kleinen König.",
+  "The board I broke. A fitting place for you to fall.": "Das Brett, das ich zerbrach. Ein passender Ort für deinen Fall.",
+  "Your {piece}. Stolen like everything else.": "{piece|your}. Gestohlen wie alles andere.",
+  "Your {piece}, gone. I have all their tricks now.": "{piece|your}: weg. Ich habe jetzt all ihre Tricks.",
+  "My {piece}?! That power was mine!": "{piece|my}?! Diese Macht gehörte mir!",
+  "You took my {piece}. It means nothing. I have more.": "Du hast {piece|myA} geschlagen. Das bedeutet nichts. Ich habe mehr.",
+  "Check. Every guardian is checking you at once.": "Schach. Alle Wächter bieten dir zugleich Schach.",
+  "Check. Feel all of them.": "Schach. Spür sie alle.",
+  "Check?! No. No, no, no.": "Schach?! Nein. Nein, nein, nein.",
+  "You dare check the Unbound?": "Du wagst es, dem Entfesselten Schach zu bieten?",
 });

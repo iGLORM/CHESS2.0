@@ -120,8 +120,7 @@ const CharacterSelect = {
     const barX = 36;
     this.progress(card, barX, at(L.BAR_Y), w - barX * 2, Math.max(10, at(L.BAR_H)), Math.min(1, (save.storyLevel || 1) / CharacterManager.STAGE_COUNT), cols);
     centred(PixiPremiumScene.text(`Stage ${save.storyLevel || 1} / ${CharacterManager.STAGE_COUNT}`, { fontSize: Math.round(18 * s), fontWeight: '800', fill: cols.text }), L.LEVEL_Y);
-    if (save.ngPlus) status(save.ngCleared ? 'New Game+ cleared' : 'New Game+', '#ffe08a');
-    else if (save.completed) status('Completed', '#7dea99');
+    if (save.completed) status('Completed', '#7dea99');
     else status('Click to continue', PixiPremiumScene.alpha(cols.text, '99'));
   },
 
@@ -163,7 +162,7 @@ const CharacterSelect = {
     portrait.y = portraitY;
     card.addChild(portrait);
 
-    const badgeLabel = save.ngPlus && !save.ngCleared ? 'NG+' : save.completed ? 'CLEAR' : `${save.storyLevel || 1}/${CharacterManager.STAGE_COUNT}`;
+    const badgeLabel = save.completed ? 'CLEAR' : `${save.storyLevel || 1}/${CharacterManager.STAGE_COUNT}`;
     this.drawSlotBadge(card, w - pad - L.BADGE_INSET - 30, bgY + L.BADGE_INSET + 12, badgeLabel, save.completed ? '#7dea99' : cols.accent, cols, w);
 
     // Name and title stacked beside the portrait, centred on it.

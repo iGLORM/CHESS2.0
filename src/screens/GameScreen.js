@@ -158,11 +158,9 @@ const GameScreen = {
       const charLevel = this.currentCharacter ? this.currentCharacter.level : 1;
       const save = store.getActiveSave();
       const tier = save ? save.difficultyTier : 'beginner';
-      // New Game+ stacks the previous guardian's rule and plays a level stronger.
-      const ng = typeof NewGamePlus !== 'undefined' && NewGamePlus.active(save);
-      this.bossRule = !this.currentCharacter ? null : ng ? NewGamePlus.rule(this.currentCharacter, save) : BossRules.get(this.currentCharacter.id);
+      this.bossRule = this.currentCharacter ? BossRules.get(this.currentCharacter.id) : null;
       const level = DifficultyScaler.getAiLevel(tier, charLevel);
-      this.characterLevel = ng ? NewGamePlus.aiLevel(level) : BossRules.aiLevel(this.bossRule, level);
+      this.characterLevel = BossRules.aiLevel(this.bossRule, level);
       if (!(data && data.restore)) {
         this.board = BossRules.startBoard(this.bossRule);
         if (this.bossRule && this.bossRule.goal && this.bossRule.goal.mystery) {
@@ -259,8 +257,7 @@ const GameScreen = {
       });
       // The opponent greets you first; after a loss, with a rematch line.
       const record = (store.getActiveSave().record || {})[ch.id] || {};
-      const ngGreeting = typeof NewGamePlus !== 'undefined' && NewGamePlus.greeting(ch, store.getActiveSave());
-      const greeting = ngGreeting || (record.losses && ch.dialogue.rematch ? ch.dialogue.rematch : ch.dialogue.before);
+      const greeting = record.losses && ch.dialogue.rematch ? ch.dialogue.rematch : ch.dialogue.before;
       if (greeting) {
         pages.unshift({ kicker: (ch.title || '').toUpperCase(), title: ch.name, lines: [greeting], portraitId: ch.id, button: 'Continue' });
       }
@@ -2511,25 +2508,16 @@ const GameScreen = {
       if (StoryMissions.markCleared(mission.world.id, mission.index)) {
         store.set('missionEvent', { world: mission.world.id, index: mission.index });
       }
-    } else if (this.mode === 'story' && this.playerWon() && typeof NewGamePlus !== 'undefined' && NewGamePlus.active(store.getActiveSave())) {
-      // New Game+: the king travels on (no story scenes; the Training Camp is skipped).
-      const save = store.getActiveSave();
-      const stage = this.currentCharacter ? this.currentCharacter.stage : 1;
-      if (stage === save.maxUnlockedLevel && !save.ngCleared) {
-        store.set('storyMapEvent', { stage, ngPlus: true });
-        if (stage < CharacterManager.STAGE_COUNT) {
-          const next = NewGamePlus.nextStage(stage);
-          store.setActiveSave({ maxUnlockedLevel: next, storyLevel: next });
-        } else {
-          store.setActiveSave({ ngCleared: true, ngRuns: (save.ngRuns || 0) + 1 });
-        }
-      }
     } else if (this.mode === 'story' && this.playerWon()) {
       const save = store.getActiveSave();
       const stage = this.currentCharacter ? this.currentCharacter.stage : 1;
       // A first win here plays the reward on the world map (restore, fragment, travel).
       // Only your next stage moves progress on (Super User can play ahead without skipping it).
-      if (stage === save.maxUnlockedLevel && !save.completed && this.currentCharacter.trainer && stage < 6) {
+      if (this.currentCharacter.id === 'grandmasterx') {
+        // He will not accept it: the Continue button plays his ascension and the last
+        // game on the Great Board (FinalBoss), which finishes the story.
+        if (!save.completed) store.setActiveSave({ unbound: true });
+      } else if (stage === save.maxUnlockedLevel && !save.completed && this.currentCharacter.trainer && stage < 6) {
         // A lesson passed: the Training Camp's own map moves the king on to the next trainer.
         store.set('missionEvent', { world: 'trainingcamp', index: stage - 2 });
       } else if (stage === save.maxUnlockedLevel && !save.completed) {
@@ -2539,13 +2527,6 @@ const GameScreen = {
       if (stage === save.maxUnlockedLevel && stage < CharacterManager.STAGE_COUNT) {
         save.maxUnlockedLevel = stage + 1;
         save.storyLevel = stage + 1;
-        store.setActiveSave(save);
-      } else if (stage === save.maxUnlockedLevel) {
-        save.storyLevel = stage;
-        save.completed = true;
-        if (save.difficultyTier === 'expert' && !store.get('madnessUnlocked')) {
-          store.set('madnessUnlocked', true);
-        }
         store.setActiveSave(save);
       }
     }
@@ -2576,21 +2557,25 @@ const GameScreen = {
           switchScreen('worldMissions', { world: this.currentCharacter.world.id });
           break;
         }
+        // Beating Grandmaster X is not the end: he rises again (FinalBoss).
+        if (this.currentCharacter && this.currentCharacter.id === 'grandmasterx' && this.playerWon()) {
+          FinalBoss.start(true);
+          break;
+        }
         // Losing to a guardian goes back to its world's path.
         const home = this.currentCharacter && this.currentCharacter.world;
-        const ng = typeof NewGamePlus !== 'undefined' && NewGamePlus.active(store.getActiveSave());
-        if (home && StoryMissions.forWorld(home.id) && !this.playerWon() && !ng) {
+        if (home && StoryMissions.forWorld(home.id) && !this.playerWon()) {
           switchScreen('worldMissions', { world: home.id });
           break;
         }
         // Worlds with their own place map: back to it after a loss, or after a lesson.
-        const place = home && !ng && typeof LiveScenes !== 'undefined' && LiveScenes.has('map_' + home.id);
+        const place = home && typeof LiveScenes !== 'undefined' && LiveScenes.has('map_' + home.id);
         if (place && (!this.playerWon() || (this.currentCharacter.trainer && this.currentCharacter.stage < 6))) {
           switchScreen('worldMissions', { world: home.id });
           break;
         }
         // Tournament worlds: back to the tournament after a loss to their guardian.
-        if (home && typeof Tournaments !== 'undefined' && Tournaments.forWorld(home.id) && !this.playerWon() && !ng) {
+        if (home && typeof Tournaments !== 'undefined' && Tournaments.forWorld(home.id) && !this.playerWon()) {
           switchScreen('tournament', { world: home.id });
           break;
         }

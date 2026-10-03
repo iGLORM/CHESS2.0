@@ -47,19 +47,19 @@ const MISSIONS = {
       after: '*retreating clicks* ... You found the Scarab. The swarm scatters.',
       fail: '*triumphant clicking*',
       rule: {
-        title: 'The Sun Scarab', lines: ['Four bishops behind a wall of pawns. One of their pieces carries the Sun Scarab.', 'Hints narrow it down every 3 moves. Capture it, or checkmate, to win.'],
-        fen: 'b1b1kb1b/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 0 1', goal: { mystery: true },
+        title: 'The Sun Scarab', lines: ['Four bishops behind a wall of pawns. One of their pieces carries the Sun Scarab.', 'Hints narrow it down every 4 moves. Capture it, or checkmate, to win.'],
+        fen: 'b1b1kb1b/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 0 1', goal: { mystery: true, hintEvery: 4 },
       },
     },
     {
       kind: 'trial', name: 'Dune Dash',
       minion: { name: 'Sand Sprite', title: 'Wind on the Dunes', piece: 'knight' },
-      greet: 'No board here, only sand in your eyes. Three challenges. Win two!',
+      greet: 'No board here, only sand in your eyes. Three challenges. Win all three!',
       after: 'Fast feet! The dunes let you pass.',
       fail: 'Swallowed by the sand! Shake it off and try again.',
       rule: {
-        title: 'Three Challenges', lines: ['Three desert challenges in a row. Win 2 of them.'],
-        minigameTrial: { games: 3, need: 2, pool: ['LavaTilt', 'DodgeFalling', 'MeteorStorm'] },
+        title: 'Three Challenges', lines: ['Three desert challenges in a row. Win all three.'],
+        minigameTrial: { games: 3, need: 3, pool: ['LavaTilt', 'DodgeFalling', 'MeteorStorm'] },
       },
     },
     {
@@ -91,8 +91,8 @@ const MISSIONS = {
       after: 'You dug them all up. The dunes feel lighter.',
       fail: 'The sand covers everything again. Ssso sorry.',
       rule: {
-        title: 'Relic Run', lines: ['Four sunstones lie on the board. Move a piece onto each one to dig it up.', 'Find all four within 20 moves (or checkmate) to win.'],
-        fen: 'b3k2b/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 0 1', goal: { relics: ['c4', 'f5', 'b5', 'g4'] }, moveLimit: 20,
+        title: 'Relic Run', lines: ['Four sunstones lie on the board. Move a piece onto each one to dig it up.', 'Find all four within 17 moves (or checkmate) to win.'],
+        fen: 'b3k2b/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 0 1', goal: { relics: ['c4', 'f5', 'b5', 'g4'] }, moveLimit: 17,
       },
     },
     {
@@ -102,8 +102,8 @@ const MISSIONS = {
       after: 'A memory: the sand was warm under you, and someone far ahead was waiting at the edge.',
       fail: '*the memory fades* ... Not yet. Close your eyes and try again.',
       rule: {
-        title: 'Walk the Crossing', lines: ['A memory of the night you crossed. Two bishops try to stop you.', 'Walk your king to the far edge (the 8th rank) within 20 moves.'],
-        fen: '7k/2b5/8/8/5b2/8/PPP5/1K4N1 w - - 0 1', goal: { crossing: true }, moveLimit: 20, noChallenges: true,
+        title: 'Walk the Crossing', lines: ['A memory of the night you crossed. Two bishops try to stop you.', 'Walk your king to the far edge (the 8th rank) within 18 moves.'],
+        fen: '7k/2b5/8/8/5b2/8/PPP5/1K4N1 w - - 0 1', goal: { crossing: true }, moveLimit: 18, noChallenges: true,
       },
     },
   ],
@@ -112,12 +112,12 @@ const MISSIONS = {
     {
       kind: 'trial', name: 'Forge Runner',
       minion: { name: 'Anvil', title: 'Keeper of the Forge', piece: 'rook' },
-      greet: 'The forge tests everyone who comes to the gate. Three trials. Win two.',
+      greet: 'The forge tests everyone who comes to the gate. Three trials. Win all three.',
       after: 'Tempered steel. The forge approves.',
       fail: 'Cracked in the heat. Cool down and try again.',
       rule: {
-        title: 'Three Challenges', lines: ['Three forge challenges in a row. Win 2 of them.'],
-        minigameTrial: { games: 3, need: 2, pool: ['RookStack', 'SiegeCannon', 'ShieldBlock'] },
+        title: 'Three Challenges', lines: ['Three forge challenges in a row. Win all three.'],
+        minigameTrial: { games: 3, need: 3, pool: ['RookStack', 'SiegeCannon', 'ShieldBlock'] },
       },
     },
     {
@@ -138,8 +138,8 @@ const MISSIONS = {
       after: 'You found the key. The wall has a hole in it now.',
       fail: 'The wall holds. It always holds.',
       rule: {
-        title: 'The Gate Key', lines: ['Four rooks and a wall of pawns. One of their pieces holds the gate key.', 'Hints narrow it down every 3 moves. Capture it, or checkmate, to win.'],
-        fen: 'rr2k1rr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 0 1', goal: { mystery: true },
+        title: 'The Gate Key', lines: ['Four rooks and a wall of pawns. One of their pieces holds the gate key.', 'Hints narrow it down every 4 moves. Capture it, or checkmate, to win.'],
+        fen: 'rr2k1rr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 0 1', goal: { mystery: true, hintEvery: 4 },
       },
     },
     {
@@ -160,8 +160,8 @@ const MISSIONS = {
       after: 'Twelve moves and you are still standing. Siege lifted.',
       fail: 'The gate falls. Every gate falls.',
       rule: {
-        title: 'Survive 12 Moves', lines: ['You have a king, a rook and pawns. He has everything else.', "Don't get checkmated for 12 of your moves."],
-        fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/4K2R w K - 0 1', goal: { survive: 12 },
+        title: 'Survive 12 Moves', lines: ['You have a king, a rook and pawns. He has everything else.', "Don't get checkmated for 15 of your moves."],
+        fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/4K2R w K - 0 1', goal: { survive: 15 },
       },
     },
     {
@@ -171,8 +171,8 @@ const MISSIONS = {
       after: 'Every ingot, still glowing. You have a smith\'s hands.',
       fail: 'Cooled and cracked. Back to the furnace.',
       rule: {
-        title: 'Relic Run', lines: ['Four ingots lie on the board. Move a piece onto each one to pick it up.', 'Find all four within 22 moves (or checkmate) to win.'],
-        fen: 'r3k2r/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1', goal: { relics: ['a5', 'h5', 'd6', 'e3'] }, moveLimit: 22,
+        title: 'Relic Run', lines: ['Four ingots lie on the board. Move a piece onto each one to pick it up.', 'Find all four within 19 moves (or checkmate) to win.'],
+        fen: 'r3k2r/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1', goal: { relics: ['a5', 'h5', 'd6', 'e3'] }, moveLimit: 19,
       },
     },
     {
@@ -182,8 +182,8 @@ const MISSIONS = {
       after: 'A memory: Rook-E lowering the bar for you... then raising it again when the message came.',
       fail: '*the gate slams* ... The memory shuts. Try again.',
       rule: {
-        title: 'Walk the Crossing', lines: ['A memory of the Keep. A rook tries to cut your king off.', 'Walk your king to the far edge (the 8th rank) within 20 moves.'],
-        fen: '4k3/8/8/r7/8/8/5PPP/4K2R w K - 0 1', goal: { crossing: true }, moveLimit: 20, noChallenges: true,
+        title: 'Walk the Crossing', lines: ['A memory of the Keep. A rook tries to cut your king off.', 'Walk your king to the far edge (the 8th rank) within 18 moves.'],
+        fen: '4k3/8/8/r7/8/8/5PPP/4K2R w K - 0 1', goal: { crossing: true }, moveLimit: 18, noChallenges: true,
       },
     },
   ],
@@ -196,8 +196,8 @@ const MISSIONS = {
       after: '*fades* ... You found me. You see better than most.',
       fail: '*giggles from nowhere*',
       rule: {
-        title: 'The Real Wisp', lines: ['Fog covers the board: you only see squares your pieces touch or attack.', 'One of his pieces is the real Wisp. Hints every 3 moves. Capture it, or checkmate, to win.'],
-        fog: true, goal: { mystery: true },
+        title: 'The Real Wisp', lines: ['Fog covers the board: you only see squares your pieces touch or attack.', 'One of his pieces is the real Wisp. Hints every 4 moves. Capture it, or checkmate, to win.'],
+        fog: true, goal: { mystery: true, hintEvery: 4 },
       },
     },
     {
@@ -218,8 +218,8 @@ const MISSIONS = {
       after: 'You kept your footing. Rare, out here.',
       fail: 'Glub. Try again, before the bog gets comfortable.',
       rule: {
-        title: 'Three Challenges', lines: ['Three challenges in the marsh. Win 2 of them.'],
-        minigameTrial: { games: 3, need: 2, pool: ['KnightCollapse', 'MemoryMatch', 'PatternPress'] },
+        title: 'Three Challenges', lines: ['Three challenges in the marsh. Win all three.'],
+        minigameTrial: { games: 3, need: 3, pool: ['KnightCollapse', 'MemoryMatch', 'PatternPress'] },
       },
     },
     {
@@ -229,8 +229,8 @@ const MISSIONS = {
       after: 'The riders fall. The fog thins a little.',
       fail: 'The fog lifts, and you are gone.',
       rule: {
-        title: 'Mate in 30', lines: ['The riders have four knights and no queen.', 'Checkmate them within 30 of your moves.'],
-        fen: 'nn2k1nn/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 0 1', moveLimit: 30,
+        title: 'Mate in 30', lines: ['The riders have four knights and no queen.', 'Checkmate them within 26 of your moves.'],
+        fen: 'nn2k1nn/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 0 1', moveLimit: 26,
       },
     },
     {
@@ -240,8 +240,8 @@ const MISSIONS = {
       after: 'You... found your way. How?',
       fail: 'Another one for the barrow.',
       rule: {
-        title: 'Survive 10 Moves in Fog', lines: ['Fog covers the board and he has a stronger army.', "Don't get checkmated for 10 of your moves."],
-        fog: true, fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/R2QK2R w KQ - 0 1', goal: { survive: 10 },
+        title: 'Survive 10 Moves in Fog', lines: ['Fog covers the board and he has a stronger army.', "Don't get checkmated for 13 of your moves."],
+        fog: true, fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/R2QK2R w KQ - 0 1', goal: { survive: 13 },
       },
     },
     {
@@ -251,8 +251,8 @@ const MISSIONS = {
       after: 'Four lanterns, lit. The mist is thinner already.',
       fail: 'Out go the lights. Out, out, out.',
       rule: {
-        title: 'Relic Run', lines: ['Fog covers the board. Four lanterns glow in it: move a piece onto each.', 'Light all four within 24 moves (or checkmate) to win.'],
-        fog: true, goal: { relics: ['b5', 'g5', 'd6', 'e6'] }, moveLimit: 24,
+        title: 'Relic Run', lines: ['Fog covers the board. Four lanterns glow in it: move a piece onto each.', 'Light all four within 21 moves (or checkmate) to win.'],
+        fog: true, goal: { relics: ['b5', 'g5', 'd6', 'e6'] }, moveLimit: 21,
       },
     },
     {
@@ -262,8 +262,8 @@ const MISSIONS = {
       after: 'A memory: a lantern in the fog, and your own voice saying: just a few more ranks.',
       fail: '*the lantern gutters out* ... Lost in the mist. Try again.',
       rule: {
-        title: 'Walk the Crossing', lines: ['A memory in the mist: you only see what your pieces see. Knights hunt you.', 'Walk your king to the far edge (the 8th rank) within 22 moves.'],
-        fog: true, fen: '4k3/8/2n5/8/8/5n2/PPP5/2KR4 w - - 0 1', goal: { crossing: true }, moveLimit: 22, noChallenges: true,
+        title: 'Walk the Crossing', lines: ['A memory in the mist: you only see what your pieces see. Knights hunt you.', 'Walk your king to the far edge (the 8th rank) within 20 moves.'],
+        fog: true, fen: '4k3/8/2n5/8/8/5n2/PPP5/2KR4 w - - 0 1', goal: { crossing: true }, moveLimit: 20, noChallenges: true,
       },
     },
   ],
@@ -277,7 +277,7 @@ const MISSIONS = {
       fail: '*tick tock tick tock* Wound up and won!',
       rule: {
         title: 'The Winding Key', lines: ['Four gear walls stand in the centre: nothing stops on them or slides through; knights jump over.', 'One of his pieces holds the winding key. Capture it, or checkmate, to win.'],
-        walls: [{ row: 4, col: 2 }, { row: 4, col: 5 }, { row: 3, col: 2 }, { row: 3, col: 5 }], goal: { mystery: true },
+        walls: [{ row: 4, col: 2 }, { row: 4, col: 5 }, { row: 3, col: 2 }, { row: 3, col: 5 }], goal: { mystery: true, hintEvery: 4 },
       },
     },
     {
@@ -294,12 +294,12 @@ const MISSIONS = {
     {
       kind: 'trial', name: 'Wind the Spring',
       minion: { name: 'Mainspring', title: 'Heart of the Clock', piece: 'queen' },
-      greet: 'Wind me up. Carefully. Three turns, and two must be perfect.',
+      greet: 'Wind me up. Carefully. Three turns, and all three must be perfect.',
       after: 'Perfectly wound. The Citadel ticks on.',
       fail: 'SPROING. Overwound. Again.',
       rule: {
-        title: 'Three Challenges', lines: ['Three clockwork challenges. Win 2 of them.'],
-        minigameTrial: { games: 3, need: 2, pool: ['ShieldBlock', 'TimingStrike', 'PowerMeter'] },
+        title: 'Three Challenges', lines: ['Three clockwork challenges. Win all three.'],
+        minigameTrial: { games: 3, need: 3, pool: ['ShieldBlock', 'TimingStrike', 'PowerMeter'] },
       },
     },
     {
@@ -309,8 +309,8 @@ const MISSIONS = {
       after: 'All of us, unwound. Well played.',
       fail: 'Tick... tock... time is up.',
       rule: {
-        title: 'Round Them Up', lines: ['Ten tin soldiers: two knights and eight pawns.', 'Capture all of them (or checkmate) within 25 of your moves.'],
-        fen: '1n2k1n1/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 0 1', goal: { captureAll: true }, moveLimit: 25,
+        title: 'Round Them Up', lines: ['Ten tin soldiers: two knights and eight pawns.', 'Capture all of them (or checkmate) within 21 of your moves.'],
+        fen: '1n2k1n1/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 0 1', goal: { captureAll: true }, moveLimit: 21,
       },
     },
     {
@@ -320,8 +320,8 @@ const MISSIONS = {
       after: 'Steam spent. You outlasted the engine.',
       fail: 'Crushed under the wheels.',
       rule: {
-        title: 'Survive 12 Moves', lines: ['He has an extra queen. Lose a challenge and that square locks for 3 turns.', "Don't get checkmated for 12 of your moves."],
-        fen: 'rnbqkqnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1', lockPlies: 4, goal: { survive: 12 },
+        title: 'Survive 12 Moves', lines: ['He has an extra queen. Lose a challenge and that square locks for 3 turns.', "Don't get checkmated for 15 of your moves."],
+        fen: 'rnbqkqnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1', lockPlies: 4, goal: { survive: 15 },
       },
     },
     {
@@ -331,9 +331,9 @@ const MISSIONS = {
       after: 'Click, click, click, click! The clock runs again.',
       fail: 'Wound down. Tick... tock... tick...',
       rule: {
-        title: 'Relic Run', lines: ['Gear walls block the middle. Four cogs lie on the board: move a piece onto each.', 'A lost challenge locks its square for 3 turns. Find all four within 24 moves.'],
+        title: 'Relic Run', lines: ['Gear walls block the middle. Four cogs lie on the board: move a piece onto each.', 'A lost challenge locks its square for 3 turns. Find all four within 21 moves.'],
         walls: [{ row: 4, col: 2 }, { row: 4, col: 5 }, { row: 3, col: 2 }, { row: 3, col: 5 }], lockPlies: 4,
-        goal: { relics: ['b5', 'g5', 'd6', 'e3'] }, moveLimit: 24,
+        goal: { relics: ['b5', 'g5', 'd6', 'e3'] }, moveLimit: 21,
       },
     },
     {
@@ -343,9 +343,9 @@ const MISSIONS = {
       after: 'A memory: every clock in the Citadel stopped at the same second. The second the board broke.',
       fail: '*tick... tock...* The memory winds down. Try again.',
       rule: {
-        title: 'Walk the Crossing', lines: ['A memory of the Citadel: gear walls block the middle and a rook guards the way.', 'Walk your king to the far edge (the 8th rank) within 20 moves.'],
+        title: 'Walk the Crossing', lines: ['A memory of the Citadel: gear walls block the middle and a rook guards the way.', 'Walk your king to the far edge (the 8th rank) within 18 moves.'],
         walls: [{ row: 4, col: 2 }, { row: 4, col: 5 }, { row: 3, col: 2 }, { row: 3, col: 5 }],
-        fen: '1r2k3/8/8/8/8/8/PPP5/1K1R4 w - - 0 1', goal: { crossing: true }, moveLimit: 20, noChallenges: true,
+        fen: '1r2k3/8/8/8/8/8/PPP5/1K1R4 w - - 0 1', goal: { crossing: true }, moveLimit: 18, noChallenges: true,
       },
     },
   ],
@@ -424,8 +424,8 @@ const MISSIONS = {
       after: 'A memory: a blank book, and your hand writing the first letter of your name.',
       fail: '*the book snaps shut* ... Not this chapter. Try again.',
       rule: {
-        title: 'Walk the Crossing', lines: ['A memory of the Library. A rook and a bishop guard the far shelves.', 'Walk your king to the far edge (the 8th rank) within 20 moves.'],
-        fen: '4k3/3r4/6b1/8/8/8/3PP3/3KN3 w - - 0 1', goal: { crossing: true }, moveLimit: 20, noChallenges: true,
+        title: 'Walk the Crossing', lines: ['A memory of the Library. A rook and a bishop guard the far shelves.', 'Walk your king to the far edge (the 8th rank) within 18 moves.'],
+        fen: '4k3/3r4/6b1/8/8/8/3PP3/3KN3 w - - 0 1', goal: { crossing: true }, moveLimit: 18, noChallenges: true,
       },
     },
   ],
@@ -438,8 +438,8 @@ const MISSIONS = {
       after: 'Sentence served. Early.',
       fail: 'Time. The court finds against you.',
       rule: {
-        title: 'Mate in 25', lines: ['He has no queen and no rooks.', 'Checkmate him within 25 of your moves.'],
-        fen: '1nb1kbn1/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 0 1', moveLimit: 25,
+        title: 'Mate in 25', lines: ['He has no queen and no rooks.', 'Checkmate him within 21 of your moves.'],
+        fen: '1nb1kbn1/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 0 1', moveLimit: 21,
       },
     },
     {
@@ -456,12 +456,12 @@ const MISSIONS = {
     {
       kind: 'trial', name: 'Trial by Fire',
       minion: { name: 'Magma', title: 'Floor of the Court', piece: 'pawn' },
-      greet: 'The floor is lava. Literally. Three trials, win two.',
+      greet: 'The floor is lava. Literally. Three trials, win all three.',
       after: 'Not even singed.',
       fail: 'Toasted. Cool off and try again.',
       rule: {
-        title: 'Three Challenges', lines: ['Three fiery challenges. Win 2 of them.'],
-        minigameTrial: { games: 3, need: 2, pool: ['CheckmateRun', 'LavaTilt', 'UndertaleDodge'] },
+        title: 'Three Challenges', lines: ['Three fiery challenges. Win all three.'],
+        minigameTrial: { games: 3, need: 3, pool: ['CheckmateRun', 'LavaTilt', 'UndertaleDodge'] },
       },
     },
     {
@@ -471,8 +471,8 @@ const MISSIONS = {
       after: 'Not guilty.',
       fail: 'Guilty.',
       rule: {
-        title: 'Dismiss the Jury', lines: ['Twelve jurors: four minor pieces and eight pawns, no queen or rooks.', 'Capture all of them (or checkmate) within 30 of your moves.'],
-        fen: '1nb1kbn1/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 0 1', goal: { captureAll: true }, moveLimit: 30,
+        title: 'Dismiss the Jury', lines: ['Twelve jurors: four minor pieces and eight pawns, no queen or rooks.', 'Capture all of them (or checkmate) within 26 of your moves.'],
+        fen: '1nb1kbn1/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 0 1', goal: { captureAll: true }, moveLimit: 26,
       },
     },
     {
@@ -482,8 +482,8 @@ const MISSIONS = {
       after: 'Appeal granted. How irritating.',
       fail: 'Appeal denied.',
       rule: {
-        title: 'Survive 15 Moves', lines: ['You have no queen and no rooks.', "Don't get checkmated for 15 of your moves."],
-        fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/1NB1KBN1 w - - 0 1', goal: { survive: 15 },
+        title: 'Survive 15 Moves', lines: ['You have no queen and no rooks.', "Don't get checkmated for 18 of your moves."],
+        fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/1NB1KBN1 w - - 0 1', goal: { survive: 18 },
       },
     },
     {
@@ -493,8 +493,8 @@ const MISSIONS = {
       after: 'Every ember gathered. The court grows cold.',
       fail: 'Burned out. Sentence carried out.',
       rule: {
-        title: 'Relic Run', lines: ['Four embers lie on the board. Move a piece onto each one.', 'The hourglass is short: find all four within 16 moves.'],
-        goal: { relics: ['c5', 'f5', 'd6', 'e4'] }, moveLimit: 16,
+        title: 'Relic Run', lines: ['Four embers lie on the board. Move a piece onto each one.', 'The hourglass is short: find all four within 13 moves.'],
+        goal: { relics: ['c5', 'f5', 'd6', 'e4'] }, moveLimit: 13,
       },
     },
     {
@@ -504,8 +504,8 @@ const MISSIONS = {
       after: 'A memory: the hourglass turned, and the crystal king whispered: not this one. Not this piece.',
       fail: '*the sand runs out* ... The memory burns away. Try again.',
       rule: {
-        title: 'Walk the Crossing', lines: ['A memory of the Court. A rook stands in your way and the sand is short.', 'Walk your king to the far edge (the 8th rank) within 16 moves.'],
-        fen: '2r1k3/8/8/8/8/8/PPP5/1K1R4 w - - 0 1', goal: { crossing: true }, moveLimit: 16, noChallenges: true,
+        title: 'Walk the Crossing', lines: ['A memory of the Court. A rook stands in your way and the sand is short.', 'Walk your king to the far edge (the 8th rank) within 14 moves.'],
+        fen: '2r1k3/8/8/8/8/8/PPP5/1K1R4 w - - 0 1', goal: { crossing: true }, moveLimit: 14, noChallenges: true,
       },
     },
   ],
@@ -536,12 +536,12 @@ const MISSIONS = {
     {
       kind: 'trial', name: 'Weak Spots',
       minion: { name: 'Mirror', title: 'Shows Your Worst', piece: 'queen' },
-      greet: 'I know which challenges you lose most. I will give you only those. Win three of five.',
+      greet: 'I know which challenges you lose most. I will give you only those. Win four of five.',
       after: 'Your weak spots... are not so weak.',
       fail: 'Exactly as I showed you.',
       rule: {
-        title: 'Five Challenges', lines: ['Five challenges, picked from the ones you lose most. Win 3 of them.'],
-        minigameTrial: { games: 5, need: 3, weakest: true },
+        title: 'Five Challenges', lines: ['Five challenges, picked from the ones you lose most. Win 4 of them.'],
+        minigameTrial: { games: 5, need: 4, weakest: true },
       },
     },
     {
@@ -552,7 +552,7 @@ const MISSIONS = {
       fail: 'Refracted.',
       rule: {
         title: 'The True Face', lines: ['Fog covers the board, and every capture starts a challenge.', 'One of his pieces is his true face. Capture it, or checkmate, to win.'],
-        fog: true, everyCapture: true, goal: { mystery: true },
+        fog: true, everyCapture: true, goal: { mystery: true, hintEvery: 4 },
       },
     },
     {
@@ -573,8 +573,8 @@ const MISSIONS = {
       after: 'Five shards, back in your hands. They are warm. They know you.',
       fail: 'Scattered to the void again.',
       rule: {
-        title: 'Relic Run', lines: ['Five shards float on the board. Move a piece onto each one. Every capture is a challenge.', 'Find all five within 24 moves (or checkmate) to win.'],
-        everyCapture: true, goal: { relics: ['a5', 'h5', 'c6', 'f6', 'd4'] }, moveLimit: 24,
+        title: 'Relic Run', lines: ['Five shards float on the board. Move a piece onto each one. Every capture is a challenge.', 'Find all five within 21 moves (or checkmate) to win.'],
+        everyCapture: true, goal: { relics: ['a5', 'h5', 'c6', 'f6', 'd4'] }, moveLimit: 21,
       },
     },
     {
@@ -584,8 +584,8 @@ const MISSIONS = {
       after: 'A memory: one square from the edge, the board cracked like ice, and everything went white. You remember now. All of it but your name.',
       fail: '*white light* ... The board breaks again. Try again.',
       rule: {
-        title: 'Walk the Crossing', lines: ['The last memory. A queen and a knight try to stop you, and every capture is a challenge.', 'Walk your king to the far edge (the 8th rank) within 22 moves.'],
-        fen: '3qk3/8/8/2n5/8/8/PPP5/1KR5 w - - 0 1', goal: { crossing: true }, moveLimit: 22, everyCapture: true,
+        title: 'Walk the Crossing', lines: ['The last memory. A queen and a knight try to stop you, and every capture is a challenge.', 'Walk your king to the far edge (the 8th rank) within 20 moves.'],
+        fen: '3qk3/8/8/2n5/8/8/PPP5/1KR5 w - - 0 1', goal: { crossing: true }, moveLimit: 20, everyCapture: true,
       },
     },
   ],
@@ -622,8 +622,8 @@ function minionLines(m) {
   return lines;
 }
 
-// Mission characters for GameScreen: a minion per mission, fighting one or
-// two levels below its world's guardian, in the world's theme.
+// Mission characters for GameScreen: a minion per mission, fighting one level
+// below its world's guardian, in the world's theme.
 const MISSION_CHARS = [];
 for (const [worldId, list] of Object.entries(MISSIONS)) {
   const world = WORLDS.find(w => w.id === worldId);
@@ -638,7 +638,7 @@ for (const [worldId, list] of Object.entries(MISSIONS)) {
       name: m.minion.name,
       title: m.minion.title,
       piece: m.minion.piece,
-      level: Math.max(1, boss.level - 2),
+      level: Math.max(1, boss.level - 1),
       mission: m,
       world,
       theme: world.art,

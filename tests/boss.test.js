@@ -287,29 +287,8 @@ test('a promoted pawn keeps its mystery tag; armyLeft counts non-king pieces', (
   assert.strictEqual(G.BossRules.armyLeft(b, 'black'), 0);
 });
 
-test('New Game+ stacks Bish-Bosh on Rook-E: no rooks for you, four bishops for him', () => {
-  const r = G.BossRules.stack(G.BossRules.get('rokee'), G.BossRules.get('bishbosh'));
-  assert.ok(r.twisted);
-  assert.ok(r.title.includes('The Iron Tower') && r.title.includes('Four Bishops'));
-  const b = G.BossRules.startBoard(r);
-  assert.strictEqual(count(b, 'black', 'bishop'), 4);
-  assert.strictEqual(count(b, 'white', 'rook'), 0);
-  assert.strictEqual(r.fen.split(' ')[2], 'kq');
-  assert.deepStrictEqual(Array.from(r.alwaysChallengeWhenTaking), ['rook']);
-});
-
-test('New Game+ stacking keeps walls off pieces and the tightest clock', () => {
-  const eg = G.BossRules.stack(G.BossRules.get('endgamer'), G.BossRules.get('castle'));
-  for (let i = 0; i < 20; i++) {
-    const b = G.BossRules.startBoard(eg, Math.random, []);
-    assert.ok(b.findKing('white') && b.findKing('black'), 'both kings survive the walls');
-  }
-  const gx = G.BossRules.stack(G.BossRules.get('grandmasterx'), G.BossRules.get('checkmate'));
-  assert.strictEqual(gx.moveLimit, 40);
-  assert.strictEqual(gx.rewinds, 2);
-  assert.ok(gx.everyCapture && gx.tenseMusic);
-  const q = G.BossRules.stack(G.BossRules.get('castle'), G.BossRules.get('queenie'));
-  const qb = G.BossRules.startBoard(q);
-  assert.strictEqual(count(qb, 'black', 'queen'), 2);
-  assert.strictEqual(qb.grid.flat().filter(p => p && p.type === 'wall').length, 4);
+test('Checkmate turns the hourglass for 25 moves', () => {
+  const r = G.BossRules.get('checkmate');
+  assert.strictEqual(r.moveLimit, 25);
+  assert.ok(r.lines[0].includes('25'));
 });

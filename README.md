@@ -123,8 +123,9 @@ story starts at once: the prologue, then your first match, against Pawnie, plain
   back into colour and brings them to life, and your king walks on. After the ending the rifts close.
 - **Stars and trophies:** every stage gives up to 3 stars (the win plus two objectives that fit the opponent,
   like capturing both of Rook-E's rooks); a trophy shelf in Stats shows bronze, silver or gold for each world.
-- **After the ending:** **New Game+** (the freed First Piece plays you first, and every guardian adds the rule of
-  the one before), **Great Board mode** (a board split into four quarters, each with a guardian's rule) and the
+- **The last game:** beat Grandmaster X and he refuses to lose: he tears every guardian's power out of the worlds
+  and plays you once more on the Great Board itself, with all their rules at once and 40 moves to mate him.
+- **After the ending:** **Great Board mode** (a board split into four quarters, each with a guardian's rule) and the
   **Great Board theme**.
 - **The Training Camp:** five holographic trainers, each at their own spot on the camp's map: ten mate-in-one
   puzzles, an endgame where you are ahead, every mini-game one by one, the Mystery Piece, and a full final game.
@@ -150,7 +151,7 @@ story starts at once: the prologue, then your first match, against Pawnie, plain
 | 11 | CastlE | The Clockwork Citadel | Gear walls in the centre; lost challenges lock squares |
 | 12 | EndGamer | The Grand Library | Starts in a random endgame that favours him |
 | 13 | ForkMaster | Forked Gulch | Double take: one fork takes two pieces |
-| 14 | Checkmate | The Obsidian Court | Mate him within 40 moves or lose |
+| 14 | Checkmate | The Obsidian Court | Mate him within 25 moves or lose |
 | 15 | Grandmaster X | Soulbound Pixel | Every capture is a challenge; checkmate him three times as time rewinds |
 
 ---
@@ -271,7 +272,8 @@ editing and exporting the video.
 - [x] Mobile / touch support (Telegram Mini App with portrait mode)
 - [x] Undo, board flip and resuming unfinished games
 - [x] Story Mode rebuilt: world map, trainers, missions, cutscenes and boss twists
-- [x] Story rewards: stars per fight, trophies, New Game+ and Great Board mode
+- [x] Story rewards: stars per fight, trophies and Great Board mode
+- [x] The last game: Grandmaster X Unbound, every guardian's power on the Great Board
 - [ ] Online multiplayer
 - [ ] Game replay / PGN export
 

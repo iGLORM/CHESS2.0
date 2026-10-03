@@ -146,7 +146,14 @@ class Store {
   // Saves from before the Training Camp counted 10 levels. Five trainer stages
   // now sit after Pawnie, so level n (n > 1) becomes stage n + 5.
   static migrateSave(save) {
-    if (!save || save.stages === 15) return save;
+    if (!save) return save;
+    // New Game+ was removed: a run in progress goes back to its finished story.
+    if (save.ngPlus || save.ngCleared !== undefined) {
+      const { ngPlus, ngCleared, ngRuns, ...rest } = save;
+      save = rest;
+      if (save.completed) save = { ...save, storyLevel: 15, maxUnlockedLevel: 15, selectedCharacter: null };
+    }
+    if (save.stages === 15) return save;
     const toStage = level => (level <= 1 ? 1 : level + 5);
     return {
       ...save,

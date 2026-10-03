@@ -263,8 +263,8 @@ I18n.add('es', {
   "The guardians you beat come down, one after another, each with their own rule. Lose once, and the streak starts over.": "Los guardianes que venciste bajan uno tras otro, cada uno con su regla. Pierde una vez y la racha vuelve a empezar.",
   "Three in a row. The old guardians rise to their feet, and the Arena shakes.": "Tres seguidas. Los viejos guardianes se ponen en pie, y la Arena tiembla.",
   "Three. As agreed. The Obsidian Court is open. Come, then, and bring your time with you. You will need all of it.": "Tres. Como acordamos. La Corte de Obsidiana está abierta. Ven, pues, y trae tu tiempo. Lo necesitarás todo.",
-  "The third checkmate lands. Grandmaster X's crystal cracks from crown to base...": "Cae el tercer mate. El cristal de Grandmaster X se agrieta de la corona a la base...",
-  "...and shatters. Inside stands one small, very old pawn.": "...y estalla. Dentro hay un peón pequeño, muy viejo.",
+  "Checkmate. The stolen powers burst out of Grandmaster X and stream home, back to every world they came from.": "Mate. Los poderes robados estallan fuera de Grandmaster X y vuelven a casa, a cada mundo del que vinieron.",
+  "His crystal cracks from crown to base... and shatters. Inside stands one small, very old pawn.": "Su cristal se agrieta de la corona a la base... y estalla. Dentro hay un peón pequeño, muy viejo.",
   "I was the first piece ever to cross the Great Board. It chose me as its Guardian. I guarded it alone, for an age.": "Fui la primera pieza que cruzó el Gran Tablero. Me eligió como su Guardián. Lo guardé solo, durante una eternidad.",
   "I grew afraid that someone would cross and take my place. So I began to break it, crack by crack, world by world, so no one ever could.": "Empecé a temer que alguien lo cruzara y ocupara mi lugar. Así que empecé a romperlo, grieta a grieta, mundo a mundo, para que nadie pudiera.",
   "Then you came, and you almost reached the edge. I broke it all at once, with you on it. The moment you fell, it stopped breaking. It had chosen you.": "Entonces llegaste tú, y casi alcanzaste el borde. Lo rompí todo de golpe, contigo encima. En cuanto caíste, dejó de romperse. Te había elegido.",
@@ -274,4 +274,17 @@ I18n.add('es', {
   "In Pawn Hollow, Pawnie looks up at a whole sky. Far away, Bish-Bosh, the Knight of the Mist and the EndGamer look up too.": "En Hondonada del Peón, Pawnie mira un cielo entero. A lo lejos, Bish-Bosh, el Caballero de la Niebla y el EndGamer también alzan la vista.",
   "It chose you. Just... do not guard it alone, like I did.": "Te eligió a ti. Solo... no lo guardes solo, como hice yo.",
   "You remember now. You are the Guardian of the Great Board.": "Ahora lo recuerdas. Eres el Guardián del Gran Tablero.",
+});
+
+// Grandmaster X's ascension (the last game's cutscene)
+I18n.add('es', {
+  "The third checkmate lands. The crystal cracks from crown to base... and holds.": "Cae el tercer mate. El cristal se agrieta de la corona a la base... y aguanta.",
+  "No. No! I do not lose. I have never lost. The board does not get to choose you.": "No. ¡No! Yo no pierdo. Nunca he perdido. El tablero no tiene derecho a elegirte.",
+  "Guardians! Everything I gave you, I take back. Every rule, every trick. Now.": "¡Guardianes! Todo lo que os di, lo recupero. Cada regla, cada truco. Ahora.",
+  "Far away, the guardians cry out. Their powers tear loose from every world and stream across the sky towards him.": "A lo lejos, los guardianes gritan. Sus poderes se arrancan de cada mundo y cruzan el cielo hacia él.",
+  "Bishops from the sands. Iron from the Keep. Mist from the moors. Queens, walls, forks, and the sand of the hourglass. Mine. All of it, mine.": "Alfiles de las arenas. Hierro de la fortaleza. Niebla de los páramos. Damas, muros, horquillas y la arena del reloj. Míos. Todo es mío.",
+  "The ground drops away. When it stops, you stand on the Great Board itself, cracked and floating in the dark.": "El suelo se hunde. Cuando todo se detiene, estás sobre el mismísimo Gran Tablero, roto y flotando en la oscuridad.",
+  "One last game, on the board I broke. Forty moves, and every rule they ever had. Win, and it is yours.": "Una última partida, en el tablero que rompí. Cuarenta jugadas y todas las reglas que tuvieron. Gana, y será tuyo.",
+  "The Last Game": "La última partida",
+  "Unbound": "Desatado",
 });

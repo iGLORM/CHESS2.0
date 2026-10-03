@@ -67,7 +67,7 @@ const More: React.FC<{ len: number }> = ({ len }) => {
     ["Keepsakes with real powers", C.gold],
     ["Wandering rivals on the roads", C.magenta],
     ["The Arena: how long can you last?", C.cyan],
-    ["Stars, coins, a shop and New Game+", C.mint],
+    ["Stars, coins, a shop and a last stand", C.mint],
   ];
   return (
     <AbsoluteFill style={{ background: "radial-gradient(ellipse at 30% 50%, #2a1450, #080611 70%)" }}>

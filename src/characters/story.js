@@ -16,7 +16,8 @@
 // piece could cross it, and broke it all at once when you nearly did.
 // When they play (StoryScenes.before / after): the prologue before Pawnie's
 // first match, the handover after the Training Camp, an interlude after each
-// guardian and the ending after Grandmaster X, which leads into the Credits.
+// guardian, the ascension after Grandmaster X (then the last game on the Great
+// Board, FinalBoss) and the ending after that, which leads into the Credits.
 const STORY_SPEAKERS = {
   narrator: { name: '', piece: null },
   firstpiece: { name: 'The First Piece', piece: 'pawn', colors: { primary: '#f4f0e8' } },
@@ -236,13 +237,28 @@ const STORY_SCENES = {
     ],
   },
 
+  // Beaten three times, Grandmaster X will not accept it: he takes back every power
+  // he gave the guardians and plays you on the Great Board itself (FinalBoss).
+  ascension: {
+    bg: 'crystal',
+    beats: [
+      { who: 'narrator', text: 'The third checkmate lands. The crystal cracks from crown to base... and holds.', fx: ['crystal', 'crack'] },
+      { who: 'grandmasterx', mood: 'cracking', text: 'No. No! I do not lose. I have never lost. The board does not get to choose you.' },
+      { who: 'grandmasterx', mood: 'fury', text: 'Guardians! Everything I gave you, I take back. Every rule, every trick. Now.' },
+      { who: 'narrator', text: 'Far away, the guardians cry out. Their powers tear loose from every world and stream across the sky towards him.', fx: 'absorb' },
+      { who: 'grandmasterx', mood: 'fury', text: 'Bishops from the sands. Iron from the Keep. Mist from the moors. Queens, walls, forks, and the sand of the hourglass. Mine. All of it, mine.' },
+      { who: 'narrator', text: 'The ground drops away. When it stops, you stand on the Great Board itself, cracked and floating in the dark.', fx: 'quake', bg: 'greatboard' },
+      { who: 'grandmasterx', mood: 'contempt', text: 'One last game, on the board I broke. Forty moves, and every rule they ever had. Win, and it is yours.' },
+    ],
+  },
+
   // The First Piece broke the board, slowly and then all at once, to stop anyone
   // crossing; you finish the crossing.
   ending: {
     bg: 'crystal',
     beats: [
-      { who: 'narrator', text: "The third checkmate lands. Grandmaster X's crystal cracks from crown to base...", fx: ['crystal', 'crack'] },
-      { who: 'narrator', text: '...and shatters. Inside stands one small, very old pawn.', fx: 'shatter' },
+      { who: 'narrator', text: 'Checkmate. The stolen powers burst out of Grandmaster X and stream home, back to every world they came from.', fx: ['crystal', 'crack'] },
+      { who: 'narrator', text: 'His crystal cracks from crown to base... and shatters. Inside stands one small, very old pawn.', fx: 'shatter' },
       { who: 'firstpiece', mood: 'weary', text: 'I was the first piece ever to cross the Great Board. It chose me as its Guardian. I guarded it alone, for an age.' },
       { who: 'firstpiece', mood: 'remorse', text: 'I grew afraid that someone would cross and take my place. So I began to break it, crack by crack, world by world, so no one ever could.' },
       { who: 'firstpiece', mood: 'remorse', text: 'Then you came, and you almost reached the edge. I broke it all at once, with you on it. The moment you fell, it stopped breaking. It had chosen you.' },
@@ -265,7 +281,8 @@ const StoryScenes = {
   // Scene to play after a first win on a stage, or null.
   after(stage) {
     if (stage === 6) return 'handover';
-    if (stage === STORY_STAGES.length) return 'ending';
+    // Grandmaster X's win leads to his ascension and the last game (FinalBoss); its
+    // win plays the ending.
     return STORY_SCENES['after' + stage] ? 'after' + stage : null;
   },
 

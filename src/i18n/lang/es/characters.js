@@ -483,7 +483,7 @@ I18n.add('es', {
   // Grandmaster X
   "The Absolute": "El Absoluto",
   "You came back. Of course you did. Here every capture is a test, and I know exactly which tests you fail. Mate me if you can. You will have to do it more than once.": "Has vuelto. Claro que sí. Aquí cada captura es una prueba, y sé exactamente cuáles suspendes. Dame mate si puedes. Tendrás que hacerlo más de una vez.",
-  "Three times... You checkmated me three times. The crystal cannot hold. Nothing can hold forever. Perhaps nothing should.": "Tres veces... Me diste mate tres veces. El cristal no aguanta. Nada aguanta para siempre. Quizá nada debería.",
+  "Three times... You checkmated me three times. And yet the crystal holds. I hold. This is not over.": "Tres veces... Me diste mate tres veces. Y aun así el cristal aguanta. Yo aguanto. Esto no ha terminado.",
   "Stay down this time. The board stays broken. Broken, it cannot choose anyone. Broken, it is safe.": "Esta vez quédate en el suelo. El tablero sigue roto. Roto, no puede elegir a nadie. Roto, está a salvo.",
   "You return. They always return... no. None of them ever came back. Only you. Very well. Again.": "Vuelves. Siempre vuelven... no. Ninguno volvió jamás. Solo tú. Muy bien. Otra vez.",
   "Make your first move. It will define you.": "Haz tu primera jugada. Te definirá.",
@@ -603,4 +603,27 @@ I18n.add('es', {
   "A fine check. Continue.": "Un buen jaque. Continúa.",
   "Your {piece}. Did you see it coming?": "{piece|your}. ¿Lo viste venir?",
   "Good. You took my {piece}.": "Bien. Capturaste {piece|my}.",
+});
+
+// Grandmaster X Unbound, the last game (characters/finalboss.js)
+I18n.add('es', {
+  "Every Power": "Todos los poderes",
+  "He stole every guardian's power: four bishops and two queens for him, no rooks for you, the mist, the gear walls, double takes, and every capture a challenge he plays at full strength.": "Robó el poder de cada guardián: cuatro alfiles y dos damas para él, ninguna torre para ti, la niebla, los muros de engranajes, las capturas dobles, y cada captura inicia un desafío que juega a plena fuerza.",
+  "Checkmate him within 40 of your moves, or the board stays broken.": "Dale mate en 40 de tus jugadas, o el tablero seguirá roto.",
+  "The Great Board": "El Gran Tablero",
+  "The Board Is Free!": "¡El tablero es libre!",
+  "He will not accept defeat": "No acepta la derrota",
+  "Every rule they ever had is mine now. Forty moves, on the board I broke. Win, and it is yours. Lose, and it stays broken forever.": "Todas las reglas que tuvieron ahora son mías. Cuarenta jugadas, en el tablero que rompí. Gana, y será tuyo. Pierde, y seguirá roto para siempre.",
+  "No... the powers are leaving me. Going home. I can feel the worlds pulling them back...": "No... los poderes me abandonan. Vuelven a casa. Siento cómo los mundos los reclaman...",
+  "You see? Nobody crosses. Nobody ever crosses. Get up and try again, if you dare.": "¿Ves? Nadie cruza. Nadie cruza jamás. Levántate e inténtalo otra vez, si te atreves.",
+  "Every power in the world, against one small king.": "Todos los poderes del mundo contra un pequeño rey.",
+  "The board I broke. A fitting place for you to fall.": "El tablero que rompí. Un lugar perfecto para tu caída.",
+  "Your {piece}. Stolen like everything else.": "{piece|your}: otro robo, como todo lo demás.",
+  "Your {piece}, gone. I have all their tricks now.": "Adiós, {piece|your}. Ahora tengo todos sus trucos.",
+  "My {piece}?! That power was mine!": "¿¡{piece|my}?! ¡Ese poder era mío!",
+  "You took my {piece}. It means nothing. I have more.": "Capturaste {piece|my}. No significa nada. Tengo más.",
+  "Check. Every guardian is checking you at once.": "Jaque. Todos los guardianes te dan jaque a la vez.",
+  "Check. Feel all of them.": "Jaque. Siéntelos a todos.",
+  "Check?! No. No, no, no.": "¿¡Jaque?! No. No, no, no.",
+  "You dare check the Unbound?": "¿Te atreves a dar jaque al Desatado?",
 });

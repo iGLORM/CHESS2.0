@@ -30,15 +30,14 @@ const StoryProgress = {
   // Stage numbers a save has beaten.
   isBeaten(save, stage) {
     if (!save) return false;
-    // On a New Game+ run the final stage counts once that run is won.
-    const finished = save.ngPlus ? !!save.ngCleared : !!save.completed;
-    return stage < (save.maxUnlockedLevel || 1) || (stage === STORY_STAGES.length && finished);
+    // The final stage counts once the last game (FinalBoss) is won.
+    return stage < (save.maxUnlockedLevel || 1) || (stage === STORY_STAGES.length && !!save.completed);
   },
 
   // A new save sees no world until Pawnie (stage 1) is beaten: that game cannot be
   // surrendered, and the save reopens straight on it.
   firstFightPending(save) {
-    return !!save && !!save.difficultyTier && !save.ngPlus && !save.completed && !this.isBeaten(save, 1);
+    return !!save && !!save.difficultyTier && !save.completed && !this.isBeaten(save, 1);
   },
 
   isUnlocked(save, stage) {
@@ -47,10 +46,10 @@ const StoryProgress = {
   },
 
   // What blocks the road to a stage you have reached: a wandering rival, or the
-  // Arena before the Obsidian Court (SideContent). Null once beaten, on New Game+,
-  // or for stages without a block.
+  // Arena before the Obsidian Court (SideContent). Null once beaten, or for stages
+  // without a block.
   roadBlock(save, stage) {
-    if (typeof SideContent === 'undefined' || !save || save.ngPlus) return null;
+    if (typeof SideContent === 'undefined' || !save) return null;
     if (this.isBeaten(save, stage)) return null;
     return SideContent.roadBlock(save, stage);
   },
@@ -66,13 +65,12 @@ const StoryProgress = {
   },
 
   fragments(save) {
-    if (save && save.ngPlus) return this.FRAGMENT_COUNT;   // the board is whole on a New Game+ run
     return this.FRAGMENT_STAGES.filter(s => this.isBeaten(save, s)).length;
   },
 
   // A world is restored once its last stage is beaten (Pawn Hollow never broke).
   isRestored(save, world) {
-    if (world.id === 'pawnhollow' || (save && save.ngPlus)) return true;
+    if (world.id === 'pawnhollow') return true;
     return this.isBeaten(save, world.stages[world.stages.length - 1]);
   },
 };

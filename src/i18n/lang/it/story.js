@@ -266,8 +266,8 @@ I18n.add('it', {
   "The guardians you beat come down, one after another, each with their own rule. Lose once, and the streak starts over.": "I guardiani che hai battuto scendono uno dopo l'altro, ognuno con la sua regola. Perdi una volta, e la serie ricomincia.",
   "Three in a row. The old guardians rise to their feet, and the Arena shakes.": "Tre di fila. I vecchi guardiani si alzano in piedi, e l'Arena trema.",
   "Three. As agreed. The Obsidian Court is open. Come, then, and bring your time with you. You will need all of it.": "Tre. Come concordato. La Corte d'Ossidiana è aperta. Vieni, dunque, e porta con te il tuo tempo. Ti servirà tutto.",
-  "The third checkmate lands. Grandmaster X's crystal cracks from crown to base...": "Arriva il terzo matto. Il cristallo di Grandmaster X si incrina dalla corona alla base...",
-  "...and shatters. Inside stands one small, very old pawn.": "...e va in frantumi. Dentro c'è un piccolo pedone, vecchissimo.",
+  "Checkmate. The stolen powers burst out of Grandmaster X and stream home, back to every world they came from.": "Scacco matto. I poteri rubati esplodono fuori da Grandmaster X e tornano a casa, in ogni mondo da cui erano venuti.",
+  "His crystal cracks from crown to base... and shatters. Inside stands one small, very old pawn.": "Il suo cristallo si incrina dalla corona alla base... e va in frantumi. Dentro c'è un piccolo pedone, vecchissimo.",
   "I was the first piece ever to cross the Great Board. It chose me as its Guardian. I guarded it alone, for an age.": "Sono stato il primo pezzo in assoluto ad attraversare la Grande Scacchiera. Mi scelse come suo Guardiano. L'ho custodita da solo, per un'eternità.",
   "I grew afraid that someone would cross and take my place. So I began to break it, crack by crack, world by world, so no one ever could.": "Cominciai a temere che qualcuno attraversasse e prendesse il mio posto. Così presi a spezzarla, crepa dopo crepa, mondo dopo mondo, perché nessuno potesse mai riuscirci.",
   "Then you came, and you almost reached the edge. I broke it all at once, with you on it. The moment you fell, it stopped breaking. It had chosen you.": "Poi arrivasti tu, e quasi raggiungesti il bordo. La spezzai tutta in una volta, con te sopra. Nell'istante in cui cadesti, smise di rompersi. Aveva scelto te.",
@@ -277,4 +277,17 @@ I18n.add('it', {
   "In Pawn Hollow, Pawnie looks up at a whole sky. Far away, Bish-Bosh, the Knight of the Mist and the EndGamer look up too.": "Nella Conca del Pedone, Pawnie alza gli occhi verso un cielo intero. Lontano, anche Bish-Bosh, il Cavaliere della Nebbia e l'EndGamer alzano gli occhi.",
   "It chose you. Just... do not guard it alone, like I did.": "Ha scelto te. Solo... non custodirla da solo, come ho fatto io.",
   "You remember now. You are the Guardian of the Great Board.": "Ora ricordi. Sei il Guardiano della Grande Scacchiera.",
+});
+
+// Grandmaster X's ascension (the last game's cutscene)
+I18n.add('it', {
+  "The third checkmate lands. The crystal cracks from crown to base... and holds.": "Arriva il terzo matto. Il cristallo si incrina dalla corona alla base... e regge.",
+  "No. No! I do not lose. I have never lost. The board does not get to choose you.": "No. No! Io non perdo. Non ho mai perso. La scacchiera non ha il diritto di sceglierti.",
+  "Guardians! Everything I gave you, I take back. Every rule, every trick. Now.": "Guardiani! Tutto ciò che vi ho dato, me lo riprendo. Ogni regola, ogni trucco. Adesso.",
+  "Far away, the guardians cry out. Their powers tear loose from every world and stream across the sky towards him.": "Lontano, i guardiani gridano. I loro poteri si strappano da ogni mondo e attraversano il cielo verso di lui.",
+  "Bishops from the sands. Iron from the Keep. Mist from the moors. Queens, walls, forks, and the sand of the hourglass. Mine. All of it, mine.": "Alfieri dalle sabbie. Ferro dalla fortezza. Nebbia dalle brughiere. Donne, muri, forchette e la sabbia della clessidra. Miei. Tutto mio.",
+  "The ground drops away. When it stops, you stand on the Great Board itself, cracked and floating in the dark.": "Il suolo crolla. Quando tutto si ferma, sei sulla Grande Scacchiera in persona, spezzata e sospesa nel buio.",
+  "One last game, on the board I broke. Forty moves, and every rule they ever had. Win, and it is yours.": "Un'ultima partita, sulla scacchiera che ho spezzato. Quaranta mosse e ogni regola che abbiano mai avuto. Vinci, ed è tua.",
+  "The Last Game": "L'ultima partita",
+  "Unbound": "Scatenato",
 });

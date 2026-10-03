@@ -77,7 +77,7 @@ export const WORLDS: World[] = [
   },
   {
     id: "obsidiancourt", name: "The Obsidian Court", guardian: "checkmate", guardianName: "Checkmate",
-    guardianTitle: "The Executioner", twist: "The Clock", line: "Checkmate him in 40 moves, or the sand runs out.",
+    guardianTitle: "The Executioner", twist: "The Clock", line: "Checkmate him in 25 moves, or the sand runs out.",
     accent: "#ff5b5b", moods: ["grim", "wrath"],
   },
 ];
