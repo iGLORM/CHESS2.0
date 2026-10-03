@@ -1398,6 +1398,7 @@ const WorldMapScreen = {
     this.map.addChild(shadow);
     this.map.addChild(plane);
     this.map.setChildIndex(this.token, this.map.children.length - 1);
+    PixiPlane.ride(plane, this.map);
     this.token._hopping = true;
     const lens = [0];
     for (let i = 1; i < points.length; i++) lens.push(lens[i - 1] + Math.hypot(points[i].x - points[i - 1].x, points[i].y - points[i - 1].y));
